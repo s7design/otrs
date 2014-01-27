@@ -299,4 +299,16 @@ for my $SearchProfileName (@SearchProfileNames) {
     );
 }
 
+# check deleting SearchProfileList
+my %SearchProfileList
+    = $SearchProfileObject->SearchProfileList( Base => $Base, UserLogin => $UserID );
+for my $SearchProfileName (@SearchProfileNames) {
+
+    $Self->IsNot(
+        $SearchProfileName,
+        $SearchProfileList{$SearchProfileName},
+        "SearchProfileList() from DB NOT found SearchProfile $SearchProfileName",
+    );
+}
+
 1;
