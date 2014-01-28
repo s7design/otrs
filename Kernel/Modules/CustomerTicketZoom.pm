@@ -570,6 +570,16 @@ sub Run {
             );
         }
 
+        # set priority
+        if ( $Self->{Config}->{Priority} && $GetParam{PriorityID} ) {
+            $Self->{TicketObject}->TicketPrioritySet(
+                TicketID   => $Self->{TicketID},
+                PriorityID => $GetParam{PriorityID},
+                UserID     => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
+            );
+        }
+
+
         my $ArticleID = $Self->{TicketObject}->ArticleCreate(
             TicketID    => $Self->{TicketID},
             ArticleType => $Self->{Config}->{ArticleType},
@@ -616,15 +626,7 @@ sub Run {
             );
         }
 
-        # set priority
-        if ( $Self->{Config}->{Priority} && $GetParam{PriorityID} ) {
-            $Self->{TicketObject}->TicketPrioritySet(
-                TicketID   => $Self->{TicketID},
-                PriorityID => $GetParam{PriorityID},
-                UserID     => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
-            );
-        }
-
+        
         # get pre loaded attachment
         my @AttachmentData = $Self->{UploadCacheObject}->FormIDGetAllFilesData(
             FormID => $Self->{FormID}

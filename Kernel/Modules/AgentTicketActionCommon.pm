@@ -727,6 +727,16 @@ sub Run {
                     String => $GetParam{Body},
                 );
             }
+            
+            # set priority
+            if ( $Self->{Config}->{Priority} && $GetParam{NewPriorityID} ) {
+                $Self->{TicketObject}->TicketPrioritySet(
+                TicketID   => $Self->{TicketID},
+                PriorityID => $GetParam{NewPriorityID},
+                UserID     => $Self->{UserID},
+                );
+            }
+            
 
             my $From = "\"$Self->{UserFirstname} $Self->{UserLastname}\" <$Self->{UserEmail}>";
             my @NotifyUserIDs = ( @{ $Self->{InformUserID} }, @{ $Self->{InvolvedUserID} } );
@@ -821,14 +831,7 @@ sub Run {
             );
         }
 
-        # set priority
-        if ( $Self->{Config}->{Priority} && $GetParam{NewPriorityID} ) {
-            $Self->{TicketObject}->TicketPrioritySet(
-                TicketID   => $Self->{TicketID},
-                PriorityID => $GetParam{NewPriorityID},
-                UserID     => $Self->{UserID},
-            );
-        }
+        
 
         # set state
         if ( $Self->{Config}->{State} && $GetParam{NewStateID} ) {
