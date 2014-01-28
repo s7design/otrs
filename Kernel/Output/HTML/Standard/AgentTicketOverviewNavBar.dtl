@@ -44,7 +44,7 @@
 <!--dtl:js_on_document_complete-->
 <script type="text/javascript">//<![CDATA[
     $('#TicketSearch').bind('click', function (Event) {
-        Core.Agent.Search.OpenSearchDialog( 'AgentTicketSearch', "$QData{"Profile"}" );
+        Core.Agent.Search.OpenSearchDialog('$Env{"Action"}' );
         return false;
     });
 //]]></script>
