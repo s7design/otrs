@@ -1,7 +1,9 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 # --
 # otrs.SOAPRequest.pl - sample to send a SOAP request to OTRS Generic Interface Ticket Connector
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2012 OTRS AG, http://otrs.org/
+# --
+# $Id: otrs.SOAPRequest.pl,v 1.2 2012/09/07 13:51:36 mb Exp $
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -21,8 +23,6 @@
 
 use strict;
 use warnings;
-
-## nofilter(TidyAll::Plugin::OTRS::Perl::Dumper)
 
 # use ../ as lib location
 use File::Basename;
@@ -53,14 +53,14 @@ my $Operation = 'TicketCreate';
 # operation has a determined set of mandatory and non mandatory parameters to work correctly, please
 # check OTRS Admin Manual in order to get the complete list
 my $XMLData = '
-<UserLogin>some_user</UserLogin>
-<Password>some_pass</Password>
+<UserLogin>zilibasic</UserLogin>
+<Password>zilibasic</Password>
 <Ticket>
     <Title>some title</Title>
-    <CustomerUser>some customer user login</CustomerUser>
-    <Queue>some queue</Queue>
-    <State>some state</State>
-    <Priority>some priority</Priority>
+    <CustomerUser>pera</CustomerUser>
+    <Queue>Raw</Queue>
+    <State>new</State>
+    <Priority>3 normal</Priority>
 </Ticket>
 <Article>
     <Subject>some subject</Subject>
@@ -81,8 +81,8 @@ my $SOAPObject = SOAP::Lite
     ->$Operation($SOAPData);
 
 # check for a fault in the soap code
-if ( $SOAPObject->fault() ) {
-    print $SOAPObject->faultcode(), " ", $SOAPObject->faultstring(), "\n";
+if ( $SOAPObject->fault ) {
+    print $SOAPObject->faultcode, " ", $SOAPObject->faultstring, "\n";
 }
 
 # otherwise print the results
@@ -100,7 +100,7 @@ else {
     my $Body = $Deserialized->body();
 
     # just output relevant data and no the operation name key (like TicketCreateResponse)
-    for my $ResponseKey ( sort keys %{$Body} ) {
-        print Dumper( $Body->{$ResponseKey} );    ## no critic
+    for my $ResponseKey ( keys %{$Body} ) {
+        print Dumper( $Body->{$ResponseKey} );
     }
 }
