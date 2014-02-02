@@ -579,6 +579,23 @@ sub Run {
             );
         }
 
+        # set state
+        my $NextState = $Self->{Config}->{StateDefault} || 'open';
+        if ( $GetParam{StateID} && $Self->{Config}->{State} ) {
+            my %NextStateData = $Self->{StateObject}->StateGet( ID => $GetParam{StateID} );
+            $NextState = $NextStateData{Name};
+        }
+
+        # change state if
+        # customer set another state
+        # or the ticket is not new
+        if ( $Ticket{StateType} !~ /^new/ || $GetParam{StateID} ) {
+            $Self->{TicketObject}->StateSet(
+                TicketID => $Self->{TicketID},
+                State    => $NextState,
+                UserID   => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
+            );
+        }
 
         my $ArticleID = $Self->{TicketObject}->ArticleCreate(
             TicketID    => $Self->{TicketID},
@@ -607,26 +624,6 @@ sub Run {
             return $Output;
         }
 
-        # set state
-        my $NextState = $Self->{Config}->{StateDefault} || 'open';
-        if ( $GetParam{StateID} && $Self->{Config}->{State} ) {
-            my %NextStateData = $Self->{StateObject}->StateGet( ID => $GetParam{StateID} );
-            $NextState = $NextStateData{Name};
-        }
-
-        # change state if
-        # customer set another state
-        # or the ticket is not new
-        if ( $Ticket{StateType} !~ /^new/ || $GetParam{StateID} ) {
-            $Self->{TicketObject}->StateSet(
-                TicketID  => $Self->{TicketID},
-                ArticleID => $ArticleID,
-                State     => $NextState,
-                UserID    => $Self->{ConfigObject}->Get('CustomerPanelUserID'),
-            );
-        }
-
-        
         # get pre loaded attachment
         my @AttachmentData = $Self->{UploadCacheObject}->FormIDGetAllFilesData(
             FormID => $Self->{FormID}

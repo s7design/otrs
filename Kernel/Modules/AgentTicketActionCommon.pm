@@ -79,6 +79,8 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    my $ReturnURL = '';
+
     # check needed stuff
     if ( !$Self->{TicketID} ) {
         return $Self->{LayoutObject}->ErrorScreen(
@@ -707,6 +709,45 @@ sub Run {
             );
         }
 
+        # set state
+        if ( $Self->{Config}->{State} && $GetParam{NewStateID} ) {
+            $Self->{TicketObject}->TicketStateSet(
+                TicketID => $Self->{TicketID},
+                StateID  => $GetParam{NewStateID},
+                UserID   => $Self->{UserID},
+            );
+
+            # unlock the ticket after close
+            my %StateData = $Self->{TicketObject}->{StateObject}->StateGet(
+                ID => $GetParam{NewStateID},
+            );
+
+            # set unlock on close state
+            if ( $StateData{TypeName} =~ /^close/i ) {
+                $Self->{TicketObject}->TicketLockSet(
+                    TicketID => $Self->{TicketID},
+                    Lock     => 'unlock',
+                    UserID   => $Self->{UserID},
+                );
+            }
+
+            # set pending time on pending state
+            elsif ( $StateData{TypeName} =~ /^pending/i ) {
+
+                # set pending time
+                $Self->{TicketObject}->TicketPendingTimeSet(
+                    UserID   => $Self->{UserID},
+                    TicketID => $Self->{TicketID},
+                    %GetParam,
+                );
+            }
+
+            # redirect parent window to last screen overview on closed tickets
+            if ( $StateData{TypeName} =~ /^close/i ) {
+                $ReturnURL = $Self->{LastScreenOverview} || 'Action=AgentDashboard';
+            }
+        }
+
         # add note
         my $ArticleID = '';
         if ( $Self->{Config}->{Note} && ( $GetParam{Subject} || $GetParam{Body} ) ) {
@@ -830,50 +871,12 @@ sub Run {
             );
         }
 
-        # set state
-        if ( $Self->{Config}->{State} && $GetParam{NewStateID} ) {
-            $Self->{TicketObject}->TicketStateSet(
-                TicketID => $Self->{TicketID},
-                StateID  => $GetParam{NewStateID},
-                UserID   => $Self->{UserID},
-            );
-
-            # unlock the ticket after close
-            my %StateData = $Self->{TicketObject}->{StateObject}->StateGet(
-                ID => $GetParam{NewStateID},
-            );
-
-            # set unlock on close state
-            if ( $StateData{TypeName} =~ /^close/i ) {
-                $Self->{TicketObject}->TicketLockSet(
-                    TicketID => $Self->{TicketID},
-                    Lock     => 'unlock',
-                    UserID   => $Self->{UserID},
-                );
-            }
-
-            # set pending time on pending state
-            elsif ( $StateData{TypeName} =~ /^pending/i ) {
-
-                # set pending time
-                $Self->{TicketObject}->TicketPendingTimeSet(
-                    UserID   => $Self->{UserID},
-                    TicketID => $Self->{TicketID},
-                    %GetParam,
-                );
-            }
-
-            # redirect parent window to last screen overview on closed tickets
-            if ( $StateData{TypeName} =~ /^close/i ) {
-                return $Self->{LayoutObject}->PopupClose(
-                    URL => ( $Self->{LastScreenOverview} || 'Action=AgentDashboard' ),
-                );
-            }
-        }
-
         # load new URL in parent window and close popup
+        if ( $ReturnURL == '' ) {
+            $ReturnURL = "Action=AgentTicketZoom;TicketID=$Self->{TicketID};ArticleID=$ArticleID";
+        }
         return $Self->{LayoutObject}->PopupClose(
-            URL => "Action=AgentTicketZoom;TicketID=$Self->{TicketID};ArticleID=$ArticleID",
+            URL => $ReturnURL,
         );
     }
     elsif ( $Self->{Subaction} eq 'AJAXUpdate' ) {
