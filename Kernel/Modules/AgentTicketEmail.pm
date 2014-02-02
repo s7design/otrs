@@ -1060,7 +1060,27 @@ sub Run {
             }
         }
 
+        # get and format default subject and body
+        my $Subject = $Self->{LayoutObject}->Output(
+            Template => $Self->{Config}->{Subject} || '',
+        );
+
+        my $Body = $Self->{LayoutObject}->Output(
+            Template => $Self->{Config}->{Body} || '',
+        );
+
+        # make sure body is rich text
+        if ( $Self->{LayoutObject}->{BrowserRichText} ) {
+            $Body = $Self->{LayoutObject}->Ascii2RichText(
+                String => $Body,
+            );
+        }
+
         if (%Error) {
+
+            #set Body and Subject parameters for Output
+            $GetParam{Body}    = $Body;
+            $GetParam{Subject} = $Subject;
 
             # get services
             my $Services = $Self->_GetServices(
