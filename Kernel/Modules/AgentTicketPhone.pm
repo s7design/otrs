@@ -793,27 +793,6 @@ sub Run {
             FormID => $Self->{FormID},
         );
 
-        # get and format default subject and body
-        my $Subject = $GetParam{Subject};
-        if ( !$Subject ) {
-            $Subject = $Self->{LayoutObject}->Output(
-                Template => $Self->{Config}->{Subject} || '',
-            );
-        }
-        my $Body = $GetParam{Body} || '';
-        if ( !$Body ) {
-            $Body = $Self->{LayoutObject}->Output(
-                Template => $Self->{Config}->{Body} || '',
-            );
-        }
-
-        # make sure body is rich text (if body is based on config)
-        if ( !$GetParam{ArticleID} && $Self->{LayoutObject}->{BrowserRichText} ) {
-            $Body = $Self->{LayoutObject}->Ascii2RichText(
-                String => $Body,
-            );
-        }
-
         # check pending date
         if ( !$ExpandCustomerName && $StateData{TypeName} && $StateData{TypeName} =~ /^pending/i ) {
             if ( !$Self->{TimeObject}->Date2SystemTime( %GetParam, Second => 0 ) ) {
@@ -1097,9 +1076,30 @@ sub Run {
 
         if (%Error) {
 
+            # get and format default subject and body
+            my $Subject = $Self->{LayoutObject}->Output(
+                Template => $Self->{Config}->{Subject} || '',
+            );
+
+            my $Body = $Self->{LayoutObject}->Output(
+                Template => $Self->{Config}->{Body} || '',
+            );
+
+            # make sure body is rich text
+            if ( $Self->{LayoutObject}->{BrowserRichText} ) {
+                $Body = $Self->{LayoutObject}->Ascii2RichText(
+                    String => $Body,
+                );
+            }
+
             #set Body and Subject parameters for Output
-            $GetParam{Body}    = $Body;
-            $GetParam{Subject} = $Subject;
+            if ( !$GetParam{Subject} ) {
+                $GetParam{Subject} = $Subject;
+            }
+
+            if ( !$GetParam{Body} ) {
+                $GetParam{Body} = $Body;
+            }
 
             # get services
             my $Services = $Self->_GetServices(
