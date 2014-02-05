@@ -1684,7 +1684,7 @@ Nota: Questa tabella rappresenta l\'ordine di esecuzione delle ACL. Se è necess
         # Template: AdminProcessManagementActivityDialog
         'Please note that changing this activity dialog will affect the following activities' =>
             'Attenzione, i cambiamenti a questo interazione delle attività influenzano le seguenti attività',
-        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime and CustomerID.' =>
+        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime, CustomerID and Queue.' =>
             '',
         'Activity Dialog' => 'interazione dell\'attività',
         'Activity dialog Name' => 'Nome per interazione dell\'attività',

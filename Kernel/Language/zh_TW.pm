@@ -1677,8 +1677,8 @@ sub Data {
         # Template: AdminProcessManagementActivityDialog
         'Please note that changing this activity dialog will affect the following activities' =>
             '請注意，修改這個環節操作將影響以下環節',
-        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime and CustomerID.' =>
-            '請注意，用戶並不能看到或對以下字段時行操作：Owner, Responsible, Lock, PendingTime and CustomerID.',
+        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime, CustomerID and Queue.' =>
+            '請注意，用戶並不能看到或對以下字段時行操作：Owner, Responsible, Lock, PendingTime, CustomerID and Queue.',
         'Activity Dialog' => '環節操作',
         'Activity dialog Name' => '環節操作名稱',
         'Available in' => '有效界面',

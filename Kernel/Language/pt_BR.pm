@@ -1680,7 +1680,7 @@ sub Data {
         # Template: AdminProcessManagementActivityDialog
         'Please note that changing this activity dialog will affect the following activities' =>
             'Por favor, note que alterar esta janela de atividade afetará as seguintes atividades',
-        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime and CustomerID.' =>
+        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime, CustomerID and Queue.' =>
             '',
         'Activity Dialog' => 'Janela de Atividade',
         'Activity dialog Name' => 'Nome da Janela de Atividade',

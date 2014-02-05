@@ -1678,8 +1678,8 @@ sub Data {
         # Template: AdminProcessManagementActivityDialog
         'Please note that changing this activity dialog will affect the following activities' =>
             'Zwróć uwagę, że zmiany tego okna wpłyną na następnujące działania',
-        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime and CustomerID.' =>
-            'Proszę zanotuj, że klienci nie będą widzieć następujących pól: Właściciel, Odpowiedzialny, Blokada, Oczekujące i ID Klienta.',
+        'Please note that customer users will not be able to see or use the following fields: Owner, Responsible, Lock, PendingTime, CustomerID and Queue.' =>
+            'Proszę zanotuj, że klienci nie będą widzieć następujących pól: Właściciel, Odpowiedzialny, Blokada, Oczekujące, ID Klienta i Kolejka.',
         'Activity Dialog' => 'Okna działania',
         'Activity dialog Name' => 'Nazwa okna działania',
         'Available in' => 'Dostępne w',
