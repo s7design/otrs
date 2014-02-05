@@ -899,6 +899,10 @@ sub _Mask {
             $SelectedArticleID = $ArticleID;
         }
     }
+    
+    
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
 
     # ticket priority flag
     if ( $Self->{Config}->{AttributesView}->{Priority} ) {

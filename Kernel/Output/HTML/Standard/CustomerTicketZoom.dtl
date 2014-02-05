@@ -156,16 +156,7 @@
                             <div class="Clear"></div>
                         </div>
                     </li>
-                    <li><span id="InfoTicketNumber" class="Key">$Config{"Ticket::Hook"}:</span> <span>$QData{"TicketNumber"}</span></li>
-
-<script type="text/javascript">//<![CDATA[
-    "use strict";
-    var CurrentHook = "$Config{"Ticket::Hook"}";
-    if (!(CurrentHook)){
-        CurrentHook = "Ticket#";
-    }
-    document.getElementById("InfoTicketNumber").innerHTML=CurrentHook;
-//]]></script>
+                    <li><span id="InfoTicketNumber" class="Key"> $Data{"Hook"}: <span>$QData{"TicketNumber"}</span></li>
  
 <!-- dtl:block:Type -->
                     <li><span class="Key">$Text{"Type"}:</span> <span title="$QData{"Type"}">$QData{"Type"}</span></li>
