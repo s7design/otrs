@@ -156,20 +156,17 @@
                             <div class="Clear"></div>
                         </div>
                     </li>
-                    <li><span id="demo" class="Key">$Config{"Ticket::Hook"}:</span> <span>$QData{"TicketNumber"}</span></li>
-                    
+                    <li><span id="InfoTicketNumber" class="Key">$Config{"Ticket::Hook"}:</span> <span>$QData{"TicketNumber"}</span></li>
+
 <script type="text/javascript">//<![CDATA[
     "use strict";
-    var CurrentHook;
-    if (CurrentHook){
-        CurrentHook = "Ticket#"; 
+    var CurrentHook = "$Config{"Ticket::Hook"}";
+    if (!(CurrentHook)){
+        CurrentHook = "Ticket#";
     }
-    else{
-        CurrentHook = $Config{"Ticket::Hook"};
-    }
-    document.getElementById("demo").innerHTML=CurrentHook;
-//]]></script> 
-                   
+    document.getElementById("InfoTicketNumber").innerHTML=CurrentHook;
+//]]></script>
+ 
 <!-- dtl:block:Type -->
                     <li><span class="Key">$Text{"Type"}:</span> <span title="$QData{"Type"}">$QData{"Type"}</span></li>
 <!-- dtl:block:Type -->
