@@ -124,8 +124,8 @@ sub Run {
             );
 
             next USERID if !%Data;
-            next if !$Data{ValidID};
-            
+            next USERID if !$Data{ValidID};
+
             my $Time  = $Self->{TimeObject}->SystemTime();
             my $Start = sprintf(
                 "%04d-%02d-%02d 00:00:00",
