@@ -62,19 +62,19 @@
                     <tbody>
                         <tr>
                             <td>
-                                <a class="AsBlock" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Update;Profile=$LQData{"Name"}">
+                                <a class="AsBlock" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Update;Profile=$QData{"Name"}">
                                     $QData{"Name"}
                                 </a>
                             </td>
                             <td>$TimeLong{"$QData{"ScheduleLastRun"}"}</td>
                             <td>$Text{"$Data{"ShownValid"}"}</td>
                             <td class="Center">
-                                <a class="TrashCan" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Delete;Profile=$LQData{"Name"};$QEnv{"ChallengeTokenParam"}" title="$Text{"Delete this task"}">
+                                <a class="TrashCan" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Delete;Profile=$QData{"Name"};$QEnv{"ChallengeTokenParam"}" title="$Text{"Delete this task"}">
                                     $Text{"Delete this task"}
                                 </a>
                             </td>
                             <td>
-                                <a class="AsBlock" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Run;Profile=$LQData{"Name"};$QEnv{"ChallengeTokenParam"}">
+                                <a class="AsBlock" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Run;Profile=$QData{"Name"};$QEnv{"ChallengeTokenParam"}">
                                     $Text{"Run this task"}
                                 </a>
                             </td>
@@ -864,10 +864,10 @@ Core.Agent.Admin.GenericAgent.Init({
 <!-- dtl:block:DeleteWarning -->
 
                 <div class="SpacingTop">
-                    <a class="CallForAction" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Update;Profile=$LQData{"Name"}">
+                    <a class="CallForAction" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=Update;Profile=$QData{"Name"}">
                         <span>$Text{"Edit job"}</span>
                     </a>
-                    <a class="CallForAction" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=RunNow;Profile=$LQData{"Name"};$QEnv{"ChallengeTokenParam"}">
+                    <a class="CallForAction" href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=RunNow;Profile=$QData{"Name"};$QEnv{"ChallengeTokenParam"}">
                         <span>$Text{"Run job"}</span>
                     </a>
                     $Text{"or"}
