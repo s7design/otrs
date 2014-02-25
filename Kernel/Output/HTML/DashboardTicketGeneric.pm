@@ -1190,6 +1190,7 @@ sub Run {
             TicketID      => $TicketID,
             UserID        => $Self->{UserID},
             DynamicFields => 0,
+            Silent        => 1
         );
 
         # set a default title if ticket has no title
