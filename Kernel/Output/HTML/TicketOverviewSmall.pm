@@ -325,6 +325,9 @@ sub SortOrderBar {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # If $Param{EnableColumnFilters} is not sent, we want to disable all filters
     #   for the current screen. We localize the setting for this sub and change it
     #   after that, if needed. The original value will be restored after this function.
