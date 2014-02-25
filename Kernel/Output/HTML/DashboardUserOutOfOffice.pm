@@ -120,10 +120,12 @@ sub Run {
             my %Data = $Self->{UserObject}->GetUserData(
                 UserID        => $UserID,
                 NoOutOfOffice => 1,
+                Valid         => 1,
             );
 
             next USERID if !%Data;
-
+            next if !$Data{ValidID};
+            
             my $Time  = $Self->{TimeObject}->SystemTime();
             my $Start = sprintf(
                 "%04d-%02d-%02d 00:00:00",
