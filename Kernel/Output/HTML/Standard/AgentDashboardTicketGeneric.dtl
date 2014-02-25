@@ -87,7 +87,7 @@
 <!-- dtl:block:ContentLargeTicketGenericHeaderTicketHeader -->
 <!-- dtl:block:ContentLargeTicketGenericHeaderTicketNumberColumn -->
                 <th class="DashboardHeader TicketNumber $QData{"CSS"}" data-column="TicketNumber">
-                    <a id="TicketNumberOverviewControl$QData{"Name"}" name="TicketNumberOverviewControl$QData{"Name"}" href="#" title="$Data{"Title"}" >$Config{"Ticket::Hook"}</a>
+                    <a id="TicketNumberOverviewControl$QData{"Name"}" name="TicketNumberOverviewControl$QData{"Name"}" href="#" title="$Data{"Title"}" >$Data{"Hook"}</a>
 <!-- dtl:js_on_document_complete -->
 <script type="text/javascript">//<![CDATA[
     $('#TicketNumberOverviewControl$QData{"Name"}').unbind('click').bind('click', function (Event) {

@@ -821,7 +821,7 @@ sub TicketSubjectBuild {
     }
 
     # get config options
-    my $TicketHook          = $Self->{ConfigObject}->Get('Ticket::Hook');
+    my $TicketHook          = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
     my $TicketHookDivider   = $Self->{ConfigObject}->Get('Ticket::HookDivider');
     my $TicketSubjectRe     = $Self->{ConfigObject}->Get('Ticket::SubjectRe');
     my $TicketSubjectFwd    = $Self->{ConfigObject}->Get('Ticket::SubjectFwd');
@@ -894,7 +894,7 @@ sub TicketSubjectClean {
     my $Subject = $Param{Subject} || '';
 
     # get config options
-    my $TicketHook        = $Self->{ConfigObject}->Get('Ticket::Hook');
+    my $TicketHook        = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
     my $TicketHookDivider = $Self->{ConfigObject}->Get('Ticket::HookDivider');
     my $TicketSubjectSize = $Param{Size};
     if ( !defined $TicketSubjectSize ) {

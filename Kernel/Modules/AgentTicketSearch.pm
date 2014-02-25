@@ -100,6 +100,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     my $Output;
 
     # get config data
@@ -866,8 +869,9 @@ sub Run {
                 if (@PDFData) {
 
                     # create the header
-                    $CellData->[0]->[0]->{Content} = $Self->{ConfigObject}->Get('Ticket::Hook');
-                    $CellData->[0]->[0]->{Font}    = 'ProportionalBold';
+                    $CellData->[0]->[0]->{Content}
+                        = $Self->{ConfigObject}->Get('Ticket::Hook') || "Ticket#";
+                    $CellData->[0]->[0]->{Font} = 'ProportionalBold';
                     $CellData->[0]->[1]->{Content}
                         = $Self->{LayoutObject}->{LanguageObject}->Get('Created');
                     $CellData->[0]->[1]->{Font} = 'ProportionalBold';
@@ -1043,6 +1047,11 @@ sub Run {
                 . ';View=' . $Self->{LayoutObject}->LinkEncode( $Self->{View} )
                 . ';Profile=' . $Self->{Profile} . ';TakeLastSearch=1;Subaction=Search'
                 . ';';
+
+            # set display options
+            my $HookText = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+            my $CurrentHook = $Self->{LayoutObject}->Ascii2Html( Text => $HookText );
+
             $Output .= $Self->{LayoutObject}->TicketListShow(
                 TicketIDs => \@ViewableTicketIDs,
                 Total     => scalar @ViewableTicketIDs,
@@ -1066,6 +1075,7 @@ sub Run {
                 OrderBy      => $Self->{OrderBy},
                 SortBy       => $Self->{SortBy},
                 RequestedURL => 'Action=' . $Self->{Action} . ';' . $LinkPage,
+                Hook         => $CurrentHook
             );
 
             # build footer
@@ -2004,6 +2014,10 @@ sub Run {
         Name => 'Search',
         Data => \%Param,
     );
+
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     $Output .= $Self->{LayoutObject}->Output(
         TemplateFile => 'AgentTicketSearch',
         Data         => \%Param,

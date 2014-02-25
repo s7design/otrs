@@ -681,6 +681,9 @@ sub Run {
 sub _Mask {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # prepare errors!
     if ( $Param{Errors} ) {
         for my $KeyError ( sort keys %{ $Param{Errors} } ) {

@@ -300,6 +300,9 @@ sub Run {
 sub _Show {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # check needed stuff
     if ( !$Param{TicketID} ) {
         $Self->{LogObject}->Log( Priority => 'error', Message => 'Need TicketID!' );

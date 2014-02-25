@@ -19,7 +19,7 @@
         <td class="contentbody">
             <table border="0" width="100%" cellspacing="0" cellpadding="3">
                 <tr>
-                    <td width="15%" class="contentkey">$Config{"Ticket::Hook"}</td>
+                    <td width="15%" class="contentkey">$Config{"Stats::StatsHook"}</td>
                     <td width="15%" class="contentkey">$Text{"Created"}</td>
                     <td width="25%" class="contentkey">$Text{"From"}/$Text{"Subject"}</td>
                     <td width="15%" class="contentkey">$Text{"State"}/$Text{"Queue"}</td>

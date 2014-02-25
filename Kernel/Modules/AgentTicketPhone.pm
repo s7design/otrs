@@ -92,6 +92,9 @@ sub Run {
         $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
     }
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # ACL compatibility translation
     my %ACLCompatGetParam;
     $ACLCompatGetParam{OwnerID} = $GetParam{NewUserID};
@@ -2057,6 +2060,9 @@ sub _MaskPhoneNew {
     my ( $Self, %Param ) = @_;
 
     $Param{FormID} = $Self->{FormID};
+
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
 
     # get list type
     my $TreeView = 0;

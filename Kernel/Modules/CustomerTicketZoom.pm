@@ -841,6 +841,9 @@ sub _GetPriorities {
 sub _Mask {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     $Param{FormID} = $Self->{FormID};
 
     # show back link

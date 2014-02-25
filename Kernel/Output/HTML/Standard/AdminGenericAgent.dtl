@@ -275,7 +275,7 @@ Core.Agent.Admin.GenericAgent.Init({
                 </div>
                 <div class="Content">
                     <fieldset class="TableLike">
-                        <label for="TicketNumber">$Config{"Ticket::Hook"}:</label>
+                        <label for="TicketNumber">$Data{"Hook"}:</label>
                         <div class="Field">
                             <input type="text" name="TicketNumber" id="TicketNumber" size="30" value="$QData{"TicketNumber"}"/>
                             <p class="FieldExplanation">
@@ -886,7 +886,7 @@ Core.Agent.Admin.GenericAgent.Init({
                 <table class="DataTable">
                     <thead>
                         <tr>
-                            <th>$Config{"Ticket::Hook"}</th>
+                            <th>$Data{"Hook"}</th>
                             <th>$Text{"Age"}</th>
                             <th>$Text{"From"} / $Text{"Subject"}</th>
                             <th>$Text{"State"}</th>

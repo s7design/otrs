@@ -9,7 +9,7 @@
 
 <table border="0" cellspacing="1" cellpadding="0" width="100%">
     <tr>
-        <td class="mainhead">$Config{"Ticket::Hook"}: $QData{"TicketNumber"} / $QData{"Title"}</td>
+        <td class="mainhead">$Data{"Hook"}: $QData{"TicketNumber"} / $QData{"Title"}</td>
     </tr>
 </table>
 <table border="0" cellspacing="1" cellpadding="10" width="100%">

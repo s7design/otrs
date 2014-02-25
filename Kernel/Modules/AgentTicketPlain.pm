@@ -34,6 +34,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # check needed stuff
     if ( !$Self->{ArticleID} ) {
         return $Self->{LayoutObject}->ErrorScreen(

@@ -131,7 +131,8 @@ sub Run {
         if ( !$Page{MaxPages} || $Page{MaxPages} < 1 || $Page{MaxPages} > 1000 ) {
             $Page{MaxPages} = 100;
         }
-        my $HeaderRight  = $Self->{ConfigObject}->Get('Ticket::Hook') . $Ticket{TicketNumber};
+        my $CurrentHook  = $Self->{ConfigObject}->Get('Ticket::Hook') || "Ticket#";
+        my $HeaderRight  = $CurrentHook . $Ticket{TicketNumber};
         my $HeadlineLeft = $HeaderRight;
         my $Title        = $HeaderRight;
         if ( $Ticket{Title} ) {
@@ -843,6 +844,9 @@ sub _PDFOutputArticles {
 
 sub _HTMLMask {
     my ( $Self, %Param ) = @_;
+
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
 
     # output state
     if ( $Self->{Config}->{AttributesView}->{State} ) {

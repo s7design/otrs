@@ -55,6 +55,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     my $Output;
     my $QueueID = $Self->{TicketObject}->TicketQueueID( TicketID => $Self->{TicketID} );
     my $ArticleID = $Self->{ParamObject}->GetParam( Param => 'ArticleID' );
@@ -195,7 +198,8 @@ sub Run {
         if ( !$Page{MaxPages} || $Page{MaxPages} < 1 || $Page{MaxPages} > 1000 ) {
             $Page{MaxPages} = 100;
         }
-        my $HeaderRight  = $Self->{ConfigObject}->Get('Ticket::Hook') . $Ticket{TicketNumber};
+        my $Currenthook  = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+        my $HeaderRight  = $Currenthook . $Ticket{TicketNumber};
         my $HeadlineLeft = $HeaderRight;
         my $Title        = $HeaderRight;
         if ( $Ticket{Title} ) {

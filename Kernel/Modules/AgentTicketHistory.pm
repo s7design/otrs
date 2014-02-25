@@ -131,6 +131,9 @@ sub Run {
         }
     }
 
+    # set display options
+    my $CurrentHook = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # build page
     my $Output = $Self->{LayoutObject}->Header(
         Value => $Tn,
@@ -142,6 +145,7 @@ sub Run {
             TicketNumber => $Tn,
             TicketID     => $Self->{TicketID},
             Title        => $Ticket{Title},
+            Hook         => $CurrentHook
         },
     );
     $Output .= $Self->{LayoutObject}->Footer(

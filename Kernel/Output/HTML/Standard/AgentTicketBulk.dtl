@@ -201,7 +201,7 @@ $Include{"RichTextEditor"}
                     <div class="Field">
                         <div>
                             <input type="radio" name="MergeToSelection" id="OptionMergeTo" value="OptionMergeTo" $Data{"MergeToChecked"}/>
-                            <label for="MergeTo">$Text{"Merge to"} $Config{"Ticket::Hook"}:</label>
+                            <label for="MergeTo">$Text{"Merge to"} $Data{"Hook"}:</label>
                             <input type="text" class="$QData{"MergeToInvalid"} W50pc" id="MergeTo" name="MergeTo" value="$QData{"MergeTo"}"/>
                             <div id="MergeToServerError" class="TooltipErrorMessage"><p>$Text{"Invalid ticket identifier!"}</p></div>
                         </div>

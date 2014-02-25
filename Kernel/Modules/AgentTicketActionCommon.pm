@@ -1181,10 +1181,17 @@ sub Run {
         }
 
         # print form ...
+
+        # set display options
+        my $HookText = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+        my $CurrentHook = $Self->{LayoutObject}->Ascii2Html( Text => $HookText );
+
         my $Output = $Self->{LayoutObject}->Header(
             Type      => 'Small',
             Value     => $Ticket{TicketNumber},
             BodyClass => 'Popup',
+            Hook      => $CurrentHook
+
         );
         $Output .= $Self->_Mask(
             TimeUnitsRequired => (
@@ -1205,6 +1212,9 @@ sub Run {
 
 sub _Mask {
     my ( $Self, %Param ) = @_;
+
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
 
     # get list type
     my $TreeView = 0;

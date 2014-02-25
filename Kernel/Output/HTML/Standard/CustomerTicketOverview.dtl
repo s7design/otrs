@@ -30,7 +30,7 @@
                 <tr>
                     <th class="Ticket $LQData{"TicketSort"}">
                         <a href="$Env{"Baselink"}Action=$Env{"Action"};Subaction=$Env{"Subaction"};SortBy=Ticket;OrderBy=$LQData{"OrderBy"};Filter=$LQData{"Filter"}">
-                            $Config{"Ticket::Hook"}
+                            $Data{"Hook"}
                         </a>
                     </th>
                     <th class="Title $LQData{"TitleSort"}">

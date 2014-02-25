@@ -65,6 +65,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # create local object
     my $CheckItemObject = Kernel::System::CheckItem->new( %{$Self} );
 

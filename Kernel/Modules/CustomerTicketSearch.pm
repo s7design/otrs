@@ -691,6 +691,7 @@ sub Run {
             );
         }
         elsif ( $GetParam{ResultForm} eq 'Print' ) {
+
             for my $TicketID (@ViewableTicketIDs) {
 
                 # get first article data
@@ -1174,6 +1175,9 @@ sub Run {
             $AgeSort = $Sort;
         }
 
+        # set display options
+        $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
         # start html page
         my $Output = $Self->{LayoutObject}->CustomerHeader();
         $Output .= $Self->{LayoutObject}->CustomerNavigationBar();
@@ -1315,6 +1319,9 @@ sub Run {
 
 sub MaskForm {
     my ( $Self, %Param ) = @_;
+
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
 
     # get list type
     my $TreeView = 0;

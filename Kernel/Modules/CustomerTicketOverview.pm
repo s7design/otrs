@@ -96,6 +96,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # set display options
+    $Param{Hook} = $Self->{ConfigObject}->Get('Ticket::Hook') || 'Ticket#';
+
     # check subaction
     if ( !$Self->{Subaction} ) {
         return $Self->{LayoutObject}->Redirect(
