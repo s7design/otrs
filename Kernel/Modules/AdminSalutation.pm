@@ -157,10 +157,14 @@ sub Run {
 
         my $Note = '';
         my ( %GetParam, %Errors );
-        for my $Parameter (qw(ID Name Text Comment ValidID)) {
+        for my $Parameter (qw(ID Name Comment ValidID)) {
             $GetParam{$Parameter}
                 = $Self->{ParamObject}->GetParam( Param => $Parameter, Raw => 1 ) || '';
         }
+
+        my $ParameterText = 'Text';
+        $GetParam{$ParameterText}
+            = $Self->{ParamObject}->GetParam( Param => $ParameterText, Raw => 1 ) || '';
 
         # get content type
         my $ContentType = 'text/plain';
