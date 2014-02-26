@@ -1193,6 +1193,8 @@ sub Run {
             Silent        => 1
         );
 
+        next if !%Ticket;
+        
         # set a default title if ticket has no title
         if ( !$Ticket{Title} ) {
             $Ticket{Title} = $Self->{LayoutObject}->{LanguageObject}->Get(
