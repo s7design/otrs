@@ -78,7 +78,7 @@ sub GetObjectAttributes {
     # get user list
     my %UserList = $Self->{UserObject}->UserList(
         Type  => 'Long',
-        Valid => 0,
+        Valid => 1,
     );
 
     # get state list
