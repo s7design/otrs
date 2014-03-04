@@ -139,13 +139,48 @@ sub PostValueSet {
     );
     $HistoryValue = $ValueStrg->{Value};
 
+    my $FieldName;
+    if ( !defined $Param{DynamicFieldConfig}->{Name} ) {
+        $FieldName = '',
+    }
+    else {
+        $FieldName = $Param{DynamicFieldConfig}->{Name};
+    }
+
+    my $FieldNameLength    = length($FieldName);
+    my $HistoryValueLength = length($HistoryValue);
+
+    # Name in ticket_history is like this form  "\%\%FieldName\%\%$FieldName\%\%Value\%\%$HistoryValue" up to 200 chars
+    # \%\%FieldName\%\% is 13 chars
+    # \%\%Value\%\% is 9 chars
+    # we have for info part of ticket history data ($FieldName+$HistoryValue) up to 178 chars
+    # in this code is made substring. The same number of characters is provided for both of part in Name ($FieldName and $HistoryValue) up to 83 chars
+    # First it is made $FieldName, then it is made $HistoryValue.
+    # Length $HistoryValue is rest to 168 chars, because it is added "[...]" on substrig, and there is no 178 chars than 168.
+    # Length $HistoryValue can be longer then 83 chars
+
+    if ( ( $FieldNameLength + $HistoryValueLength ) > 178 ) {
+
+        # limit FieldName to 83 chars if is necessary
+        if ( length($FieldName) > 83 ) {
+            $FieldName = substr( $FieldName, 0, 83 );
+            $FieldName .= '[...]';
+        }
+
+        my $ValueLength = 168 - length($FieldName);
+        if ( length($HistoryValue) > $ValueLength ) {
+            $HistoryValue = substr( $HistoryValue, 0, $ValueLength );
+            $HistoryValue .= '[...]';
+        }
+    }
+
     # history insert
     $Self->{TicketObject}->HistoryAdd(
         TicketID    => $Param{ObjectID},
         QueueID     => $Ticket{QueueID},
         HistoryType => 'TicketDynamicFieldUpdate',
         Name =>
-            "\%\%FieldName\%\%$Param{DynamicFieldConfig}->{Name}\%\%Value\%\%$HistoryValue",
+            "\%\%FieldName\%\%$FieldName\%\%Value\%\%$HistoryValue",
         CreateUserID => $Param{UserID},
     );
 
