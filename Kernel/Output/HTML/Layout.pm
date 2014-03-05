@@ -2541,6 +2541,10 @@ sub Attachment {
         }
     }
 
+    if ( $Self->{Browser} eq 'MSIE' ) {
+        $Param{Filename} = URI::Escape::uri_escape_utf8( $Param{Filename} );
+    }
+
     # return attachment
     my $Output = 'Content-Disposition: ';
     if ( $Param{Type} ) {
