@@ -156,10 +156,11 @@ sub Run {
         $Self->{LayoutObject}->ChallengeTokenCheck();
 
         my ( %GetParam, %Errors );
-        for my $Parameter (qw(ID Name Text Comment ValidID)) {
+        for my $Parameter (qw(ID Name Comment ValidID)) {
             $GetParam{$Parameter}
-                = $Self->{ParamObject}->GetParam( Param => $Parameter, Raw => 1 ) || '';
+                = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
+        $GetParam{'Text'} = $Self->{ParamObject}->GetParam( 'Text', Raw => 1 ) || '';
 
         # get content type
         my $ContentType = 'text/plain';

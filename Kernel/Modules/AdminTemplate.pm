@@ -194,10 +194,12 @@ sub Run {
         my @NewIDs = $Self->{ParamObject}->GetArray( Param => 'IDs' );
         my ( %GetParam, %Errors );
 
-        for my $Parameter (qw(ID Name Comment ValidID Template TemplateType)) {
+        for my $Parameter (qw(ID Name Comment ValidID TemplateType)) {
             $GetParam{$Parameter}
-                = $Self->{ParamObject}->GetParam( Param => $Parameter, Raw => 1 ) || '';
+                = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
+
+        $GetParam{'Template'} = $Self->{ParamObject}->GetParam( 'Template', Raw => 1 ) || '';
 
         # get composed content type
         $GetParam{ContentType} = 'text/plain';
