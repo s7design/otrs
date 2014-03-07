@@ -87,7 +87,8 @@ sub Run {
                 = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
 
-        $GetParam{'Template'} = $Self->{ParamObject}->GetParam( 'Template', Raw => 1 ) || '';
+        $GetParam{'Template'}
+            = $Self->{ParamObject}->GetParam( Param => 'Template', Raw => 1 ) || '';
 
         # get composed content type
         $GetParam{ContentType} = 'text/plain';
@@ -199,7 +200,8 @@ sub Run {
                 = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
 
-        $GetParam{'Template'} = $Self->{ParamObject}->GetParam( 'Template', Raw => 1 ) || '';
+        $GetParam{'Template'}
+            = $Self->{ParamObject}->GetParam( Param => 'Template', Raw => 1 ) || '';
 
         # get composed content type
         $GetParam{ContentType} = 'text/plain';

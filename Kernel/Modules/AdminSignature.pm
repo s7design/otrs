@@ -72,7 +72,7 @@ sub Run {
             $GetParam{$Parameter}
                 = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
-        $GetParam{'Text'} = $Self->{ParamObject}->GetParam( 'Text', Raw => 1 ) || '';
+        $GetParam{'Text'} = $Self->{ParamObject}->GetParam( Param => 'Text', Raw => 1 ) || '';
 
         # get content type
         my $ContentType = 'text/plain';
@@ -160,7 +160,7 @@ sub Run {
             $GetParam{$Parameter}
                 = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
-        $GetParam{'Text'} = $Self->{ParamObject}->GetParam( 'Text', Raw => 1 ) || '';
+        $GetParam{'Text'} = $Self->{ParamObject}->GetParam( Param => 'Text', Raw => 1 ) || '';
 
         # get content type
         my $ContentType = 'text/plain';
