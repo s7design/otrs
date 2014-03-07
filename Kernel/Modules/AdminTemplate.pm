@@ -84,12 +84,10 @@ sub Run {
         my ( %GetParam, %Errors );
         for my $Parameter (qw(ID Name Comment ValidID TemplateType)) {
             $GetParam{$Parameter}
-                = $Self->{ParamObject}->GetParam( Param => $Parameter, Raw => 1 ) || '';
+                = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
 
-        my $ParameterTemplate = 'Template';
-        $GetParam{$ParameterTemplate}
-            = $Self->{ParamObject}->GetParam( Param => $ParameterTemplate, Raw => 1 ) || '';
+        $GetParam{'Template'} = $Self->{ParamObject}->GetParam( 'Template', Raw => 1 ) || '';
 
         # get composed content type
         $GetParam{ContentType} = 'text/plain';

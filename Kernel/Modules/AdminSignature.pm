@@ -70,12 +70,9 @@ sub Run {
         my ( %GetParam, %Errors );
         for my $Parameter (qw(ID Name Text Comment ValidID)) {
             $GetParam{$Parameter}
-                = $Self->{ParamObject}->GetParam( Param => $Parameter, Raw => 1 ) || '';
+                = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
-
-        my $ParameterText = 'Text';
-        $GetParam{$ParameterText}
-            = $Self->{ParamObject}->GetParam( Param => $ParameterText, Raw => 1 ) || '';
+        $GetParam{'Text'} = $Self->{ParamObject}->GetParam( 'Text', Raw => 1 ) || '';
 
         # get content type
         my $ContentType = 'text/plain';
