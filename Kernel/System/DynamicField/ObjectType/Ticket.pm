@@ -154,21 +154,25 @@ sub PostValueSet {
     # \%\%FieldName\%\% is 13 chars
     # \%\%Value\%\% is 9 chars
     # we have for info part of ticket history data ($FieldName+$HistoryValue) up to 178 chars
-    # in this code is made substring. The same number of characters is provided for both of part in Name ($FieldName and $HistoryValue) up to 83 chars
+    # in this code is made substring. The same number of characters is provided for both of part in Name ($FieldName and $HistoryValue) up to 84 chars
     # First it is made $FieldName, then it is made $HistoryValue.
     # Length $HistoryValue is rest to 168 chars, because it is added "[...]" on substrig, and there is no 178 chars than 168.
+    # If $FieldName wasn't cut and not added [...] then rest for $HistoryValue is 173 instead 168
     # Length $HistoryValue can be longer then 83 chars
+
+    my $NoCharacters = 178;
 
     if ( ( $FieldNameLength + $HistoryValueLength ) > 178 ) {
 
-        # limit FieldName to 83 chars if is necessary
-        if ( length($FieldName) > 83 ) {
-            $FieldName = substr( $FieldName, 0, 83 );
+        # limit FieldName to 84 chars if is necessary
+        if ( length($FieldName) > 84 ) {
+            $FieldName = substr( $FieldName, 0, 84 );
             $FieldName .= '[...]';
         }
 
-        my $ValueLength = 168 - length($FieldName);
+        my $ValueLength = $NoCharacters - length($FieldName);
         if ( length($HistoryValue) > $ValueLength ) {
+            $ValueLength -= 5;
             $HistoryValue = substr( $HistoryValue, 0, $ValueLength );
             $HistoryValue .= '[...]';
         }
