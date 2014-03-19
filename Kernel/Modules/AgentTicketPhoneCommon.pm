@@ -198,6 +198,8 @@ sub Run {
         $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
     }
 
+    $GetParam{Title} = $Ticket{Title};
+
     # get dynamic field values form http request
     my %DynamicFieldValues;
 
