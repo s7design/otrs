@@ -94,7 +94,6 @@ sub Run {
     # get ticket data
     my %Ticket = $Self->{TicketObject}->TicketGet(
         TicketID      => $Self->{TicketID},
-        DynamicFields => 1,
     );
 
     $Self->{GetParam}->{Title} = $Ticket{Title};
