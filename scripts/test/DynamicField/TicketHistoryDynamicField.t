@@ -23,19 +23,18 @@ my $HelperObject = Kernel::System::UnitTest::Helper->new(
 );
 
 # always random number with the same number of figure
-my $RandomID = 1_000_000 + int rand( 9_999_999-1_000_000+1 ); 
+my $RandomID = 1_000_000 + int rand( 9_999_999 - 1_000_000 + 1 );
 
 my $DynamicFieldObject = Kernel::System::DynamicField->new( %{$Self} );
 my $TicketObject       = Kernel::System::Ticket->new( %{$Self} );
 my @FieldIDs;
-
 
 # create a dynamic field with short name length (21 characters)
 my $FieldID1 = $DynamicFieldObject->DynamicFieldAdd(
     Name       => "TestTextArea$RandomID",
     Label      => 'TestTextAreaShortName',
     FieldOrder => 9991,
-    FieldType  => 'TextArea',     # mandatory, selects the DF backend to use for this field
+    FieldType  => 'TextArea',              # mandatory, selects the DF backend to use for this field
     ObjectType => 'Ticket',
     Config     => {
         DefaultValue => 'TestTextAreaShortName',
@@ -56,10 +55,11 @@ $Self->True(
 
 # create a dynamic field with long name length (166 characters)
 my $FieldID2 = $DynamicFieldObject->DynamicFieldAdd(
-    Name       => "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
+    Name =>
+        "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
     Label      => 'TestTextArea_long',
     FieldOrder => 9992,
-    FieldType  => 'TextArea',     # mandatory, selects the DF backend to use for this field
+    FieldType  => 'TextArea',            # mandatory, selects the DF backend to use for this field
     ObjectType => 'Ticket',
     Config     => {
         DefaultValue => 'TestTextAreaLongName',
@@ -109,20 +109,20 @@ $Self->Is(
 # check all registered backend delegates
 my $FieldType = 'TextArea';
 $Self->True(
-        $BackendObject->{ 'DynamicField' . $FieldType . 'Object' },
-        "Backend delegate for field type $FieldType was created",
-    );
+    $BackendObject->{ 'DynamicField' . $FieldType . 'Object' },
+    "Backend delegate for field type $FieldType was created",
+);
 
-    $Self->Is(
-        ref $BackendObject->{ 'DynamicField' . $FieldType . 'Object' },
-        $DynamicFieldsConfig->{$FieldType}->{Module},
-        "Backend delegate for field type $FieldType was created successfuly",
-    );
+$Self->Is(
+    ref $BackendObject->{ 'DynamicField' . $FieldType . 'Object' },
+    $DynamicFieldsConfig->{$FieldType}->{Module},
+    "Backend delegate for field type $FieldType was created successfuly",
+);
 
 # Tests for diferent length of Dynamic Field name and Value
-# short value there is 12 characters 
-# long value there is 159 characters 
-# extra-long value there is 318 characters 
+# short value there is 12 characters
+# long value there is 159 characters
+# extra-long value there is 318 characters
 
 my @Tests = (
     {
@@ -136,11 +136,11 @@ my @Tests = (
                 DefaultValue => 'TestTextArea',
             },
         },
-        Value     => 'TestTextArea',
-        UserID    => 1,
-        Success   => 1,
-        ShouldGet => 1,
-        TestNumber       => 1,
+        Value        => 'TestTextArea',
+        UserID       => 1,
+        Success      => 1,
+        ShouldGet    => 1,
+        ExpectedData => "%%FieldName%%TestTextArea$RandomID%%Value%%TestTextArea",
     },
     {
         Name               => 'Set TextArea long Value for short field name',
@@ -154,13 +154,14 @@ my @Tests = (
             },
         },
 
-        Value     => 'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea',
-        UserID    => 1,
-        Success   => 1,
-        ShouldGet => 1,
-        TestNumber       => 2,
+        Value =>
+            'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea',
+        UserID       => 1,
+        Success      => 1,
+        ShouldGet    => 1,
+        ExpectedData => "%%FieldName%%TestTextArea$RandomID%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea",
     },
-     {
+    {
         Name               => 'Set TextArea extra long Value for short field name',
         DynamicFieldConfig => {
             ID         => $FieldID1,
@@ -172,17 +173,19 @@ my @Tests = (
             },
         },
 
-        Value     => 'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12',
-        UserID    => 1,
-        Success   => 1,
-        ShouldGet => 1,
-        TestNumber       => 3,
+        Value =>
+            'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12',
+        UserID       => 1,
+        Success      => 1,
+        ShouldGet    => 1,
+        ExpectedData => "%%FieldName%%TestTextArea$RandomID%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextA[...]",
     },
     {
         Name               => 'Set TextArea short Value for long field name',
         DynamicFieldConfig => {
-            ID         => $FieldID2,
-            Name       => "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
+            ID => $FieldID2,
+            Name =>
+                "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
             ObjectType => 'Ticket',
             FieldType  => 'TextArea',
             Config     => {
@@ -190,17 +193,18 @@ my @Tests = (
             },
         },
 
-        Value     => 'TestTextArea',
-        UserID    => 1,
-        Success   => 1,
-        ShouldGet => 1,
-        TestNumber       => 4,
+        Value        => 'TestTextArea',
+        UserID       => 1,
+        Success      => 1,
+        ShouldGet    => 1,
+        ExpectedData => "%%FieldName%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID%%Value%%TestTextArea",
     },
-     {
+    {
         Name               => 'Set TextArea long Value for long field name',
         DynamicFieldConfig => {
-            ID         => $FieldID2,
-            Name       => "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
+            ID => $FieldID2,
+            Name =>
+                "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
             ObjectType => 'Ticket',
             FieldType  => 'TextArea',
             Config     => {
@@ -208,17 +212,19 @@ my @Tests = (
             },
         },
 
-        Value     => 'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12',
-        UserID    => 1,
-        Success   => 1,
-        ShouldGet => 1,
-        TestNumber       => 5,
+        Value =>
+            'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12',
+        UserID       => 1,
+        Success      => 1,
+        ShouldGet    => 1,
+        ExpectedData => "%%FieldName%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]",
     },
     {
         Name               => 'Set TextArea extra-long Value for long field name',
         DynamicFieldConfig => {
-            ID         => $FieldID2,
-            Name       => "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
+            ID => $FieldID2,
+            Name =>
+                "TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID",
             ObjectType => 'Ticket',
             FieldType  => 'TextArea',
             Config     => {
@@ -226,32 +232,33 @@ my @Tests = (
             },
         },
 
-        Value     => 'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12',
-        UserID    => 1,
-        Success   => 1,
-        ShouldGet => 1,
-        TestNumber       => 6,
+        Value =>
+            'TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea12',
+        UserID       => 1,
+        Success      => 1,
+        ShouldGet    => 1,
+        ExpectedData => "%%FieldName%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]",
     },
-    
- );
+
+);
 
 for my $Test (@Tests) {
-    
-    print "\n$Test->{TestNumber}- $Test->{Name}  \n";    
-    print "DynamicField: $Test->{DynamicFieldConfig}->{Name} \n";    
-    print "Value: $Test->{Value} \n\n";  
-    
+
+    print "\n$Test->{TestNumber}- $Test->{Name}  \n";
+    print "DynamicField: $Test->{DynamicFieldConfig}->{Name} \n";
+    print "Value: $Test->{Value} \n\n";
+
     # create a ticket for test DynamicField Value
     my $TicketID = $TicketObject->TicketCreate(
-    Title        => 'Some Ticket Title',
-    Queue        => 'Raw',
-    Lock         => 'unlock',
-    Priority     => '3 normal',
-    State        => 'new',
-    CustomerID   => '123465',
-    CustomerUser => 'customer@example.com',
-    OwnerID      => 1,
-    UserID       => 1,
+        Title        => 'Some Ticket Title',
+        Queue        => 'Raw',
+        Lock         => 'unlock',
+        Priority     => '3 normal',
+        State        => 'new',
+        CustomerID   => '123465',
+        CustomerUser => 'customer@example.com',
+        OwnerID      => 1,
+        UserID       => 1,
     );
 
     # sanity check
@@ -259,7 +266,7 @@ for my $Test (@Tests) {
         $TicketID,
         "TicketCreate() successful for Ticket ID $TicketID",
     );
-       
+
     my $Success = $BackendObject->ValueSet(
         DynamicFieldConfig => $Test->{DynamicFieldConfig},
         ObjectID           => $TicketID,
@@ -346,62 +353,28 @@ for my $Test (@Tests) {
                 );
             }
         }
-        
-        
+
         my @HistoryGet = $TicketObject->HistoryGet(
-                UserID   => 1,
-                TicketID => $TicketID,
-            );
+            UserID   => 1,
+            TicketID => $TicketID,
+        );
 
-        my $NoHistoryField= keys @HistoryGet; 
-        my $ResultEntry = 'HistoryType';
+        my $NoHistoryField = keys @HistoryGet;
+        my $ResultEntry    = 'HistoryType';
 
-        for my $ResultCount ( 0 .. ( $NoHistoryField  - 1 ) ){
-     
-            if ($HistoryGet[$ResultCount]->{$ResultEntry} eq 'TicketDynamicFieldUpdate'){
-                my $ResultEntryDynamicField = 'Name'; 
-                
-                if ($Test->{TestNumber} == 1){  
-                    $Self->Is(
-                        $HistoryGet[$ResultCount]->{$ResultEntryDynamicField},
-                        "%%FieldName%%TestTextArea$RandomID%%Value%%TestTextArea",
-                        "History Name for ticket $TicketID"
-                        );
-   
-                }                            
-                elsif ($Test->{TestNumber} == 2){         
-                    $Self->Is(
-                        $HistoryGet[$ResultCount]->{$ResultEntryDynamicField},
-                        "%%FieldName%%TestTextArea$RandomID%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea",
-                        "History Name for ticket $TicketID ");
-                }                            
-                elsif ($Test->{TestNumber} == 3){ 
-                    $Self->Is(
-                        $HistoryGet[$ResultCount]->{$ResultEntryDynamicField},
-                        "%%FieldName%%TestTextArea$RandomID%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextA[...]",
-                        "History Name for ticket $TicketID ");
-                }                            
-                elsif ($Test->{TestNumber} == 4){ 
-                    $Self->Is(
-                        $HistoryGet[$ResultCount]->{$ResultEntryDynamicField},
-                        "%%FieldName%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTextArea7TestTextArea8TestTextArea9TestTextArea10TestTextArea11TestTextArea$RandomID%%Value%%TestTextArea",
-                        "History Name for ticket $TicketID ");
-                }                            
-                elsif ($Test->{TestNumber} == 5){ 
-                    $Self->Is(
-                        $HistoryGet[$ResultCount]->{$ResultEntryDynamicField},
-                        "%%FieldName%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]",
-                        "History Name for ticket $TicketID");
-                }                            
-                elsif ($Test->{TestNumber} == 6){ 
-                    $Self->Is(
-                       $HistoryGet[$ResultCount]->{$ResultEntryDynamicField},
-                       "%%FieldName%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]%%Value%%TestTextArea1TestTextArea2TestTextArea3TestTextArea4TestTextArea5TestTextArea6TestTe[...]",
-                       "History Name for ticket $TicketID");
-                }                             
+        for my $ResultCount ( 0 .. ( $NoHistoryField - 1 ) ) {
+
+            if ( $HistoryGet[$ResultCount]->{$ResultEntry} eq 'TicketDynamicFieldUpdate' ) {
+                my $ResultEntryDynamicField = 'Name';
+
+                $Self->Is(
+                    $HistoryGet[$ResultCount]->{$ResultEntryDynamicField},
+                    $Test->{ExpectedData},
+                    "History Name for ticket $TicketID"
+                );
             }
-        }    
-        
+        }
+
         # delete the ticket
         my $TicketDelete = $TicketObject->TicketDelete(
             TicketID => $TicketID,
@@ -413,7 +386,7 @@ for my $Test (@Tests) {
             $TicketDelete,
             "TicketDelete() successful for Ticket ID $TicketID",
         );
- 
+
     }
 }
 
@@ -449,4 +422,3 @@ for my $FieldID (@FieldIDs) {
 }
 
 1;
-
