@@ -132,33 +132,26 @@
                     <h2>[% Translate("Filter Condition") | html %] <span class="FieldExplanation">([% Translate("AND Condition") | html %])</span></h2>
                 </div>
                 <div class="Content">
-                    [% Fields = [ 1..12 ]%]
-                    [% DataMatchHeader => [ Data.MatchHeader1,Data.MatchHeader2,Data.MatchHeader3,Data.MatchHeader4,Data.MatchHeader5,Data.MatchHeader6,Data.MatchHeader7,Data.MatchHeader8,Data.MatchHeader9,Data.MatchHeader10,Data.MatchHeader11,Data.MatchHeader12 ]%]
-                    [% DataMatchNot => [Data.MatchNot1,Data.MatchNot2,Data.MatchNot3,Data.MatchNot4,Data.MatchNot5,Data.MatchNot6,Data.MatchNot7,Data.MatchNot8,Data.MatchNot9,Data.MatchNot10,Data.MatchNot11,Data.MatchNot12]%]
-                    [% DataMatchValue => [Data.MatchValue1,Data.MatchValue2,Data.MatchValue3,Data.MatchValue4,Data.MatchValue5,Data.MatchValue6,Data.MatchValue7,Data.MatchValue8,Data.MatchValue9,Data.MatchValue10,Data.MatchValue11,Data.MatchValue12]%]
-                    [% Data.MatchValueInvalid => [Data.MatchValue1Invalid,Data.MatchValue2Invalid,Data.MatchValue3Invalid,Data.MatchValue4Invalid,Data.MatchValue5Invalid,Data.MatchValue6Invalid,Data.MatchValue7Invalid,Data.MatchValue8Invalid,Data.MatchValue9Invalid,Data.MatchValue10Invalid,Data.MatchValue11Invalid,Data.MatchValue12Invalid,]%]
-                    [% j= 0 %]
-                
-                    [% FOREACH i IN Fields %]
+                [% FieldsIndex = [ 1..Config("NumberOfHederFields") ]%]
+                [% FOREACH i IN FieldsIndex %]
                     <div class="Field">
-                        <label for="MatchHeader[% i %]">[% Translate("Header") | html %] [%- "&nbsp&nbsp" IF j<9 %] [% i %]:</label>
-                        [% DataMatchHeader.$j %]
-                        <div id="MatchHeader[% i %]ServerError" class="TooltipErrorMessage">
+                        <label for="MatchHeader[% loop.count %]">[% Translate("Header") | html %] [%- "&nbsp&nbsp" IF i<10 %] [% loop.count %]:</label>
+                        [% Data.item( "MatchHeader$loop.count")  %]
+                        <div id="MatchHeader[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("This field is required.") | html %]</p>
                         </div>
 
-                        <label for="MatchNot[% i %]">[% Translate("Negate") | html %] [%- "&nbsp&nbsp" IF j<9 %][% i %]:</label>
-                        <input type="checkbox" name="MatchNot[% i %]" id="MatchNot[% i %]" value="1" [% DataMatchNot.$j | html %] />
+                        <label for="MatchNot[% loop.count %]">[% Translate("Negate") | html %] [%- "&nbsp&nbsp" IF loop.count<10 %][% loop.count %]:</label>
+                        <input type="checkbox" name="MatchNot[% loop.count %]" id="MatchNot[% loop.count %]" value="1" [% Data.item( "MatchNot$loop.count") | html %] />
 
-                        <label for="MatchValue[% i %]">[% Translate("Value") | html %] [%- "&nbsp&nbsp&nbsp" IF j<9 %][% i %]:</label>
-                        <input type="text" name="MatchValue[% i %]" id="MatchValue[% i %]" value="[% DataMatchValue.$j | html %]" class="W33pc [% Data.MatchValueInvalid.$j  | html %]" maxlength="100"/>
-                        <div id="MatchValue[% i %]ServerError" class="TooltipErrorMessage">
+                        <label for="MatchValue[% loop.count %]">[% Translate("Value") | html %] [%- "&nbsp&nbsp&nbsp" IF loop.count<10 %][% loop.count %]:</label>
+                        <input type="text" name="MatchValue[% loop.count %]" id="MatchValue[% loop.count %]" value="[% Data.item("MatchValue$loop.count") | html %]  " class="W33pc [% Data.item("'SetValue' _ loop.count  _ 'Invalid'") | html %]" maxlength="100"/>
+                        <div id="MatchValue[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("The field needs to be a valid regular expression or a literal word.") | html %]</p>
                         </div>
                     </div>
-                    <div class="Clear"></div>
-                    [% j = j+1 %]
-                    [% END %]  
+                    <div class="Clear"></div> 
+               [% END %]     
                 </div>
             </div>
 
@@ -170,28 +163,23 @@
                     <h2>[% Translate("Set Email Headers") | html %]</h2>
                 </div>
                 <div class="Content">
-                    [% Fields = [ 1..12 ]%]
-                    [% DataSetHeader => [ Data.SetHeader1,Data.SetHeader2,Data.SetHeader3,Data.SetHeader4,Data.SetHeader5,Data.SetHeader6,Data.SetHeader7,Data.SetHeader8,Data.SetHeader9,Data.SetHeader10,Data.SetHeader11,Data.SetHeader12 ]%]
-                    [% DataSetValue => [ Data.SetValue1,Data.SetValue2,Data.SetValue3,Data.SetValue4,Data.SetValue5,Data.SetValue6,Data.SetValue7,Data.SetValue8,Data.SetValue9,Data.SetValue10,Data.SetValue11,Data.SetValue12 ]%]
-                    [% DataSetValueInvalid => [ Data.SetValueInvalid1,Data.SetValueInvalid2,Data.SetValueInvalid3,Data.SetValueInvalid4,Data.SetValueInvalid5,Data.SetValueInvalid6,Data.SetValueInvalid7,Data.SetValueInvalid8,Data.SetValueInvalid9,Data.SetValueInvalid10,Data.SetValueInvalid11,Data.SetValueInvalid12 ]%]
-                    [% j= 0 %]
                 
-                    [% FOREACH i IN Fields %]   
+                [% FOREACH i IN FieldsIndex %]
                     <div class="Field">
-                        <label for="SetHeader[% i %]">[% Translate("Header") | html %] [%- "&nbsp&nbsp" IF j<9 %] [% i %]:</label>
-                        [% DataSetHeader.$j %]
-                        <div id="SetHeader1ServerError" class="TooltipErrorMessage">
+                        <label for="SetHeader[% loop.count %]">[% Translate("Header") | html %] [%- "&nbsp&nbsp" IF loop.count<10 %] [% loop.count %]:</label>
+                        [% Data.item("SetHeader$loop.count") %]
+                        <div id="SetHeader[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("This field is required.") | html %]</p>
                         </div>
-                        <label for="SetValue[% i %]">[% Translate("Value") | html %] [%- "&nbsp&nbsp&nbsp" IF j<9 %] [% i %]:</label>
-                        <input type="text" name="SetValue[% i %]" id="SetValue[% i %]" value="[% DataSetValue.$j | html %]" class="W33pc [% DataSetValueInvalid.$j | html %]" maxlength="100"/>
-                        <div id="SetValue1ServerError" class="TooltipErrorMessage">
+                        <label for="SetValue[% loop.count %]">[% Translate("Value") | html %] [%- "&nbsp&nbsp&nbsp" IF loop.count<10 %] [% loop.count %]:</label>
+                        <input type="text" name="SetValue[% loop.count %]" id="SetValue[% loop.count %]" value="[% Data.item("SetValue$loop.count") | html %] " class="W33pc [% Data.item("'SetValue' _ loop.count  _ 'Invalid'") | html %]" maxlength="100"/>
+                        <div id="SetValue[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("The field needs to be a literal word.") | html %]</p>
                         </div>
                     </div>
                     <div class="Clear"></div>
-                    [% j = j+1 %]
-                    [% END %]       
+               [% END %]      
+
                 </div>
             </div>
 
