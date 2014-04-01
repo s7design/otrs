@@ -53,7 +53,15 @@
  - 2013-12-13 Fixed bug#[10090](http://bugs.otrs.org/show_bug.cgi?id=10090) - Problems with special characters in Kernel/System/WebUserAgent.pm.
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
+#3.3.7 2014-??-??
+ - 2014-04-01 Fixed bug#[10426](http://bugs.otrs.org/show_bug.cgi?id=10426) - Scheduler RegistrationUpdate task dies with PostgreSQL DB.
+ - 2014-03-31 Fixed bug#[10362](http://bugs.otrs.org/show_bug.cgi?id=10362) - .procmailrc is reset with wrong permissions on otrs.SetPermisssion.pl execution.
+ - 2014-03-30 Fixed bug#[10350](http://bugs.otrs.org/show_bug.cgi?id=10350) - Events Ticket Calender: In case TicketCalendarStartTime=TicketCalendarEndTime, displayed ticket event time frame always 2 hours.
+ - 2014-03-28 Enhanced DiskSpacePatitions SupportDataCollector plugin to deal correctly with multiple partitions with the same name.
+ - 2014-03-27 Followup for bug#[10130](http://bugs.otrs.org/show_bug.cgi?id=10130) - Events Ticket Calendar not working.
+
 #3.3.6 2014-04-01
+ - 2014-03-28 Fixed bug#[10402](http://bugs.otrs.org/show_bug.cgi?id=10402) - Transition or Transition Action popup a login page.
  - 2014-03-27 Fixed bug#[10412](http://bugs.otrs.org/show_bug.cgi?id=10412) - customer.pl: Use of uninitialized value $Param{"Title"}.
  - 2014-03-27 Fixed bug#[10413](http://bugs.otrs.org/show_bug.cgi?id=10413) - vertical scroll not shown in search screen.
  - 2014-03-27 Updated French translation, thanks to Guillaume Houdmon..
