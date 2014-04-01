@@ -132,10 +132,9 @@
                     <h2>[% Translate("Filter Condition") | html %] <span class="FieldExplanation">([% Translate("AND Condition") | html %])</span></h2>
                 </div>
                 <div class="Content">
-                [% FieldsIndex = [ 1..Config("NumberOfHederFields") ]%]
-                [% FOREACH i IN FieldsIndex %]
+                [% FOREACH [ 1 .. Config("PostmasterHeaderFieldCount") ]  %]
                     <div class="Field">
-                        <label for="MatchHeader[% loop.count %]">[% Translate("Header") | html %] [%- "&nbsp&nbsp" IF i<10 %] [% loop.count %]:</label>
+                        <label for="MatchHeader[% loop.count %]">[% Translate("Header") | html %] [%- "&nbsp&nbsp" IF loop.count<10 %] [% loop.count %]:</label>
                         [% Data.item( "MatchHeader$loop.count")  %]
                         <div id="MatchHeader[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("This field is required.") | html %]</p>
@@ -145,7 +144,7 @@
                         <input type="checkbox" name="MatchNot[% loop.count %]" id="MatchNot[% loop.count %]" value="1" [% Data.item( "MatchNot$loop.count") | html %] />
 
                         <label for="MatchValue[% loop.count %]">[% Translate("Value") | html %] [%- "&nbsp&nbsp&nbsp" IF loop.count<10 %][% loop.count %]:</label>
-                        <input type="text" name="MatchValue[% loop.count %]" id="MatchValue[% loop.count %]" value="[% Data.item("MatchValue$loop.count") | html %]  " class="W33pc [% Data.item("'SetValue' _ loop.count  _ 'Invalid'") | html %]" maxlength="100"/>
+                        <input type="text" name="MatchValue[% loop.count %]" id="MatchValue[% loop.count %]" value="[% Data.item("MatchValue$loop.count") | html %]  " class="W33pc [% Data.item('MatchValue' _ loop.count  _ 'Invalid') | html %]" maxlength="100"/>
                         <div id="MatchValue[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("The field needs to be a valid regular expression or a literal word.") | html %]</p>
                         </div>
@@ -164,15 +163,16 @@
                 </div>
                 <div class="Content">
                 
-                [% FOREACH i IN FieldsIndex %]
+                [% FOREACH [ 1 .. Config("PostmasterHeaderFieldCount") ]  %]
                     <div class="Field">
                         <label for="SetHeader[% loop.count %]">[% Translate("Header") | html %] [%- "&nbsp&nbsp" IF loop.count<10 %] [% loop.count %]:</label>
                         [% Data.item("SetHeader$loop.count") %]
                         <div id="SetHeader[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("This field is required.") | html %]</p>
                         </div>
+                        
                         <label for="SetValue[% loop.count %]">[% Translate("Value") | html %] [%- "&nbsp&nbsp&nbsp" IF loop.count<10 %] [% loop.count %]:</label>
-                        <input type="text" name="SetValue[% loop.count %]" id="SetValue[% loop.count %]" value="[% Data.item("SetValue$loop.count") | html %] " class="W33pc [% Data.item("'SetValue' _ loop.count  _ 'Invalid'") | html %]" maxlength="100"/>
+                        <input type="text" name="SetValue[% loop.count %]" id="SetValue[% loop.count %]" value="[% Data.item("SetValue$loop.count") | html %] " class="W33pc [% Data.item('SetValue' _ loop.count _ 'Invalid') | html %]" maxlength="100"/>
                         <div id="SetValue[% loop.count %]ServerError" class="TooltipErrorMessage">
                             <p>[% Translate("The field needs to be a literal word.") | html %]</p>
                         </div>
