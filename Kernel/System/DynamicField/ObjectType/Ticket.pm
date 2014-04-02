@@ -140,14 +140,63 @@ sub PostValueSet {
     );
     $HistoryOldValue = $OldValueStrg->{Value};
 
+    my $FieldName;
+    if ( !defined $Param{DynamicFieldConfig}->{Name} ) {
+        $FieldName = '',
+    }
+    else {
+        $FieldName = $Param{DynamicFieldConfig}->{Name};
+    }
+
+    my $FieldNameLength       = length($FieldName);
+    my $HistoryValueLength    = length($HistoryValue);
+    my $HistoryOldValueLength = length($HistoryOldValue);
+
+# Name in ticket_history is like this form "\%\%FieldName\%\%$FieldName\%\%Value\%\%$HistoryValue\%\%OldValue\%\%$HistoryOldValue" up to 200 chars
+# \%\%FieldName\%\% is 13 chars
+# \%\%Value\%\% is 9 chars
+# \%\%OldValue\%\%$HistoryOldValue is 12
+# we have for info part of ticket history data ($FieldName+$HistoryValue+$OldValue) up to 166 chars
+# in this code is made substring. The same number of characters is provided for both of part in Name ($FieldName and $HistoryValue and $OldVAlue) up to 55 chars
+# if $FieldName and $HistoryValue and $OldVAlue is cut then info is up to 50 chars plus [...] (5 chars)
+# First it is made $FieldName, then it is made $HistoryValue and then $OldValue.
+# Length $HistoryValue can be longer then 55 chars, also is for $OldValue.
+
+    my $NoCharacters = 166;
+
+    if ( ( $FieldNameLength + $HistoryValueLength ) > $NoCharacters ) {
+
+        # limit FieldName to 55 chars if is necessary
+        if ( length($FieldName) > 55 ) {
+            $FieldName = substr( $FieldName, 0, 50 );
+            $FieldName .= '[...]';
+        }
+
+        my $ValueLength = int( $NoCharacters - length($FieldName) );
+        if ( length($HistoryValue) > $ValueLength ) {
+            $HistoryValue = substr( $HistoryValue, 0, 50 );
+            $HistoryValue .= '[...]';
+        }
+
+        my $OldValueLength = int( $NoCharacters - length($FieldName) - length($HistoryValue) );
+
+        if ( length($HistoryOldValue) > $OldValueLength ) {
+            $OldValueLength = $OldValueLength - 5;
+            $HistoryOldValue = substr( $HistoryOldValue, 0, $OldValueLength );
+            $HistoryOldValue .= '[...]';
+        }
+
+    }
+
     # history insert
     $Self->{TicketObject}->HistoryAdd(
         TicketID    => $Param{ObjectID},
         QueueID     => $Ticket{QueueID},
         HistoryType => 'TicketDynamicFieldUpdate',
         Name =>
-            "\%\%FieldName\%\%$Param{DynamicFieldConfig}->{Name}"
-            . "\%\%Value\%\%$HistoryValue\%\%OldValue\%\%$HistoryOldValue",
+            "\%\%FieldName\%\%$FieldName"
+            . "\%\%Value\%\%$HistoryValue"
+            . "\%\%OldValue\%\%$HistoryOldValue",
         CreateUserID => $Param{UserID},
     );
 
