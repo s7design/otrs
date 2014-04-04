@@ -159,33 +159,49 @@ sub PostValueSet {
 # we have for info part of ticket history data ($FieldName+$HistoryValue+$OldValue) up to 166 chars
 # in this code is made substring. The same number of characters is provided for both of part in Name ($FieldName and $HistoryValue and $OldVAlue) up to 55 chars
 # if $FieldName and $HistoryValue and $OldVAlue is cut then info is up to 50 chars plus [...] (5 chars)
-# First it is made $FieldName, then it is made $HistoryValue and then $OldValue.
+# First it is made $HistoryOldValue, then it is made $FieldName, and then  $HistoryValue
 # Length $HistoryValue can be longer then 55 chars, also is for $OldValue.
 
     my $NoCharacters = 166;
 
-    if ( ( $FieldNameLength + $HistoryValueLength ) > $NoCharacters ) {
+    if ( ( $FieldNameLength + $HistoryValueLength + $HistoryOldValueLength ) > $NoCharacters ) {
 
-        # limit FieldName to 55 chars if is necessary
-        if ( length($FieldName) > 55 ) {
-            $FieldName = substr( $FieldName, 0, 50 );
-            $FieldName .= '[...]';
-        }
-
-        my $ValueLength = int( $NoCharacters - length($FieldName) );
-        if ( length($HistoryValue) > $ValueLength ) {
-            $HistoryValue = substr( $HistoryValue, 0, 50 );
-            $HistoryValue .= '[...]';
-        }
-
-        my $OldValueLength = int( $NoCharacters - length($FieldName) - length($HistoryValue) );
-
-        if ( length($HistoryOldValue) > $OldValueLength ) {
-            $OldValueLength = $OldValueLength - 5;
-            $HistoryOldValue = substr( $HistoryOldValue, 0, $OldValueLength );
+        # OldValue is maybe less important
+        # At first it is made HistoryOldValue
+        # and now it is possible that for HistoryValue would FieldName be more than 55 chars
+        if ( length($HistoryOldValue) > 55 ) {
+            $HistoryOldValue = substr( $HistoryOldValue, 0, 50 );
             $HistoryOldValue .= '[...]';
         }
 
+        # limit FieldName to 55 chars if is necessary
+        my $FieldNameLength = int( ( $NoCharacters - length($HistoryOldValue) ) / 2 );
+        my $ValueLength = $FieldNameLength;
+        if ( length($FieldName) > $FieldNameLength ) {
+
+# HistoryValue will be at least 55 chars or more, if is FieldName or HistoryOldValue less than 55 chars
+            if ( length($HistoryValue) > $ValueLength ) {
+                $FieldNameLength = $FieldNameLength - 5;
+                $FieldName = substr( $FieldName, 0, $FieldNameLength );
+                $FieldName .= '[...]';
+                $ValueLength = $ValueLength - 5;
+                $HistoryValue = substr( $HistoryValue, 0, $ValueLength );
+                $HistoryValue .= '[...]';
+            }
+            else {
+                $FieldNameLength
+                    = $NoCharacters - length($HistoryOldValue) - length($HistoryValue) - 5;
+                $FieldName = substr( $FieldName, 0, $FieldNameLength );
+                $FieldName .= '[...]';
+            }
+        }
+        else {
+            $ValueLength = $NoCharacters - length($HistoryOldValue) - length($FieldName) - 5;
+            if ( length($HistoryValue) > $ValueLength ) {
+                $HistoryValue = substr( $HistoryValue, 0, $ValueLength );
+                $HistoryValue .= '[...]';
+            }
+        }
     }
 
     # history insert
