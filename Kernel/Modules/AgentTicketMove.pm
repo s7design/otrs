@@ -515,8 +515,8 @@ sub Run {
         if (
             $Self->{ConfigObject}->Get('Ticket::Frontend::AccountTime')
             && $Self->{ConfigObject}->Get('Ticket::Frontend::NeedAccountedTime')
-            && $GetParam{TimeUnits} 
-            && $Self->{Config}->{Note} eq ''
+            && $GetParam{TimeUnits} eq ''
+            && $Self->{Config}->{Note} 
             )
         {
             $Error{'TimeUnitsInvalid'} = ' ServerError';
