@@ -99,7 +99,10 @@ sub Run {
         $Self->{LayoutObject}->ChallengeTokenCheck();
 
         my %GetParam;
-        for my $Parameter (qw(ID Name Subject Body Type Charset Comment ValidID Events)) {
+        for my $Parameter (
+            qw(ID Name Subject Body Type Charset Comment ValidID Events ArticleSubjectMatch ArticleBodyMatch ArticleTypeID ArticleSenderTypeID)
+            )
+        {
             $GetParam{$Parameter} = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
         for my $Parameter (
@@ -113,6 +116,13 @@ sub Run {
             my @Data = $Self->{ParamObject}->GetArray( Param => $Parameter );
             next if !@Data;
             $GetParam{Data}->{$Parameter} = \@Data;
+        }
+
+        for my $Needed (qw(Name Subject Body ArticleSubjectMatch)) {
+            $Param{ $Needed . "ServerError" } = "";
+            if ( $Param{$Needed} eq '' ) {
+                $Param{ $Needed . "ServerError" } = "ServerError";
+            }
         }
 
         # to store dynamic fields profile data
@@ -151,12 +161,41 @@ sub Run {
         }
 
         # update
-        my $Ok = $Self->{NotificationEventObject}->NotificationUpdate(
-            %GetParam,
-            Charset => $Self->{LayoutObject}->{UserCharset},
-            Type    => 'text/plain',
-            UserID  => $Self->{UserID},
-        );
+        my $Ok;
+        my $RequiredArticleFilter;
+
+        # define ServerError Message if necessary
+        if (
+            'ArticleCreate'  ~~ $GetParam{Events}
+            || 'ArticleSend' ~~ $GetParam{Events}
+            )
+        {
+            if (
+                $GetParam{ArticleTypeID} eq ''
+                && $GetParam{ArticleSenderTypeID} eq ''
+                && $GetParam{ArticleSubjectMatch} eq ''
+                && $GetParam{ArticleBodyMatch} eq ''
+                )
+            {
+                $Self->{LogObject}->Log(
+                    Priority => 'error',
+                    Message  => "Need at least one of the article filter fields."
+                );
+                $RequiredArticleFilter = 1;
+            }
+        }
+
+        # required Article filter only on ArticleCreate and Article Send event
+        # if isn't selected at least one of the article filter fields, notification isn't updated
+        if ( !$RequiredArticleFilter ) {
+            $Ok = $Self->{NotificationEventObject}->NotificationUpdate(
+                %GetParam,
+                Charset => $Self->{LayoutObject}->{UserCharset},
+                Type    => 'text/plain',
+                UserID  => $Self->{UserID},
+            );
+        }
+
         if ($Ok) {
             $Self->_Overview();
             my $Output = $Self->{LayoutObject}->Header();
@@ -167,16 +206,36 @@ sub Run {
                 Data         => \%Param,
             );
             $Output .= $Self->{LayoutObject}->Footer();
-
             return $Output;
         }
         else {
-            for my $Needed (qw(Name Events Subject Body)) {
+            for my $Needed (qw(Name Events Subject Body ArticleTypeID)) {
                 $GetParam{ $Needed . "ServerError" } = "";
                 if ( $GetParam{$Needed} eq '' ) {
                     $GetParam{ $Needed . "ServerError" } = "ServerError";
                 }
             }
+
+            # define ServerError Class atribute if necessary
+            $GetParam{ArticleTypeIDServerError}       = "";
+            $GetParam{ArticleSenderTypeIDServerError} = "";
+            $GetParam{ArticleSubjectMatchServerError} = "";
+            $GetParam{ArticleBodyMatchServerError}    = "";
+
+            if (
+                ( $RequiredArticleFilter == 1 )
+                && $GetParam{ArticleTypeID} eq ''
+                && $GetParam{ArticleSenderTypeID} eq ''
+                && $GetParam{ArticleSubjectMatch} eq ''
+                && $GetParam{ArticleBodyMatch} eq ''
+                )
+            {
+                $GetParam{ArticleTypeIDServerError}       = "ServerError";
+                $GetParam{ArticleSenderTypeIDServerError} = "ServerError";
+                $GetParam{ArticleSubjectMatchServerError} = "ServerError";
+                $GetParam{ArticleBodyMatchServerError}    = "ServerError";
+            }
+
             my $Output = $Self->{LayoutObject}->Header();
             $Output .= $Self->{LayoutObject}->NavigationBar();
             $Output .= $Self->{LayoutObject}->Notify( Priority => 'Error' );
@@ -223,7 +282,10 @@ sub Run {
         $Self->{LayoutObject}->ChallengeTokenCheck();
 
         my %GetParam;
-        for my $Parameter (qw(Name Subject Body Comment ValidID Events)) {
+        for my $Parameter (
+            qw(Name Subject Body Comment ValidID Events ArticleSubjectMatch ArticleBodyMatch ArticleTypeID ArticleSenderTypeID)
+            )
+        {
             $GetParam{$Parameter} = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
         }
         for my $Parameter (
@@ -274,12 +336,40 @@ sub Run {
         }
 
         # add
-        my $ID = $Self->{NotificationEventObject}->NotificationAdd(
-            %GetParam,
-            Charset => $Self->{LayoutObject}->{UserCharset},
-            Type    => 'text/plain',
-            UserID  => $Self->{UserID},
-        );
+        my $ID;
+        my $RequiredArticleFilter;
+
+        # define ServerError Message if necessary
+        if (
+            'ArticleCreate'  ~~ $GetParam{Events}
+            || 'ArticleSend' ~~ $GetParam{Events}
+            )
+        {
+            if (
+                $GetParam{ArticleTypeID} eq ''
+                && $GetParam{ArticleSenderTypeID} eq ''
+                && $GetParam{ArticleSubjectMatch} eq ''
+                && $GetParam{ArticleBodyMatch} eq ''
+                )
+            {
+                $Self->{LogObject}->Log(
+                    Priority => 'error',
+                    Message  => "Need at least one of the article filter fields."
+                );
+                $RequiredArticleFilter = 1;
+            }
+        }
+
+        # required Article filter only on ArticleCreate and Article Send event
+        # if isn't selected at least one of the article filter fields, notification isn't added
+        if ( !$RequiredArticleFilter ) {
+            $ID = $Self->{NotificationEventObject}->NotificationAdd(
+                %GetParam,
+                Charset => $Self->{LayoutObject}->{UserCharset},
+                Type    => 'text/plain',
+                UserID  => $Self->{UserID},
+            );
+        }
 
         if ($ID) {
             $Self->_Overview();
@@ -295,11 +385,31 @@ sub Run {
             return $Output;
         }
         else {
-            for my $Needed (qw(Name Events Subject Body)) {
+            for my $Needed (qw(Name Events Subject Body  )) {
                 $GetParam{ $Needed . "ServerError" } = "";
                 if ( $GetParam{$Needed} eq '' ) {
                     $GetParam{ $Needed . "ServerError" } = "ServerError";
                 }
+            }
+
+            # define ServerError Class atribute if necessary
+            $GetParam{ArticleTypeIDServerError}       = "";
+            $GetParam{ArticleSenderTypeIDServerError} = "";
+            $GetParam{ArticleSubjectMatchServerError} = "";
+            $GetParam{ArticleBodyMatchServerError}    = "";
+
+            if (
+                ( $RequiredArticleFilter == 1 )
+                && $GetParam{ArticleTypeID} eq ''
+                && $GetParam{ArticleSenderTypeID} eq ''
+                && $GetParam{ArticleSubjectMatch} eq ''
+                && $GetParam{ArticleBodyMatch} eq ''
+                )
+            {
+                $GetParam{ArticleTypeIDServerError}       = "ServerError";
+                $GetParam{ArticleSenderTypeIDServerError} = "ServerError";
+                $GetParam{ArticleSubjectMatchServerError} = "ServerError";
+                $GetParam{ArticleBodyMatchServerError}    = "ServerError";
             }
             my $Output = $Self->{LayoutObject}->Header();
             $Output .= $Self->{LayoutObject}->NavigationBar();
@@ -421,6 +531,18 @@ sub _Edit {
     my $EventClass = 'Validate_Required';
     if ( $Param{EventsServerError} ) {
         $EventClass .= ' ' . $Param{EventsServerError};
+    }
+
+    # Set class name for article type...
+    my $ArticleTypeIDClass = '';
+    if ( $Param{ArticleTypeIDServerError} ) {
+        $ArticleTypeIDClass .= ' ' . $Param{ArticleTypeIDServerError};
+    }
+
+    # Set class name for article sender type...
+    my $ArticleSenderTypeIDClass = '';
+    if ( $Param{ArticleSenderTypeIDServerError} ) {
+        $ArticleSenderTypeIDClass .= ' ' . $Param{ArticleSenderTypeIDServerError};
     }
 
     my %RegisteredEvents = $Self->{EventObject}->EventList(
@@ -613,6 +735,7 @@ sub _Edit {
         Data => { $Self->{TicketObject}->ArticleTypeList( Result => 'HASH' ), },
         Name => 'ArticleTypeID',
         SelectedID  => $Param{Data}->{ArticleTypeID},
+        Class       => $ArticleTypeIDClass,
         Size        => 5,
         Multiple    => 1,
         Translation => 1,
@@ -623,6 +746,7 @@ sub _Edit {
         Data => { $Self->{TicketObject}->ArticleSenderTypeList( Result => 'HASH' ), },
         Name => 'ArticleSenderTypeID',
         SelectedID  => $Param{Data}->{ArticleSenderTypeID},
+        Class       => $ArticleSenderTypeIDClass,
         Size        => 5,
         Multiple    => 1,
         Translation => 1,
