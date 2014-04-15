@@ -162,32 +162,26 @@ sub Run {
 
         # update
         my $Ok;
-        my $RequiredArticleFilter;
+        my $ArticleFilterMissing;
 
-        # define ServerError Message if necessary
-        if (
-            'ArticleCreate'  ~~ $GetParam{Events}
-            || 'ArticleSend' ~~ $GetParam{Events}
-            )
+        # checking if article filter exist if necessary
+        if ( grep { $_ eq 'ArticleCreate' || $_ eq 'ArticleSend' }
+            @{ $GetParam{Data}->{Events} || [] } )
         {
             if (
-                $GetParam{ArticleTypeID} eq ''
-                && $GetParam{ArticleSenderTypeID} eq ''
+                !$GetParam{ArticleTypeID}
+                && !$GetParam{ArticleSenderTypeID}
                 && $GetParam{ArticleSubjectMatch} eq ''
                 && $GetParam{ArticleBodyMatch} eq ''
                 )
             {
-                $Self->{LogObject}->Log(
-                    Priority => 'error',
-                    Message  => "Need at least one of the article filter fields."
-                );
-                $RequiredArticleFilter = 1;
+                $ArticleFilterMissing = 1;
             }
         }
 
         # required Article filter only on ArticleCreate and Article Send event
         # if isn't selected at least one of the article filter fields, notification isn't updated
-        if ( !$RequiredArticleFilter ) {
+        if ( !$ArticleFilterMissing ) {
             $Ok = $Self->{NotificationEventObject}->NotificationUpdate(
                 %GetParam,
                 Charset => $Self->{LayoutObject}->{UserCharset},
@@ -223,9 +217,9 @@ sub Run {
             $GetParam{ArticleBodyMatchServerError}    = "";
 
             if (
-                ( $RequiredArticleFilter == 1 )
-                && $GetParam{ArticleTypeID} eq ''
-                && $GetParam{ArticleSenderTypeID} eq ''
+                $ArticleFilterMissing == 1
+                && !$GetParam{ArticleTypeID}
+                && !$GetParam{ArticleSenderTypeID}
                 && $GetParam{ArticleSubjectMatch} eq ''
                 && $GetParam{ArticleBodyMatch} eq ''
                 )
@@ -337,32 +331,26 @@ sub Run {
 
         # add
         my $ID;
-        my $RequiredArticleFilter;
+        my $ArticleFilterMissing;
 
         # define ServerError Message if necessary
-        if (
-            'ArticleCreate'  ~~ $GetParam{Events}
-            || 'ArticleSend' ~~ $GetParam{Events}
-            )
+        if ( grep { $_ eq 'ArticleCreate' || $_ eq 'ArticleSend' }
+            @{ $GetParam{Data}->{Events} || [] } )
         {
             if (
-                $GetParam{ArticleTypeID} eq ''
-                && $GetParam{ArticleSenderTypeID} eq ''
+                !$GetParam{ArticleTypeID}
+                && !$GetParam{ArticleSenderTypeID}
                 && $GetParam{ArticleSubjectMatch} eq ''
                 && $GetParam{ArticleBodyMatch} eq ''
                 )
             {
-                $Self->{LogObject}->Log(
-                    Priority => 'error',
-                    Message  => "Need at least one of the article filter fields."
-                );
-                $RequiredArticleFilter = 1;
+                $ArticleFilterMissing = 1;
             }
         }
 
         # required Article filter only on ArticleCreate and Article Send event
         # if isn't selected at least one of the article filter fields, notification isn't added
-        if ( !$RequiredArticleFilter ) {
+        if ( !$ArticleFilterMissing ) {
             $ID = $Self->{NotificationEventObject}->NotificationAdd(
                 %GetParam,
                 Charset => $Self->{LayoutObject}->{UserCharset},
@@ -392,16 +380,16 @@ sub Run {
                 }
             }
 
-            # define ServerError Class atribute if necessary
+            # checking if article filter exist if necessary
             $GetParam{ArticleTypeIDServerError}       = "";
             $GetParam{ArticleSenderTypeIDServerError} = "";
             $GetParam{ArticleSubjectMatchServerError} = "";
             $GetParam{ArticleBodyMatchServerError}    = "";
 
             if (
-                ( $RequiredArticleFilter == 1 )
-                && $GetParam{ArticleTypeID} eq ''
-                && $GetParam{ArticleSenderTypeID} eq ''
+                $ArticleFilterMissing == 1
+                && !$GetParam{ArticleTypeID}
+                && !$GetParam{ArticleSenderTypeID}
                 && $GetParam{ArticleSubjectMatch} eq ''
                 && $GetParam{ArticleBodyMatch} eq ''
                 )
