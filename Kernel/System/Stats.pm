@@ -2625,6 +2625,19 @@ sub _GenerateStaticStats {
             return @Result;
         }
     }
+    
+    my $UserObject = Kernel::System::User->new(
+        MainObject   => $Self->{MainObject},
+        ConfigObject => $Self->{ConfigObject},
+        EncodeObject => $Self->{EncodeObject},
+        LogObject    => $Self->{LogObject},
+        TimeObject   => $Self->{TimeObject},
+        DBObject     => $Self->{DBObject},
+    );
+
+    my %User = $UserObject->GetUserData(
+        UserID => $Self->{UserID},
+    );
 
     # run stats function
     @Result = $StatObject->Run(
@@ -2634,6 +2647,7 @@ sub _GenerateStaticStats {
         # information is needed for former static stats
         Format => $Param{Format}->[0],
         Module => $Param{ObjectModule},
+        UserLanguage => $User{UserLanguage},
     );
 
     $Result[0]->[0] = $Param{Title} . ' ' . $Result[0]->[0];
