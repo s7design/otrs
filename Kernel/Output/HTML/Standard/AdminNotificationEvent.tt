@@ -381,7 +381,7 @@
                         </div>
                         <div class="Clear"></div>
 
-                        <label for="Body" class="Mandatory">
+                        <label for="RichText" class="Mandatory">
                             <span class="Marker">*</span>
                             [% Translate("Text") | html %]:
                         </label>
@@ -391,7 +391,7 @@
 [% InsertTemplate("RichTextEditor.tt") %]
 [% RenderBlockEnd("RichText") %]
 
-                            <textarea id="RichText" class="RichText Validate_Required [% Data.RichTextInvalid | html %]" name="Body" title="Message body" rows="15" cols="[% Config("Ticket::Frontend::TextAreaNote") %]">[% Data.Body | html %]</textarea>
+                            <textarea id="RichText" class="RichText Validate_RequiredRichText [% Data.BodyServerError | html %]" name="Body" title="Message body" rows="15" cols="[% Config("Ticket::Frontend::TextAreaNote") %]">[% Data.Body | html %]</textarea>
                             <div id="BodyError" class="TooltipErrorMessage">
                                 <p>[% Translate("This field is required.") | html %]</p>
                             </div>
