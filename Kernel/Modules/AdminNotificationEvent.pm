@@ -118,13 +118,6 @@ sub Run {
             $GetParam{Data}->{$Parameter} = \@Data;
         }
 
-        for my $Needed (qw(Name Subject Body ArticleSubjectMatch)) {
-            $Param{ $Needed . "ServerError" } = "";
-            if ( $Param{$Needed} eq '' ) {
-                $Param{ $Needed . "ServerError" } = "ServerError";
-            }
-        }
-
         # to store dynamic fields profile data
         my %DynamicFieldValues;
 
@@ -165,8 +158,10 @@ sub Run {
         my $ArticleFilterMissing;
 
         # checking if article filter exist if necessary
-        if ( grep { $_ eq 'ArticleCreate' || $_ eq 'ArticleSend' }
-            @{ $GetParam{Data}->{Events} || [] } )
+        if (
+            grep { $_ eq 'ArticleCreate' || $_ eq 'ArticleSend' }
+            @{ $GetParam{Data}->{Events} || [] }
+            )
         {
             if (
                 !$GetParam{ArticleTypeID}
@@ -216,14 +211,7 @@ sub Run {
             $GetParam{ArticleSubjectMatchServerError} = "";
             $GetParam{ArticleBodyMatchServerError}    = "";
 
-            if (
-                $ArticleFilterMissing == 1
-                && !$GetParam{ArticleTypeID}
-                && !$GetParam{ArticleSenderTypeID}
-                && $GetParam{ArticleSubjectMatch} eq ''
-                && $GetParam{ArticleBodyMatch} eq ''
-                )
-            {
+            if ( $ArticleFilterMissing == 1 ) {
                 $GetParam{ArticleTypeIDServerError}       = "ServerError";
                 $GetParam{ArticleSenderTypeIDServerError} = "ServerError";
                 $GetParam{ArticleSubjectMatchServerError} = "ServerError";
@@ -334,8 +322,10 @@ sub Run {
         my $ArticleFilterMissing;
 
         # define ServerError Message if necessary
-        if ( grep { $_ eq 'ArticleCreate' || $_ eq 'ArticleSend' }
-            @{ $GetParam{Data}->{Events} || [] } )
+        if (
+            grep { $_ eq 'ArticleCreate' || $_ eq 'ArticleSend' }
+            @{ $GetParam{Data}->{Events} || [] }
+            )
         {
             if (
                 !$GetParam{ArticleTypeID}
@@ -386,13 +376,7 @@ sub Run {
             $GetParam{ArticleSubjectMatchServerError} = "";
             $GetParam{ArticleBodyMatchServerError}    = "";
 
-            if (
-                $ArticleFilterMissing == 1
-                && !$GetParam{ArticleTypeID}
-                && !$GetParam{ArticleSenderTypeID}
-                && $GetParam{ArticleSubjectMatch} eq ''
-                && $GetParam{ArticleBodyMatch} eq ''
-                )
+            if ( $ArticleFilterMissing == 1 )
             {
                 $GetParam{ArticleTypeIDServerError}       = "ServerError";
                 $GetParam{ArticleSenderTypeIDServerError} = "ServerError";
