@@ -198,7 +198,7 @@ sub Run {
             return $Output;
         }
         else {
-            for my $Needed (qw(Name Events Subject Body ArticleTypeID)) {
+            for my $Needed (qw(Name Events Subject Body)) {
                 $GetParam{ $Needed . "ServerError" } = "";
                 if ( $GetParam{$Needed} eq '' ) {
                     $GetParam{ $Needed . "ServerError" } = "ServerError";
@@ -363,7 +363,7 @@ sub Run {
             return $Output;
         }
         else {
-            for my $Needed (qw(Name Events Subject Body  )) {
+            for my $Needed (qw(Name Events Subject Body)) {
                 $GetParam{ $Needed . "ServerError" } = "";
                 if ( $GetParam{$Needed} eq '' ) {
                     $GetParam{ $Needed . "ServerError" } = "ServerError";
