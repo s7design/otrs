@@ -1138,8 +1138,14 @@ sub QueryCondition {
     # remove double spaces
     $Param{Value} =~ s/\s+/ /g;
 
+    # if $Param{CustomerValue} set to 1, search is for CustomerID
+    # and Value with + isn't replaced with &&
+    # for bug #9460
+
     # replace + by &&
-    $Param{Value} =~ s/\+/&&/g;
+    if ( $Param{CustomerValue} != 1 ) {
+        $Param{Value} =~ s/\+/&&/g;
+    }
 
     # replace AND by &&
     $Param{Value} =~ s/(\s|(?<!\\)\)|(?<!\\)\()AND(\s|(?<!\\)\(|(?<!\\)\))/$1&&$2/g;

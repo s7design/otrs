@@ -987,11 +987,20 @@ sub TicketSearch {
                 }
             }
 
+            # set parameter $CustomerValue for CustomerID search
+            # if $CustomerValue set to 1, in QueryCondition() function isn't replaced + by &&
+            # for bug #9460
+            my $CustomerValue = 0;
+            if ( $Key eq 'CustomerID' ) {
+                $CustomerValue = 1;
+            }
+
             # use search condition extension
             $SQLExt .= $Self->{DBObject}->QueryCondition(
                 Key   => $FieldSQLMap{$Key},
                 Value => $Value,
                 %ConditionFocus,
+                CustomerValue => $CustomerValue,
             );
         }
         if ($Used) {
