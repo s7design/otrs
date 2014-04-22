@@ -480,6 +480,7 @@ sub Data {
         # Template: AAAStats
         'Stat' => 'Statistik',
         'Sum' => 'Summe',
+        'Days' => 'Tage',
         'No (not supported)' => 'Nein (nicht unterstützt)',
         'Please fill out the required fields!' => 'Bitte füllen Sie alle Pflichtfelder aus!',
         'Please select a file!' => 'Bitte wählen Sie eine Datei aus!',
@@ -2808,6 +2809,7 @@ sub Data {
         'Sender Type' => 'Absender Typ',
         'Save filter settings as default' => 'Filter-Einstellungen als Standard speichern',
         'Archive' => 'Archiv',
+        'Bounce Article to a different mail address' => 'Artikel per E-Mail umleiten',
         'This ticket is archived.' => 'Dieses Ticket ist archiviert.',
         'Locked' => 'Sperre',
         'Linked Objects' => 'Verknüpfte Objekte',
@@ -4407,6 +4409,7 @@ sub Data {
         'New email ticket' => 'Neues E-Mail-Ticket',
         'New phone ticket' => 'Neues Telefon-Ticket',
         'New process ticket' => 'Neues Prozess-Ticket',
+        'News about OTRS releases!' => 'Neuigkeiten zu OTRS-Releases!',
         'Next possible ticket states after adding a phone note in the ticket phone inbound screen of the agent interface.' =>
             '',
         'Next possible ticket states after adding a phone note in the ticket phone outbound screen of the agent interface.' =>

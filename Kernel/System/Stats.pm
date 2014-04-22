@@ -2626,14 +2626,28 @@ sub _GenerateStaticStats {
         }
     }
 
+    my $UserObject = Kernel::System::User->new(
+        MainObject   => $Self->{MainObject},
+        ConfigObject => $Self->{ConfigObject},
+        EncodeObject => $Self->{EncodeObject},
+        LogObject    => $Self->{LogObject},
+        TimeObject   => $Self->{TimeObject},
+        DBObject     => $Self->{DBObject},
+    );
+
+    my %User = $UserObject->GetUserData(
+        UserID => $Self->{UserID},
+    );
+
     # run stats function
     @Result = $StatObject->Run(
         %GetParam,
 
         # these two lines are requirements of me, perhaps this
         # information is needed for former static stats
-        Format => $Param{Format}->[0],
-        Module => $Param{ObjectModule},
+        Format       => $Param{Format}->[0],
+        Module       => $Param{ObjectModule},
+        UserLanguage => $User{UserLanguage},
     );
 
     $Result[0]->[0] = $Param{Title} . ' ' . $Result[0]->[0];
@@ -3460,9 +3474,11 @@ sub _GenerateDynamicStats {
         unshift @HeaderLine, $LanguageObject->Translate($ColumnName);
     }
     elsif ( $ArraySelected[1] ) {
-        unshift( @HeaderLine,
-                  $LanguageObject->Translate( $ArraySelected[0]{Name} ) . ' - '
-                . $LanguageObject->Translate( $ArraySelected[1]{Name} ) );
+        unshift(
+            @HeaderLine,
+            $LanguageObject->Translate( $ArraySelected[0]{Name} ) . ' - '
+                . $LanguageObject->Translate( $ArraySelected[1]{Name} )
+        );
     }
     elsif ( $ArraySelected[0] ) {
         unshift( @HeaderLine, $LanguageObject->Translate( $ArraySelected[0]{Name} ) || '' );
