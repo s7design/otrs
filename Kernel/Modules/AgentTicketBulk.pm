@@ -78,6 +78,7 @@ sub Run {
     my @TicketIDs
         = grep {$_}
         $Self->{ParamObject}->GetArray( Param => 'TicketID' );
+    my $LockedTickets = '';
 
     # check needed stuff
     if ( !@TicketIDs ) {
@@ -96,7 +97,11 @@ sub Run {
     my %GetParam;
 
     # get all parameters and check for errors
-    if ( $Self->{Subaction} eq 'Do' ) {
+    if (
+        $Self->{Subaction} eq 'Do'
+        || $Self->{Subaction} eq 'Close'
+        )
+    {
 
         # challenge token check for write action
         $Self->{LayoutObject}->ChallengeTokenCheck();
@@ -225,10 +230,33 @@ sub Run {
         }
     }
 
+    if ( $Self->{Subaction} eq 'Close' ) {
+        my @LockedTickets
+            = split( ',', $Self->{ParamObject}->GetParam( Param => 'LockedTicketsID' ) );
+        for my $TicketID (@TicketIDs) {
+            my %Ticket = $Self->{TicketObject}->TicketGet(
+                TicketID      => $TicketID,
+                DynamicFields => 0,
+            );
+            if ( grep { $_ eq $Ticket{TicketID} } @LockedTickets ) {
+                $Self->{TicketObject}->TicketLockSet(
+                    TicketID => $TicketID,
+                    Lock     => 'unlock',
+                    UserID   => $Self->{UserID},
+                );
+            }
+
+        }
+        return $Self->{LayoutObject}->PopupClose(
+            Reload => 1,
+        );
+    }
+
     # process tickets
     my @TicketIDSelected;
     my $ActionFlag = 0;
     my $Counter    = 1;
+    $Param{TicketsWereLocked} = 0;
 
     TICKET_ID:
     for my $TicketID (@TicketIDs) {
@@ -253,8 +281,6 @@ sub Run {
             next TICKET_ID;
         }
 
-        $Param{TicketsWereLocked} = 0;
-
         # check if it's already locked by somebody else
         if ( !$Self->{Config}->{RequiredLock} ) {
             $Output .= $Self->{LayoutObject}->Notify(
@@ -277,6 +303,7 @@ sub Run {
             }
             else {
                 $Param{TicketsWereLocked} = 1;
+                $LockedTickets .= $Ticket{TicketID} . ',';
             }
 
             # set lock
@@ -656,6 +683,7 @@ sub Run {
             $ActionFlag = 1;
         }
         $Counter++;
+
     }
 
     # redirect
@@ -669,8 +697,9 @@ sub Run {
         %Param,
         %GetParam,
         %Time,
-        TicketIDs => \@TicketIDSelected,
-        Errors    => \%Error,
+        TicketIDs     => \@TicketIDSelected,
+        LockedTickets => $LockedTickets,
+        Errors        => \%Error,
     );
     $Output .= $Self->{LayoutObject}->Footer(
         Type => 'Small',
@@ -704,6 +733,16 @@ sub _Mask {
                 },
             );
         }
+    }
+
+    # remember locked tickets number
+    if ( $Param{LockedTickets} ) {
+        $Self->{LayoutObject}->Block(
+            Name => 'LockedTickets',
+            Data => {
+                LockedTicketsID => $Param{LockedTickets},
+            },
+        );
     }
 
     # build ArticleTypeID string

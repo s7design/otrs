@@ -8,9 +8,10 @@
 # --
 
 <!-- dtl:block:BulkAction -->
-<form action="$Env{"CGIHandle"}" method="post" enctype="multipart/form-data" name="compose" class="Validate">
+<form action="$Env{"CGIHandle"}" method="post" enctype="multipart/form-data" name="compose" id="compose" class="Validate">
     <input type="hidden" name="Action" value="$Env{"Action"}"/>
-    <input type="hidden" name="Subaction" value="Do"/>
+    <input type="hidden" name="Subaction" id="Subaction" value="Do"/>
+    <input type="hidden" name="NeedToConfirm" id="NeedToConfirm" value="1"/>
     <input type="hidden" name="NoteFormID" value="$QData{"NoteFormID"}"/>
     <input type="hidden" name="EmailFormID" value="$QData{"EmailFormID"}"/>
 
@@ -18,15 +19,29 @@
         <div class="Header">
             <h1>$Text{"Ticket Bulk Action"}</h1>
             <p>
-                <a class="CancelClosePopup" href="#">$Text{"Cancel & close window"}</a>
+                <a  id="CloseBulk"  href="#">$Text{"Cancel & close window"}</a>
             </p>
         </div>
-        <div class="Content">
 
+<!--dtl:js_on_document_complete-->
+<script type="text/javascript">//<![CDATA[
+      $('#CloseBulk').bind('click', function () {
+                    var $UpdateForm = $('form[name=compose]');
+                    $UpdateForm
+                    .find('#Subaction').val('Close')
+                    .end()
+                    .submit();
+                });
+//]]></script>
+<!--dtl:js_on_document_complete-->
+        <div class="Content">
             <div class="Content">
 <!-- dtl:block:UsedTicketID -->
                 <input type="hidden" name="TicketID" value="$QData{"TicketID"}" />
 <!-- dtl:block:UsedTicketID -->
+<!-- dtl:block:LockedTickets-->
+                <input type="hidden" name="LockedTicketsID" value="$QData{"LockedTicketsID"}" />
+<!-- dtl:block:LockedTickets-->
                 <div class="WidgetSimple SpacingTop Collapsed">
                     <div class="Header">
                         <div class="WidgetAction Toggle">
@@ -50,6 +65,7 @@
                             <div class="Field">
                                 <a href="#" id="OptionSpellCheck">[ $Text{"Spell check"} ]</a>
                             </div>
+
                             <div class="Clear"></div>
 <!-- dtl:block:SpellCheck -->
 
@@ -86,7 +102,6 @@ $Include{"RichTextEditor"}
                         </fieldset>
                     </div>
                 </div>
-
                 <div class="WidgetSimple SpacingTop Collapsed">
                     <div class="Header">
                         <div class="WidgetAction Toggle">
@@ -234,18 +249,43 @@ $Include{"RichTextEditor"}
             </div>
         </div>
         <div class="Footer">
-            <button class="Primary" id="submitRichText" accesskey="g" title="$Text{"Submit"} (g)" type="submit" value="$Text{"Submit"}">$Text{"Submit"}</button>
+            <button class="Primary" id="submitRichText" accesskey="g" title="$Text{"Submit"} (g)" type="submit" value="$Text{"Submit"}" " >$Text{"Submit"}</button>
         </div>
     </div>
 </form>
 <!-- dtl:block:ParentReload -->
 <!--dtl:js_on_document_complete-->
 <script type="text/javascript">//<![CDATA[
+$('form[name=compose]').bind('submit', function () {
+    $('#NeedToConfirm').val('0');
+});
+//]]></script>
+<script type="text/javascript">//<![CDATA[
+  window.onbeforeunload = function(Event)
+  {
+    //it is not work for IE, onsubmit event is not yet changed value of #NeedToConfirm
+    if ($('#NeedToConfirm').val() === '1'){
+        Event = Event || window.event;
+        var $UpdateForm = $('form[name=compose]');
+        $UpdateForm
+        .find('#Subaction').val('Close')
+        .end()
+        .submit();
+        // For IE and Firefox prior to version 4
+        if (Event) {
+           Event.returnValue = "You have attempted to leave this page. Click \'Stay on page\' for reset the previous state of tickets. After that this page will close itself.";
+        }
+        //in safari it is necessary to click Stay on page, in Chrome and IE11 if click Leave page parent page won't be reloaded
+       return "You have attempted to leave this page. Click \'Stay on page\' for reset the previous state of tickets. After that this page will close itself.";
+
+    }
+  };
+//]]></script>
+<script type="text/javascript">//<![CDATA[
 window.opener.Core.UI.Popup.FirePopupEvent('URL', { URL: '$Env{"Baselink"}$Data{"URL"}' });
 //]]></script>
 <!--dtl:js_on_document_complete-->
 <!-- dtl:block:ParentReload -->
-
 <!--dtl:js_on_document_complete-->
 <script type="text/javascript">//<![CDATA[
     Core.Agent.TicketAction.Init();
