@@ -227,8 +227,10 @@ sub Run {
 
     # process tickets
     my @TicketIDSelected;
-    my $ActionFlag = 0;
-    my $Counter    = 1;
+    my $LockedTickets = '';
+    my $ActionFlag    = 0;
+    my $Counter       = 1;
+    $Param{TicketsWereLocked} = 0;
 
     TICKET_ID:
     for my $TicketID (@TicketIDs) {
@@ -253,8 +255,6 @@ sub Run {
             next TICKET_ID;
         }
 
-        $Param{TicketsWereLocked} = 0;
-
         # check if it's already locked by somebody else
         if ( !$Self->{Config}->{RequiredLock} ) {
             $Output .= $Self->{LayoutObject}->Notify(
@@ -277,6 +277,7 @@ sub Run {
             }
             else {
                 $Param{TicketsWereLocked} = 1;
+                $LockedTickets .= "LockedTicketID=" . $TicketID . ';';
             }
 
             # set lock
@@ -669,8 +670,9 @@ sub Run {
         %Param,
         %GetParam,
         %Time,
-        TicketIDs => \@TicketIDSelected,
-        Errors    => \%Error,
+        TicketIDs     => \@TicketIDSelected,
+        LockedTickets => $LockedTickets,
+        Errors        => \%Error,
     );
     $Output .= $Self->{LayoutObject}->Footer(
         Type => 'Small',
@@ -1013,6 +1015,20 @@ sub _Mask {
                 URL => $Self->{LastScreenOverview},
                 }
         );
+
+        # show undo link
+        $Self->{LayoutObject}->Block(
+            Name => 'PropertiesLock',
+            Data => { %Param, TicketID => $Param{"LockedTickets"} },
+        );
+    }
+    else {
+        # show back link
+        $Self->{LayoutObject}->Block(
+            Name => 'TicketBack',
+            Data => %Param
+        );
+
     }
 
     # get output back

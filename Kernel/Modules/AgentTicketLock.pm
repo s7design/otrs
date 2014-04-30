@@ -33,133 +33,179 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    # check needed stuff
-    if ( !$Self->{TicketID} ) {
-        return $Self->{LayoutObject}->ErrorScreen(
-            Message => 'Can\'t lock Ticket, no TicketID is given!',
-            Comment => 'Please contact the admin.',
-        );
-    }
+    if ( $Self->{Subaction} eq 'UnlockMoreTickets' ) {
 
-    # check permissions
-    my $Access = $Self->{TicketObject}->TicketPermission(
-        Type     => 'lock',
-        TicketID => $Self->{TicketID},
-        UserID   => $Self->{UserID}
-    );
-
-    # error screen, don't show ticket
-    if ( !$Access ) {
-        return $Self->{LayoutObject}->NoPermission( WithHeader => 'yes' );
-    }
-
-    # get ACL restrictions
-    $Self->{TicketObject}->TicketAcl(
-        Data          => '-',
-        TicketID      => $Self->{TicketID},
-        ReturnType    => 'Action',
-        ReturnSubType => '-',
-        UserID        => $Self->{UserID},
-    );
-    my %AclAction = $Self->{TicketObject}->TicketAclActionData();
-
-    # check if ACL restrictions exist
-    if ( IsHashRefWithData( \%AclAction ) ) {
-
-        # show error screen if ACL prohibits this action
-        if ( defined $AclAction{ $Self->{Action} } && $AclAction{ $Self->{Action} } eq '0' ) {
-            return $Self->{LayoutObject}->NoPermission( WithHeader => 'yes' );
-        }
-    }
-
-    # start with actions
-    if ( $Self->{Subaction} eq 'Unlock' ) {
+        my @TicketIDs
+            = grep {$_}
+            $Self->{ParamObject}->GetArray( Param => 'LockedTicketID' );
 
         # challenge token check for write action
         $Self->{LayoutObject}->ChallengeTokenCheck();
 
-        # check if I'm the owner
-        my ( $OwnerID, $OwnerLogin ) = $Self->{TicketObject}->OwnerCheck(
-            TicketID => $Self->{TicketID},
-        );
-        if ( $OwnerID != $Self->{UserID} ) {
-            my $Output = $Self->{LayoutObject}->Header(
-                Title => 'Error',
-                Type  => 'Small',
+        # check needed stuff
+        if ( ( $#TicketIDs + 1 ) == 0 ) {
+            return $Self->{LayoutObject}->ErrorScreen(
+                Message => 'Can\'t lock Tickets, no TicketIDs are given!',
+                Comment => 'Please contact the admin.',
             );
-            $Output .= $Self->{LayoutObject}->Warning(
-                Message => "Sorry, the current owner is $OwnerLogin!",
-                Comment => 'Please become the owner first.',
-            );
-            $Output .= $Self->{LayoutObject}->Footer(
-                Type => 'Small',
-            );
-            return $Output;
         }
 
-        # set unlock
-        my $Lock = $Self->{TicketObject}->TicketLockSet(
-            TicketID => $Self->{TicketID},
-            Lock     => 'unlock',
-            UserID   => $Self->{UserID},
+        my $Message = '';
+
+        TICKET_ID:
+        for my $TicketID (@TicketIDs) {
+
+            # set unlock
+            my $Lock = $Self->{TicketObject}->TicketLockSet(
+                TicketID => $TicketID,
+                Lock     => 'unlock',
+                UserID   => $Self->{UserID},
+            );
+            if ( !$Lock ) {
+                $Message .= "$TicketID,";
+            }
+        }
+
+        if ( $Message ne '' ) {
+            return $Self->{LayoutObject}
+                ->ErrorScreen( Message => 'Ticket ($Message) is not unlocked!', );
+        }
+
+        return $Self->{LayoutObject}->Redirect(
+            OP => "Action=AgentTicketStatusView;",
         );
 
-        if ( !$Lock ) {
-            return $Self->{LayoutObject}->ErrorScreen();
-        }
     }
     else {
 
-        # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        # check needed stuff
+        if ( !$Self->{TicketID} ) {
+            return $Self->{LayoutObject}->ErrorScreen(
+                Message => 'Can\'t lock Ticket, no TicketID is given!',
+                Comment => 'Please contact the admin.',
+            );
+        }
 
-        # check if the agent is able to lock the ticket
-        if ( $Self->{TicketObject}->TicketLockGet( TicketID => $Self->{TicketID} ) ) {
+        # check permissions
+        my $Access = $Self->{TicketObject}->TicketPermission(
+            Type     => 'lock',
+            TicketID => $Self->{TicketID},
+            UserID   => $Self->{UserID}
+        );
+
+        # error screen, don't show ticket
+        if ( !$Access ) {
+            return $Self->{LayoutObject}->NoPermission( WithHeader => 'yes' );
+        }
+
+        # get ACL restrictions
+        $Self->{TicketObject}->TicketAcl(
+            Data          => '-',
+            TicketID      => $Self->{TicketID},
+            ReturnType    => 'Action',
+            ReturnSubType => '-',
+            UserID        => $Self->{UserID},
+        );
+        my %AclAction = $Self->{TicketObject}->TicketAclActionData();
+
+        # check if ACL restrictions exist
+        if ( IsHashRefWithData( \%AclAction ) ) {
+
+            # show error screen if ACL prohibits this action
+            if ( defined $AclAction{ $Self->{Action} } && $AclAction{ $Self->{Action} } eq '0' ) {
+                return $Self->{LayoutObject}->NoPermission( WithHeader => 'yes' );
+            }
+        }
+
+        # start with actions
+        if ( $Self->{Subaction} eq 'Unlock' ) {
+
+            # challenge token check for write action
+            $Self->{LayoutObject}->ChallengeTokenCheck();
+
+            # check if I'm the owner
             my ( $OwnerID, $OwnerLogin ) = $Self->{TicketObject}->OwnerCheck(
                 TicketID => $Self->{TicketID},
             );
-            my $Output = $Self->{LayoutObject}->Header(
-                Title => 'Error',
-                Type  => 'Small',
-            );
-            $Output .= $Self->{LayoutObject}->Warning(
-                Message => "Ticket (ID=$Self->{TicketID}) is locked by $OwnerLogin!",
-                Comment => "Change the owner!",
-            );
-            $Output .= $Self->{LayoutObject}->Footer(
-                Type => 'Small',
-            );
-            return $Output;
-        }
+            if ( $OwnerID != $Self->{UserID} ) {
+                my $Output = $Self->{LayoutObject}->Header(
+                    Title => 'Error',
+                    Type  => 'Small',
+                );
+                $Output .= $Self->{LayoutObject}->Warning(
+                    Message => "Sorry, the current owner is $OwnerLogin!",
+                    Comment => 'Please become the owner first.',
+                );
+                $Output .= $Self->{LayoutObject}->Footer(
+                    Type => 'Small',
+                );
+                return $Output;
+            }
 
-        # set lock
-        if (
-            !$Self->{TicketObject}->TicketLockSet(
+            # set unlock
+            my $Lock = $Self->{TicketObject}->TicketLockSet(
                 TicketID => $Self->{TicketID},
-                Lock     => 'lock',
+                Lock     => 'unlock',
                 UserID   => $Self->{UserID},
-            )
-            ||
+            );
 
-            # set user id
-            !$Self->{TicketObject}->TicketOwnerSet(
-                TicketID  => $Self->{TicketID},
-                UserID    => $Self->{UserID},
-                NewUserID => $Self->{UserID},
-            )
-            )
-        {
-            return $Self->{LayoutObject}->ErrorScreen();
+            if ( !$Lock ) {
+                return $Self->{LayoutObject}->ErrorScreen();
+            }
         }
-    }
+        else {
 
-    # redirect
-    if ( $Self->{QueueID} ) {
-        return $Self->{LayoutObject}->Redirect( OP => ";QueueID=$Self->{QueueID}" );
+            # challenge token check for write action
+            $Self->{LayoutObject}->ChallengeTokenCheck();
+
+            # check if the agent is able to lock the ticket
+            if ( $Self->{TicketObject}->TicketLockGet( TicketID => $Self->{TicketID} ) ) {
+                my ( $OwnerID, $OwnerLogin ) = $Self->{TicketObject}->OwnerCheck(
+                    TicketID => $Self->{TicketID},
+                );
+                my $Output = $Self->{LayoutObject}->Header(
+                    Title => 'Error',
+                    Type  => 'Small',
+                );
+                $Output .= $Self->{LayoutObject}->Warning(
+                    Message => "Ticket (ID=$Self->{TicketID}) is locked by $OwnerLogin!",
+                    Comment => "Change the owner!",
+                );
+                $Output .= $Self->{LayoutObject}->Footer(
+                    Type => 'Small',
+                );
+                return $Output;
+            }
+
+            # set lock
+            if (
+                !$Self->{TicketObject}->TicketLockSet(
+                    TicketID => $Self->{TicketID},
+                    Lock     => 'lock',
+                    UserID   => $Self->{UserID},
+                )
+                ||
+
+                # set user id
+                !$Self->{TicketObject}->TicketOwnerSet(
+                    TicketID  => $Self->{TicketID},
+                    UserID    => $Self->{UserID},
+                    NewUserID => $Self->{UserID},
+                )
+                )
+            {
+                return $Self->{LayoutObject}->ErrorScreen();
+            }
+        }
+
+        # redirect
+        if ( $Self->{QueueID} ) {
+            return $Self->{LayoutObject}->Redirect( OP => ";QueueID=$Self->{QueueID}" );
+        }
+        return $Self->{LayoutObject}->Redirect(
+            OP => "Action=AgentTicketZoom;TicketID=$Self->{TicketID}",
+        );
     }
-    return $Self->{LayoutObject}->Redirect(
-        OP => "Action=AgentTicketZoom;TicketID=$Self->{TicketID}",
-    );
 }
 
 1;
