@@ -2183,14 +2183,91 @@ sub Run {
             my $Title = $StatArray[0][0];
 
             shift(@StatArray);
+            my $SolutionTimeIndex;
+
+            # SolutionTime is timestamp of solution time, also close time
+            for my $Index ( 0 .. $#StatArray ) {
+                if ( $StatArray[0][$Index] eq 'SolutionTime' ) {
+                    $SolutionTimeIndex = $Index;
+                }
+            }
+
             for my $Key1 ( 0 .. $#StatArray ) {
                 for my $Key2 ( 0 .. $#{ $StatArray[0] } ) {
-                    $NewStatArray[$Key2][$Key1] = $StatArray[$Key1][$Key2];
+                    if (
+                        defined $SolutionTimeIndex
+                        && ( $SolutionTimeIndex == $Key2 )
+                        && ( $Key1 != 0 )
+                        )
+                    {
+                        # check if SolutionTime empty or close time
+                        # if not, SolutinTime is shown in format - hours minutes
+                        my @CheckSolutionTime = split /[:,\s\/]+/, $StatArray[$Key1][$Key2];
+                        if ( $#CheckSolutionTime == 0 ) {
+                            $NewStatArray[$Key2][$Key1] = $Self->{LayoutObject}->CustomerAgeInHours(
+                                Age   => $StatArray[$Key1][$Key2],
+                                Space => ' ',
+                            );
+                        }
+                        else {
+                            $NewStatArray[$Key2][$Key1] = $StatArray[$Key1][$Key2];
+                        }
+
+                    }
+                    else {
+                        $NewStatArray[$Key2][$Key1] = $StatArray[$Key1][$Key2];
+                    }
                 }
             }
             $NewStatArray[0][0] = '';
             unshift( @NewStatArray, [$Title] );
             @StatArray = @NewStatArray;
+        }
+        else {
+            my @NewStatArray;
+            my $Title = $StatArray[0][0];
+
+            shift(@StatArray);
+            my $SolutionTimeIndex;
+
+            # SolutionTime is timestamp of solution time, also close time
+            for my $Index ( 0 .. $#StatArray ) {
+                if ( $StatArray[0][$Index] eq 'SolutionTime' ) {
+                    $SolutionTimeIndex = $Index;
+                }
+            }
+
+            for my $Key1 ( 0 .. $#StatArray ) {
+                for my $Key2 ( 0 .. $#{ $StatArray[0] } ) {
+                    if (
+                        defined $SolutionTimeIndex
+                        && ( $SolutionTimeIndex == $Key2 )
+                        && ( $Key1 != 0 )
+                        )
+                    {
+                        # check if SolutionTime empty or close time
+                        # if not, SolutinTime is shown in format - hours minutes
+                        my @CheckSolutionTime = split /[:,\s\/]+/, $StatArray[$Key1][$Key2];
+                        if ( $#CheckSolutionTime == 0 ) {
+                            $NewStatArray[$Key1][$Key2] = $Self->{LayoutObject}->CustomerAgeInHours(
+                                Age   => $StatArray[$Key1][$Key2],
+                                Space => ' ',
+                            );
+                        }
+                        else {
+                            $NewStatArray[$Key1][$Key2] = $StatArray[$Key1][$Key2];
+                        }
+
+                    }
+                    else {
+                        $NewStatArray[$Key1][$Key2] = $StatArray[$Key1][$Key2];
+                    }
+                }
+            }
+            $NewStatArray[0][0] = '';
+            unshift( @NewStatArray, [$Title] );
+            @StatArray = @NewStatArray;
+
         }
 
         # presentation
@@ -2273,9 +2350,13 @@ sub Run {
                 my $CellData;
                 my $CounterRow  = 0;
                 my $CounterHead = 0;
+                my $SolutionTimeIndex;
                 for my $Content ( @{$HeadArrayRef} ) {
                     $CellData->[$CounterRow]->[$CounterHead]->{Content} = $Content;
                     $CellData->[$CounterRow]->[$CounterHead]->{Font}    = 'ProportionalBold';
+                    if ( $Content eq 'SolutionTime' ) {
+                        $SolutionTimeIndex = $CounterHead;
+                    }
                     $CounterHead++;
                 }
                 if ( $CounterHead > 0 ) {
@@ -2286,7 +2367,30 @@ sub Run {
                 for my $Row (@StatArray) {
                     my $CounterColumn = 0;
                     for my $Content ( @{$Row} ) {
-                        $CellData->[$CounterRow]->[$CounterColumn]->{Content} = $Content;
+
+                        # SolutionTime is timestamp of solution time, also close time
+                        if (
+                            defined $SolutionTimeIndex
+                            && ( $CounterColumn == $SolutionTimeIndex )
+                            )
+                        {
+                            # check if SolutionTime empty or close time
+                            # if not, SolutinTime is shown in format - hours minutes
+                            my @CheckSolutionTime = split /[:,\s\/]+/, $Content;
+                            if ( $#CheckSolutionTime == 0 ) {
+                                $CellData->[$CounterRow]->[$CounterColumn]->{Content}
+                                    = $Self->{LayoutObject}->CustomerAgeInHours(
+                                    Age   => $Content,
+                                    Space => ' ',
+                                    );
+                            }
+                            else {
+                                $CellData->[$CounterRow]->[$CounterColumn]->{Content} = $Content;
+                            }
+                        }
+                        else {
+                            $CellData->[$CounterRow]->[$CounterColumn]->{Content} = $Content;
+                        }
                         $CounterColumn++;
                     }
                     $CounterRow++;
