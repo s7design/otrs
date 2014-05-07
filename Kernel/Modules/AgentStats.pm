@@ -2178,14 +2178,14 @@ sub Run {
         }
 
         # exchange axis if selected
+        # SolutionTime is timestamp of solution time, also close time
+        # format SolutionTime - hours minutes
         if ( $Param{ExchangeAxis} ) {
             my @NewStatArray;
             my $Title = $StatArray[0][0];
-
-            shift(@StatArray);
             my $SolutionTimeIndex;
 
-            # SolutionTime is timestamp of solution time, also close time
+            shift(@StatArray);
             for my $Index ( 0 .. $#StatArray ) {
                 if ( $StatArray[0][$Index] eq 'SolutionTime' ) {
                     $SolutionTimeIndex = $Index;
@@ -2212,7 +2212,6 @@ sub Run {
                         else {
                             $NewStatArray[$Key2][$Key1] = $StatArray[$Key1][$Key2];
                         }
-
                     }
                     else {
                         $NewStatArray[$Key2][$Key1] = $StatArray[$Key1][$Key2];
@@ -2226,11 +2225,9 @@ sub Run {
         else {
             my @NewStatArray;
             my $Title = $StatArray[0][0];
-
-            shift(@StatArray);
             my $SolutionTimeIndex;
 
-            # SolutionTime is timestamp of solution time, also close time
+            shift(@StatArray);
             for my $Index ( 0 .. $#StatArray ) {
                 if ( $StatArray[0][$Index] eq 'SolutionTime' ) {
                     $SolutionTimeIndex = $Index;
@@ -2257,7 +2254,6 @@ sub Run {
                         else {
                             $NewStatArray[$Key1][$Key2] = $StatArray[$Key1][$Key2];
                         }
-
                     }
                     else {
                         $NewStatArray[$Key1][$Key2] = $StatArray[$Key1][$Key2];
@@ -2267,7 +2263,6 @@ sub Run {
             $NewStatArray[0][0] = '';
             unshift( @NewStatArray, [$Title] );
             @StatArray = @NewStatArray;
-
         }
 
         # presentation
