@@ -2350,13 +2350,10 @@ sub Run {
                 my $CellData;
                 my $CounterRow  = 0;
                 my $CounterHead = 0;
-                my $SolutionTimeIndex;
+
                 for my $Content ( @{$HeadArrayRef} ) {
                     $CellData->[$CounterRow]->[$CounterHead]->{Content} = $Content;
                     $CellData->[$CounterRow]->[$CounterHead]->{Font}    = 'ProportionalBold';
-                    if ( $Content eq 'SolutionTime' ) {
-                        $SolutionTimeIndex = $CounterHead;
-                    }
                     $CounterHead++;
                 }
                 if ( $CounterHead > 0 ) {
@@ -2367,30 +2364,7 @@ sub Run {
                 for my $Row (@StatArray) {
                     my $CounterColumn = 0;
                     for my $Content ( @{$Row} ) {
-
-                        # SolutionTime is timestamp of solution time, also close time
-                        if (
-                            defined $SolutionTimeIndex
-                            && ( $CounterColumn == $SolutionTimeIndex )
-                            )
-                        {
-                            # check if SolutionTime empty or close time
-                            # if not, SolutinTime is shown in format - hours minutes
-                            my @CheckSolutionTime = split /[:,\s\/]+/, $Content;
-                            if ( $#CheckSolutionTime == 0 ) {
-                                $CellData->[$CounterRow]->[$CounterColumn]->{Content}
-                                    = $Self->{LayoutObject}->CustomerAgeInHours(
-                                    Age   => $Content,
-                                    Space => ' ',
-                                    );
-                            }
-                            else {
-                                $CellData->[$CounterRow]->[$CounterColumn]->{Content} = $Content;
-                            }
-                        }
-                        else {
-                            $CellData->[$CounterRow]->[$CounterColumn]->{Content} = $Content;
-                        }
+                        $CellData->[$CounterRow]->[$CounterColumn]->{Content} = $Content;
                         $CounterColumn++;
                     }
                     $CounterRow++;
