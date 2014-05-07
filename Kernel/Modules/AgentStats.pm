@@ -2350,7 +2350,6 @@ sub Run {
                 my $CellData;
                 my $CounterRow  = 0;
                 my $CounterHead = 0;
-
                 for my $Content ( @{$HeadArrayRef} ) {
                     $CellData->[$CounterRow]->[$CounterHead]->{Content} = $Content;
                     $CellData->[$CounterRow]->[$CounterHead]->{Font}    = 'ProportionalBold';
