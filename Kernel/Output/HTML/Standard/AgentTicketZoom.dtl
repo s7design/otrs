@@ -175,7 +175,7 @@
                             <a href="$Config{"CustomerDBLink"}" class="$Config{"CustomerDBLinkClass"}" $Config{"CustomerDBLinkTarget"}>$QData{"CustomerID"}</a>
 <!-- dtl:block:CustomerIDRW -->
 <!-- dtl:block:CustomerIDRO -->
-                            $QData{"CustomerID"}
+                            <a href="$Config{"CustomerDBLink"}" class="$Config{"CustomerDBLinkClass"}" $Config{"CustomerDBLinkTarget"}>$QData{"CustomerID"}</a>
 <!-- dtl:block:CustomerIDRO -->
                         </p>
                         <div class="Clear"></div>
