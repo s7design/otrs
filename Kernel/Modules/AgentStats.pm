@@ -2186,7 +2186,7 @@ sub Run {
             my $SolutionTimeIndex;
 
             shift(@StatArray);
-            for my $Index ( 0 .. $#StatArray ) {
+            for my $Index ( 0 .. $#{ $StatArray[0] } ) {
                 if ( $StatArray[0][$Index] eq 'SolutionTime' ) {
                     $SolutionTimeIndex = $Index;
                 }
@@ -2228,7 +2228,7 @@ sub Run {
             my $SolutionTimeIndex;
 
             shift(@StatArray);
-            for my $Index ( 0 .. $#StatArray ) {
+            for my $Index ( 0 .. $#{ $StatArray[0] } ) {
                 if ( $StatArray[0][$Index] eq 'SolutionTime' ) {
                     $SolutionTimeIndex = $Index;
                 }
