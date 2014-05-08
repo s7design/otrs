@@ -17,19 +17,19 @@
     <div class="LayoutPopup ARIARoleMain">
         <div class="Header">
             <h1>$Text{"Ticket Bulk Action"}</h1>
-<!-- dtl:block:TicketBack -->
+<!-- dtl:block:CancelClosePopup -->
             <p>
                 <a class="CancelClosePopup" href="#">$Text{"Cancel & close window"}</a>
             </p>
-<!-- dtl:block:TicketBack -->
-<!-- dtl:block:PropertiesLock -->
+<!-- dtl:block:CancelClosePopup -->
+<!-- dtl:block:UndoClosePopup -->
             <p>
                 $Text{"The ticket has been locked"}.
-                <a class="UndoClosePopup" href="$Env{"Baselink"}Action=AgentTicketBulk;Subaction=UnlockMoreTickets;$QData{"LockedTickets"};$QEnv{"ChallengeTokenParam"}">
+                <a class="UndoClosePopup" href="$Env{"Baselink"}Action=AgentTicketBulk;Subaction=CancelAndUnlockTickets;$QData{"LockedTickets"};$QEnv{"ChallengeTokenParam"}">
                     $Text{"Undo & close window"}
                 </a>
             </p>
-<!-- dtl:block:PropertiesLock -->
+<!-- dtl:block:UndoClosePopup -->
         </div>
         <div class="Content">
 

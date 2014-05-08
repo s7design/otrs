@@ -67,7 +67,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    if ( $Self->{Subaction} eq 'UnlockMoreTickets' ) {
+    if ( $Self->{Subaction} eq 'CancelAndUnlockTickets' ) {
 
         my @TicketIDs
             = grep {$_}
@@ -77,7 +77,7 @@ sub Run {
         $Self->{LayoutObject}->ChallengeTokenCheck();
 
         # check needed stuff
-        if ( ( $#TicketIDs + 1 ) == 0 ) {
+        if ( !@TicketIDs ) {
             return $Self->{LayoutObject}->ErrorScreen(
                 Message => 'Can\'t lock Tickets, no TicketIDs are given!',
                 Comment => 'Please contact the admin.',
@@ -88,6 +88,17 @@ sub Run {
 
         TICKET_ID:
         for my $TicketID (@TicketIDs) {
+
+            my $Access = $Self->{TicketObject}->TicketPermission(
+                Type     => 'lock',
+                TicketID => $TicketID,
+                UserID   => $Self->{UserID}
+            );
+
+            # error screen, don't show ticket
+            if ( !$Access ) {
+                return $Self->{LayoutObject}->NoPermission( WithHeader => 'yes' );
+            }
 
             # set unlock
             my $Lock = $Self->{TicketObject}->TicketLockSet(
@@ -1062,14 +1073,14 @@ sub _Mask {
 
         # show undo link
         $Self->{LayoutObject}->Block(
-            Name => 'PropertiesLock',
+            Name => 'UndoClosePopup',
             Data => { %Param, TicketID => $Param{"LockedTickets"} },
         );
     }
     else {
         # show back link
         $Self->{LayoutObject}->Block(
-            Name => 'TicketBack',
+            Name => 'CancelClosePopup',
             Data => %Param
         );
 
