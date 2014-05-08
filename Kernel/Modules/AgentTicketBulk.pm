@@ -67,6 +67,50 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    if ( $Self->{Subaction} eq 'UnlockMoreTickets' ) {
+
+        my @TicketIDs
+            = grep {$_}
+            $Self->{ParamObject}->GetArray( Param => 'LockedTicketID' );
+
+        # challenge token check for write action
+        $Self->{LayoutObject}->ChallengeTokenCheck();
+
+        # check needed stuff
+        if ( ( $#TicketIDs + 1 ) == 0 ) {
+            return $Self->{LayoutObject}->ErrorScreen(
+                Message => 'Can\'t lock Tickets, no TicketIDs are given!',
+                Comment => 'Please contact the admin.',
+            );
+        }
+
+        my $Message = '';
+
+        TICKET_ID:
+        for my $TicketID (@TicketIDs) {
+
+            # set unlock
+            my $Lock = $Self->{TicketObject}->TicketLockSet(
+                TicketID => $TicketID,
+                Lock     => 'unlock',
+                UserID   => $Self->{UserID},
+            );
+            if ( !$Lock ) {
+                $Message .= "$TicketID,";
+            }
+        }
+
+        if ( $Message ne '' ) {
+            return $Self->{LayoutObject}
+                ->ErrorScreen( Message => "Ticket ($Message) is not unlocked!", );
+        }
+
+        return $Self->{LayoutObject}->Redirect(
+            OP => $Self->{LastScreenOverview},
+        );
+
+    }
+
     # check if bulk feature is enabled
     if ( !$Self->{ConfigObject}->Get('Ticket::Frontend::BulkFeature') ) {
         return $Self->{LayoutObject}->ErrorScreen(
