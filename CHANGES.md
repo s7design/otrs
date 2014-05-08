@@ -1,4 +1,5 @@
 #3.4.0.beta1 20??-??-??
+ - 2014-05-06 Customer online list now links to the CIC.
  - 2014-04-16 Speedup TicketACLs by gather only the needed data from the DB based in the ACLs requirements, thanks to Moritz Lenz @ noris networks.
  - 2014-04-15 Added foreign db param to the customer user map.
  - 2014-04-04 Fixed bug#[10371](http://bugs.otrs.org/show_bug.cgi?id=10371) - Missing Note and NoteMandatory options for AgentTicketMove.
@@ -59,6 +60,13 @@
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
 #3.3.7 2014-??-??
+ - 2014-05-07 Updated Japanese translation, thanks to Toshihiro Takehara.
+ - 2014-05-07 Updated Swedish translation, thanks to Peter Krantz.
+ - 2014-05-02 Fixed bug#[9350](http://bugs.otrs.org/show_bug.cgi?id=9350) - Initial notes by ticket split not visible it the ticket zoom.
+ - 2014-05-02 Fixed bug#[10501](http://bugs.otrs.org/show_bug.cgi?id=10501) - Support-Data Swap plugin reports KB instead of MB.
+ - 2014-05-02 Fixed bug#[10458](http://bugs.otrs.org/show_bug.cgi?id=10458) - Can't use system registration with some OTRS-IDs.
+ - 2014-04-29 Fixed bug#[10470](http://bugs.otrs.org/show_bug.cgi?id=10470) - Need FormID! error when embedding image when creating a Process Ticket.
+ - 2014-04-28 Fixed bug#[9876](http://bugs.otrs.org/show_bug.cgi?id=9876) - CaseSensitive option wrong in CustomerCompany.
  - 2014-04-17 Removed OTRS Scheduler Service startup files in favor of Watchdog mode via cron jobs.
  - 2014-04-17 Fixed bug#[10468](http://bugs.otrs.org/show_bug.cgi?id=10468) - Wrong regexp in Kernel/System/HTMLUtils.pm line 171.
  - 2014-04-17 Fixed bug#[10441](http://bugs.otrs.org/show_bug.cgi?id=10441) - Eventbased notification - infinite loop.
