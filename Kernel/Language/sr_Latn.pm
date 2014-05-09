@@ -3924,7 +3924,7 @@ sub Data {
         'Defines the time zone of the indicated calendar, which can be assigned later to a specific queue.' =>
             '',
           'Defines the title font in graphs (place custom fonts in var/fonts).' =>
-            'Definiše font  zanaslov u graficima(snimite  ',
+            'Definiše font za naslov u graficima (snimite željeni font u var/fons).' =
         'Defines the type of protocol, used by the web server, to serve the application. If https protocol will be used instead of plain http, it must be specified here. Since this has no affect on the web server\'s settings or behavior, it will not change the method of access to the application and, if it is wrong, it will not prevent you from logging into the application. This setting is only used as a variable, OTRS_CONFIG_HttpType which is found in all forms of messaging used by the application, to build links to the tickets within your system.' =>
             '',
         'Defines the used character for plaintext email quotes in the ticket compose screen of the agent interface. If this is empty or inactive, original emails will not be quoted but appended to the response.' =>
