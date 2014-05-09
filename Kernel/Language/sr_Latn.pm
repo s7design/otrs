@@ -280,7 +280,7 @@ sub Data {
         'Check to activate this date' => 'Proverite aktivacijue ovog datuma',
         'You have Out of Office enabled, would you like to disable it?' =>
             'Aktivirana je opcija "Van kancelarije", želite li da je isključite?',
-        'News about OTRS releases!' => 'Vesti o OTRS izdanjima!',    
+        'News about OTRS releases!' => 'Vesti o OTRS izdanjima!',
         'Customer %s added' => 'Dodat korisnik %s.',
         'Role added!' => 'Dodata uloga!',
         'Role updated!' => 'Ažurirana uloga',
@@ -371,7 +371,7 @@ sub Data {
         '7 Day Stats' => 'Sedmodnevna statistika',
         'Process Management information from database is not in sync with the system configuration, please synchronize all processes.' =>
             'Obrađene informacije iz baze bodataka nisu sinhronizovane sa sistemskom konfiguracijom, molimo vas da sinhronizujete sve procese.',
-        'Package not verified by the OTRS Group! It is recommended not to use this package.' => 
+        'Package not verified by the OTRS Group! It is recommended not to use this package.' =>
             'Paket nije verifikovan od strane OTRS Group! Preporučuje se da ne koristite ovaj paket.',
         '<br>If you continue to install this package, the following issues may occur!<br><br>&nbsp;-Security problems<br>&nbsp;-Stability problems<br>&nbsp;-Performance problems<br><br>Please note that issues that are caused by working with this package are not covered by OTRS service contracts!<br><br>' =>
             '<br>Ako nastavite da instalirate ovaj paket, mogu se javiti sledeći problemi!<br><br>&nbsp;-Bezbednosni problemi<br>&nbsp;-Problemi stabilnosti<br>&nbsp;-Problemi u performansama<br><br>Napominjemo da problemi nastali usled rada sa ovim paketom nisu pokriveni OTRS servisnim ugovorom!<br><br>',
@@ -1643,7 +1643,7 @@ sub Data {
         'Only for ArticleCreate and ArticleSend event' => 'Samo za događaj kreiranja članka i slanja članka',
         'Article type' => 'Tip članka',
         'If ArticleCreate or ArticleSend is used as a trigger event, you need to specify an article filter as well. Please select at least one of the article filter fields.' =>
-            'Ako se koriste dogadjaji kreiranja članka i slanja članka, neophodno je definisati filter članka. Molim vas selektujte bar jedno polje za filter članka',             
+            'Ako se koriste dogadjaji kreiranja članka i slanja članka, neophodno je definisati filter članka. Molim vas selektujte bar jedno polje za filter članka',
         'Article sender type' => 'Tip pošiljaoca članka',
         'Subject match' => 'Poklapanje predmeta',
         'Body match' => 'Poklapanje sadržaja',
@@ -3325,7 +3325,7 @@ sub Data {
         'Create and manage attachments.' => 'Kreiranje i upravljanje prilozima.',
         'Create and manage customer users.' => 'Kreiranje i upravljanje korisnicima.',
         'Create and manage customers.' => 'Kreiranje i upravljanje korisnicima.',
-        'Create and manage dynamic fields.' => 'Kreiranje i upravljanje dinamičkim poljima.'
+        'Create and manage dynamic fields.' => 'Kreiranje i upravljanje dinamičkim poljima.',
         'Create and manage event based notifications.' => 'Kreiranje i upravljanje obaveštenjima na bazi događaja.',
         'Create and manage groups.' => 'Kreiranje i upravljanje grupama.',
         'Create and manage queues.' => 'Kreiranje i upravljanje redovima.',
@@ -3924,7 +3924,7 @@ sub Data {
         'Defines the time zone of the indicated calendar, which can be assigned later to a specific queue.' =>
             '',
           'Defines the title font in graphs (place custom fonts in var/fonts).' =>
-            'Definiše font  zanaslov u graficima(snimite  ',      
+            'Definiše font  zanaslov u graficima(snimite  ',
         'Defines the type of protocol, used by the web server, to serve the application. If https protocol will be used instead of plain http, it must be specified here. Since this has no affect on the web server\'s settings or behavior, it will not change the method of access to the application and, if it is wrong, it will not prevent you from logging into the application. This setting is only used as a variable, OTRS_CONFIG_HttpType which is found in all forms of messaging used by the application, to build links to the tickets within your system.' =>
             '',
         'Defines the used character for plaintext email quotes in the ticket compose screen of the agent interface. If this is empty or inactive, original emails will not be quoted but appended to the response.' =>
