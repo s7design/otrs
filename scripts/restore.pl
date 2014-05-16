@@ -98,6 +98,9 @@ if ( $DatabaseDSN =~ m/:mysql/i ) {
 elsif ( $DatabaseDSN =~ m/:pg/i ) {
     $DB     = 'PostgreSQL';
     $DBDump = 'psql';
+    if ( $DatabaseDSN !~ m/host=/i ) {
+        $DatabaseHost = '';
+    }
 }
 else {
     print STDERR "ERROR: Can't backup, no database dump support!\n";
@@ -199,12 +202,16 @@ if ( $DB =~ m/mysql/i ) {
     }
 }
 else {
+
+    if ($DatabaseHost) {
+        $DatabaseHost = "-h $DatabaseHost"
+    }
     if ( -e "$Opts{b}/DatabaseBackup.sql.gz" ) {
         print "decompresses SQL-file ...\n";
         system("gunzip $Opts{b}/DatabaseBackup.sql.gz");
         print "cat SQL-file into $DB database\n";
         system(
-            "cat $Opts{b}/DatabaseBackup.sql | psql -U$DatabaseUser -W'$DatabasePw' -h$DatabaseHost $Database"
+            "cat $Opts{b}/DatabaseBackup.sql | psql -U$DatabaseUser -W'$DatabasePw' -$DatabaseHost $Database"
         );
         print "compress SQL-file...\n";
         system("gzip $Opts{b}/DatabaseBackup.sql");
@@ -214,7 +221,7 @@ else {
         system("bunzip2 $Opts{b}/DatabaseBackup.sql.bz2");
         print "cat SQL-file into $DB database\n";
         system(
-            "cat $Opts{b}/DatabaseBackup.sql | psql -U$DatabaseUser -W'$DatabasePw' -h$DatabaseHost $Database"
+            "cat $Opts{b}/DatabaseBackup.sql | psql -U$DatabaseUser -W'$DatabasePw' -$DatabaseHost $Database"
         );
         print "compress SQL-file...\n";
         system("bzip2 $Opts{b}/DatabaseBackup.sql");
