@@ -11,28 +11,67 @@ use strict;
 use warnings;
 use vars (qw($Self));
 
+use File::Basename;
+use File::Copy;
+
 use Kernel::System::FileTemp;
 
-my $FileTempObject = Kernel::System::FileTemp->new( %{$Self} );
+my $Filename;
+my $TempDir;
+my $FH;
 
-my ( $FH, $Filename ) = $FileTempObject->TempFile();
+{
 
-$Self->True(
-    $Filename,
-    'TempFile()',
-);
+    my $FileTempObject = Kernel::System::FileTemp->new( %{$Self} );
 
-$Self->True(
-    ( -e $Filename ),
-    'TempFile() -e',
-);
+    ( $FH, $Filename ) = $FileTempObject->TempFile();
 
-# destruction of object should delete the tempfiles
-$FileTempObject = undef;
+    $Self->True(
+        $Filename,
+        'TempFile()',
+    );
+
+    $Self->True(
+        ( -e $Filename ),
+        'TempFile() -e',
+    );
+
+    $TempDir = $FileTempObject->TempDir();
+
+    $Self->True(
+        ( -d $TempDir ),
+        "TempDir $TempDir exists",
+    );
+
+    my $ConfiguredTempDir = $Self->{ConfigObject}->Get('TempDir');
+    $ConfiguredTempDir =~ s{/+}{/}smxg;
+
+    $Self->Is(
+        ( dirname $TempDir ),
+        $ConfiguredTempDir,
+        "$TempDir is relative to defined TempDir",
+    );
+
+    $Self->True(
+        ( copy( $Self->{ConfigObject}->Get('Home') . '/scripts/test/FileTemp.t', "$TempDir/" ) ),
+        'Copy test to tempdir',
+    );
+
+    $Self->True(
+        ( -e $TempDir . '/FileTemp.t' ),
+        'Copied file exists in tempdir',
+    );
+
+}
 
 $Self->False(
     ( -e $Filename ),
-    'TempFile() -e after destroy',
+    "TempFile() $Filename -e after destroy",
+);
+
+$Self->False(
+    ( -d $TempDir ),
+    "TempDir() $TempDir removed after destroy",
 );
 
 1;

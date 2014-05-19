@@ -622,7 +622,7 @@ Core.Agent.Admin.ProcessManagement.Canvas = (function (TargetNS) {
                         originalEvent.stopPropagation();
                         return false;
                     },
-                    mouseexit: function(labelOverlay, originalEvent) {
+                    mouseleave: function(labelOverlay, originalEvent) {
                         TargetNS.UnHighlightTransitionLabel(labelOverlay);
                         originalEvent.stopPropagation();
                         return false;
@@ -643,7 +643,7 @@ Core.Agent.Admin.ProcessManagement.Canvas = (function (TargetNS) {
             }
         });
 
-        Connection.bind('mouseexit', function (ActiveConnection) {
+        Connection.bind('mouseleave', function (ActiveConnection) {
             var Overlay = Connection.getOverlay('label');
 
             // remove hover class from label
@@ -766,6 +766,9 @@ Core.Agent.Admin.ProcessManagement.Canvas = (function (TargetNS) {
             ]
         });
 
+        // set default container element. This is where all the svg elements of jsplumb will be appended to.
+        jsPlumb.Defaults.Container = $("#Canvas");
+
         // Always start with drawing the start event element
         TargetNS.CreateStartEvent();
 
@@ -843,6 +846,7 @@ Core.Agent.Admin.ProcessManagement.Canvas = (function (TargetNS) {
 
     TargetNS.Redraw = function () {
         $('#ShowEntityIDs').removeClass('Visible').text(Core.Agent.Admin.ProcessManagement.Localization.ShowEntityIDs);
+        jsPlumb.reset();
         $('#Canvas').empty();
         TargetNS.Init();
     };
