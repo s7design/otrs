@@ -501,7 +501,7 @@ $('.DashboardHeader').off('click').on('click', '.ColumnSettingsTrigger', functio
 <!-- dtl:block:ContentLargeTicketGenericEscalationTime -->
 <!-- dtl:block:ContentLargeTicketGenericColumn -->
                 <td>
-                    <div title="$QData{"GenericValue"}">$QData{"GenericValue","40"}</div>
+                    <div title="$QData{"GenericValue"}">$QData{"GenericValue"}</div>
                 </td>
 <!-- dtl:block:ContentLargeTicketGenericColumn -->
 <!-- dtl:block:ContentLargeTicketGenericColumnTranslatable -->

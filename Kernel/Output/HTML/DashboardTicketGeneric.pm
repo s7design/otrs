@@ -1202,6 +1202,11 @@ sub Run {
             );
         }
 
+        $Ticket{Title} = $Self->{TicketObject}->TicketSubjectClean(
+            TicketNumber => $Ticket{TicketNumber},
+            Subject      => $Ticket{Title},
+        );
+
         # create human age
         if ( $Self->{Config}->{Time} ne 'Age' ) {
             $Ticket{Time} = $Self->{LayoutObject}->CustomerAgeInHours(
