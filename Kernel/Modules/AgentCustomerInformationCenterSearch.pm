@@ -65,6 +65,10 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    if ( $Param{CustomerID} ) {
+        $Param{CustomerIDRaw} = $Param{CustomerID};
+    }
+
     my $AutoCompleteConfig
         = $Self->{ConfigObject}->Get('AutoComplete::Agent###CustomerSearch');
 

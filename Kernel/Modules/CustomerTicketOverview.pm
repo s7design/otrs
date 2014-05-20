@@ -168,7 +168,7 @@ sub Run {
                 Name   => 'All',
                 Prio   => 1000,
                 Search => {
-                    CustomerID =>
+                    CustomerIDRaw =>
                         [ $Self->{UserObject}->CustomerIDs( User => $Self->{UserLogin} ) ],
                     OrderBy        => $Self->{OrderBy},
                     SortBy         => $Self->{SortBy},
@@ -180,7 +180,7 @@ sub Run {
                 Name   => 'Open',
                 Prio   => 1100,
                 Search => {
-                    CustomerID =>
+                    CustomerIDRaw =>
                         [ $Self->{UserObject}->CustomerIDs( User => $Self->{UserLogin} ) ],
                     StateType      => 'Open',
                     OrderBy        => $Self->{OrderBy},
@@ -193,7 +193,7 @@ sub Run {
                 Name   => 'Closed',
                 Prio   => 1200,
                 Search => {
-                    CustomerID =>
+                    CustomerIDRaw =>
                         [ $Self->{UserObject}->CustomerIDs( User => $Self->{UserLogin} ) ],
                     StateType      => 'Closed',
                     OrderBy        => $Self->{OrderBy},
@@ -231,16 +231,6 @@ sub Run {
     my $AllTicketsTotal = 0;
     for my $Filter ( sort keys %{ $Filters{ $Self->{Subaction} } } ) {
         $Counter++;
-
-        # quote all CustomerIDs
-        my $CustomerIDs = $Filters{ $Self->{Subaction} }->{$Filter}->{Search}->{CustomerID};
-        if ( IsArrayRefWithData($CustomerIDs) ) {
-            for my $CustomerID ( @{$CustomerIDs} ) {
-                $CustomerID = $Self->{DBObject}->QueryStringEscape(
-                    QueryString => $CustomerID,
-                );
-            }
-        }
 
         my $Count = $Self->{TicketObject}->TicketSearch(
             %{ $Filters{ $Self->{Subaction} }->{$Filter}->{Search} },

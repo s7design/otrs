@@ -221,6 +221,10 @@ sub Run {
             # get search string params (get submitted params)
             $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
 
+            if ( $Key eq 'CustomerID' ) {
+                $GetParam{CustomerIDRaw} = $GetParam{CustomerID};
+            }
+
             # remove white space on the start and end
             if ( $GetParam{$Key} ) {
                 $GetParam{$Key} =~ s/\s+$//g;
@@ -1064,7 +1068,7 @@ sub Run {
                 RequestedURL => 'Action=' . $Self->{Action} . ';' . $LinkPage,
 
                 # do not print the result earlier, but return complete content
-                Output     => 1,
+                Output => 1,
             );
 
             # build footer

@@ -93,6 +93,11 @@ To find tickets in your system.
         CustomerID => '123',
         CustomerID => ['123', 'ABC'],
 
+        # CustomerIDRaw (optional) as STRING or as ARRAYREF
+        # CustomerID without QueryCondition cheking
+        CustomerIDRaw => '123 + 345',
+        CustomerIDRaw => ['123', 'ABC','123 && 456','ABC % efg'],
+
         # CustomerUserLogin (optional) as STRING as ARRAYREF
         CustomerUserLogin => 'uid123',
         CustomerUserLogin => ['uid123', 'uid777'],
@@ -942,6 +947,7 @@ sub TicketSearch {
         TicketNumber      => 'st.tn',
         Title             => 'st.title',
         CustomerID        => 'st.customer_id',
+        CustomerIDRaw     => 'st.customer_id',
         CustomerUserLogin => 'st.customer_user_id',
     );
 
@@ -949,6 +955,8 @@ sub TicketSearch {
     for my $Key ( sort keys %FieldSQLMap ) {
 
         next ATTRIBUTE if !defined $Param{$Key};
+
+        next ATTRIBUTE if ( ( $Key eq 'CustomerID' ) && ( defined $Param{CustomerIDRaw} ) );
 
         # if it's no ref, put it to array ref
         if ( ref $Param{$Key} eq '' ) {
@@ -989,12 +997,22 @@ sub TicketSearch {
                 }
             }
 
-            # use search condition extension
-            $SQLExt .= $Self->{DBObject}->QueryCondition(
-                Key   => $FieldSQLMap{$Key},
-                Value => $Value,
-                %ConditionFocus,
-            );
+            if ( $Key eq 'CustomerIDRaw' || $Key ) {
+                $SQLExt .= $FieldSQLMap{$Key};
+                $SQLExt .= "=\'";
+                $SQLExt .= $Value;
+                $SQLExt .= "\'";
+
+            }
+            else {
+
+                # use search condition extension
+                $SQLExt .= $Self->{DBObject}->QueryCondition(
+                    Key   => $FieldSQLMap{$Key},
+                    Value => $Value,
+                    %ConditionFocus,
+                );
+            }
         }
         if ($Used) {
             $SQLExt .= ')';

@@ -507,7 +507,8 @@ sub Run {
 
         # quote all CustomerIDs
         if ( $TicketSearch{CustomerID} ) {
-            $TicketSearch{CustomerID} = $Self->{DBObject}->QueryStringEscape(
+            $TicketSearch{CustomerIDRaw} = $TicketSearch{CustomerID};
+            $TicketSearch{CustomerID}    = $Self->{DBObject}->QueryStringEscape(
                 QueryString => $TicketSearch{CustomerID},
             );
         }
@@ -1895,7 +1896,8 @@ sub _SearchParamsGet {
 
     # CustomerInformationCenter shows data per CustomerID
     if ( $Param{CustomerID} ) {
-        $TicketSearch{CustomerID} = $Param{CustomerID};
+        $TicketSearch{CustomerID}    = $Param{CustomerID};
+        $TicketSearch{CustomerIDRaw} = $Param{CustomerID};
     }
 
     # define filter attributes
