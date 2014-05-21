@@ -3080,7 +3080,6 @@ sub Data {
         'Start page' => 'Početna strana',
         'Your OTRS Team' => 'Ваш OTRS тим',
 
-
         # Template: InstallerLicense
         'Accept license' => 'Прихвати лиценцу',
         'Don\'t accept license' => 'Не прихватај лиценцу',
