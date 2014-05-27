@@ -501,7 +501,7 @@ $('.DashboardHeader').off('click').on('click', '.ColumnSettingsTrigger', functio
 [% RenderBlockEnd("ContentLargeTicketGenericEscalationTime") %]
 [% RenderBlockStart("ContentLargeTicketGenericColumn") %]
                 <td>
-                    <div title="[% Data.GenericValue | html %]">[% Data.GenericValue |  truncate(40) | html %]</div>
+                    <div title="[% Data.GenericValue | html %]">[% Data.GenericValue | truncate(40) | html %]</div>
                 </td>
 [% RenderBlockEnd("ContentLargeTicketGenericColumn") %]
 [% RenderBlockStart("ContentLargeTicketTitle") %]
