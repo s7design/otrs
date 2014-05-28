@@ -507,8 +507,7 @@ sub Run {
 
         # quote all CustomerIDs
         if ( $TicketSearch{CustomerID} ) {
-            $TicketSearch{CustomerIDRaw} = $TicketSearch{CustomerID};
-            $TicketSearch{CustomerID}    = $Self->{DBObject}->QueryStringEscape(
+            $TicketSearch{CustomerID} = $Self->{DBObject}->QueryStringEscape(
                 QueryString => $TicketSearch{CustomerID},
             );
         }

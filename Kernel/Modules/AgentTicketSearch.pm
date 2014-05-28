@@ -221,10 +221,6 @@ sub Run {
             # get search string params (get submitted params)
             $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
 
-            if ( $Key eq 'CustomerID' ) {
-                $GetParam{CustomerIDRaw} = $GetParam{CustomerID};
-            }
-
             # remove white space on the start and end
             if ( $GetParam{$Key} ) {
                 $GetParam{$Key} =~ s/\s+$//g;

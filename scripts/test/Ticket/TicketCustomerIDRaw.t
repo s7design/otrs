@@ -97,7 +97,7 @@ for my $CustomerID (@CustomerCompanyIDs) {
     $Self->IsDeeply(
         \@ReturnedTicketIDs,
         $CustomerIDTickets{$CustomerID},
-        'test',
+        "Test TicketSearch for CustomerIDRaw: \'$CustomerID\'",
     );
 
     my $Update = $CustomerCompanyObject->CustomerCompanyUpdate(
@@ -129,7 +129,7 @@ for my $CustomerID (@CustomerCompanyIDs) {
     $Self->IsDeeply(
         \@ReturnedTicketIDs,
         $CustomerIDTickets{$CustomerID},
-        'test',
+         "Test TicketSearch for CustomerIDRaw:\'$CustomerID  %  updated\' ",
     );
 }
 
