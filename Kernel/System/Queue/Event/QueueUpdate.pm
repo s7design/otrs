@@ -1,6 +1,6 @@
 # --
 # Kernel/System/Queue/Event/QueueUpdate.pm - update statement on TicketIndex to rename the queue name there if needed and if StaticDB is actually used
-# Copyright (C) 2001-2013 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -17,10 +17,7 @@ use FindBin qw($RealBin);
 use lib dirname($RealBin);
 use lib dirname($RealBin) . '/Kernel/cpan-lib';
 use lib dirname($RealBin) . '/Custom';
-
 use Kernel::System::ObjectManager;
-
-
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -43,30 +40,30 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-	# common objects
-	local $Kernel::OM = Kernel::System::ObjectManager->new(
-			LogObject => {
-			LogPrefix => 'OTRS-QueueUpdate',
-		},
-	);
-	
-	my %CommonObject = $Kernel::OM->ObjectHash(
-	Objects =>
-		[qw(ConfigObject EncodeObject LogObject MainObject TimeObject DBObject TicketObject)],
-	);
-	
-	my $Module = $Self->{ConfigObject}->Get('Ticket::IndexModule');
-	
-	#check if ticket index accelerator module is StaticDB
-	if( $Module eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB' ){
-	
-		# rebuild
-		if ( !$CommonObject{TicketObject}->TicketAcceleratorRebuild() ) {
-			$CommonObject{LogObject}->Log( Priority => 'error' );
-		}
-	}
-	
-	return 1;
+    # common objects
+    local $Kernel::OM = Kernel::System::ObjectManager->new(
+        LogObject => {
+            LogPrefix => 'OTRS-QueueUpdate',
+        },
+    );
+
+    my %CommonObject = $Kernel::OM->ObjectHash(
+        Objects =>
+            [qw(ConfigObject EncodeObject LogObject MainObject TimeObject DBObject TicketObject)],
+    );
+
+    my $Module = $Self->{ConfigObject}->Get('Ticket::IndexModule');
+
+    #check if ticket index accelerator module is StaticDB
+    if ( $Module eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB' ) {
+
+        # rebuild
+        if ( !$CommonObject{TicketObject}->TicketAcceleratorRebuild() ) {
+            $CommonObject{LogObject}->Log( Priority => 'error' );
+        }
+    }
+
+    return 1;
 }
 
 1;
