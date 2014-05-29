@@ -19,6 +19,7 @@ use Kernel::System::StandardTemplate;
 use Kernel::System::SysConfig;
 use Kernel::System::Time;
 use Kernel::System::Valid;
+use Kernel::System::EventHandler;
 
 =head1 NAME
 
@@ -108,6 +109,22 @@ sub new {
         FollowUpID          => 1,
         FollowUpLock        => 0,
     };
+
+    # init of event handler
+    if (
+        $Self->{MainObject}->RequireBaseClass(
+            'Kernel::System::EventHandler'
+        )
+        )
+    {
+        $Self->EventHandlerInit(
+            Config     => 'Queue::EventModulePost',
+            BaseObject => 'QueueObject',
+            Objects    => {
+                %{$Self},
+            },
+        );
+    }
 
     return $Self;
 }
@@ -1026,7 +1043,7 @@ sub QueueUpdate {
     }
 
     # sql
-    return if !$Self->{DBObject}->Do(
+    my $Result = $Self->{DBObject}->Do(
         SQL => 'UPDATE queue SET name = ?, comments = ?, group_id = ?, '
             . ' unlock_timeout = ?, first_response_time = ?, first_response_notify = ?, '
             . ' update_time = ?, update_notify = ?, solution_time = ?, '
@@ -1044,6 +1061,17 @@ sub QueueUpdate {
             \$Param{SignatureID},       \$Param{ValidID},             \$Param{UserID},
             \$Param{QueueID},
         ],
+    );
+
+    return if !$Result;
+
+    # trigger event
+    $Self->EventHandler(
+        Event  => 'QueueUpdate',
+        Data => {
+            Queue=>  $Param{QueueID},
+        },
+        UserID => $Param{UserID},
     );
 
     # reset cache
