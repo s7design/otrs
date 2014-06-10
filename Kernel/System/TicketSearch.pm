@@ -102,7 +102,7 @@ To find tickets in your system.
         # CustomerUserLogin (optional) as STRING as ARRAYREF
         CustomerUserLogin => 'uid123',
         CustomerUserLogin => ['uid123', 'uid777'],
-        
+
         # CustomerUserLoginRaw (optional) as STRING as ARRAYREF
         #The raw value will be used if is set this parameter
         CustomerUserLoginRaw => 'uid',
@@ -1009,16 +1009,11 @@ sub TicketSearch {
                 $SQLExt .= " $FieldSQLMap{$Key}= '" . $Self->{DBObject}->Quote($Value) . "'";
             }
             else {
-                my $DisableCheck = 0;
-                if ( $Key eq 'CustomerID' || $Key eq 'CustomerUserLogin' ) {
-                    $DisableCheck = 1;
-                }
 
                 # use search condition extension
                 $SQLExt .= $Self->{DBObject}->QueryCondition(
-                    Key          => $FieldSQLMap{$Key},
-                    Value        => $Value,
-                    DisableCheck => $DisableCheck,
+                    Key   => $FieldSQLMap{$Key},
+                    Value => $Value,
                     %ConditionFocus,
                 );
             }
