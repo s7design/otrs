@@ -1072,10 +1072,9 @@ sub QueryCondition {
     # remove double spaces
     $Param{Value} =~ s/\s+/ /g;
 
-    if ( !$Param{DisableCheck} ){
-        # replace + by &&
-        $Param{Value} =~ s/\+/&&/g;
-    }
+    # replace + by &&
+    $Param{Value} =~ s/\+/&&/g;
+    
     # replace AND by &&
     $Param{Value} =~ s/(\s|(?<!\\)\)|(?<!\\)\()AND(\s|(?<!\\)\(|(?<!\\)\))/$1&&$2/g;
 
