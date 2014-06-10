@@ -1,4 +1,5 @@
 #3.4.0.beta1 20??-??-??
+ - 2014-06-10 Fixed bug#[10549](http://bugs.otrs.org/show_bug.cgi?id=10549) - SelectAllCheckboxes doesn't work as expected.
  - 2014-05-19 Fixed bug#[10519](http://bugs.otrs.org/show_bug.cgi?id=10519) - Opening and closing popups in ProcessManagement leads to performance issues.
  - 2014-05-19 Updated jsPlumb, Farahey and label spacer code.
  - 2014-05-16 Added: unlock ticket if owner is away, thanks to Moritz Lenz.
@@ -67,6 +68,14 @@
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
 #3.3.8 2014-??-??
+ - 2014-06-10 Fixed bug#[10521](http://bugs.otrs.org/show_bug.cgi?id=10521) - OutputFilterText AutoLink CVE.
+ - 2014-06-03 Fixed bug#[10430](http://bugs.otrs.org/show_bug.cgi?id=10430) - backup.pl doesn't work with PostgreSQL unix sockets.
+ - 2014-06-03 Fixed bug#[5012](http://bugs.otrs.org/show_bug.cgi?id=5012) - Merging a watched ticket _into_ another should "transfer" the Watch status to the final ticket, thanks to Michiel Beijen!
+ - 2014-06-02 Fixed bug#[10544](http://bugs.otrs.org/show_bug.cgi?id=10544) - Upgrade to OTRS 3.3.7 breaks connection to external customer user tables.
+ - 2014-05-28 Fixed bug#[10535](http://bugs.otrs.org/show_bug.cgi?id=10535) - ACLListGet() produces DB warning message.
+ - 2014-05-28 Fixed bug#[10163](http://bugs.otrs.org/show_bug.cgi?id=10163) - subject shows only 30 characters, thanks to S7designcreative.
+ - 2014-05-28 Updated Latin Serbian translation, thanks to S7designcreative.
+ - 2014-05-28 Updated Cyrillic Serbian translation, thanks to S7designcreative.
  - 2014-05-16 Fixed bug#[10427](http://bugs.otrs.org/show_bug.cgi?id=10427) - Bulk action locks tickets - cancel keeps them locked.
  - 2014-05-15 Fixed bug#[10513](http://bugs.otrs.org/show_bug.cgi?id=10513) - Some SupportData Plugin Identifiers ends with ::.
  - 2014-05-14 Updated Latin Serbian translation, thanks to S7designcreative.
