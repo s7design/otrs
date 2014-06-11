@@ -17,6 +17,7 @@ use Kernel::System::Web::UploadCache;
 use Kernel::System::DynamicField;
 use Kernel::System::DynamicField::Backend;
 use Kernel::System::VariableCheck qw(:all);
+use Kernel::System::User;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -38,6 +39,7 @@ sub new {
     $Self->{UploadCacheObject}  = Kernel::System::Web::UploadCache->new(%Param);
     $Self->{DynamicFieldObject} = Kernel::System::DynamicField->new(%Param);
     $Self->{BackendObject}      = Kernel::System::DynamicField::Backend->new(%Param);
+    $Self->{UserObject}         = Kernel::System::User->new(%Param);
 
     # get form id
     $Self->{FormID} = $Self->{ParamObject}->GetParam( Param => 'FormID' );
@@ -1427,6 +1429,10 @@ sub _Mask {
         );
         my @OldOwners;
         my %SeenOldOwner;
+
+        # get configuration for the full name order
+        my $FirstnameLastNameOrder = $Self->{ConfigObject}->Get('FirstnameLastnameOrder') || 0;
+
         if (@OldUserInfo) {
             my $Counter = 1;
             USER:
@@ -1435,10 +1441,17 @@ sub _Mask {
                 # skip if old owner is already in the list
                 next USER if $SeenOldOwner{ $User->{UserID} };
                 $SeenOldOwner{ $User->{UserID} } = 1;
+
+                my $Fullname = $Self->{UserObject}->UserFullname(
+                    UserFirstname => $User->{UserFirstname},
+                    UserLastname  => $User->{UserLastname},
+                    UserLogin     => $User->{UserLogin},
+                    NameOrder     => $FirstnameLastNameOrder,
+                );
+
                 push @OldOwners, {
                     Key   => $User->{UserID},
-                    Value => "$Counter: $User->{UserLastname} "
-                        . "$User->{UserFirstname} ($User->{UserLogin})"
+                    Value => "$Counter: $Fullname"
                 };
                 $Counter++;
             }
@@ -1937,6 +1950,10 @@ sub _GetOldOwners {
     my ( $Self, %Param ) = @_;
     my @OldUserInfo = $Self->{TicketObject}->TicketOwnerList( TicketID => $Self->{TicketID} );
     my %UserHash;
+
+    # get configuration for the full name order
+    my $FirstnameLastNameOrder = $Self->{ConfigObject}->Get('FirstnameLastnameOrder') || 0;
+
     if (@OldUserInfo) {
         my $Counter = 1;
         USER:
@@ -1944,10 +1961,14 @@ sub _GetOldOwners {
 
             next USER if $UserHash{ $User->{UserID} };
 
-            $UserHash{ $User->{UserID} }
-                = "$Counter: $User->{UserLastname} $User->{UserFirstname} ($User->{UserLogin})";
-        }
-        continue {
+            my $Fullname = $Self->{UserObject}->UserFullname(
+                UserFirstname => $User->{UserFirstname},
+                UserLastname  => $User->{UserLastname},
+                UserLogin     => $User->{UserLogin},
+                NameOrder     => $FirstnameLastNameOrder,
+            );
+
+            $UserHash{ $User->{UserID} } = "$Counter: $Fullname";
             $Counter++;
         }
     }
