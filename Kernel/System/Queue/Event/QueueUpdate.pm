@@ -57,9 +57,12 @@ sub Run {
     #check if ticket index accelerator module is StaticDB
     if ( $Module eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB' ) {
 
+        # only update if Queue has really changed
+        return 1 if $Param{Data}->{NewQueueName} eq $Param{Data}->{OldQueueName};
+
         # rebuild
         if ( !$CommonObject{TicketObject}->TicketAcceleratorRebuild() ) {
-            $CommonObject{LogObject}->Log( Priority => 'error' );
+            $CommonObject{LogObject}->Log( Priority => 'error' ,Message =>"TicketAcceleratorRebuild error during update of queue! ");
         }
     }
 

@@ -260,7 +260,7 @@ for my $QueueID (@Queues) {
                     $Self->Is(
                         $ItemBefore->{Count} || 0,
                         $ItemNow->{Count}    || '',
-                        "$Module TicketAcceleratorIndex() - Count",
+                        "$Module TicketAcceleratorIndex() for Queue: $ItemNow->{Queue} - Count",
                     );
                 }
             }

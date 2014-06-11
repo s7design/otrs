@@ -110,13 +110,8 @@ sub new {
         FollowUpLock        => 0,
     };
 
-    # init of event handler
-    if (
-        $Self->{MainObject}->RequireBaseClass(
-            'Kernel::System::EventHandler'
-        )
-        )
-    {
+    use base qw(Kernel::System::EventHandler);
+    
         $Self->EventHandlerInit(
             Config     => 'Queue::EventModulePost',
             BaseObject => 'QueueObject',
@@ -124,7 +119,7 @@ sub new {
                 %{$Self},
             },
         );
-    }
+    
 
     return $Self;
 }
@@ -1069,7 +1064,8 @@ sub QueueUpdate {
     $Self->EventHandler(
         Event  => 'QueueUpdate',
         Data => {
-            Queue=>  $Param{QueueID},
+            NewQueueName      =>  $Param{Name},
+            OldQueueName        =>  $OldQueue{Name},
         },
         UserID => $Param{UserID},
     );
