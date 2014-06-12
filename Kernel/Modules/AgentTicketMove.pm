@@ -1052,17 +1052,14 @@ sub AgentMove {
     my %MoveQueues = %Data;
     my %UsedData;
     my %UserHash;
-
     if ( $Param{OldUser} ) {
         my $Counter = 1;
         USER:
         for my $User ( reverse @{ $Param{OldUser} } ) {
             next USER if $UserHash{ $User->{UserID} };
-
             my %OldOwner = $Self->{UserObject}->GetUserData(
                 UserID => $User->{UserID}
             );
-
             $UserHash{ $User->{UserID} } = "$Counter:  $OldOwner{UserFullname}";
             $Counter++;
         }
@@ -1390,13 +1387,11 @@ sub _GetOldOwners {
     my ( $Self, %Param ) = @_;
     my @OldUserInfo = $Self->{TicketObject}->TicketOwnerList( TicketID => $Self->{TicketID} );
     my %UserHash;
-
     if (@OldUserInfo) {
         my $Counter = 1;
         USER:
         for my $User ( reverse @OldUserInfo ) {
             next USER if $UserHash{ $User->{UserID} };
-
             my %OldOwner = $Self->{UserObject}->GetUserData(
                 UserID => $User->{UserID}
             );

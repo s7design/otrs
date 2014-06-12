@@ -1428,7 +1428,6 @@ sub _Mask {
         );
         my @OldOwners;
         my %SeenOldOwner;
-
         if (@OldUserInfo) {
             my $Counter = 1;
             USER:
@@ -1437,11 +1436,9 @@ sub _Mask {
                 # skip if old owner is already in the list
                 next USER if $SeenOldOwner{ $User->{UserID} };
                 $SeenOldOwner{ $User->{UserID} } = 1;
-
                 my %OldOwner = $Self->{UserObject}->GetUserData(
                     UserID => $User->{UserID}
                 );
-
                 push @OldOwners, {
                     Key   => $User->{UserID},
                     Value => "$Counter: $OldOwner{UserFullname}"
@@ -1943,14 +1940,11 @@ sub _GetOldOwners {
     my ( $Self, %Param ) = @_;
     my @OldUserInfo = $Self->{TicketObject}->TicketOwnerList( TicketID => $Self->{TicketID} );
     my %UserHash;
-
     if (@OldUserInfo) {
         my $Counter = 1;
         USER:
         for my $User ( reverse @OldUserInfo ) {
-
             next USER if $UserHash{ $User->{UserID} };
-
             my %OldOwner = $Self->{UserObject}->GetUserData(
                 UserID => $User->{UserID}
             );
