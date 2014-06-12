@@ -226,7 +226,7 @@ sub GetUserData {
     }
 
     # generate the full name and save it in the hash
-    my $UserFullname = $Self->UserFullname(
+    my $UserFullname = $Self->_UserFullname(
         %Data,
         NameOrder => $FirstnameLastNameOrder,
     );
@@ -919,7 +919,7 @@ sub UserList {
     else {
         for my $CurrentUserID ( sort keys %UsersRaw ) {
             my @Data         = @{ $UsersRaw{$CurrentUserID} };
-            my $UserFullname = $Self->UserFullname(
+            my $UserFullname = $Self->_UserFullname(
                 UserFirstname => $Data[2],
                 UserLastname  => $Data[1],
                 UserLogin     => $Data[3],
@@ -1134,12 +1134,14 @@ sub TokenCheck {
     return;
 }
 
-=item UserFullname()
+=begin Internal:
+
+=item _UserFullname()
 
 Builds the user fullname based on firstname, lastname and login. The order
 can be configured.
 
-    my $Fullname = $Object->UserFullname(
+    my $Fullname = $Object->_UserFullname(
         UserFirstname => 'Test',
         UserLastname  => 'Person',
         UserLogin     => 'tp',
@@ -1148,7 +1150,7 @@ can be configured.
 
 =cut
 
-sub UserFullname {
+sub _UserFullname {
     my ( $Self, %Param ) = @_;
 
     for my $Needed (qw(UserFirstname UserLastname UserLogin)) {
@@ -1196,6 +1198,11 @@ sub UserFullname {
 
     return $UserFullname;
 }
+
+=end Internal:
+
+=cut
+
 
 1;
 
