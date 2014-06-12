@@ -1053,9 +1053,6 @@ sub AgentMove {
     my %UsedData;
     my %UserHash;
 
-    # get configuration for the full name order
-    my $FirstnameLastNameOrder = $Self->{ConfigObject}->Get('FirstnameLastnameOrder') || 0;
-
     if ( $Param{OldUser} ) {
         my $Counter = 1;
         USER:
@@ -1393,9 +1390,6 @@ sub _GetOldOwners {
     my ( $Self, %Param ) = @_;
     my @OldUserInfo = $Self->{TicketObject}->TicketOwnerList( TicketID => $Self->{TicketID} );
     my %UserHash;
-
-    # get configuration for the full name order
-    my $FirstnameLastNameOrder = $Self->{ConfigObject}->Get('FirstnameLastnameOrder') || 0;
 
     if (@OldUserInfo) {
         my $Counter = 1;
