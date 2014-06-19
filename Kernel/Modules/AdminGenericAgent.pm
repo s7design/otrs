@@ -954,7 +954,7 @@ sub _MaskUpdate {
             Name        => 'ServiceIDs',
             SelectedID  => $JobData{ServiceIDs},
             Size        => 5,
-            Multiple    => 1,
+            Multiple    => 0,
             Translation => 0,
             Max         => 200,
         );
