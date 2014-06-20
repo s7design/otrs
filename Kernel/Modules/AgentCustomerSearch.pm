@@ -97,6 +97,7 @@ sub Run {
         my $CustomerUserID = $Self->{ParamObject}->GetParam( Param => 'CustomerUserID' ) || '';
 
         my $CustomerID              = '';
+        my $CustomerUserData        = '';
         my $CustomerTableHTMLString = '';
 
         # get customer data
@@ -107,6 +108,20 @@ sub Run {
         # get customer id
         if ( $CustomerData{UserCustomerID} ) {
             $CustomerID = $CustomerData{UserCustomerID};
+        }
+
+# get customer user data
+# customer user data is format   "CustomerLogin  CustomerFirstname  CustomerLastname  CustomerID"<CustomerEmail>
+        if (
+            $CustomerData{UserLogin}
+            && $CustomerData{UserFirstname}
+            && $CustomerData{UserLastname}
+            && $CustomerData{UserCustomerID}
+            && $CustomerData{UserEmail}
+            )
+        {
+            $CustomerUserData
+                = "\"$CustomerData{UserLogin} $CustomerData{UserFirstname} $CustomerData{UserLastname} $CustomerData{UserCustomerID}\"<$CustomerData{UserEmail}>";
         }
 
         # build html for customer info table
@@ -122,6 +137,7 @@ sub Run {
         $JSON = $Self->{LayoutObject}->JSONEncode(
             Data => {
                 CustomerID              => $CustomerID,
+                CustomerUserData        => $CustomerUserData,
                 CustomerTableHTMLString => $CustomerTableHTMLString,
             },
         );
