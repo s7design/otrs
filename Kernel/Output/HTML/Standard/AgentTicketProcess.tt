@@ -143,3 +143,8 @@ $('#ProcessEntityID').val('[% Data.ProcessID | html %]').trigger('change');
 //]]></script>
 [% RenderBlockEnd("PreSelectProcess") %]
 [% END %]
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+    Core.Agent.TicketAction.Init();;
+//]]></script>
+[% END %]
