@@ -986,10 +986,16 @@ sub _GetParam {
         if ( $CurrentField eq 'CustomerID' ) {
             $GetParam{Customer} = $Self->{ParamObject}->GetParam(
                 Param => 'SelectedCustomerUser',
-            ) || '';
+                )
+                || $Self->{ParamObject}->GetParam(
+                Param => 'PreSelectedCustomerUser',
+                ) || '';
             $GetParam{CustomerUserID} = $Self->{ParamObject}->GetParam(
                 Param => 'SelectedCustomerUser',
-            ) || '';
+                )
+                || $Self->{ParamObject}->GetParam(
+                Param => 'PreSelectedCustomerUser',
+                ) || '';
         }
 
         if ( $CurrentField eq 'PendingTime' ) {
@@ -2474,6 +2480,43 @@ sub _RenderArticle {
             Name => 'rw:Article:InformAgent',
             Data => \%Param,
         );
+    }
+
+    my $ShownOptionsBlock;
+
+    # show customer edit link
+    my $OptionCustomer = $Self->{LayoutObject}->Permission(
+        Action => 'AdminCustomerUser',
+        Type   => 'rw',
+    );
+    if ($OptionCustomer) {
+
+        # check if need to call Options block
+        if ( !$ShownOptionsBlock ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'TicketOptions',
+                Data => {
+                    %Param,
+                },
+            );
+
+            # set flag to "true" in order to prevent calling the Options block again
+            $ShownOptionsBlock = 1;
+        }
+        $Self->{LayoutObject}->Block(
+            Name => 'OptionCustomer',
+            Data => {
+                %Param,
+            },
+        );
+        if ( $Self->{ConfigObject}->Get('FAQ::Option') ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'OptionFAQ',
+                Data => {
+                    %Param,
+                },
+            );
+        }
     }
 
     # get all attachments meta data
