@@ -122,6 +122,9 @@ sub StandardTemplateAdd {
         }
     }
 
+    # check if a autoresponse with this name already exits
+    return if !$Self->_NameExistsCheck( Name => $Param{Name} );
+
     # sql
     return if !$Self->{DBObject}->Do(
         SQL => '
@@ -280,6 +283,12 @@ sub StandardTemplateUpdate {
             return;
         }
     }
+
+    # check if a standard template with this name already exits
+    return if !$Self->_NameExistsCheck(
+        Name => $Param{Name},
+        ID   => $Param{ID},
+    );
 
     # sql
     return if !$Self->{DBObject}->Do(
@@ -443,6 +452,50 @@ sub StandardTemplateList {
     }
     return %Data;
 }
+
+=begin Internal:
+
+=item _NameExistsCheck()
+
+return if another standard template with this name already exits
+
+    $StandardTemplateObject->_NameExistsCheck(
+        Name => 'Some::Template',
+        ID   => 1, # optional
+    );
+
+=cut
+
+sub _NameExistsCheck {
+    my ( $Self, %Param ) = @_;
+
+    return if !$Self->{DBObject}->Prepare(
+        SQL  => 'SELECT id FROM standard_template WHERE name = ?',
+        Bind => [ \$Param{Name} ],
+    );
+
+    # fetch the result
+    my $Flag;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        if ( !$Param{ID} || $Param{ID} ne $Row[0] ) {
+            $Flag = 1;
+        }
+    }
+
+    if ($Flag) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "A standard template with name '$Param{Name}' already exists!",
+        );
+        return;
+    }
+
+    return 1;
+}
+
+=end Internal:
+
+=cut
 
 1;
 
