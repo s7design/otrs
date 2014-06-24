@@ -122,7 +122,7 @@ sub StandardTemplateAdd {
         }
     }
 
-    # check if a autoresponse with this name already exits
+    # check if a standard template with this name already exits
     return if !$Self->_NameExistsCheck( Name => $Param{Name} );
 
     # sql
