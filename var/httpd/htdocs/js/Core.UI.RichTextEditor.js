@@ -67,6 +67,19 @@ Core.UI.RichTextEditor = (function (TargetNS) {
             Editor.editor.on('change', function(evt) {
                 Core.Form.Validate.ValidateElement($(Editor.editor.element.$));
             });
+            Editor.editor.on('paste', function(evt) {
+                if (Core.Config.Get('TextIsSpellChecked') === '1'){
+                    Core.Config.Set('TextIsSpellChecked', '0');
+                }
+
+            });
+            Editor.editor.on('key', function(evt) {
+                if (Core.Config.Get('TextIsSpellChecked') === '1'){
+                    Core.Config.Set('TextIsSpellChecked', '0');
+                }
+
+            });
+
         });
 
         // The format for the language is different between OTRS and CKEditor (see bug#8024)
