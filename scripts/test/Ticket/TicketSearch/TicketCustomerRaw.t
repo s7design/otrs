@@ -31,7 +31,6 @@ $ConfigObject->Set(
     Value => 0,
 );
 
-
 my $CustomerUserObject = Kernel::System::CustomerUser->new(
     %{$Self},
     ConfigObject => $ConfigObject,
@@ -90,6 +89,8 @@ for my $CustomerUserLogin (@CustomerLogins) {
     }
 }
 
+# test search by CustomerUserLoginRaw, when CustomerUserLogin have special chars or whitespaces
+
 for my $CustomerUserLogin (@CustomerLogins) {
 
     my @ReturnedTicketIDs = $TicketObject->TicketSearch(
@@ -107,6 +108,89 @@ for my $CustomerUserLogin (@CustomerLogins) {
     );
     
 }
+
+# test search by CustomerUserLogin, when CustomerUserLogin have special chars or whitespaces
+# result is empty
+
+for my $CustomerUserLogin (@CustomerLogins) {
+
+    my @ReturnedTicketIDs = $TicketObject->TicketSearch(
+        Result     => 'ARRAY',
+        CustomerUserLogin => $CustomerUserLogin,
+        UserID     => 1,
+        OrderBy    => ['Up'],
+        SortBy     => ['TicketNumber'],
+    );
+    
+    $Self->IsNotDeeply(
+        \@ReturnedTicketIDs,
+        $CustomerIDTickets{$CustomerUserLogin},
+        "Test TicketSearch for CustomerLoginRaw: \'$CustomerUserLogin\'",
+    );
+    
+}
+
+# test search by CustomerIDRaw, when CustomerID have special chars or whitespaces
+
+for my $CustomerUserLogin (@CustomerLogins) {
+    
+    my %User = $CustomerUserObject->CustomerUserDataGet(User => $CustomerUserLogin);
+    my $CustomerIDRaw = $User{UserCustomerID};
+    my @ReturnedTicketIDs = $TicketObject->TicketSearch(
+        Result     => 'ARRAY',
+        CustomerIDRaw => $CustomerIDRaw,
+        UserID     => 1,
+        OrderBy    => ['Up'],
+        SortBy     => ['TicketNumber'],
+    );
+    
+    $Self->IsDeeply(
+        \@ReturnedTicketIDs,
+        $CustomerIDTickets{$CustomerUserLogin},
+        "Test TicketSearch for CustomerIDRaw \'$CustomerIDRaw\'",
+    );   
+}
+
+
+# test search by CustomerID, when CustomerID have special chars or whitespaces
+# result is empty
+
+for my $CustomerUserLogin (@CustomerLogins) {
+    
+    my %User = $CustomerUserObject->CustomerUserDataGet(User => $CustomerUserLogin);
+    my $CustomerIDRaw = $User{UserCustomerID};
+    my @ReturnedTicketIDs = $TicketObject->TicketSearch(
+        Result     => 'ARRAY',
+        CustomerID => $CustomerIDRaw,
+        UserID     => 1,
+        OrderBy    => ['Up'],
+        SortBy     => ['TicketNumber'],
+    );
+    
+    $Self->IsNotDeeply(
+        \@ReturnedTicketIDs,
+        $CustomerIDTickets{$CustomerUserLogin},
+        "Test TicketSearch for CustomerIDRaw \'$CustomerIDRaw\'",
+    );   
+}
+
+# clean up customer users
+
+for my $CustomerUserLogin (@CustomerLogins) {
+
+    print $CustomerUserLogin;
+    print "\n";
+    my $Success = $Self->{DBObject}->Do(
+        SQL  => 'DELETE FROM customer_user WHERE login = ?',
+        Bind =>  [ \$CustomerUserLogin],
+    );
+    $Self->True(
+        $Success,
+        "Removed customer user $CustomerUserLogin",
+    ); 
+}  
+
+# clean up customer tickets
 
 for my $TicketID (@TicketIDs) {
     my $Success = $TicketObject->TicketDelete(

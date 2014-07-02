@@ -1895,7 +1895,6 @@ sub _SearchParamsGet {
 
     # CustomerInformationCenter shows data per CustomerID
     if ( $Param{CustomerID} ) {
-        $TicketSearch{CustomerID}    = $Param{CustomerID};
         $TicketSearch{CustomerIDRaw} = $Param{CustomerID};
     }
 
