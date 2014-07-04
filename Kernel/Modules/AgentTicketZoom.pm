@@ -1899,7 +1899,7 @@ sub _ArticleItem {
 
                 # get StandardResponsesStrg
                 $Param{StandardResponses}->{0}
-                    = '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -';
+                    = ' - ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -';
 
                 # build html string
                 my $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
@@ -1958,7 +1958,7 @@ sub _ArticleItem {
                 }
                 if ( $RecipientCount > 1 ) {
                     $Param{StandardResponses}->{0}
-                        = '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -';
+                        = ' - ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -';
 
                     $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
                         Name => 'ResponseID',
