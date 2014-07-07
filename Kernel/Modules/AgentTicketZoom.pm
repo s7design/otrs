@@ -279,7 +279,6 @@ sub Run {
             TemplateTypes => 1,
             Valid         => 1,
         );
-
         $Self->_ArticleItem(
             Ticket            => \%Ticket,
             Article           => \%Article,
@@ -1898,14 +1897,14 @@ sub _ArticleItem {
             if ($Access) {
 
                 # get StandardResponsesStrg
-                $Param{StandardResponses}->{0}
-                    = ' - ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -';
-
+                my @StandardResponseArray = sort values %{$Param{StandardResponses}};                
+                unshift(@StandardResponseArray , '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -');
+                
                 # build html string
                 my $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
                     Name => 'ResponseID',
                     ID   => 'ResponseID',
-                    Data => $Param{StandardResponses},
+                    Data => \@StandardResponseArray,
                 );
 
                 $Self->{LayoutObject}->Block(
@@ -1957,13 +1956,13 @@ sub _ArticleItem {
                     }
                 }
                 if ( $RecipientCount > 1 ) {
-                    $Param{StandardResponses}->{0}
-                        = ' - ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -';
+                    shift(@StandardResponseArray);
+                    unshift(@StandardResponseArray , '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -');
 
                     $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
                         Name => 'ResponseID',
                         ID   => 'ResponseIDAll',
-                        Data => $Param{StandardResponses},
+                        Data => \@StandardResponseArray,
                     );
 
                     $Self->{LayoutObject}->Block(
@@ -2027,14 +2026,14 @@ sub _ArticleItem {
                 if ( IsHashRefWithData( $Param{StandardForwards} ) ) {
 
                     # get StandarForwardsStrg
-                    $Param{StandardForwards}->{0}
-                        = '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Forward') . ' -';
+                    my @StandardForwardArray = sort values %{$Param{StandardForwards}};                
+                    unshift(@StandardForwardArray , '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Forward') . ' -');
 
                     # build html string
                     my $StandarForwardsStrg = $Self->{LayoutObject}->BuildSelection(
                         Name => 'ForwardTemplateID',
                         ID   => 'ForwardTemplateID',
-                        Data => $Param{StandardForwards},
+                        Data => \@StandardForwardArray,
                     );
 
                     $Self->{LayoutObject}->Block(

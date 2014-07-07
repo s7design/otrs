@@ -1059,14 +1059,14 @@ sub _Show {
                     }
 
                     # get StandardResponsesStrg
-                    $StandardResponses{0}
-                        = ' - ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -';
+                    my @StandardResponseArray = sort values %StandardResponses;                
+                    unshift(@StandardResponseArray , '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -');
 
                     # build html string
                     my $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
                         Name => 'ResponseID',
                         ID   => 'ResponseID' . $ArticleItem->{ArticleID},
-                        Data => \%StandardResponses,
+                        Data => \@StandardResponseArray,
                     );
 
                     $Self->{LayoutObject}->Block(
@@ -1110,13 +1110,13 @@ sub _Show {
                     if ( $RecipientCount > 1 ) {
 
                         # get StandardResponsesStrg
-                        $StandardResponses{0}
-                            = ' - '
-                            . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -';
+                        shift(@StandardResponseArray);
+                        unshift(@StandardResponseArray , '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -');
+                        
                         $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
                             Name => 'ResponseID',
                             ID   => 'ResponseIDAll' . $ArticleItem->{ArticleID},
-                            Data => \%StandardResponses,
+                            Data => \@StandardResponseArray,
                         );
 
                         $Self->{LayoutObject}->Block(
