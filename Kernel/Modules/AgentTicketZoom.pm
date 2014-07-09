@@ -1896,28 +1896,31 @@ sub _ArticleItem {
 
             if ($Access) {
 
-                # get StandardResponsesStrg             
-                my %StandardResponseHash = %{$Param{StandardResponses}};                 
-                
+                # get StandardResponsesStrg
+                my %StandardResponseHash = %{ $Param{StandardResponses} };
+
                 # get revers StandardResponseHash because we need sort by Values
                 # from %ReverseStandardResponseHash we get value of Key by %StandardResponseHash Value
-                # and @StandardResponseArray is created as array of hashes with elements Key and Value       
-                my %ReverseStandardResponseHash = reverse %StandardResponseHash;           
-                my @StandardResponseArray = map { 
-                    { 
-                        Key   => $ReverseStandardResponseHash{$_} ,
-                        Value => $_
-                    } 
-                }  sort values %StandardResponseHash;   
-                    
-                unshift(@StandardResponseArray ,             
-                    {
-                        Key      => '0',
-                        Value    => '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -',
-                        Selected => 1,
-                    } 
-                );                
+                # and @StandardResponseArray is created as array of hashes with elements Key and Value
                 
+                my %ReverseStandardResponseHash = reverse %StandardResponseHash;
+                my @StandardResponseArray       = map {
+                    {
+                        Key   => $ReverseStandardResponseHash{$_},
+                        Value => $_
+                    }
+                } sort values %StandardResponseHash;
+
+                unshift(
+                    @StandardResponseArray,
+                    {
+                        Key   => '0',
+                        Value => '- '
+                            . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -',
+                        Selected => 1,
+                    }
+                );
+
                 # build html string
                 my $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
                     Name => 'ResponseID',
@@ -1975,12 +1978,14 @@ sub _ArticleItem {
                 }
                 if ( $RecipientCount > 1 ) {
                     shift(@StandardResponseArray);
-                    unshift(@StandardResponseArray ,             
+                    unshift(
+                        @StandardResponseArray,
                         {
                             Key   => '0',
-                            Value => '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -',
+                            Value => '- '
+                                . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -',
                             Selected => 1,
-                        } 
+                        }
                     );
 
                     $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
@@ -2048,28 +2053,30 @@ sub _ArticleItem {
             }
             if ($Access) {
                 if ( IsHashRefWithData( $Param{StandardForwards} ) ) {
-                    
+
                     # get StandardForwardsStrg
-                    my %StandardForwardHash = %{$Param{StandardForwards}};                   
-                
+                    my %StandardForwardHash = %{ $Param{StandardForwards} };
+
                     # get revers @StandardForwardHash because we need sort by Values
                     # from %ReverseStandarForward we get value of Key by %StandardForwardHash Value
-                    # and @StandardForwardArray is created as array of hashes with elements Key and Value       
-                    my %ReverseStandarForward = reverse %StandardForwardHash;           
-                    my @StandardForwardArray = map { 
-                        { 
-                            Key   => $ReverseStandarForward{$_} ,
-                            Value => $_
-                        } 
-                    }  sort values %StandardForwardHash;   
-                    
-                    unshift(@StandardForwardArray ,             
+                    # and @StandardForwardArray is created as array of hashes with elements Key and Value
+                    my %ReverseStandarForward = reverse %StandardForwardHash;
+                    my @StandardForwardArray  = map {
                         {
-                            Key      => '0',
-                            Value    => '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Forward') . ' -',
+                            Key   => $ReverseStandarForward{$_},
+                            Value => $_
+                        }
+                    } sort values %StandardForwardHash;
+
+                    unshift(
+                        @StandardForwardArray,
+                        {
+                            Key   => '0',
+                            Value => '- '
+                                . $Self->{LayoutObject}->{LanguageObject}->Get('Forward') . ' -',
                             Selected => 1,
-                        } 
-                    );             
+                        }
+                    );
 
                     # build html string
                     my $StandarForwardsStrg = $Self->{LayoutObject}->BuildSelection(
