@@ -1058,9 +1058,26 @@ sub _Show {
                         %StandardResponses = %{ $StandardTemplates{Answer} };
                     }
 
-                    # get StandardResponsesStrg
-                    my @StandardResponseArray = sort values %StandardResponses;                
-                    unshift(@StandardResponseArray , '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -');
+                    # get StandardResponsesStrg                         
+                
+                    # get revers StandardResponse because we need sort by Values
+                    # from %ReverseStandardResponseHash we get value of Key by %StandardResponse Value
+                    # and @StandardResponseArray is created as array of hashes with elements Key and Value       
+                    my %ReverseStandardResponseHash = reverse %StandardResponses;           
+                    my @StandardResponseArray = map { 
+                        { 
+                            Key   => $ReverseStandardResponseHash{$_} ,
+                            Value => $_
+                        } 
+                    }  sort values %StandardResponses;   
+                    
+                    unshift(@StandardResponseArray ,             
+                        {
+                            Key      => '0',
+                            Value    => '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -',
+                            Selected => 1,
+                        } 
+                    ); 
 
                     # build html string
                     my $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
@@ -1111,7 +1128,13 @@ sub _Show {
 
                         # get StandardResponsesStrg
                         shift(@StandardResponseArray);
-                        unshift(@StandardResponseArray , '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -');
+                        unshift(@StandardResponseArray ,             
+                            {
+                                Key   => '0',
+                                Value => '- ' . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -',
+                                Selected => 1,
+                            } 
+                        );
                         
                         $StandardResponsesStrg = $Self->{LayoutObject}->BuildSelection(
                             Name => 'ResponseID',
