@@ -1058,12 +1058,11 @@ sub _Show {
                         %StandardResponses = %{ $StandardTemplates{Answer} };
                     }
 
-                    # get StandardResponsesStrg
-                    
-                    # get revers StandardResponse because we need sort by Values
-                    # from %ReverseStandardResponseHash we get value of Key by %StandardResponse Value
-                    # and @StandardResponseArray is created as array of hashes with elements Key and Value
-                    
+              # get StandardResponsesStrg
+              # get revers StandardResponse because we need to sort by Values
+              # from %ReverseStandardResponseHash we get value of Key by %StandardResponse Value
+              # and @StandardResponseArray is created as array of hashes with elements Key and Value
+
                     my %ReverseStandardResponseHash = reverse %StandardResponses;
                     my @StandardResponseArray       = map {
                         {

@@ -1899,10 +1899,10 @@ sub _ArticleItem {
                 # get StandardResponsesStrg
                 my %StandardResponseHash = %{ $Param{StandardResponses} };
 
-                # get revers StandardResponseHash because we need sort by Values
-                # from %ReverseStandardResponseHash we get value of Key by %StandardResponseHash Value
-                # and @StandardResponseArray is created as array of hashes with elements Key and Value
-                
+              # get revers StandardResponseHash because we need to sort by Values
+              # from %ReverseStandardResponseHash we get value of Key by %StandardResponseHash Value
+              # and @StandardResponseArray is created as array of hashes with elements Key and Value
+
                 my %ReverseStandardResponseHash = reverse %StandardResponseHash;
                 my @StandardResponseArray       = map {
                     {
@@ -2057,9 +2057,9 @@ sub _ArticleItem {
                     # get StandardForwardsStrg
                     my %StandardForwardHash = %{ $Param{StandardForwards} };
 
-                    # get revers @StandardForwardHash because we need sort by Values
-                    # from %ReverseStandarForward we get value of Key by %StandardForwardHash Value
-                    # and @StandardForwardArray is created as array of hashes with elements Key and Value
+               # get revers @StandardForwardHash because we need to sort by Values
+               # from %ReverseStandarForward we get value of Key by %StandardForwardHash Value
+               # and @StandardForwardArray is created as array of hashes with elements Key and Value
                     my %ReverseStandarForward = reverse %StandardForwardHash;
                     my @StandardForwardArray  = map {
                         {
