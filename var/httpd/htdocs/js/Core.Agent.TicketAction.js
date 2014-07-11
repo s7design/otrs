@@ -154,11 +154,14 @@ Core.Agent.TicketAction = (function (TargetNS) {
             $('#OptionSpellCheck').bind('click', function() {
                 Core.Config.Set('TextIsSpellChecked', '1');
             });
-            $('#RichTextField, .RichTextField').on('change', '#RichText', function() {
-                if (Core.Config.Get('TextIsSpellChecked') === '1'){
-                    Core.Config.Set('TextIsSpellChecked', '0');
-                }
-            });
+
+            if ( parseInt(Core.Config.Get('RichTextSet')) === 0){
+                $('#RichTextField, .RichTextField').on('change', '#RichText', function() {
+                    if (Core.Config.Get('TextIsSpellChecked') === '1'){
+                        Core.Config.Set('TextIsSpellChecked', '0');
+                    }
+                });
+            }
 
             Core.Form.Validate.SetSubmitFunction($('form[name=compose]'), function(Form) {
                 if ( $('#RichText').val() && !$('#RichText').hasClass('ValidationIgnore') && parseInt(Core.Config.Get('TextIsSpellChecked'), 10) === 0 ) {
