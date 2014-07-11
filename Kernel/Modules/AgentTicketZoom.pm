@@ -1963,7 +1963,7 @@ sub _ArticleItem {
                     {
                         Key   => '0',
                         Value => '- '
-                            . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -',
+                            . $Self->{LayoutObject}->{LanguageObject}->Translate('Reply') . ' -',
                         Selected => 1,
                     }
                 );
@@ -2030,7 +2030,8 @@ sub _ArticleItem {
                         {
                             Key   => '0',
                             Value => '- '
-                                . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All') . ' -',
+                                . $Self->{LayoutObject}->{LanguageObject}->Translate('Reply All')
+                                . ' -',
                             Selected => 1,
                         }
                     );
@@ -2120,7 +2121,8 @@ sub _ArticleItem {
                         {
                             Key   => '0',
                             Value => '- '
-                                . $Self->{LayoutObject}->{LanguageObject}->Get('Forward') . ' -',
+                                . $Self->{LayoutObject}->{LanguageObject}->Translate('Forward')
+                                . ' -',
                             Selected => 1,
                         }
                     );

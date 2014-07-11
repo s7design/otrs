@@ -1077,7 +1077,8 @@ sub _Show {
                         {
                             Key   => '0',
                             Value => '- '
-                                . $Self->{LayoutObject}->{LanguageObject}->Get('Reply') . ' -',
+                                . $Self->{LayoutObject}->{LanguageObject}->Translate('Reply')
+                                . ' -',
                             Selected => 1,
                         }
                     );
@@ -1138,7 +1139,8 @@ sub _Show {
                             {
                                 Key   => '0',
                                 Value => '- '
-                                    . $Self->{LayoutObject}->{LanguageObject}->Get('Reply All')
+                                    . $Self->{LayoutObject}->{LanguageObject}
+                                    ->Translate('Reply All')
                                     . ' -',
                                 Selected => 1,
                             }
