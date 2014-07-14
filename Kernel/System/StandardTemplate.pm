@@ -123,7 +123,7 @@ sub StandardTemplateAdd {
     }
 
     # check if a standard template with this name already exits
-    return if !$Self->_NameExistsCheck( Name => $Param{Name} );
+    return if ( $Self->NameExistsCheck( Name => $Param{Name} ) == 1 );
 
     # sql
     return if !$Self->{DBObject}->Do(
@@ -285,10 +285,7 @@ sub StandardTemplateUpdate {
     }
 
     # check if a standard template with this name already exits
-    return if !$Self->_NameExistsCheck(
-        Name => $Param{Name},
-        ID   => $Param{ID},
-    );
+    return if ( $Self->NameExistsCheck( Name => $Param{Name}, ID => $Param{ID} ) == 1 );
 
     # sql
     return if !$Self->{DBObject}->Do(
@@ -453,26 +450,31 @@ sub StandardTemplateList {
     return %Data;
 }
 
-=begin Internal:
+=item NameExistsCheck()
 
-=item _NameExistsCheck()
+return 1 if another standard template with this name already exits
 
-return if another standard template with this name already exits
-
-    $StandardTemplateObject->_NameExistsCheck(
+    $Exist = $StandardTemplateObject->NameExistsCheck(
         Name => 'Some::Template',
         ID   => 1, # optional
     );
 
 =cut
 
-sub _NameExistsCheck {
+sub NameExistsCheck {
     my ( $Self, %Param ) = @_;
+    my $Exist = 0;
 
-    return if !$Self->{DBObject}->Prepare(
-        SQL  => 'SELECT id FROM standard_template WHERE name = ?',
-        Bind => [ \$Param{Name} ],
-    );
+    if (
+        !$Self->{DBObject}->Prepare(
+            SQL  => 'SELECT id FROM standard_template WHERE name = ?',
+            Bind => [ \$Param{Name} ],
+        )
+        )
+    {
+        $Exist = 0;
+        return $Exist;
+    }
 
     # fetch the result
     my $Flag;
@@ -487,15 +489,12 @@ sub _NameExistsCheck {
             Priority => 'error',
             Message  => "A standard template with name '$Param{Name}' already exists!",
         );
-        return;
+        $Exist = 1;
+        return $Exist;
     }
 
-    return 1;
+    return $Exist;
 }
-
-=end Internal:
-
-=cut
 
 1;
 
