@@ -6276,7 +6276,7 @@ via the Preferences button after logging in.
         <SubGroup>Core::Queue</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="Module">Kernel::System::Queue::Event::QueueUpdate</Item>
+                <Item Key="Module">Kernel::System::Queue::Event::TicketAcceleratorIndexStaticDBUpdate</Item>
                 <Item Key="Event">QueueUpdate</Item>
                 <Item Key="Transaction">0</Item>
             </Hash>
