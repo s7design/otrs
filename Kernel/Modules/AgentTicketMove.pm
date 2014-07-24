@@ -1131,7 +1131,7 @@ sub AgentMove {
 
     # set move queues
     $Param{MoveQueuesStrg} = $Self->{LayoutObject}->AgentQueueListOption(
-        Data => { %MoveQueues, '' => '-' },
+        Data           => \%MoveQueues,
         Multiple       => 0,
         Size           => 0,
         Class          => 'Validate_Required' . ' ' . $Param{DestQueueIDInvalid},

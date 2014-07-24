@@ -781,7 +781,7 @@ sub Run {
                     Data         => $NewTos,
                     SelectedID   => $Dest,
                     Translation  => 0,
-                    PossibleNone => 0,
+                    PossibleNone => 1,
                     TreeView     => $TreeView,
                     Max          => 100,
                 },
@@ -903,7 +903,7 @@ sub _GetTos {
     my ( $Self, %Param ) = @_;
 
     # check own selection
-    my %NewTos = ( '', '-' );
+    my %NewTos = {};
     my $Module = $Self->{ConfigObject}->Get('CustomerPanel::NewTicketQueueSelectionModule')
         || 'Kernel::Output::HTML::CustomerNewTicketQueueSelectionGeneric';
     if ( $Self->{MainObject}->Require($Module) ) {
@@ -916,7 +916,7 @@ sub _GetTos {
                 Message  => "Module: $Module loaded!",
             );
         }
-        %NewTos = ( $Object->Run( Env => $Self, ACLParams => \%Param ), ( '', => '-' ) );
+        %NewTos = ( $Object->Run( Env => $Self, ACLParams => \%Param ) );
     }
     else {
         return $Self->{LayoutObject}->FatalDie(
@@ -953,7 +953,7 @@ sub _MaskNew {
     if ( $Self->{Config}->{Queue} ) {
 
         # check own selection
-        my %NewTos = ( '', '-' );
+        my %NewTos = {};
         my $Module = $Self->{ConfigObject}->Get('CustomerPanel::NewTicketQueueSelectionModule')
             || 'Kernel::Output::HTML::CustomerNewTicketQueueSelectionGeneric';
         if ( $Self->{MainObject}->Require($Module) ) {
@@ -966,7 +966,7 @@ sub _MaskNew {
                     Message  => "Module: $Module loaded!",
                 );
             }
-            %NewTos = ( $Object->Run( Env => $Self, ACLParams => \%Param ), ( '', => '-' ) );
+            %NewTos = ( $Object->Run( Env => $Self, ACLParams => \%Param ) );
         }
         else {
             return $Self->{LayoutObject}->FatalError();

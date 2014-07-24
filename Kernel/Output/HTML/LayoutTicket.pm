@@ -251,6 +251,67 @@ sub AgentQueueListOption {
 
     # just show a simple list
     if ( $Self->{ConfigObject}->Get('Ticket::Frontend::ListType') eq 'list' ) {
+
+        my %QueueDataHash = %{ $Param{Data} || {} };
+
+        # get StandardResponsesStrg
+
+        my %ReverseQueueDataHash = reverse %QueueDataHash;
+        my @QueueDataArray       = map {
+            {
+                Key   => $ReverseQueueDataHash{$_},
+                Value => $_
+            }
+        } sort values %QueueDataHash;
+
+        if (
+            ( $Self->{Action} eq 'AgentTicketZoom' )
+            || ( $Self->{Action} eq 'AgentTicketQueue' )
+            || ( $Self->{Action} eq 'AgentTicketStatusView' )
+            || ( $Self->{Action} eq 'AgentTicketResponsibleView' )
+            || ( $Self->{Action} eq 'AgentTicketLockedView' )
+            || ( $Self->{Action} eq 'AgentTicketWatchView' )
+            || ( $Self->{Action} eq 'AgentTicketEscalationView' )
+            )
+        {
+
+            unshift(
+                @QueueDataArray,
+                {
+                    Key      => '0',
+                    Value    => '- Move - ',
+                    Selected => 1,
+                }
+            );
+        }
+        elsif (
+            ( $Self->{Action} eq 'AgentTicketPhone' )
+            || ( $Self->{Action} eq 'AgentTicketEmail' )
+            || ( $Self->{Action} eq 'AgentTicketBulk' )
+            || ( $Self->{Action} eq 'CustomerTicketMessage' )
+            || ( $Self->{Action} eq 'AgentTicketResponsible' )
+            || ( $Self->{Action} eq 'AgentTicketPending' )
+            || ( $Self->{Action} eq 'AgentTicketOwner' )
+            || ( $Self->{Action} eq 'AgentTicketNote' )
+            || ( $Self->{Action} eq 'AgentTicketClose' )
+            || ( $Self->{Action} eq 'AgentTicketPriority' )
+            || ( $Self->{Action} eq 'AgentTicketFreeText' )
+            || ( $Self->{Action} eq 'AdminSystemAddress' )
+            || ( $Self->{Action} eq 'AdminMailAccount' )
+            || ( $Self->{Action} eq 'AgentTicketMove' )
+            )
+        {
+            unshift(
+                @QueueDataArray,
+                {
+                    Key      => '0',
+                    Value    => '- ',
+                    Selected => 1,
+                }
+            );
+        }
+
+        $Param{Data}           = \@QueueDataArray;
         $Param{MoveQueuesStrg} = $Self->BuildSelection(
             %Param,
             HTMLQuote     => 0,
@@ -283,6 +344,46 @@ sub AgentQueueListOption {
     # add suffix for correct sorting
     for ( sort { $Data{$a} cmp $Data{$b} } keys %Data ) {
         $Data{$_} .= '::';
+    }
+
+    if (
+        ( $Self->{Action} eq 'AgentTicketZoom' )
+        || ( $Self->{Action} eq 'AgentTicketQueue' )
+        || ( $Self->{Action} eq 'AgentTicketStatusView' )
+        || ( $Self->{Action} eq 'AgentTicketResponsibleView' )
+        || ( $Self->{Action} eq 'AgentTicketLockedView' )
+        || ( $Self->{Action} eq 'AgentTicketWatchView' )
+        || ( $Self->{Action} eq 'AgentTicketEscalationView' )
+        )
+    {
+        $Param{MoveQueuesStrg} .= '<option value="0"'
+            . 'selected="selected"'
+            . '>'
+            . '- Move -'
+            . "</option>\n";
+    }
+    elsif (
+        ( $Self->{Action} eq 'AgentTicketPhone' )
+        || ( $Self->{Action} eq 'AgentTicketEmail' )
+        || ( $Self->{Action} eq 'AgentTicketBulk' )
+        || ( $Self->{Action} eq 'CustomerTicketMessage' )
+        || ( $Self->{Action} eq 'AgentTicketResponsible' )
+        || ( $Self->{Action} eq 'AgentTicketPending' )
+        || ( $Self->{Action} eq 'AgentTicketOwner' )
+        || ( $Self->{Action} eq 'AgentTicketNote' )
+        || ( $Self->{Action} eq 'AgentTicketClose' )
+        || ( $Self->{Action} eq 'AgentTicketPriority' )
+        || ( $Self->{Action} eq 'AgentTicketFreeText' )
+        || ( $Self->{Action} eq 'AdminSystemAddress' )
+        || ( $Self->{Action} eq 'AdminMailAccount' )
+        || ( $Self->{Action} eq 'AgentTicketMove' )
+        )
+    {
+        $Param{MoveQueuesStrg} .= '<option value="0"'
+            . 'selected="selected"'
+            . '>'
+            . '- '
+            . "</option>\n";
     }
 
     # to show disabled queues only one time in the selection tree

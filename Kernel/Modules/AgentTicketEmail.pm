@@ -1674,7 +1674,7 @@ sub Run {
                     Data         => $NewTos,
                     SelectedID   => $Dest,
                     Translation  => 0,
-                    PossibleNone => 0,
+                    PossibleNone => 1,
                     TreeView     => $TreeView,
                     Max          => 100,
                 },
@@ -2031,8 +2031,6 @@ sub _GetTos {
         }
     }
 
-    # add empty selection
-    $NewTos{''} = '-';
     return \%NewTos;
 }
 

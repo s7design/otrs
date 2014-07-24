@@ -944,7 +944,7 @@ sub _Mask {
         Type   => 'move_into',
     );
     $Param{MoveQueuesStrg} = $Self->{LayoutObject}->AgentQueueListOption(
-        Data => { %MoveQueues, '' => '-' },
+        Data     => \%MoveQueues,
         Multiple => 0,
         Size     => 0,
         Name     => 'QueueID',
