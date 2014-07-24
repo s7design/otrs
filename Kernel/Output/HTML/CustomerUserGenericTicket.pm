@@ -170,6 +170,11 @@ sub Run {
         $CSSClass = $Param{Config}->{CSSClassOpenTicket};
     }
 
+    my $IconName = $Param{Config}->{IconNameNoOpenTicket};
+    if ($Count) {
+        $IconName = $Param{Config}->{IconNameOpenTicket};
+    }
+
     # generate block
     $Self->{LayoutObject}->Block(
         Name => 'CustomerItemRow',
@@ -178,6 +183,7 @@ sub Run {
             CSSClass  => $CSSClass,
             Extension => " ($Count)",
             URL       => $URL,
+            IconName  => $IconName,
         },
     );
 

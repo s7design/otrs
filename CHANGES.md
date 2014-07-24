@@ -1,4 +1,15 @@
 #3.4.0.beta1 20??-??-??
+ - 2014-07-22 Fixed bug#[10644](http://bugs.otrs.org/show_bug.cgi?id=10644) - Module parameters in GenericAgent are copied to ticket parameters
+ - 2017-07-21 Changed Action based Ticket ACLs format from a hash form to an array form just like the other ACLs, including possiblilty to define Action based Ticket ACLs in the PossibleNot and PossibleAdd sections.
+ - 2017-07-21 Added new Tiket ACL debugging options.
+ - 2014-07-21 Added [Not], [NotRegExp] and [Notregexp] modifiers for all Ticket ACL sections.
+ - 2014-07-21 Added possibility to combine different Ticket ACLs with Possible, PossibleAdd and PossibleNot sections.
+ - 2014-07-21 Added PossibleAdd section to Ticket ACls.
+ - 2014-07-21 Added "My Services" feature including: "Status View", "Tickets in My Services" filter for ticket based dashboard dashlets and more notification options under agent preferences.
+ - 2014-07-21 Added DTL -> TT migration script for templates.
+ - 2014-07-18 Changed customer user item to font awesome, thanks to Nils Leideck.
+ - 2014-07-16 Added Generic Interface Transport HTTP REST
+ - 2014-07-14 Added possibility to reply directly to internal and external notes.
  - 2014-07-10 Fixed bug#[10623](http://bugs.otrs.org/show_bug.cgi?id=10623) - Ticket owner is not shown regardless what is configured, thanks to Renee Bäcker.
  - 2014-07-10 Changed default settings to use a quick connect string instead of SID to connect to an oracle database, because SID is not working with an Oracle RAC cluster.
  - 2014-07-10 Changed default settings of oracles NLS_LANG variable from UTF8 to AL32UTF8 to fix problems with 4 byte unicode character.
@@ -77,6 +88,8 @@
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
 #3.3.9 2014-??-??
+ - 2014-07-17 Fixed bug#[10612](http://bugs.otrs.org/show_bug.cgi?id=10612) - Wrong Time in DashboardField "Changed", thanks to S7.
+ - 2014-07-10 Fixed bug#[10595](http://bugs.otrs.org/show_bug.cgi?id=10595) - Standard Replies are false sorted in Ticket Zoom select box.
  - 2014-07-07 Fixed bug#[10534](http://bugs.otrs.org/show_bug.cgi?id=10534) - Wildcard hacking the customer information center, thanks to S7.
  - 2014-07-03 Fixed bug#[10586](http://bugs.otrs.org/show_bug.cgi?id=10586) - In Customer Portal no attachments are shown.
  - 2014-06-30 Fixed bug#[6601](http://bugs.otrs.org/show_bug.cgi?id=6601) - Changing search options changes order of fields, thanks to S7.
