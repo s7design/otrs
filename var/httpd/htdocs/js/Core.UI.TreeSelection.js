@@ -484,20 +484,6 @@ Core.UI.TreeSelection = (function (TargetNS) {
             });
         });
 
-        SelectData.sort(function(a, b) {
-
-            var KeyA = a.Key.toLowerCase(),
-                KeyB = b.Key.toLowerCase();
-
-            if (KeyA < KeyB) {
-               return -1;
-            }
-            if (KeyA > KeyB) {
-               return 1;
-            }
-            return 0;
-        });
-
         $.each(SelectData, function(index, Data) {
             $FieldObj.append('<option value="' + Data.Key + '"' + Data.SelectedAttr + Data.DisabledAttr + '>' + Data.Value + '</option>');
         });
