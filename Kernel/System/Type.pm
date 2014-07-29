@@ -14,6 +14,12 @@ use warnings;
 
 use Kernel::System::CacheInternal;
 
+our @ObjectDependencies = (
+    @Kernel::System::ObjectManager::DefaultObjectDependencies,
+    qw(ValidObject)
+);
+our $ObjectManagerAware = 1;
+
 =head1 NAME
 
 Kernel::System::Type - type lib

@@ -16,6 +16,10 @@ use Kernel::System::EventHandler;
 
 use base qw(Kernel::System::EventHandler);
 
+our @ObjectDependencies
+    = ( @Kernel::System::ObjectManager::DefaultObjectDependencies, qw(CustomerCompanyObject) );
+our $ObjectManagerAware = 1;
+
 =head1 NAME
 
 Kernel::System::CustomerUser - customer user lib
@@ -345,7 +349,7 @@ sub CustomerUserDataGet {
             %Customer,
             Source        => "CustomerUser$Count",
             Config        => $Self->{ConfigObject}->Get("CustomerUser$Count"),
-            CompanyConfig => $Self->{ConfigObject}->Get("CustomerCompany"),
+            CompanyConfig => $Self->{ConfigObject}->Get( $Company{Source} // 'CustomerCompany' ),
         );
     }
     return;

@@ -1,7 +1,14 @@
 #3.4.0.beta1 20??-??-??
+ - 2014-07-25 Added possibility to use process ticket information as dynamic values for transition actions.
+ - 2014-07-25 Added new Process Management transition action to create a new ticket.
+ - 2014-07-25 Added possibility to enroll existing tickets into a process.
+ - 2014-07-25 Added new Process Management transition debugging options.
+ - 2014-07-25 Re-enabled update feature during process import.
+ - 2014-07-25 Changed ProcessManagement EntityIDs to random strings.
+ - 2014-07-24 Fixed bug#[8244](http://bugs.otrs.org/show_bug.cgi?id=8244) - QueueView hides queues that do not have at least one unlocked ticket.
  - 2014-07-22 Fixed bug#[10644](http://bugs.otrs.org/show_bug.cgi?id=10644) - Module parameters in GenericAgent are copied to ticket parameters
  - 2017-07-21 Changed Action based Ticket ACLs format from a hash form to an array form just like the other ACLs, including possiblilty to define Action based Ticket ACLs in the PossibleNot and PossibleAdd sections.
- - 2017-07-21 Added new Tiket ACL debugging options.
+ - 2017-07-21 Added new Ticket ACL debugging options.
  - 2014-07-21 Added [Not], [NotRegExp] and [Notregexp] modifiers for all Ticket ACL sections.
  - 2014-07-21 Added possibility to combine different Ticket ACLs with Possible, PossibleAdd and PossibleNot sections.
  - 2014-07-21 Added PossibleAdd section to Ticket ACls.
@@ -88,6 +95,11 @@
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
 #3.3.9 2014-??-??
+ - 2014-07-29 Fixed bug#[10598](http://bugs.otrs.org/show_bug.cgi?id=10598) - Field tags not parsed properly in auto response subject.
+ - 2014-07-29 Fixed bug#[10658](http://bugs.otrs.org/show_bug.cgi?id=10658) - Issue with multiple customer company backends.
+ - 2014-07-29 Fixed bug#[10622](http://bugs.otrs.org/show_bug.cgi?id=10622) - eMail address only with uppercases - wrong display.
+ - 2014-07-29 Fixed bug#[10596](http://bugs.otrs.org/show_bug.cgi?id=10596) - Manual Generic Agent Run doesn't show archived tickets as affected.
+ - 2014-07-29 Fixed bug#[10601](http://bugs.otrs.org/show_bug.cgi?id=10601) - ExternalTicketNumberRecognition produces errors in log file.
  - 2014-07-17 Fixed bug#[10612](http://bugs.otrs.org/show_bug.cgi?id=10612) - Wrong Time in DashboardField "Changed", thanks to S7.
  - 2014-07-10 Fixed bug#[10595](http://bugs.otrs.org/show_bug.cgi?id=10595) - Standard Replies are false sorted in Ticket Zoom select box.
  - 2014-07-07 Fixed bug#[10534](http://bugs.otrs.org/show_bug.cgi?id=10534) - Wildcard hacking the customer information center, thanks to S7.

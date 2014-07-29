@@ -17,6 +17,12 @@ use Storable qw();
 use Kernel::Config;
 use Kernel::Language;
 
+our @ObjectDependencies = (
+    @Kernel::System::ObjectManager::DefaultObjectDependencies,
+    qw(LanguageObject CacheObject XMLObject)
+);
+our $ObjectManagerAware = 1;
+
 =head1 NAME
 
 Kernel::System::SysConfig - to manage sys config settings

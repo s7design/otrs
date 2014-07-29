@@ -14,6 +14,12 @@ use warnings;
 
 use Kernel::System::ObjectManager;
 
+# There are additional dependencies that are only loaded on demand
+## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
+our @ObjectDependencies = (
+    qw(LogObject EncodeObject SessionObject MainObject TimeObject ParamObject UserObject GroupObject),
+);
+
 =head1 NAME
 
 Kernel::System::Web::InterfaceAgent - the agent web interface
@@ -166,13 +172,11 @@ sub Run {
 
     # application and add-on application common objects
     my %CommonObject = %{ $Self->{ConfigObject}->Get('Frontend::CommonObject') };
-
-    # ensure that few required modules are included in ObjectHash()
-    $Kernel::OM->Get('TicketObject');
+    $Self->{TicketObject} = $Kernel::OM->Get('TicketObject');
 
     for my $Key ( sort keys %CommonObject ) {
         if ( $Self->{MainObject}->Require( $CommonObject{$Key} ) ) {
-            $Self->{$Key} = $CommonObject{$Key}->new( $Kernel::OM->ObjectHash(), %{$Self} );
+            $Self->{$Key} = $CommonObject{$Key}->new( %{$Self} );
         }
         else {
 
@@ -889,7 +893,6 @@ sub Run {
 
                 # use module
                 my $PreModuleObject = $PreModule->new(
-                    $Kernel::OM->ObjectHash(),
                     %{$Self},
                     %Param,
                     %UserData,
@@ -915,7 +918,6 @@ sub Run {
         # proof of concept! - create $GenericObject
         my $GenericObject = ( 'Kernel::Modules::' . $Param{Action} )->new(
             %{$Self},
-            $Kernel::OM->ObjectHash(),
             %Param,
             %UserData,
             LayoutObject => $Kernel::OM->Get('LayoutObject'),

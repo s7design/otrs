@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/NavBarOutputModuleCustomerTicketProcess.pm - to show or hide AgentTicketProcess menu item
+# Kernel/Output/HTML/NavBarAgentTicketProcess.pm - to show or hide AgentTicketProcess menu item
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::NavBarOutputModuleCustomerTicketProcess;
+package Kernel::Output::HTML::NavBarAgentTicketProcess;
 
 use strict;
 use warnings;
@@ -20,6 +20,11 @@ use Kernel::System::ProcessManagement::Transition;
 use Kernel::System::ProcessManagement::TransitionAction;
 
 use Kernel::System::VariableCheck qw(:all);
+
+our @ObjectDependencies = (
+    @Kernel::System::ObjectManager::DefaultObjectDependencies,
+    qw(CacheObject)
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -53,16 +58,13 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     # get process management configuration
-    my $FrontendModuleConfig
-        = $Self->{ConfigObject}->Get('CustomerFrontend::Module')->{CustomerTicketProcess};
+    my $FrontendModuleConfig = $Self->{ConfigObject}->Get('Frontend::Module')->{AgentTicketProcess};
 
     # check if the registration config is valid
     return if !IsHashRefWithData($FrontendModuleConfig);
-
     return if !IsHashRefWithData( $FrontendModuleConfig->{NavBar}->[0] );
 
-    my $NameForID     = $FrontendModuleConfig->{NavBar}->[0]->{Name};
-    my $NameForHidden = $NameForID;
+    my $NameForID = $FrontendModuleConfig->{NavBar}->[0]->{Name};
     $NameForID =~ s/[ &;]//ig;
 
     # check if the module name is valid
@@ -110,15 +112,15 @@ sub Run {
             # get process list
             my $ProcessList = $Self->{ProcessObject}->ProcessList(
                 ProcessState => ['Active'],
-                Interface    => ['CustomerInterface'],
+                Interface    => ['AgentInterface'],
             );
 
             # validate the ProcessList with stored acls
             my $ACL = $Self->{TicketObject}->TicketAcl(
-                ReturnType     => 'Process',
-                ReturnSubType  => '-',
-                Data           => $ProcessList,
-                CustomerUserID => $Self->{UserID},
+                ReturnType    => 'Process',
+                ReturnSubType => '-',
+                Data          => $ProcessList,
+                UserID        => $Self->{UserID},
             );
 
             if ( IsHashRefWithData($ProcessList) && $ACL ) {
@@ -143,18 +145,16 @@ sub Run {
     # return nothing to display the menu item
     return if $DisplayMenuItem;
 
-    # translate the menu item text
-    $NameForHidden = $Self->{LayoutObject}->{LanguageObject}->Translate($NameForHidden);
+    # frontend module is enabled but there is no selectable process, then remove the menu entry
+    my $NavBarName = $FrontendModuleConfig->{NavBarName};
+    my $Priority = sprintf( "%07d", $FrontendModuleConfig->{NavBar}->[0]->{Prio} );
 
-    # add JS snippet to hide the menu item
-    my $Output = $Self->{LayoutObject}->Output(
-        TemplateFile => 'CustomerTicketProcessNavigationBar',
-        Data         => {
-            NameForHidden => $NameForHidden,
-        },
-    );
+    my %Return = %{ $Param{NavBar}->{Sub} || {} };
 
-    return;
+    # remove AgentTicketProcess from the TicketMenu
+    delete $Return{$NavBarName}->{$Priority};
+
+    return ( Sub => \%Return );
 }
 
 1;

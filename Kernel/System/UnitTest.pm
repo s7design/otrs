@@ -18,6 +18,12 @@ use Term::ANSIColor;
 use Kernel::System::Environment;
 use Kernel::System::ObjectManager;
 
+our @ObjectDependencies = (
+    @Kernel::System::ObjectManager::DefaultObjectDependencies,
+    qw(EnvironmentObject)
+);
+our $ObjectManagerAware = 1;
+
 =head1 NAME
 
 Kernel::System::UnitTest - global test interface

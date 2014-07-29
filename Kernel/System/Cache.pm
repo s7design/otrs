@@ -12,6 +12,13 @@ package Kernel::System::Cache;
 use strict;
 use warnings;
 
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Log',
+    'Kernel::System::Main',
+);
+our $ObjectManagerAware = 1;
+
 =head1 NAME
 
 Kernel::System::Cache - cache lib
@@ -32,7 +39,7 @@ create an object. Do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $CacheObject = $Kernel::OM->Get('CacheObject');
+    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
 =cut
 
@@ -40,23 +47,17 @@ sub new {
     my ( $Type, %Param ) = @_;
 
     # allocate new hash for object
-    my $Self = {
-        $Kernel::OM->ObjectHash(
-            Objects => [
-                qw( MainObject ConfigObject LogObject )
-            ],
-        ),
-    };
+    my $Self = {};
     bless( $Self, $Type );
 
     # 0=off; 1=set+get_cache; 2=+delete+get_request;
     $Self->{Debug} = $Param{Debug} || 0;
 
     # cache backend
-    my $CacheModule = $Self->{ConfigObject}->Get('Cache::Module')
+    my $CacheModule = $Kernel::OM->Get('Kernel::Config')->Get('Cache::Module')
         || 'Kernel::System::Cache::FileStorable';
 
-    if ( !$Self->{MainObject}->Require($CacheModule) ) {
+    if ( !$Kernel::OM->Get('Kernel::System::Main')->Require($CacheModule) ) {
         die "Can't load backend module $CacheModule! $@";
     }
 
@@ -84,14 +85,17 @@ sub Set {
     # check needed stuff
     for (qw(Type Key Value TTL)) {
         if ( !defined $Param{$_} ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message => "Need $_!",
+            );
             return;
         }
     }
 
     # Enforce cache type restriction to make sure it works properly on all file systems.
     if ( $Param{Type} !~ m{ \A [a-zA-Z0-9_]+ \z}smx ) {
-        $Self->{LogObject}->Log(
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
             Message =>
                 "Cache Type '$Param{Type}' contains invalid characters, use [a-zA-Z0-9_] only!",
@@ -101,7 +105,7 @@ sub Set {
 
     # debug
     if ( $Self->{Debug} > 0 ) {
-        $Self->{LogObject}->Log(
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'notice',
             Message  => "Set Key:$Param{Key} TTL:$Param{TTL}!",
         );
@@ -126,14 +130,17 @@ sub Get {
     # check needed stuff
     for (qw(Type Key)) {
         if ( !$Param{$_} ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message => "Need $_!",
+            );
             return;
         }
     }
 
     # debug
     if ( $Self->{Debug} > 1 ) {
-        $Self->{LogObject}->Log(
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'notice',
             Message  => "Get Key:$Param{Key}!",
         );
@@ -141,7 +148,7 @@ sub Get {
     my $Value = $Self->{CacheObject}->Get(%Param);
     if ( defined $Value ) {
         if ( $Self->{Debug} > 0 ) {
-            $Self->{LogObject}->Log(
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'notice',
                 Message  => "Get cached Key:$Param{Key}!",
             );
@@ -167,14 +174,17 @@ sub Delete {
     # check needed stuff
     for (qw(Type Key)) {
         if ( !$Param{$_} ) {
-            $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message => "Need $_!",
+            );
             return;
         }
     }
 
     # debug
     if ( $Self->{Debug} > 1 ) {
-        $Self->{LogObject}->Log(
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'notice',
             Message  => "Delete Key:$Param{Key}!",
         );
@@ -210,7 +220,7 @@ sub CleanUp {
 
     # debug
     if ( $Self->{Debug} > 1 ) {
-        $Self->{LogObject}->Log(
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'notice',
             Message  => 'CleanUp cache!',
         );
