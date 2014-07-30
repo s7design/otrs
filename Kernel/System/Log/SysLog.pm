@@ -18,6 +18,7 @@ our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Encode',
 );
+our $ObjectManagerAware = 0;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -27,7 +28,8 @@ sub new {
     bless( $Self, $Type );
 
     # set syslog facility
-    $Self->{SysLogFacility} = $Kernel::OM->Get('Kernel::Config')->Get('LogModule::SysLog::Facility') || 'user';
+    $Self->{SysLogFacility}
+        = $Kernel::OM->Get('Kernel::Config')->Get('LogModule::SysLog::Facility') || 'user';
 
     return $Self;
 }
