@@ -249,6 +249,8 @@ sub AgentQueueListOption {
         $OnChangeSubmit = " onchange=\"$Param{OnChange}\"";
     }
 
+    my $MoveTranslatedStr = $Self->{LanguageObject}->Get('Move');
+
     # just show a simple list
     if ( $Self->{ConfigObject}->Get('Ticket::Frontend::ListType') eq 'list' ) {
 
@@ -279,7 +281,7 @@ sub AgentQueueListOption {
                 @QueueDataArray,
                 {
                     Key      => '0',
-                    Value    => '- Move - ',
+                    Value    => "- $MoveTranslatedStr -",
                     Selected => 1,
                 }
             );
@@ -359,7 +361,7 @@ sub AgentQueueListOption {
         $Param{MoveQueuesStrg} .= '<option value="0"'
             . 'selected="selected"'
             . '>'
-            . '- Move -'
+            . "- $MoveTranslatedStr -"
             . "</option>\n";
     }
     elsif (
