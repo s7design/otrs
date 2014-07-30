@@ -104,11 +104,11 @@ sub Run {
         }
 
         # check if a standard template exist with this name
-        $GetParam{NameExist}
+        $GetParam{NameExists}
             = $Self->{StandardTemplateObject}
             ->NameExistsCheck( Name => $GetParam{Name}, ID => $GetParam{ID} );
 
-        if ( $GetParam{NameExist} ) {
+        if ( $GetParam{NameExists} ) {
             $Errors{'NameInvalid'} = 'ServerError';
         }
 
@@ -225,11 +225,11 @@ sub Run {
             }
         }
 
-        # check if a standard template exist with this name
-        $GetParam{NameExist}
+        # check if a standard template exists with this name
+        $GetParam{NameExists}
             = $Self->{StandardTemplateObject}->NameExistsCheck( Name => $GetParam{Name} );
 
-        if ( $GetParam{NameExist} ) {
+        if ( $GetParam{NameExists} ) {
             $Errors{'NameInvalid'} = 'ServerError';
         }
 
@@ -389,7 +389,7 @@ sub _Edit {
     }
 
     # show appropriate messages for ServerError
-    if ( defined $Param{NameExist} && $Param{NameExist} == 1 ) {
+    if ( defined $Param{NameExists} && $Param{NameExists} == 1 ) {
         $Self->{LayoutObject}->Block( Name => 'ExistNameServerError' );
     }
     else {

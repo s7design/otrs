@@ -123,7 +123,13 @@ sub StandardTemplateAdd {
     }
 
     # check if a standard template with this name already exits
-    return if ( $Self->NameExistsCheck( Name => $Param{Name} ) == 1 );
+    if ( $Self->NameExistsCheck( Name => $Param{Name} ) ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "A standard template with name '$Param{Name}' already exists!"
+        );
+        return;
+    }
 
     # sql
     return if !$Self->{DBObject}->Do(
@@ -285,7 +291,13 @@ sub StandardTemplateUpdate {
     }
 
     # check if a standard template with this name already exits
-    return if ( $Self->NameExistsCheck( Name => $Param{Name}, ID => $Param{ID} ) == 1 );
+    if ( $Self->NameExistsCheck( Name => $Param{Name}, ID => $Param{ID} ) ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "A standard template with name '$Param{Name}' already exists!"
+        );
+        return;
+    }
 
     # sql
     return if !$Self->{DBObject}->Do(
@@ -463,7 +475,6 @@ return 1 if another standard template with this name already exits
 
 sub NameExistsCheck {
     my ( $Self, %Param ) = @_;
-    my $Exist = 0;
 
     if (
         !$Self->{DBObject}->Prepare(
@@ -472,8 +483,7 @@ sub NameExistsCheck {
         )
         )
     {
-        $Exist = 0;
-        return $Exist;
+        return 1;
     }
 
     # fetch the result
@@ -485,15 +495,10 @@ sub NameExistsCheck {
     }
 
     if ($Flag) {
-        $Self->{LogObject}->Log(
-            Priority => 'error',
-            Message  => "A standard template with name '$Param{Name}' already exists!",
-        );
-        $Exist = 1;
-        return $Exist;
+        return 1;
     }
 
-    return $Exist;
+    return 0;
 }
 
 1;
