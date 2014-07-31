@@ -1019,7 +1019,7 @@ sub _MaskUpdate {
     # create the event triggers table
     for my $Event ( @{ $JobData{EventValues} || [] } ) {
 
-        # set the event type ( event object like Article, Ticket)
+        # set the event type ( event object like Article or Ticket)
         my $EventType;
         EVENTTYPE:
         for my $Type ( sort keys %RegisteredEvents ) {
