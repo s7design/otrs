@@ -58,13 +58,13 @@ sub Run {
     if ( $Module eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB' ) {
 
         # only update if Queue has really changed
-        return 1 if $Param{Data}->{NewQueueName} eq $Param{Data}->{OldQueueName};
+        return 1 if  $Param{Data}->{Queue}->{Name} eq $Param{Data}->{OldQueue}->{Name};
 
         # update ticket_index
         if (
             !$CommonObject{TicketObject}->TicketAcceleratorUpdateOnQueueUpdate(
-                NewQueueName => $Param{Data}->{NewQueueName},
-                OldQueueName => $Param{Data}->{OldQueueName}
+                NewQueueName => $Param{Data}->{Queue}->{Name},
+                OldQueueName => $Param{Data}->{OldQueue}->{Name},
             )
             )
         {
