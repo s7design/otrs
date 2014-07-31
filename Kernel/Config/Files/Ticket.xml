@@ -8084,6 +8084,18 @@
             </Array>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Queue::EventModulePost###130-UpdateQueue" Required="0" Valid="1">
+        <Description Translatable="1">Event module that performs an update statement on TicketIndex to rename the queue name there if needed and if StaticDB is actually used.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Core::Queue</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::System::Queue::Event::QueueUpdate</Item>
+                <Item Key="Event">QueueUpdate</Item>
+                <Item Key="Transaction">0</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Frontend::Admin::AdminNotificationEvent###RichText" Required="0" Valid="1">
         <Description Translatable="1">Uses richtext for viewing and editing notification events.</Description>
         <Group>Ticket</Group>

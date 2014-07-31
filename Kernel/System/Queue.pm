@@ -111,14 +111,15 @@ sub new {
     };
 
     use base qw(Kernel::System::EventHandler);
-
-    $Self->EventHandlerInit(
-        Config     => 'Queue::EventModulePost',
-        BaseObject => 'QueueObject',
-        Objects    => {
-            %{$Self},
-        },
-    );
+    
+        $Self->EventHandlerInit(
+            Config     => 'Queue::EventModulePost',
+            BaseObject => 'QueueObject',
+            Objects    => {
+                %{$Self},
+            },
+        );
+    
 
     return $Self;
 }
@@ -1059,15 +1060,12 @@ sub QueueUpdate {
 
     return if !$Result;
 
-    # get queue data with updated name for QueueUpdate event
-    my %Queue = $Self->QueueGet( Name => $Param{Name} );
-
     # trigger event
     $Self->EventHandler(
-        Event => 'QueueUpdate',
-        Data  => {
-            Queue    => \%Queue,
-            OldQueue => \%OldQueue,
+        Event  => 'QueueUpdate',
+        Data => {
+            NewQueueName      =>  $Param{Name},
+            OldQueueName        =>  $OldQueue{Name},
         },
         UserID => $Param{UserID},
     );

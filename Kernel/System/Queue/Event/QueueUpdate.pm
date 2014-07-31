@@ -1,5 +1,5 @@
 # --
-# Kernel/System/Queue/Event/TicketAcceleratorIndexStaticDBUpdate.pm - update statement on TicketIndex to rename the queue name there if needed and if StaticDB is actually used
+# Kernel/System/Queue/Event/QueueUpdate.pm - update statement on TicketIndex to rename the queue name there if needed and if StaticDB is actually used
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Queue::Event::TicketAcceleratorIndexStaticDBUpdate;
+package Kernel::System::Queue::Event::QueueUpdate;
 
 use strict;
 use warnings;
@@ -53,16 +53,25 @@ sub Run {
     );
 
     my $Module = $Self->{ConfigObject}->Get('Ticket::IndexModule');
-    
+
     #check if ticket index accelerator module is StaticDB
     if ( $Module eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB' ) {
 
-        # only update if Queue has really changed   
-        return 1 if $Param{Data}->{Queue}->{Name} eq $Param{Data}->{OldQueue}->{Name};
+        # only update if Queue has really changed
+        return 1 if $Param{Data}->{NewQueueName} eq $Param{Data}->{OldQueueName};
 
-        # rebuild
-        if ( !$CommonObject{TicketObject}->TicketAcceleratorRebuild() ) {
-            $CommonObject{LogObject}->Log( Priority => 'error' ,Message =>"TicketAcceleratorRebuild error during update of queue! ");
+        # update ticket_index
+        if (
+            !$CommonObject{TicketObject}->TicketAcceleratorUpdateOnQueueUpdate(
+                NewQueueName => $Param{Data}->{NewQueueName},
+                OldQueueName => $Param{Data}->{OldQueueName}
+            )
+            )
+        {
+            $CommonObject{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error during update queue in ticket_index! "
+            );
         }
     }
 

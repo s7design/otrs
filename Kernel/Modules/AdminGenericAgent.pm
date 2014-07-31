@@ -1013,7 +1013,7 @@ sub _MaskUpdate {
 
     # get registered event triggers from the config
     my %RegisteredEvents = $Self->{EventObject}->EventList(
-        ObjectTypes => [ 'Ticket', 'Article', 'Queue' ],
+        ObjectTypes => [ 'Ticket', 'Article' ],
     );
 
     # create the event triggers table
