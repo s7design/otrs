@@ -24,7 +24,17 @@ use base qw(Kernel::System::EventHandler);
 
 our @ObjectDependencies = (
     @Kernel::System::ObjectManager::DefaultObjectDependencies,
-    qw(CacheObject JSONObject LoaderObject XMLObject)
+    qw(CacheObject JSONObject LoaderObject XMLObject),
+    'Kernel::System::DB',
+    'Kernel::Config',
+    'Kernel::System::Log',
+    'Kernel::System::Time',
+    'Kernel::System::Main',
+    'Kernel::System::Encode',
+    'Kernel::System::Cache',
+    'Kernel::System::JSON',
+    'Kernel::System::Loader',
+    'Kernel::System::XML',
 );
 our $ObjectManagerAware = 1;
 
@@ -537,7 +547,9 @@ sub PackageInstall {
         );
     }
 
-    $Self->{CacheObject}->CleanUp();
+    $Self->{CacheObject}->CleanUp(
+        KeepTypes => ['XMLParse'],
+    );
     $Self->{LoaderObject}->CacheDelete();
 
     # trigger event
@@ -615,7 +627,9 @@ sub PackageReinstall {
         );
     }
 
-    $Self->{CacheObject}->CleanUp();
+    $Self->{CacheObject}->CleanUp(
+        KeepTypes => ['XMLParse'],
+    );
     $Self->{LoaderObject}->CacheDelete();
 
     # trigger event
@@ -1014,7 +1028,9 @@ sub PackageUpgrade {
         );
     }
 
-    $Self->{CacheObject}->CleanUp();
+    $Self->{CacheObject}->CleanUp(
+        KeepTypes => ['XMLParse'],
+    );
     $Self->{LoaderObject}->CacheDelete();
 
     # trigger event
@@ -1104,7 +1120,9 @@ sub PackageUninstall {
     # install config
     $Self->{ConfigObject} = Kernel::Config->new( %{$Self} );
 
-    $Self->{CacheObject}->CleanUp();
+    $Self->{CacheObject}->CleanUp(
+        KeepTypes => ['XMLParse'],
+    );
     $Self->{LoaderObject}->CacheDelete();
 
     # trigger event
@@ -2102,6 +2120,8 @@ sub PackageParse {
         my $Cache = $Self->{CacheObject}->Get(
             Type => 'PackageParse',
             Key  => $Checksum,
+            # Don't store complex structure in memory as it will be modified later.
+            CacheInMemory => 0,
         );
         return %{$Cache} if $Cache;
     }
@@ -2118,8 +2138,7 @@ sub PackageParse {
         return;
     }
 
-    # cleanup global vars
-    undef $Self->{Package};
+    my %Package;
 
     # parse package
     my %PackageMap = %{ $Self->{PackageMap} };
@@ -2130,7 +2149,7 @@ sub PackageParse {
         next TAG if $Tag->{TagType} ne 'Start';
 
         if ( $PackageMap{ $Tag->{Tag} } && $PackageMap{ $Tag->{Tag} } eq 'SCALAR' ) {
-            $Self->{Package}->{ $Tag->{Tag} } = $Tag;
+            $Package{ $Tag->{Tag} } = $Tag;
         }
         elsif ( $PackageMap{ $Tag->{Tag} } && $PackageMap{ $Tag->{Tag} } eq 'ARRAY' ) {
 
@@ -2146,7 +2165,7 @@ sub PackageParse {
                 $Tag->{Type} = 'post';
             }
 
-            push @{ $Self->{Package}->{ $Tag->{Tag} } }, $Tag;
+            push @{ $Package{ $Tag->{Tag} } }, $Tag;
         }
     }
 
@@ -2205,7 +2224,7 @@ sub PackageParse {
                 }
             }
 
-            push @{ $Self->{Package}->{Filelist} }, $Tag;
+            push @{ $Package{Filelist} }, $Tag;
         }
     }
 
@@ -2218,7 +2237,7 @@ sub PackageParse {
 
             if ( $Open && $Tag->{Tag} eq $Key ) {
                 $Open = 0;
-                push( @{ $Self->{Package}->{$Key}->{$Type} }, $Tag );
+                push( @{ $Package{$Key}->{$Type} }, $Tag );
             }
             elsif ( !$Open && $Tag->{Tag} eq $Key ) {
 
@@ -2231,12 +2250,12 @@ sub PackageParse {
 
             next TAG if !$Open;
 
-            push @{ $Self->{Package}->{$Key}->{$Type} }, $Tag;
+            push @{ $Package{$Key}->{$Type} }, $Tag;
         }
     }
 
     # check if a structure is present
-    if ( !IsHashRefWithData( $Self->{Package} ) ) {
+    if ( !%Package ) {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message  => "Invalid package structure in PackageParse()!",
@@ -2244,21 +2263,19 @@ sub PackageParse {
         return;
     }
 
-    # return package structure
-    my %Return = %{ $Self->{Package} };
-    undef $Self->{Package};
-
     # set cache
     if ($Checksum) {
         $Self->{CacheObject}->Set(
             Type  => 'PackageParse',
             Key   => $Checksum,
-            Value => \%Return,
+            Value => \%Package,
             TTL   => 30 * 24 * 60 * 60,
+            # Don't store complex structure in memory as it will be modified later.
+            CacheInMemory => 0,
         );
     }
 
-    return %Return;
+    return %Package;
 }
 
 =item PackageExport()
@@ -3397,7 +3414,9 @@ sub _PackageUninstallMerged {
         Name => $Param{Name},
     );
 
-    $Self->{CacheObject}->CleanUp();
+    $Self->{CacheObject}->CleanUp(
+        KeepTypes => ['XMLParse'],
+    );
     $Self->{LoaderObject}->CacheDelete();
 
     return $PackageRemove;

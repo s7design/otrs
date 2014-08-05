@@ -69,6 +69,11 @@ for my $ModuleFile (@BackendModuleFiles) {
         # flush the cache to have a clear test enviroment
         $CacheObject->CleanUp();
 
+        # some tests check that the cache expires, for that we have to disable the in-memory cache
+        $CacheObject->Configure(
+            CacheInMemory => 0
+        );
+
         # set fixed time
         $HelperObject->FixedTimeSet();
 

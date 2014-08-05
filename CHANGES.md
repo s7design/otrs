@@ -1,4 +1,5 @@
 #3.4.0.beta1 20??-??-??
+ - 2014-08-04 Removed CacheInternal.pm. Caching is now done with the global Cache object stored in the ObjectManager, which also does in-memory caching.
  - 2014-07-25 Added possibility to use process ticket information as dynamic values for transition actions.
  - 2014-07-25 Added new Process Management transition action to create a new ticket.
  - 2014-07-25 Added possibility to enroll existing tickets into a process.
@@ -95,6 +96,7 @@
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
 #3.3.9 2014-??-??
+ - 2014-08-01 Fixed bug#[10670](http://bugs.otrs.org/show_bug.cgi?id=10670) - It is possible to start the scheduler more than once.
  - 2014-07-29 Fixed bug#[10598](http://bugs.otrs.org/show_bug.cgi?id=10598) - Field tags not parsed properly in auto response subject.
  - 2014-07-29 Fixed bug#[10658](http://bugs.otrs.org/show_bug.cgi?id=10658) - Issue with multiple customer company backends.
  - 2014-07-29 Fixed bug#[10622](http://bugs.otrs.org/show_bug.cgi?id=10622) - eMail address only with uppercases - wrong display.
