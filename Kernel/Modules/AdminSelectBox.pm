@@ -60,9 +60,14 @@ sub Run {
         }
 
         # check needed data
-        if ( !$Param{SQL} ) {
+        if ( !$Param{SQL} || $Param{SQL} !~ /SELECT/i ) {
             $Errors{SQLInvalid} = 'ServerError';
             $Errors{ErrorType}  = 'FieldRequired';
+        }
+
+        if ( $Param{SQL} !~ /SELECT/i ) {
+            $Errors{SQLInvalid} = 'ServerError';
+            $Errors{ErrorType}  = 'SQLIsNotSelect';
         }
 
         # if no errors occurred
@@ -176,6 +181,7 @@ sub Run {
                 );
                 $Errors{ErrorType}
                     = ( $Errors{ErrorMessage} =~ /bind/i ) ? 'BindParam' : 'SQLSyntax';
+
                 $Errors{SQLInvalid} = 'ServerError';
             }
         }
