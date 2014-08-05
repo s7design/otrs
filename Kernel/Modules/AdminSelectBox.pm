@@ -60,7 +60,7 @@ sub Run {
         }
 
         # check needed data
-        if ( !$Param{SQL} || $Param{SQL} !~ /SELECT/i ) {
+        if ( !$Param{SQL} ) {
             $Errors{SQLInvalid} = 'ServerError';
             $Errors{ErrorType}  = 'FieldRequired';
         }
