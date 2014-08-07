@@ -10,33 +10,19 @@
 ## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
-use vars (qw($Self));
-
 use utf8;
 
-use Kernel::Config;
-use Kernel::System::ProcessManagement::DB::Entity;
-use Kernel::System::ProcessManagement::DB::TransitionAction;
-use Kernel::System::UnitTest::Helper;
+use vars (qw($Self));
+
 use Kernel::System::VariableCheck qw(:all);
 
-# Create Helper instance which will restore system configuration in destructor
-my $HelperObject = Kernel::System::UnitTest::Helper->new(
-    %{$Self},
-    UnitTestObject             => $Self,
-    RestoreSystemConfiguration => 0,
-);
-
-my $ConfigObject = $Kernel::OM->Get('ConfigObject');
-
-my $TransitionActionObject = Kernel::System::ProcessManagement::DB::TransitionAction->new(
-    %{$Self},
-    ConfigObject => $ConfigObject,
-);
-my $EntityObject = Kernel::System::ProcessManagement::DB::Entity->new(
-    %{$Self},
-    ConfigObject => $ConfigObject,
-);
+# get needed objects
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+my $CacheObject  = $Kernel::OM->Get('Kernel::System::Cache');
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $TransitionActionObject
+    = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::TransitionAction');
+my $EntityObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
 
 # set fixed time
 $HelperObject->FixedTimeSet();
@@ -413,7 +399,7 @@ for my $Test (@Tests) {
             $CacheKey = 'TransitionActionGet::EntityID::' . $Test->{Config}->{EntityID};
         }
 
-        my $Cache = $TransitionActionObject->{CacheObject}->Get(
+        my $Cache = $CacheObject->Get(
             Type => 'ProcessManagement_TransitionAction',
             Key  => $CacheKey,
         );
@@ -428,17 +414,20 @@ for my $Test (@Tests) {
         my %ExpectedTransitionAction = %{ $AddedTransitionActions{ $TransitionAction->{ID} } };
         delete $ExpectedTransitionAction{UserID};
 
+        # create a variable copy otherwise the cache will be altered
+        my %TransitionActionCopy = %{$TransitionAction};
+
         for my $Attribute (qw(ID CreateTime ChangeTime)) {
             $Self->IsNot(
-                $TransitionAction->{$Attribute},
+                $TransitionActionCopy{$Attribute},
                 undef,
-                "$Test->{Name} | TransitionAction->{$Attribute} should not be undef",
+                "$Test->{Name} | TransitionActionCopy{$Attribute} should not be undef",
             );
-            delete $TransitionAction->{$Attribute};
+            delete $TransitionActionCopy{$Attribute};
         }
 
         $Self->IsDeeply(
-            $TransitionAction,
+            \%TransitionActionCopy,
             \%ExpectedTransitionAction,
             "$Test->{Name} | TransitionAction"
         );
@@ -629,7 +618,7 @@ for my $Test (@Tests) {
         # check cache
         my $CacheKey = 'TransitionActionGet::ID::' . $Test->{Config}->{ID};
 
-        my $Cache = $TransitionActionObject->{CacheObject}->Get(
+        my $Cache = $CacheObject->Get(
             Type => 'ProcessManagement_TransitionAction',
             Key  => $CacheKey,
         );
@@ -656,7 +645,7 @@ for my $Test (@Tests) {
         );
 
         # check cache
-        $Cache = $TransitionActionObject->{CacheObject}->Get(
+        $Cache = $CacheObject->Get(
             Type => 'ProcessManagement_TransitionAction',
             Key  => $CacheKey,
         );
@@ -690,12 +679,15 @@ for my $Test (@Tests) {
             my %ExpectedTransitionAction = %{ $Test->{Config} };
             delete $ExpectedTransitionAction{UserID};
 
+            # create a variable copy otherwise the cache will be altered
+            my %NewTransitionActionCopy = %{$NewTransitionAction};
+
             for my $Attribute (qw(CreateTime ChangeTime)) {
-                delete $NewTransitionAction->{$Attribute};
+                delete $NewTransitionActionCopy{$Attribute};
             }
 
             $Self->IsDeeply(
-                $NewTransitionAction,
+                \%NewTransitionActionCopy,
                 \%ExpectedTransitionAction,
                 "$Test->{Name} | TransitionAction"
             );
@@ -751,25 +743,28 @@ $Self->IsNotDeeply(
     "TransitionActionList Test 2: All | Should be different than the original",
 );
 
+# create a variable copy otherwise the cache will be altered
+my %TestTransitionActionListCopy = %{$TestTransitionActionList};
+
 # delete original TransitionActions
 for my $TransitionActionID ( sort keys %{$OriginalTransitionActionList} ) {
-    delete $TestTransitionActionList->{$TransitionActionID};
+    delete $TestTransitionActionListCopy{$TransitionActionID};
 }
 
 $Self->Is(
-    scalar keys %{$TestTransitionActionList},
+    scalar keys %TestTransitionActionListCopy,
     scalar @AddedTransitionActionsList,
     "TransitionActionList Test 2: All TransitionAction | Number of TransitionActions match added TransitionActions",
 );
 
 my $Counter = 0;
-for my $TransitionActionID ( sort { $a <=> $b } keys %{$TestTransitionActionList} ) {
+for my $TransitionActionID ( sort { $a <=> $b } keys %TestTransitionActionListCopy ) {
     $Self->Is(
         $TransitionActionID,
         $AddedTransitionActionsList[$Counter],
         "TransitionActionList Test 2: All | TransitionActionID match AddedTransitionActionID",
-        ),
-        $Counter++;
+    );
+    $Counter++;
 }
 
 #
@@ -880,7 +875,7 @@ $Self->IsDeeply(
 # check cache
 my $CacheKey = 'TransitionActionListGet';
 
-my $Cache = $TransitionActionObject->{CacheObject}->Get(
+my $Cache = $CacheObject->Get(
     Type => 'ProcessManagement_TransitionAction',
     Key  => $CacheKey,
 );

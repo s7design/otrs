@@ -13,15 +13,15 @@ use warnings;
 use utf8;
 use vars (qw($Self));
 
-use Kernel::System::Ticket;
-
-# get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
-my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
-
 # ticket index accelerator tests
 for my $Module ( 'RuntimeDB', 'StaticDB' ) {
+
+    # Make sure that the TicketObject gets recreated for each loop.
+    $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Ticket'] );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
+    my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
 
     my $QueueID = $QueueObject->QueueLookup( Queue => 'Raw' );
 
@@ -31,7 +31,12 @@ for my $Module ( 'RuntimeDB', 'StaticDB' ) {
     );
 
     # create test ticket object
-    my $TicketObject = Kernel::System::Ticket->new();
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
+    $Self->True(
+        $TicketObject->isa("Kernel::System::Ticket::IndexAccelerator::$Module"),
+        "TicketObject loaded the correct backend",
+    );
 
     my @TicketIDs;
     my $TicketID = $TicketObject->TicketCreate(

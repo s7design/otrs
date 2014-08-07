@@ -48,14 +48,9 @@ local $Kernel::OM = Kernel::System::ObjectManager->new(
         LogPrefix => 'OTRS-otrs.RebuildEscalationIndex.pl',
     },
 );
-my %CommonObject = $Kernel::OM->ObjectHash(
-    Objects => ['TicketObject'],
-);
-
-# create needed objects
 
 # get all tickets
-my @TicketIDs = $Kernel::OM->Get('TicketObject')->TicketSearch(
+my @TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
 
     # result (required)
     Result => 'ARRAY',
@@ -69,7 +64,7 @@ my @TicketIDs = $Kernel::OM->Get('TicketObject')->TicketSearch(
 my $Count = 0;
 for my $TicketID (@TicketIDs) {
     $Count++;
-    $Kernel::OM->Get('TicketObject')->TicketEscalationIndexBuild(
+    $Kernel::OM->Get('Kernel::System::Ticket')->TicketEscalationIndexBuild(
         TicketID => $TicketID,
         UserID   => 1,
     );

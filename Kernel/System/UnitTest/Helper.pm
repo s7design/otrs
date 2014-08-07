@@ -294,8 +294,8 @@ sub FixedTimeAddSeconds {
     my ( $Self, $SecondsToAdd ) = @_;
 
     return if ( !defined $FixedTime );
-
     $FixedTime += $SecondsToAdd;
+    return;
 }
 
 # See http://perldoc.perl.org/5.10.0/perlsub.html#Overriding-Built-in-Functions
@@ -346,6 +346,9 @@ sub DESTROY {
 
         $Self->{UnitTestObject}->True( 1, 'Restored SSL certificates verification' );
     }
+
+    # disable email checks to create new user
+    local $Self->{ConfigObject}->{CheckEmailAddresses} = 0;
 
     # invalidate test users
     if ( ref $Self->{TestUsers} eq 'ARRAY' && @{ $Self->{TestUsers} } ) {

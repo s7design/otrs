@@ -10,38 +10,19 @@
 ## no critic (Modules::RequireExplicitPackage)
 use strict;
 use warnings;
-use vars (qw($Self));
-
 use utf8;
 
-use Kernel::Config;
-use Kernel::System::ProcessManagement::DB::Activity;
-use Kernel::System::ProcessManagement::DB::Entity;
-use Kernel::System::ProcessManagement::DB::Process;
-use Kernel::System::UnitTest::Helper;
+use vars (qw($Self));
+
 use Kernel::System::VariableCheck qw(:all);
 
-# Create Helper instance which will restore system configuration in destructor
-my $HelperObject = Kernel::System::UnitTest::Helper->new(
-    %{$Self},
-    UnitTestObject             => $Self,
-    RestoreSystemConfiguration => 0,
-);
-
-my $ConfigObject = $Kernel::OM->Get('ConfigObject');
-
-my $ProcessObject = Kernel::System::ProcessManagement::DB::Process->new(
-    %{$Self},
-    ConfigObject => $ConfigObject,
-);
-my $ActivityObject = Kernel::System::ProcessManagement::DB::Activity->new(
-    %{$Self},
-    ConfigObject => $ConfigObject,
-);
-my $EntityObject = Kernel::System::ProcessManagement::DB::Entity->new(
-    %{$Self},
-    ConfigObject => $ConfigObject,
-);
+# get needed objects
+my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
+my $CacheObject    = $Kernel::OM->Get('Kernel::System::Cache');
+my $HelperObject   = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ActivityObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Activity');
+my $ProcessObject  = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
+my $EntityObject   = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
 
 # set fixed time
 $HelperObject->FixedTimeSet();
@@ -615,7 +596,7 @@ for my $Test (@Tests) {
                 $TransitionActionNames;
         }
 
-        my $Cache = $ProcessObject->{CacheObject}->Get(
+        my $Cache = $CacheObject->Get(
             Type => 'ProcessManagement_Process',
             Key  => $CacheKey,
         );
@@ -630,20 +611,23 @@ for my $Test (@Tests) {
         my %ExpectedProcess = %{ $AddedProcess{ $Process->{ID} } };
         delete $ExpectedProcess{UserID};
 
+        # create a variable copy otherwise the cache will be altered
+        my %ProcessCopy = %{$Process};
+
         for my $Attribute (
             qw(ID Activities Transitions TransitionActions CreateTime ChangeTime State)
             )
         {
             $Self->IsNot(
-                $Process->{$Attribute},
+                $ProcessCopy{$Attribute},
                 undef,
                 "$Test->{Name} | Process->{$Attribute} should not be undef",
             );
-            delete $Process->{$Attribute};
+            delete $ProcessCopy{$Attribute};
         }
 
         $Self->IsDeeply(
-            $Process,
+            \%ProcessCopy,
             \%ExpectedProcess,
             "$Test->{Name} | Process"
         );
@@ -884,7 +868,7 @@ for my $Test (@Tests) {
             . $Test->{Config}->{ID}
             . '::ActivityNames::0::TransitionNames::0::TransitionActionNames::0';
 
-        my $Cache = $ProcessObject->{CacheObject}->Get(
+        my $Cache = $CacheObject->Get(
             Type => 'ProcessManagement_Process',
             Key  => $CacheKey,
         );
@@ -911,7 +895,7 @@ for my $Test (@Tests) {
         );
 
         # check cache
-        $Cache = $ProcessObject->{CacheObject}->Get(
+        $Cache = $CacheObject->Get(
             Type => 'ProcessManagement_Process',
             Key  => $CacheKey,
         );
@@ -945,15 +929,18 @@ for my $Test (@Tests) {
             my %ExpectedProcess = %{ $Test->{Config} };
             delete $ExpectedProcess{UserID};
 
+            # create a variable copy otherwise the cache will be altered
+            my %NewProcessCopy = %{$NewProcess};
+
             for my $Attribute (
                 qw( Activities Transitions TransitionActions CreateTime ChangeTime State)
                 )
             {
-                delete $NewProcess->{$Attribute};
+                delete $NewProcessCopy{$Attribute};
             }
 
             $Self->IsDeeply(
-                $NewProcess,
+                \%NewProcessCopy,
                 \%ExpectedProcess,
                 "$Test->{Name} | Process"
             );
@@ -1009,19 +996,22 @@ $Self->IsNotDeeply(
     "ProcessList Test 2: All Process | Should be different than the original",
 );
 
+# create a variable copy otherwise the cache will be altered
+my %TestProcessListCopy = %{$TestProcessList};
+
 # delete original process
 for my $ProcessID ( sort keys %{$OriginalProcessList} ) {
-    delete $TestProcessList->{$ProcessID};
+    delete $TestProcessListCopy{$ProcessID};
 }
 
 $Self->Is(
-    scalar keys %{$TestProcessList},
+    scalar keys %TestProcessListCopy,
     scalar @AddedProcessList,
     "ProcessList Test 2: All Process | Number of processes match added processes",
 );
 
 my $Counter = 0;
-for my $ProcessID ( sort { $a <=> $b } keys %{$TestProcessList} ) {
+for my $ProcessID ( sort { $a <=> $b } keys %TestProcessListCopy ) {
     $Self->Is(
         $ProcessID,
         $AddedProcessList[$Counter],
@@ -1107,17 +1097,20 @@ for my $Index ( 1, 2 ) {
 for my $Test (@Tests) {
     my $ProcessList = $ProcessObject->ProcessList( %{ $Test->{Config} } );
 
+    # create a variable copy otherwise the cache will be altered
+    my %ProcessListCopy = %{$ProcessList};
+
     # remove original processes
     PROCESSID:
     for my $ProcessID ( sort keys %{$OriginalProcessList} ) {
-        next PROCESSID if !$ProcessList->{$ProcessID};
-        delete $ProcessList->{$ProcessID};
+        next PROCESSID if !$ProcessListCopy{$ProcessID};
+        delete $ProcessListCopy{$ProcessID};
     }
 
     # special case for empty list
     if ( $Test->{Config} == 3 ) {
         $Self->Flase(
-            IsHashRefWithData($ProcessList),
+            IsHashRefWithData( \%ProcessListCopy ),
             "$Test->{Name} | List is empty",
         );
     }
@@ -1126,20 +1119,20 @@ for my $Test (@Tests) {
         # special case for all process
         if ( $Test->{AllProcess} ) {
             $Self->IsDeeply(
-                $ProcessList,
-                $TestProcessList,
+                \%ProcessListCopy,
+                \%TestProcessListCopy,
                 "$Test->{Name} | List is identical as in no State filter",
             );
         }
         else {
             $Self->IsNotDeeply(
-                $ProcessList,
-                $TestProcessList,
+                \%ProcessListCopy,
+                \%TestProcessListCopy,
                 "$Test->{Name} | List is different as in no State filter",
             );
             $Self->IsNot(
-                scalar keys %{$ProcessList},
-                scalar keys %{$TestProcessList},
+                scalar keys %ProcessListCopy,
+                scalar keys %TestProcessListCopy,
                 "$Test->{Name} | Number of processes List is different as in no State filter",
             );
         }
@@ -1253,7 +1246,7 @@ $Self->IsDeeply(
 # check cache
 my $CacheKey = 'ProcessListGet';
 
-my $Cache = $ProcessObject->{CacheObject}->Get(
+my $Cache = $CacheObject->Get(
     Type => 'ProcessManagement_Process',
     Key  => $CacheKey,
 );
