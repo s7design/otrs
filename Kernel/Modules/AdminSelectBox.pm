@@ -65,7 +65,7 @@ sub Run {
             $Errors{ErrorType}  = 'FieldRequired';
         }
 
-        if ( $Param{SQL} !~ /SELECT/i ) {
+        if ( uc($Param{SQL}) !~ m{\A\s*SELECT}smx ) {
             $Errors{SQLInvalid} = 'ServerError';
             $Errors{ErrorType}  = 'SQLIsNotSelect';
         }
