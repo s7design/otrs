@@ -17,7 +17,7 @@
             </div>
             <div class="Content">
                 <p class="FieldExplanation">
-                    $Text{"Here you can enter SQL to send it directly to the application database. It is not possible to change the content of the tables, only select queries are allowed"}
+                    $Text{"Here you can enter SQL to send it directly to the application database. It is not possible to change the content of the tables, only select queries are allowed."}
                 </p>
             </div>
         </div>
