@@ -476,15 +476,10 @@ return 1 if another standard template with this name already exits
 sub NameExistsCheck {
     my ( $Self, %Param ) = @_;
 
-    if (
-        !$Self->{DBObject}->Prepare(
-            SQL  => 'SELECT id FROM standard_template WHERE name = ?',
-            Bind => [ \$Param{Name} ],
-        )
-        )
-    {
-        return 1;
-    }
+    return if !$Self->{DBObject}->Prepare(
+        SQL  => 'SELECT id FROM standard_template WHERE name = ?',
+        Bind => [ \$Param{Name} ],
+    );
 
     # fetch the result
     my $Flag;
