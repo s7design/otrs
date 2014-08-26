@@ -568,6 +568,7 @@ sub Run {
                     $Data{Body} = $Self->{LayoutObject}->{LanguageObject}->Get(
                         'This item has no articles yet.'
                     );
+                    $Data{From} = '--';
                 }
 
                 for my $Key (qw(State Lock)) {
@@ -712,6 +713,7 @@ sub Run {
                     $Article{Body} = $Self->{LayoutObject}->{LanguageObject}->Get(
                         'This item has no articles yet.'
                     );
+                    $Article{From} = '--';
                 }
 
                 # customer info
