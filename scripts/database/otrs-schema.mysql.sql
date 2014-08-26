@@ -172,7 +172,7 @@ CREATE TABLE personal_queues (
 CREATE TABLE personal_services (
     user_id INTEGER NOT NULL,
     service_id INTEGER NOT NULL,
-    INDEX personal_services_queue_id (service_id),
+    INDEX personal_services_service_id (service_id),
     INDEX personal_services_user_id (user_id)
 );
 # ----------------------------------------------------------
@@ -220,6 +220,24 @@ CREATE TABLE system_address (
     value3 VARCHAR (200) NULL,
     queue_id INTEGER NOT NULL,
     comments VARCHAR (250) NULL,
+    valid_id SMALLINT NOT NULL,
+    create_time DATETIME NOT NULL,
+    create_by INTEGER NOT NULL,
+    change_time DATETIME NOT NULL,
+    change_by INTEGER NOT NULL,
+    PRIMARY KEY(id)
+);
+# ----------------------------------------------------------
+#  create table system_maintenance
+# ----------------------------------------------------------
+CREATE TABLE system_maintenance (
+    id INTEGER NOT NULL AUTO_INCREMENT,
+    start_date INTEGER NOT NULL,
+    stop_date INTEGER NOT NULL,
+    comments VARCHAR (250) NOT NULL,
+    login_message VARCHAR (250) NULL,
+    show_login_message SMALLINT NULL,
+    notify_message VARCHAR (250) NULL,
     valid_id SMALLINT NOT NULL,
     create_time DATETIME NOT NULL,
     create_by INTEGER NOT NULL,
@@ -1145,7 +1163,6 @@ CREATE TABLE package_repository (
     vendor VARCHAR (250) NOT NULL,
     install_status VARCHAR (250) NOT NULL,
     filename VARCHAR (250) NULL,
-    content_size VARCHAR (30) NULL,
     content_type VARCHAR (250) NULL,
     content LONGBLOB NOT NULL,
     create_time DATETIME NOT NULL,
@@ -1367,13 +1384,6 @@ CREATE TABLE pm_transition_action (
     change_by INTEGER NOT NULL,
     PRIMARY KEY(id),
     UNIQUE INDEX pm_transition_action_entity_id (entity_id)
-);
-# ----------------------------------------------------------
-#  create table pm_entity
-# ----------------------------------------------------------
-CREATE TABLE pm_entity (
-    entity_type VARCHAR (50) NOT NULL,
-    entity_counter INTEGER NOT NULL
 );
 # ----------------------------------------------------------
 #  create table pm_entity_sync

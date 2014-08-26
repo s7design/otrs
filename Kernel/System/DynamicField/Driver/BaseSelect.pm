@@ -22,7 +22,6 @@ our @ObjectDependencies = (
     'Kernel::System::Ticket::ColumnFilter',
     'Kernel::System::Log',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -231,8 +230,8 @@ sub EditFieldRender {
         $HTMLString
             .= ' <a href="#" title="'
             . $TreeSelectionMessage
-            . '" class="ShowTreeSelection">'
-            . $TreeSelectionMessage . '</a>';
+            . '" class="ShowTreeSelection"><span>'
+            . $TreeSelectionMessage . '</span><i class="fa fa-code-fork"></i></a>';
     }
 
     if ( $Param{Mandatory} ) {
@@ -543,8 +542,8 @@ sub SearchFieldRender {
         $HTMLString
             .= ' <a href="#" title="'
             . $TreeSelectionMessage
-            . '" class="ShowTreeSelection">'
-            . $TreeSelectionMessage . '</a>';
+            . '" class="ShowTreeSelection"><span>'
+            . $TreeSelectionMessage . '</span><i class="fa fa-code-fork"></i></a>';
     }
 
     # call EditLabelRender on the common Driver
@@ -682,6 +681,7 @@ sub StatsFieldParameterBuild {
         Name               => $Param{DynamicFieldConfig}->{Label},
         Element            => 'DynamicField_' . $Param{DynamicFieldConfig}->{Name},
         TranslatableValues => $Param{DynamicFieldconfig}->{Config}->{TranslatableValues},
+        Block              => 'MultiSelectField',
     };
 }
 

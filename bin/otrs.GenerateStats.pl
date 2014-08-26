@@ -34,10 +34,10 @@ use Kernel::System::ObjectManager;
 
 # create common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    LogObject => {
+    'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.GenerateStats.pl',
     },
-    StatsObject => {
+    'Kernel::System::Stats' => {
         UserID => 1,
     },
 );
@@ -345,7 +345,7 @@ else {
     if ( $Opts{R} ) {
         $Output .= "Name: $Title; Created: $Time\n";
     }
-    $Output .= $Kernel::OM->Get('Kernel::System:CSV')->Array2CSV(
+    $Output .= $Kernel::OM->Get('Kernel::System::CSV')->Array2CSV(
         Head      => $HeadArrayRef,
         Data      => \@StatArray,
         Separator => $Separator,
@@ -391,9 +391,9 @@ RECIPIENT:
 for my $Recipient ( @{ $Opts{r} } ) {
 
     # recipient check
-    if ( !$Kernel::OM->Get('Kernel::System:CheckItem')->CheckEmail( Address => $Recipient ) ) {
+    if ( !$Kernel::OM->Get('Kernel::System::CheckItem')->CheckEmail( Address => $Recipient ) ) {
         print STDERR "Warning: email address $Recipient invalid, skipping address."
-            . $Kernel::OM->Get('Kernel::System:CheckItem')->CheckError() . "\n";
+            . $Kernel::OM->Get('Kernel::System::CheckItem')->CheckError() . "\n";
         next RECIPIENT;
     }
     $Kernel::OM->Get('Kernel::System::Email')->Send(

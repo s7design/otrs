@@ -19,17 +19,7 @@ use Unicode::Normalize qw();
 
 use Kernel::System::VariableCheck qw(:all);
 
-our @ObjectDependencies = (
-    'Kernel::Config',
-    'Kernel::System::DB',
-    'Kernel::System::DynamicField',
-    'Kernel::System::DynamicField::Backend',
-    'Kernel::System::Encode',
-    'Kernel::System::Log',
-    'Kernel::System::Main',
-    'Kernel::System::Time',
-);
-our $ObjectManagerAware = 1;
+our $ObjectManagerDisabled = 1;
 
 sub ArticleStorageInit {
     my ( $Self, %Param ) = @_;
@@ -871,7 +861,7 @@ sub ArticleAttachment {
             ORDER BY filename, id',
         Bind   => [ \$Param{ArticleID} ],
         Limit  => $Param{FileID},
-        Encode => [ 1, 0, 0, 0 ],
+        Encode => [ 1, 0, 0, 0, 1, 1 ],
     );
 
     while ( my @Row = $DBObject->FetchrowArray() ) {

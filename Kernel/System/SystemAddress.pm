@@ -18,7 +18,6 @@ our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::Valid',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -251,7 +250,7 @@ returns:
     %List = (
         '1' => 'sales@example.com',
         '2' => 'purchasing@example.com',
-        '3' => 'support@example.com',
+        '3' => 'service@example.com',
     );
 
 =cut

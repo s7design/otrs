@@ -99,10 +99,10 @@ for my $DatabaseType (@DatabaseType) {
 
     # create common objects
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        LogObject => {
+        'Kernel::System::Log' => {
             LogPrefix => 'OTRS-otrs.xml2sql.pl',
         },
-        DBObject => {
+        'Kernel::System::DB' => {
             AutoConnectNo => 1,    # don't try with foreign drivers
         },
     );

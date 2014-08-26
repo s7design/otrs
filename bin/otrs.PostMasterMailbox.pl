@@ -58,18 +58,26 @@ if ( $Opts{b} && $Opts{b} !~ /^\d+$/ ) {
 
 # create common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    LogObject => {
+    'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.PostMasterMailbox.pl',
     },
 );
 
 # create pid lock
-if ( !$Opts{f} && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'PostMasterMailbox' ) ) {
+if (
+    !$Opts{f}
+    && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'PostMasterMailbox' )
+    )
+{
     print "NOTICE: PostMasterMailbox.pl is already running (use '-f 1' if you want to start it ";
     print "forced)!\n";
     exit 1;
 }
-elsif ( $Opts{f} && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'PostMasterMailbox' ) ) {
+elsif (
+    $Opts{f}
+    && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'PostMasterMailbox' )
+    )
+{
     print "NOTICE: PostMasterMailbox.pl is already running but is starting again!\n";
 }
 

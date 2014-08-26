@@ -13,6 +13,7 @@ use strict;
 use warnings;
 
 ## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
+our @ObjectDependencies = ();    # we want to use an undeclared dependency for testing
 
 sub new {
     my ( $Class, %Param ) = @_;
@@ -29,7 +30,7 @@ sub DESTROY {
 
     # Request this object (undeclared dependency) in the desctructor.
     #   This will create it again in the OM to test that ObjectsDiscard will still work.
-    $Kernel::OM->Get('Dummy2Object');
+    $Kernel::OM->Get('scripts::test::ObjectManager::Dummy2');
 
 }
 

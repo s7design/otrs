@@ -24,7 +24,6 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::Time',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -48,7 +47,7 @@ create new object. Do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        CryptObject => {
+        'Kernel::System::Crypt' => {
             CryptType   => 'PGP',   # PGP or SMIME
         },
     );

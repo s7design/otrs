@@ -16,8 +16,8 @@ use if $^O eq 'MSWin32', "Win32::Console::ANSI";
 use Term::ANSIColor;
 use SOAP::Lite;
 
-use Kernel::System::Environment;
 use Kernel::System::ObjectManager;
+
 # UnitTest helper must be loaded to override the builtin time functions!
 use Kernel::System::UnitTest::Helper;
 
@@ -30,7 +30,6 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::Time',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -66,13 +65,13 @@ sub new {
 
     $Self->{Debug} = $Param{Debug} || 0;
 
-    # check needed objects
-    for my $Needed (
-        qw(ConfigObject DBObject LogObject TimeObject MainObject EncodeObject EnvironmentObject)
-        )
-    {
-        $Self->{$Needed} = $Kernel::OM->Get($Needed);
-    }
+    $Self->{ConfigObject}      = $Kernel::OM->Get('Kernel::Config');
+    $Self->{DBObject}          = $Kernel::OM->Get('Kernel::System::DB');
+    $Self->{EncodeObject}      = $Kernel::OM->Get('Kernel::System::Encode');
+    $Self->{EnvironmentObject} = $Kernel::OM->Get('Kernel::System::Environment');
+    $Self->{LogObject}         = $Kernel::OM->Get('Kernel::System::Log');
+    $Self->{MainObject}        = $Kernel::OM->Get('Kernel::System::Main');
+    $Self->{TimeObject}        = $Kernel::OM->Get('Kernel::System::Time');
 
     $Self->{Output} = $Param{Output} || 'ASCII';
 
@@ -164,7 +163,7 @@ sub Run {
             {
                 # Make sure every UT uses its own clean environment.
                 local $Kernel::OM = Kernel::System::ObjectManager->new(
-                    LogObject => {
+                    'Kernel::System::Log' => {
                         LogPrefix => 'OTRS-otrs.UnitTest',
                     },
                 );
@@ -823,13 +822,17 @@ sub _Print {
         $Self->{XML}->{Test}->{ $Self->{XMLUnit} }->{ $Self->{TestCount} }->{Result} = 'not ok';
         $Self->{XML}->{Test}->{ $Self->{XMLUnit} }->{ $Self->{TestCount} }->{Name}   = $Name;
 
-        my $ShortName = $Name;
-        $ShortName =~ s{\(.+\)$}{};
+        my $TestFailureDetails = $Name;
+        $TestFailureDetails =~ s{\(.+\)$}{};
+        if ( length $TestFailureDetails > 200 ) {
+            $TestFailureDetails = substr( $TestFailureDetails, 0, 200 ) . "...";
+        }
 
-        # Store information about failed tests, but only if we are running in a toplevel unit test object
-        #   that is actually processing filed, and not in an embedded object that just runs individual tests.
-        if (ref $Self->{NotOkInfo} eq 'ARRAY') {
-            push @{ $Self->{NotOkInfo}->[-1] }, sprintf "%s - %s", $Self->{TestCount}, $ShortName;
+# Store information about failed tests, but only if we are running in a toplevel unit test object
+#   that is actually processing filed, and not in an embedded object that just runs individual tests.
+        if ( ref $Self->{NotOkInfo} eq 'ARRAY' ) {
+            push @{ $Self->{NotOkInfo}->[-1] }, sprintf "%s - %s", $Self->{TestCount},
+                $TestFailureDetails;
         }
 
         return;

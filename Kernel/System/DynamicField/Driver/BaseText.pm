@@ -21,7 +21,6 @@ our @ObjectDependencies = (
     'Kernel::System::DynamicFieldValue',
     'Kernel::System::Log',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -497,6 +496,7 @@ sub StatsFieldParameterBuild {
     return {
         Name    => $Param{DynamicFieldConfig}->{Label},
         Element => 'DynamicField_' . $Param{DynamicFieldConfig}->{Name},
+        Block   => 'InputField',
     };
 }
 

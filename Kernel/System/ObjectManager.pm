@@ -39,15 +39,6 @@ use Kernel::System::User;
 # used to generate better error messages.
 our $CurrentObject;
 
-my @DefaultObjectDependencies = (
-    'Kernel::Config',
-    'Kernel::System::DB',
-    'Kernel::System::Encode',
-    'Kernel::System::Log',
-    'Kernel::System::Main',
-    'Kernel::System::Time',
-);
-
 =head1 NAME
 
 Kernel::System::ObjectManager - object and dependency manager
@@ -81,7 +72,7 @@ like Kernel::System::DB:
 
 =head2 Which objects can be loaded?
 
-The ObjectManager can load every object that declares its dependencies like this in the perl package:
+The ObjectManager can load every object that declares its dependencies like this in the Perl package:
 
     package Kernel::System::Valid;
 
@@ -93,16 +84,19 @@ The ObjectManager can load every object that declares its dependencies like this
         'Kernel::System::DB',
         'Kernel::System::Log',
     );
-    our $ObjectManagerAware = 1;
 
 The C<@ObjectDependencies> is the list of objects that the current object will depend on. They will
-be destroyed only after this object is destroyed. If the dependencies are not specified the
-C<@DefaultObjectDependencies> will be assumed.
+be destroyed only after this object is destroyed.
 
-The C<$ObjectManagerAware> flag signals that the object knows about the ObjectManager and will use
-it to fetch any objects it needs on demand. If this flag is not set the ObjectManager will create all
-dependencies before creating the objects and pass it to its constructor. This is useful to load old
-OTRS objects which don't know about the ObjectManager yet.
+If you want to signal that a package can NOT be loaded by the ObjectManager, you can use the
+C<$ObjectManagerDisabled> flag:
+
+    package Kernel::System::MyBaseClass;
+
+    use strict;
+    use warnings;
+
+    $ObjectManagerDisabled = 1;
 
 =head1 PUBLIC INTERFACE
 
@@ -140,16 +134,8 @@ sub new {
 
     $Self->{Debug} = delete $Param{Debug};
 
-    # Pre-load ConfigObject to get the ObjectAliases
-    my $ConfigObject = Kernel::Config->new();
-    $Self->{Objects} = {
-        'Kernel::Config' => $ConfigObject,
-    };
-    $Self->{ObjectAliases}        = $ConfigObject->Get('ObjectAliases');
-    $Self->{ReverseObjectAliases} = { reverse %{ $Self->{ObjectAliases} } };
-
     for my $Parameter ( sort keys %Param ) {
-        $Self->{Param}->{ $Self->{ObjectAliases}->{$Parameter} // $Parameter } = $Param{$Parameter};
+        $Self->{Param}->{$Parameter} = $Param{$Parameter};
     }
 
     return $Self;
@@ -171,13 +157,11 @@ For example C<< ->Get('TicketObject') >> retrieves a L<Kernel::System::Ticket> o
 sub Get {
 
     # No param unpacking for increased performance
-    my $Package = $_[0]->{ObjectAliases}->{ $_[1] } // $_[1];
-
-    if ( $Package && $_[0]->{Objects}->{$Package} ) {
-        return $_[0]->{Objects}->{$Package};
+    if ( $_[1] && $_[0]->{Objects}->{ $_[1] } ) {
+        return $_[0]->{Objects}->{ $_[1] };
     }
 
-    if ( !$Package ) {
+    if ( !$_[1] ) {
         $_[0]->_DieWithError(
             Error => "Error: Missing parameter (object name)",
         );
@@ -187,9 +171,9 @@ sub Get {
     # build better error messages
     # needs to be a statement-modifying 'if', otherwise 'local'
     # is local to the scope of the 'if'-block
-    local $CurrentObject = $Package if !$CurrentObject;
+    local $CurrentObject = $_[1] if !$CurrentObject;
 
-    return $_[0]->_ObjectBuild( Package => $Package );
+    return $_[0]->_ObjectBuild( Package => $_[1] );
 }
 
 sub _ObjectBuild {
@@ -217,18 +201,14 @@ sub _ObjectBuild {
 
     # Kernel::Config does not declare its dependencies (they would have to be in
     #   Kernel::Config::Defaults), so assume [] in this case.
-    my $Dependencies       = [];
-    my $ObjectManagerAware = 0;
+    my $Dependencies = [];
 
     if ( $Package ne 'Kernel::Config' ) {
         no strict 'refs';    ## no critic
-        if ( exists ${ $Package . '::' }{ObjectDependencies} ) {
-            $Dependencies = \@{ $Package . '::ObjectDependencies' };
+        if ( !exists ${ $Package . '::' }{ObjectDependencies} ) {
+            $Self->_DieWithError( Error => "$Package does not declare its object dependencies!" );
         }
-        else {
-            $Dependencies = \@DefaultObjectDependencies;
-        }
-        $ObjectManagerAware = ${ $Package . '::ObjectManagerAware' } // 0;
+        $Dependencies = \@{ $Package . '::ObjectDependencies' };
 
         if ( ${ $Package . '::ObjectManagerDisabled' } ) {
             $Self->_DieWithError( Error => "$Package cannot be loaded via ObjectManager!" );
@@ -238,20 +218,9 @@ sub _ObjectBuild {
     }
     $Self->{ObjectDependencies}->{$Package} = $Dependencies;
 
-    my %ConstructorArguments = (
-        %{ $Self->{Param}->{$Package} // {} },
+    my $NewObject = $Package->new(
+        %{ $Self->{Param}->{$Package} // {} }
     );
-
-    # For objects which are not ObjectManagerAware, provide the dependencies in
-    #   short form (e.g. ConfigObject) to the constructor.
-    if ( !$ObjectManagerAware && @{$Dependencies} ) {
-        for my $Dependency ( @{$Dependencies} ) {
-            $ConstructorArguments{ $Self->{ReverseObjectAliases}->{$Dependency} // $Dependency }
-                //= $Self->Get($Dependency);
-        }
-    }
-
-    my $NewObject = $Package->new(%ConstructorArguments);
 
     if ( !defined $NewObject ) {
         if ( $CurrentObject && $CurrentObject ne $Package ) {
@@ -262,7 +231,7 @@ sub _ObjectBuild {
         }
         else {
             $Self->_DieWithError(
-                Error => "The contrustructor of $Package returned undef.",
+                Error => "The constructor of $Package returned undef.",
             );
         }
     }
@@ -304,34 +273,6 @@ sub ObjectInstanceRegister {
     return 1;
 }
 
-=item ObjectHash()
-
-Please note that this method is DEPRECATED and will be removed in a future version of OTRS.
-
-Returns a hash of already instantiated objects.
-The keys are the object names, and the values are the objects themselves.
-
-This method is useful for creating objects of classes that are not aware of the object manager yet.
-
-    $SomeModule->new(
-        $Kernel::OM->ObjectHash(
-            Objects => ['TicketObject', 'DynamicFieldObject'],
-        ),
-    );
-
-=cut
-
-sub ObjectHash {
-    my ( $Self, %Param ) = @_;
-
-    my %Result;
-    for my $Object ( @{ $Param{Objects} // [] } ) {
-        $Result{$Object} = $Self->Get($Object);
-    }
-
-    return %Result;
-}
-
 =item ObjectParamAdd()
 
 Adds arguments that will be passed to constructors of classes
@@ -339,7 +280,7 @@ when they are created, in the same format as the C<new()> method
 receives them.
 
     $Kernel::OM->ObjectParamAdd(
-        TicketObject => {
+        'Kernel::System::Ticket' => {
             Key => 'Value',
         },
     );
@@ -349,15 +290,14 @@ receives them.
 sub ObjectParamAdd {
     my ( $Self, %Param ) = @_;
 
-    for my $Key ( sort keys %Param ) {
-        my $Package = $Self->{ObjectAliases}->{$Key} // $Key;
-        if ( ref( $Param{$Key} ) eq 'HASH' ) {
-            for my $K ( sort keys %{ $Param{$Key} } ) {
-                $Self->{Param}->{$Package}->{$K} = $Param{$Key}->{$K};
+    for my $Package ( sort keys %Param ) {
+        if ( ref( $Param{$Package} ) eq 'HASH' ) {
+            for my $Key ( sort keys %{ $Param{$Package} } ) {
+                $Self->{Param}->{$Package}->{$Key} = $Param{$Package}->{$Key};
             }
         }
         else {
-            $Self->{Param}->{$Package} = $Param{$Key};
+            $Self->{Param}->{$Package} = $Param{$Package};
         }
     }
     return;
@@ -426,8 +366,8 @@ sub ObjectsDiscard {
         for my $Dependency (@$Dependencies) {
 
             # undef happens to be the value that uses the least amount
-            # of memory in perl, and we are only interested in the keys
-            $ReverseDependencies{ $Self->{ObjectAliases}->{$Dependency} // $Dependency }->{$Object}
+            # of memory in Perl, and we are only interested in the keys
+            $ReverseDependencies{$Dependency}->{$Object}
                 = undef;
         }
         push @AllObjects, $Object;
@@ -448,7 +388,7 @@ sub ObjectsDiscard {
 
     if ( $Param{Objects} ) {
         for my $Object ( @{ $Param{Objects} } ) {
-            $Traverser->( $Self->{ObjectAliases}->{$Object} // $Object );
+            $Traverser->($Object);
         }
     }
     else {

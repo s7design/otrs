@@ -64,7 +64,7 @@ if ( $Opts{b} && $Opts{b} !~ m{ \A \d+ \z }xms ) {
 
 # create common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    LogObject => {
+    'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.ArticleStorageSwitch.pl',
     },
 );
@@ -73,13 +73,21 @@ local $Kernel::OM = Kernel::System::ObjectManager->new(
 $Kernel::OM->Get('Kernel::Config')->{'Ticket::EventModulePost'} = {};
 
 # create pid lock
-if ( !$Opts{f} && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'ArticleStorageSwitch' ) ) {
+if (
+    !$Opts{f}
+    && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'ArticleStorageSwitch' )
+    )
+{
     print
         "NOTICE: otrs.ArticleStorageSwitch.pl is already running (use '-f' if you want to start it ";
     print "forced)!\n";
     exit 1;
 }
-elsif ( $Opts{f} && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'ArticleStorageSwitch' ) ) {
+elsif (
+    $Opts{f}
+    && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'ArticleStorageSwitch' )
+    )
+{
     print "NOTICE: otrs.ArticleStorageSwitch.pl is already running but is starting again!\n";
 }
 

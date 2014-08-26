@@ -36,7 +36,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 sub _OM {
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        ConfigObject => {
+        'Kernel::System::Log' => {
             LogPrefix => 'OTRS-otrs.FillDB.pl',
         },
     );
@@ -48,7 +48,7 @@ sub _OM {
     );
 
     # set env config
-    $Kernel::OM->Get('ConfigObject')->Set(
+    $Kernel::OM->Get('Kernel::Config')->Set(
         Key   => 'CheckEmailAddresses',
         Value => 0,
     );
@@ -77,7 +77,8 @@ sub Run {
 
     # get options
     my %Opts = ();
-    getopt( 'hqugtramc', \%Opts );
+    getopt( 'hqugtramcf', \%Opts );
+
     if ( $Opts{h} ) {
         print <<EOF;
 otrs.FillDB.pl - OTRS fill db with data
@@ -188,7 +189,8 @@ EOF
                 push @Values, "($TicketID, 'Seen', 1, current_timestamp, $UserID)";
             }
             while ( my @ValuesPart = splice( @Values, 0, 50 ) ) {
-                $Kernel::OM->Get('Kernel::System::DB')->Do( SQL => $SQL . join( ',', @ValuesPart ) );
+                $Kernel::OM->Get('Kernel::System::DB')
+                    ->Do( SQL => $SQL . join( ',', @ValuesPart ) );
             }
         }
 
@@ -223,7 +225,8 @@ EOF
                         push @Values, "($ArticleID, 'Seen', 1, current_timestamp, $UserID)";
                     }
                     while ( my @ValuesPart = splice( @Values, 0, 50 ) ) {
-                        $Kernel::OM->Get('Kernel::System::DB')->Do( SQL => $SQL . join( ',', @ValuesPart ) );
+                        $Kernel::OM->Get('Kernel::System::DB')
+                            ->Do( SQL => $SQL . join( ',', @ValuesPart ) );
                     }
                 }
 
@@ -234,11 +237,12 @@ EOF
                     next DYNAMICFIELD if $DynamicFieldConfig->{InternalField};
 
                     # set a random value
-                    my $Result = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->RandomValueSet(
+                    my $Result
+                        = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->RandomValueSet(
                         DynamicFieldConfig => $DynamicFieldConfig,
                         ObjectID           => $ArticleID,
                         UserID             => $UserIDs[ int( rand($#UserIDs) ) ],
-                    );
+                        );
 
                     if ( $Result->{Success} ) {
                         print "NOTICE: Article with ID '$ArticleID' set dynamic field "
@@ -256,11 +260,12 @@ EOF
                 next DYNAMICFIELD if $DynamicFieldConfig->{InternalField};
 
                 # set a random value
-                my $Result = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->RandomValueSet(
+                my $Result
+                    = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->RandomValueSet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     ObjectID           => $TicketID,
                     UserID             => $UserIDs[ int( rand($#UserIDs) ) ],
-                );
+                    );
 
                 if ( $Result->{Success} ) {
                     print "NOTICE: Ticket with ID '$TicketID' set dynamic field "
@@ -271,7 +276,7 @@ EOF
             push( @TicketIDs, $TicketID );
 
             if ( $Counter++ % $CommonObjectRefresh == 0 ) {
-                $Kernel::OM  = _OM();
+                $Kernel::OM = _OM();
             }
         }
     }
@@ -313,10 +318,11 @@ EOF
             #    binmode(IN);
             while ( my $Line = <$Input> ) {
                 if ( $Line =~ /^Subject:/ ) {
-                    $Line = 'Subject: ' . $Kernel::OM->Get('Kernel::System::Ticket')->TicketSubjectBuild(
+                    $Line = 'Subject: '
+                        . $Kernel::OM->Get('Kernel::System::Ticket')->TicketSubjectBuild(
                         TicketNumber => $Ticket{TicketNumber},
                         Subject      => $Line,
-                    );
+                        );
                 }
                 push( @Content, $Line );
             }
@@ -407,19 +413,19 @@ sub RandomAddress {
     my @Domain = (
         'example.com',
         'example-sales.com',
-        'example-support.com',
+        'example-service.com',
         'example.net',
         'example-sales.net',
-        'example-support.net',
+        'example-service.net',
         'company.com',
         'company-sales.com',
-        'company-support.com',
+        'company-service.com',
         'fast-company-example.com',
         'fast-company-example-sales.com',
-        'fast-company-example-support.com',
+        'fast-company-example-service.com',
         'slow-company-example.com',
         'slow-company-example-sales.com',
-        'slow-company-example-support.com',
+        'slow-company-example-service.com',
     );
 
     return $Name . '@' . $Domain[ int( rand( $#Domain + 1 ) ) ];
@@ -509,8 +515,8 @@ sub QueueGet {
 }
 
 sub QueueCreate {
-    my $Count         = shift || return;
-    my @GroupIDs      = @{ shift() };
+    my $Count = shift || return;
+    my @GroupIDs = @{ shift() };
 
     my @QueueIDs = ();
     for ( 1 .. $Count ) {
@@ -550,7 +556,7 @@ sub GroupGet {
 }
 
 sub GroupCreate {
-   my $Count = shift || return;
+    my $Count = shift || return;
 
     my @GroupIDs = ();
     for ( 1 .. $Count ) {
@@ -596,8 +602,8 @@ sub UserGet {
 }
 
 sub UserCreate {
-   my $Count         = shift || return;
-    my @GroupIDs      = @{ shift() };
+    my $Count = shift || return;
+    my @GroupIDs = @{ shift() };
 
     my @UserIDs = ();
     for ( 1 .. $Count ) {
@@ -652,7 +658,7 @@ sub UserCreate {
 }
 
 sub CustomerCreate {
-   my $Count = shift || return;
+    my $Count = shift || return;
 
     for ( 1 .. $Count ) {
         my $Name      = 'fill-up-user' . int( rand(100_000_000) );

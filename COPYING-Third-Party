@@ -244,6 +244,13 @@ o Name:    CPAN SOAP::Lite
            # Copyright (C) 2007-2008 Martin Kutter
            # Copyright (C) 2013 Fred Moyer
 
+o Name:    Locale::PO
+  Web:     n/a
+  License: # This program is free software; you can redistribute it
+           # and/or modify it under the same terms as Perl itself.
+  Note     # Maintainer: Ken Prows, perl@xev.net
+           # Original version by: Alan Schwartz, alansz@pennmush.org
+
 # --
 # JavaScript
 # --
@@ -307,8 +314,3 @@ o Name:    QUnit
 o Name:    DejaVu Fonts
   Web:     http://dejavu-fonts.org
   License: Free License - http://dejavu-fonts.org/wiki/License
-
-
-o Name:    Some Icons (tree.png)
-  Web:     Yusuke Kamiyamane, http://p.yusukekamiyamane.com
-  License: CC Attribution 3.0

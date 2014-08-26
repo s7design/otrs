@@ -30,7 +30,6 @@ our @ObjectDependencies = (
     'Kernel::System::User',
     'Kernel::System::XML',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -50,7 +49,7 @@ create an object. Do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        StatsObject => {
+        'Kernel::System::Stats' => {
             UserID  => 123,
         }
     );
@@ -180,6 +179,9 @@ sub StatsGet {
     my $Cache = $CacheObject->Get(
         Type => 'Stats',
         Key  => $CacheKey,
+
+        # Don't store complex structure in memory as it will be modified later.
+        CacheInMemory => 0,
     );
     return $Cache if ref $Cache eq 'HASH';
 
@@ -250,6 +252,9 @@ sub StatsGet {
             Key   => $CacheKey,
             Value => \%Stat,
             TTL   => 24 * 60 * 60,
+
+            # Don't store complex structure in memory as it will be modified later.
+            CacheInMemory => 0,
         );
 
         return \%Stat;
@@ -349,6 +354,9 @@ sub StatsGet {
         Key   => $CacheKey,
         Value => \%Stat,
         TTL   => 24 * 60 * 60,
+
+        # Don't store complex structure in memory as it will be modified later.
+        CacheInMemory => 0,
     );
 
     return \%Stat;
@@ -612,6 +620,9 @@ sub StatsListGet {
     my $Cache    = $CacheObject->Get(
         Type => 'Stats',
         Key  => $CacheKey,
+
+        # Don't store complex structure in memory as it will be modified later.
+        CacheInMemory => 0,
     );
 
     # Do we have a cache available?
@@ -637,6 +648,9 @@ sub StatsListGet {
             Key   => $CacheKey,
             Value => \@SearchResult,
             TTL   => 24 * 60 * 60,
+
+            # Don't store complex structure in memory as it will be modified later.
+            CacheInMemory => 0,
         );
 
     }
@@ -2091,6 +2105,9 @@ sub StatsResultCacheCompute {
         Key   => $CacheKey,
         Value => $Result,
         TTL   => 24 * 60 * 60,    # cache it for a day, will be overwritten by next function call
+
+        # Don't store complex structure in memory as it will be modified later.
+        CacheInMemory => 0,
     );
 }
 
@@ -2134,6 +2151,9 @@ sub StatsResultCacheGet {
     return $Kernel::OM->Get('Kernel::System::Cache')->Get(
         Type => 'StatsRun',
         Key  => $CacheKey,
+
+        # Don't store complex structure in memory as it will be modified later.
+        CacheInMemory => 0,
     );
 }
 
@@ -3831,6 +3851,9 @@ sub _SetResultCache {
         Key   => $Param{Filename},
         Value => $Param{Result},
         TTL   => 24 * 60 * 60,
+
+        # Don't store complex structure in memory as it will be modified later.
+        CacheInMemory => 0,
     );
 
     return 1;
@@ -3861,6 +3884,9 @@ sub _GetResultCache {
     my $Cache = $Kernel::OM->Get('Kernel::System::Cache')->Get(
         Type => 'StatsRun',
         Key  => $Param{Filename},
+
+        # Don't store complex structure in memory as it will be modified later.
+        CacheInMemory => 0,
     );
 
     if ( ref $Cache ) {

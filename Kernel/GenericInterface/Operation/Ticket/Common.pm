@@ -13,35 +13,15 @@ use strict;
 use warnings;
 
 use MIME::Base64();
+use Mail::Address;
+
 use Kernel::System::VariableCheck qw(:all);
 
-our @ObjectDependencies = (
-    'Kernel::System::GenericInterface::Webservice',
-    'Kernel::System::DynamicField',
-    'Kernel::GenericInterface::Debugger',
-    'Kernel::System::Queue',
-    'Kernel::System::Valid',
-    'Kernel::System::Lock',
-    'Kernel::System::Type',
-    'Kernel::System::CustomerUser',
-    'Kernel::System::Service',
-    'Kernel::System::SLA',
-    'Kernel::System::State',
-    'Kernel::System::Priority',
-    'Kernel::System::Time',
-    'Kernel::System::AutoResponse',
-    'Kernel::System::Ticket',
-    'Kernel::System::CheckItem',
-    'Kernel::System::DynamicField::Backend',
-    'Kernel::System::Group',
-    'Kernel::System::CustomerGroup',
-    'Kernel::System::User',
-);
-our $ObjectManagerAware = 1;
+our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 
-Kernel::GenericInterface::Operation::Ticket::Common - common operation functions
+Kernel::GenericInterface::Operation::Ticket::Common - cBase class for all Ticket Operations
 
 =head1 SYNOPSIS
 
@@ -51,32 +31,25 @@ Kernel::GenericInterface::Operation::Ticket::Common - common operation functions
 
 =cut
 
-=item new()
+=item Init()
 
-create an object
+initialize the operation by checking the webservice configuration and gather of the dynamic fields
 
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    $Kernel::OM->ObjectParamAdd(
-        'Kernel::GenericInterface::Operation::Ticket::Common' => {
-            WebserviceID       => $WebserviceID,             # ID of the currently used web service
-        },
+    my $Return = $CommonObject->Init(
+        Success => 1,                       # or 0 in case of failure,
+        ErrorMessage => 'Error Message',
     );
-    my $TicketCommonObject = $Kernel::OM->Get('Kernel::GenericInterface::Operation::Ticket::Common');
 
 =cut
 
-sub new {
-    my ( $Type, %Param ) = @_;
+sub Init {
+    my ( $Self, %Param ) = @_;
 
-    my $Self = {};
-    bless( $Self, $Type );
-
-    # check needed objects
+    # check needed
     if ( !$Param{WebserviceID} ) {
         return {
             Success      => 0,
-            ErrorMessage => "Got no WebserviceID!"
+            ErrorMessage => "Got no WebserviceID!",
         };
     }
 
@@ -87,12 +60,12 @@ sub new {
         );
 
     if ( !IsHashRefWithData($Webservice) ) {
-        return $Self->_ReturnError(
-            ErrorCode => 'Webservice.InvalidConfiguration',
+        return {
+            Success => 0,
             ErrorMessage =>
                 'Could not determine Web service configuration'
                 . ' in Kernel::GenericInterface::Operation::Ticket::Common::new()',
-        );
+        };
     }
 
     # get the dynamic fields
@@ -110,38 +83,8 @@ sub new {
         $Self->{DynamicFieldLookup}->{ $DynamicField->{Name} } = $DynamicField;
     }
 
-    return $Self;
-}
-
-=item ReturnError()
-
-helper function to return an error message.
-
-    my $Return = $CommonObject->ReturnError(
-        ErrorCode    => Ticket.AccessDenied,
-        ErrorMessage => 'You do not have rights to access this ticket',
-    );
-
-=cut
-
-sub ReturnError {
-    my ( $Self, %Param ) = @_;
-
-    $Kernel::OM->Get('Kernel::GenericInterface::Debugger')->Error(
-        Summary => $Param{ErrorCode},
-        Data    => $Param{ErrorMessage},
-    );
-
-    # return structure
     return {
-        Success      => 1,
-        ErrorMessage => "$Param{ErrorCode}: $Param{ErrorMessage}",
-        Data         => {
-            Error => {
-                ErrorCode    => $Param{ErrorCode},
-                ErrorMessage => $Param{ErrorMessage},
-            },
-        },
+        Success => 1
     };
 }
 

@@ -18,32 +18,7 @@ use Kernel::System::EmailParser;
 
 use Kernel::System::VariableCheck qw(:all);
 
-our @ObjectDependencies = (
-    'Kernel::Config',
-    'Kernel::System::Cache',
-    'Kernel::System::CustomerUser',
-    'Kernel::System::DB',
-    'Kernel::System::DynamicField',
-    'Kernel::System::DynamicField::Backend',
-    'Kernel::System::HTMLUtils',
-    'Kernel::System::Lock',
-    'Kernel::System::Log',
-    'Kernel::System::Email',
-    'Kernel::System::Main',
-    'Kernel::System::Notification',
-    'Kernel::System::PostMaster::LoopProtection',
-    'Kernel::System::Priority',
-    'Kernel::System::Queue',
-    'Kernel::System::SLA',
-    'Kernel::System::Service',
-    'Kernel::System::State',
-    'Kernel::System::TemplateGenerator',
-    'Kernel::System::Time',
-    'Kernel::System::Type',
-    'Kernel::System::User',
-    'Kernel::System::Valid',
-);
-our $ObjectManagerAware = 1;
+our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 
@@ -226,6 +201,9 @@ sub ArticleCreate {
         $Param{Body} = $HTMLUtilsObject->ToAscii(
             String => $Param{Body},
         );
+    }
+    elsif ( $Param{MimeType} && $Param{MimeType} eq "application/json" ) {
+        # Keep JSON body unchanged
     }
 
     # if body isn't text, attach body as attachment (mostly done by OE) :-/
@@ -647,9 +625,12 @@ sub ArticleCreate {
                 );
 
                 # get subscribed users from My Services in form of a hash
-                %MyServicesUserIDs = map { $_ => 1 } $Self->GetSubscribedUserIDsByServiceID(
-                    ServiceID => $Ticket{ServiceID}
-                );
+                my %MyServicesUserIDs;
+                if ( $Ticket{ServiceID} ) {
+                    %MyServicesUserIDs = map { $_ => 1 } $Self->GetSubscribedUserIDsByServiceID(
+                        ServiceID => $Ticket{ServiceID},
+                    );
+                }
 
                 # get ticket watchers in form of a hash
                 # (ResultType HASH does not seams to help here)
@@ -783,9 +764,12 @@ sub ArticleCreate {
             );
 
             # get subscribed users from My Services in form of a hash
-            my %MyServicesUserIDs = map { $_ => 1 } $Self->GetSubscribedUserIDsByServiceID(
-                ServiceID => $Ticket{ServiceID}
-            );
+            my %MyServicesUserIDs;
+            if ( $Ticket{ServiceID} ) {
+                %MyServicesUserIDs = map { $_ => 1 } $Self->GetSubscribedUserIDsByServiceID(
+                    ServiceID => $Ticket{ServiceID},
+                );
+            }
 
             # combine both subscribed users list (this will also remove duplicates)
             my %SubscribedUserIDs = ( %MyQueuesUserIDs, %MyServicesUserIDs );

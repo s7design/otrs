@@ -46,21 +46,29 @@ EOF
 
 sub Run {
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        LogObject => {
+        'Kernel::System::Log' => {
             LogPrefix => 'OTRS-otrs.GenerateDashboardStats.pl',
         },
-        StatsObject => {
+        'Kernel::System::Stats' => {
             UserID => 1,
         },
     );
 
     # create pid lock
-    if ( !$Opts{f} && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'GenerateDashboardStats' ) ) {
+    if (
+        !$Opts{f}
+        && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'GenerateDashboardStats' )
+        )
+    {
         print
             "NOTICE: otrs.GenerateDashboardStats.pl is already running (use '-f 1' if you want to start it forced)!\n";
         exit 1;
     }
-    elsif ( $Opts{f} && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'GenerateDashboardStats' ) ) {
+    elsif (
+        $Opts{f}
+        && !$Kernel::OM->Get('Kernel::System::PID')->PIDCreate( Name => 'GenerateDashboardStats' )
+        )
+    {
         print "NOTICE: otrs.GenerateDashboardStats.pl is already running but is starting again!\n";
     }
 

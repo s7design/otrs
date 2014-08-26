@@ -39,8 +39,11 @@ use vars qw($Debug);
 
 # common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    LogObject => {
+    'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.ExportStatsToOPM.pl',
+    },
+    'Kernel::System::Stats' => {
+        UserID => 1,
     },
 );
 
@@ -139,7 +142,8 @@ for my $StatID ( @{$StatsListRef} ) {
     $FileListcheck{ $File->{Filename} } = $StatID;
 
     # write data in filesystem
-    my $FullFilename = $Kernel::OM->Get('Kernel::Config')->Get('Home') . "/var/Stats/" . $File->{Filename};
+    my $FullFilename
+        = $Kernel::OM->Get('Kernel::Config')->Get('Home') . "/var/Stats/" . $File->{Filename};
     push( @Filelist, $File->{Filename} );
 
     my $Output;

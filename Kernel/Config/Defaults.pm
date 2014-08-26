@@ -36,7 +36,6 @@ use File::stat;
 use Digest::MD5;
 
 our @ObjectDependencies = ();
-our $ObjectManagerAware = 1;
 
 sub LoadDefaults {
     my $Self = shift;
@@ -83,7 +82,7 @@ sub LoadDefaults {
 
     # ProductName
     # (Application name displayed in frontend.)
-    $Self->{ProductName} = 'OTRS';
+    $Self->{ProductName} = 'OTRS 4';
 
     # --------------------------------------------------- #
     # database settings                                   #
@@ -619,13 +618,17 @@ sub LoadDefaults {
     # (don't work with user id 1 notification)
     $Self->{'Frontend::NotifyModule'} = {
         '200-UID-Check' => {
-          'Module' => 'Kernel::Output::HTML::NotificationUIDCheck'
+          'Module' => 'Kernel::Output::HTML::NotificationUIDCheck',
         },
         '500-OutofOffice-Check' => {
-          'Module' => 'Kernel::Output::HTML::NotificationOutofOfficeCheck'
+          'Module' => 'Kernel::Output::HTML::NotificationOutofOfficeCheck',
         },
+        '600-SystemMaintenance-Check' => {
+            'Module' => 'Kernel::Output::HTML::NotificationSystemMaintenanceCheck',
+        },
+
         '800-Scheduler-Check' => {
-          'Module' => 'Kernel::Output::HTML::NotificationSchedulerCheck'
+          'Module' => 'Kernel::Output::HTML::NotificationSchedulerCheck',
         },
     };
 
@@ -958,7 +961,7 @@ sub LoadDefaults {
 
     # Package::Timeout
     # (http/ftp timeout to get packages)
-    $Self->{'Package::Timeout'} = 15;
+    $Self->{'Package::Timeout'} = 120;
 
     # Package::Proxy
     # (fetch packages via proxy)
@@ -1679,70 +1682,6 @@ via the Preferences button after logging in.
                 'Core.Installer.css'
             ],
         },
-    };
-
-    # --------------------------------------------------- #
-    # object names and dependencies
-    # ----------------------------------------------------#
-
-    $Self->{ObjectAliases} = {
-        'ACLDBACLObject' => 'Kernel::System::ACL::DB::ACL',
-        'AuthObject' => 'Kernel::System::Auth',
-        'AutoReponseObject' => 'Kernel::System::AutoResponse',
-        'CacheObject' => 'Kernel::System::Cache',
-        'CheckItemObject' => 'Kernel::System::CheckItem',
-        'ConfigObject' => 'Kernel::Config',
-        'CryptObject' => 'Kernel::System::Crypt',
-        'CSVObject' => 'Kernel::System::CSV',
-        'CustomerAuthObject' => 'Kernel::System::CustomerAuth',
-        'CustomerCompanyObject' => 'Kernel::System::CustomerCompany',
-        'CustomerGroupObject' => 'Kernel::System::CustomerGroup',
-        'CustomerUserObject' => 'Kernel::System::CustomerUser',
-        'DBObject' => 'Kernel::System::DB',
-        'DebugLogObject' => 'Kernel::System::GenericInterface::DebugLog',
-        'DynamicFieldBackendObject' => 'Kernel::System::DynamicField::Backend',
-        'DynamicFieldObject' => 'Kernel::System::DynamicField',
-        'EmailObject' => 'Kernel::System::Email',
-        'EncodeObject' => 'Kernel::System::Encode',
-        'EnvironmentObject' => 'Kernel::System::Environment',
-        'FileTempObject' => 'Kernel::System::FileTemp',
-        'GenericAgentObject' => 'Kernel::System::GenericAgent',
-        'GroupObject' => 'Kernel::System::Group',
-        'HTMLUtilsObject' => 'Kernel::System::HTMLUtils',
-        'JSONObject' => 'Kernel::System::JSON',
-        'LanguageObject' => 'Kernel::Language',
-        'LayoutObject' => 'Kernel::Output::HTML::Layout',
-        'LinkObject' => 'Kernel::System::LinkObject',
-        'LoaderObject' => 'Kernel::System::Loader',
-        'LockObject' => 'Kernel::System::Lock',
-        'LogObject' => 'Kernel::System::Log',
-        'MainObject' => 'Kernel::System::Main',
-        'PackageObject' => 'Kernel::System::Package',
-        'ParamObject' => 'Kernel::System::Web::Request',
-        'PDFObject' => 'Kernel::System::PDF',
-        'PIDObject' => 'Kernel::System::PID',
-        'PostMasterObject' => 'Kernel::System::PostMaster',
-        'PriorityObject' => 'Kernel::System::Priority',
-        'QueueObject' => 'Kernel::System::Queue',
-        'ServiceObject' => 'Kernel::System::Service',
-        'SessionObject' => 'Kernel::System::AuthSession',
-        'SLAObject' => 'Kernel::System::SLA',
-        'StandardTemplateObject' => 'Kernel::System::StandardTemplate',
-        'StateObject' => 'Kernel::System::State',
-        'StatsObject' => 'Kernel::System::Stats',
-        'SysConfigObject' => 'Kernel::System::SysConfig',
-        'SystemAddressObject' => 'Kernel::System::SystemAddress',
-        'TaskManagerObject' => 'Kernel::System::Scheduler::TaskManager',
-        'TicketObject' => 'Kernel::System::Ticket',
-        'TimeObject' => 'Kernel::System::Time',
-        'TypeObject' => 'Kernel::System::Type',
-        'UnitTestHelperObject' => 'Kernel::System::UnitTest::Helper',
-        'UnitTestObject' => 'Kernel::System::UnitTest',
-        'UserObject' => 'Kernel::System::User',
-        'ValidObject' => 'Kernel::System::Valid',
-        'WebserviceObject' => 'Kernel::System::GenericInterface::Webservice',
-        'XMLObject' => 'Kernel::System::XML',
-        'YAMLObject' => 'Kernel::System::YAML',
     };
 
     return;

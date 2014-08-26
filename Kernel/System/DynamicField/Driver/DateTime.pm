@@ -21,7 +21,6 @@ our @ObjectDependencies = (
     'Kernel::System::DynamicFieldValue',
     'Kernel::System::Main',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -58,7 +57,7 @@ sub new {
         'IsNotificationEventCondition' => 0,
         'IsSortable'                   => 1,
         'IsFiltrable'                  => 0,
-        'IsStatsCondition'             => 0,
+        'IsStatsCondition'             => 1,
         'IsCustomerInterfaceCapable'   => 1,
     };
 

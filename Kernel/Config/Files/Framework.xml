@@ -39,7 +39,7 @@
         <Group>Framework</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
-            <String Regex="">OTRS</String>
+            <String Regex="">OTRS 4</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="SystemID" Required="1" Valid="1" ConfigLevel="200">
@@ -177,7 +177,7 @@
         <Group>Framework</Group>
         <SubGroup>Frontend::Customer</SubGroup>
         <Setting>
-            <String Regex="">Example Company Support</String>
+            <String Regex="">Example Company</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="CustomerLogo" Required="0" Valid="0">
@@ -692,6 +692,16 @@
         <Setting>
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::NotificationOutofOfficeCheck</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::NotifyModule###600-SystemMaintenance-Check" Required="1" Valid="1">
+        <Description Translatable="1">Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Agent::ModuleNotify</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::NotificationSystemMaintenanceCheck</Item>
             </Hash>
         </Setting>
     </ConfigItem>
@@ -2687,7 +2697,7 @@
         <Group>Framework</Group>
         <SubGroup>Core::Package</SubGroup>
         <Setting>
-            <String Regex="">15</String>
+            <String Regex="">120</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Package::Proxy" Required="0" Valid="0" ConfigLevel="200">
@@ -3452,6 +3462,16 @@ You can log in via the following URL:
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::NotificationCustomerOnline</Item>
                 <Item Key="ShowEmail">1</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="CustomerFrontend::NotifyModule###6-CustomerSystemMaintenance-Check" Required="1" Valid="1">
+        <Description Translatable="1">Defines the module to display a notification in the agent interface, if the agent is logged in while having system maintenance active.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Customer::ModuleNotify</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::NotificationCustomerSystemMaintenanceCheck</Item>
             </Hash>
         </Setting>
     </ConfigItem>
@@ -4813,6 +4833,26 @@ via the Preferences button after logging in.
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Frontend::Module###AdminSystemMaintenance" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Admin::ModuleRegistration</SubGroup>
+        <Setting>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Admin</Description>
+                <Title Translatable="1">System Maintenance</Title>
+                <NavBarName>Admin</NavBarName>
+                <NavBarModule>
+                    <Module>Kernel::Output::HTML::NavBarModuleAdmin</Module>
+                    <Name Translatable="1">System Maintenance</Name>
+                    <Description Translatable="1">Schedule a maintenance period.</Description>
+                    <Block>System</Block>
+                    <Prio>501</Prio>
+                </NavBarModule>
+            </FrontendModuleReg>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="CustomerFrontend::Module###Logout" Required="0" Valid="1">
         <Description Translatable="1">Frontend module registration for the customer interface.</Description>
         <Group>Framework</Group>
@@ -5508,7 +5548,6 @@ via the Preferences button after logging in.
                 <Item Key="Module">Kernel::Output::HTML::DashboardProductNotify</Item>
                 <Item Key="Title">Product News</Item>
                 <Item Key="Description">News about OTRS releases!</Item>
-                <Item Key="URL">http://otrs.org/product.xml</Item>
                 <Item Key="Block">ContentLarge</Item>
                 <Item Key="Group">admin</Item>
                 <Item Key="Default">1</Item>
@@ -5565,12 +5604,6 @@ via the Preferences button after logging in.
                 <Item Key="Module">Kernel::Output::HTML::DashboardRSS</Item>
                 <Item Key="Title">OTRS News</Item>
                 <Item Key="Description"></Item>
-                <Item Key="URL">http://www.otrs.com/en/rss.xml</Item>
-                <Item Key="URL_de">http://www.otrs.com/de/rss.xml</Item>
-                <Item Key="URL_es">http://www.otrs.com/es/rss.xml</Item>
-                <Item Key="URL_nl">http://www.otrs.com/nl/rss.xml</Item>
-                <Item Key="URL_ru">http://www.otrs.com/ru/rss.xml</Item>
-                <Item Key="URL_zh">http://www.otrs.com/cn/rss.xml</Item>
                 <Item Key="Block">ContentSmall</Item>
                 <Item Key="Limit">6</Item>
                 <Item Key="Group"></Item>
@@ -6383,6 +6416,38 @@ via the Preferences button after logging in.
             <Hash>
                 <Item Key="Go to dashboard!">[% Env("CGIHandle") %]?Action=AgentDashboard</Item>
             </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="SystemMaintenance::TimeNotifyUpcomingMaintenance" Required="0" Valid="1">
+        <Description Translatable="1">Sets the minutes a notification is shown for notice about upcoming system maintenance period.</Description>
+        <Group>Framework</Group>
+        <SubGroup>SystemMaintenance</SubGroup>
+        <Setting>
+            <String Regex="^[0-9]{1,8}$">30</String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="SystemMaintenance::IsActiveDefaultNotification" Required="0" Valid="1">
+        <Description Translatable="1">Sets the default message for the notification is shown on a running system maintenance period.</Description>
+        <Group>Framework</Group>
+        <SubGroup>SystemMaintenance</SubGroup>
+        <Setting>
+            <String Regex="">A system maintenance period is active</String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="SystemMaintenance::IsActiveDefaultLoginMessage" Required="0" Valid="1">
+        <Description Translatable="1">Sets the default message for the login screen on Agent and Customer interface, it's shown when a running system maintenance period is active.</Description>
+        <Group>Framework</Group>
+        <SubGroup>SystemMaintenance</SubGroup>
+        <Setting>
+            <String Regex="">System is on a scheduled maintenance period. We spect to be online promptly.</String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="SystemMaintenance::IsActiveDefaultLoginErrorMessage" Required="0" Valid="1">
+        <Description Translatable="1">Sets the default error message for the login screen on Agent and Customer interface, it's shown when a running system maintenance period is active.</Description>
+        <Group>Framework</Group>
+        <SubGroup>SystemMaintenance</SubGroup>
+        <Setting>
+            <String Regex="">A maintenance period is running, get into the system is not possible for now.</String>
         </Setting>
     </ConfigItem>
 </otrs_config>

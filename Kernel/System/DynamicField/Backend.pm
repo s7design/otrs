@@ -21,7 +21,6 @@ our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::Main',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -2193,6 +2192,8 @@ The following functions should be only used if the dynamic field has IsStatsCond
         Name               => 'DynamicField_' . $DynamicFieldConfig->{Label},
         Element            => 'DynamicField_' . $DynamicFieldConfig->{Name},
         TranslatableValues => 1,
+        TimePeriodFormat   => 'DateInputFormat',
+        Block              => 'InputField',              # or 'MultiselectField' or 'Time'
     };
 
 =cut

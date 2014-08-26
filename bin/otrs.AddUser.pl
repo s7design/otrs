@@ -34,7 +34,7 @@ use Kernel::System::ObjectManager;
 
 # create common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    LogObject => {
+    'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.AddUser',
     },
 );
@@ -46,10 +46,11 @@ GetOptions(
     'l=s',
     'p=s',
     'g=s@',
-    'e=s'
+    'e=s',
+    'h=s',
 );
 
-if ( !$ARGV[0] ) {
+if ( !$ARGV[0] || $Options{h} ) {
     print
         "$FindBin::Script [-f firstname] [-l lastname] [-p password] [-g groupname]... [-e email] username\n";
     print "\tif you define -g with a valid group name then the user will be added that group\n";
@@ -86,7 +87,8 @@ if ( $Options{g} ) {
     }
 }
 
-if ( $Param{UID} = $Kernel::OM->Get('Kernel::System::User')->UserAdd( %Param, ChangeUserID => 1 ) ) {
+if ( $Param{UID} = $Kernel::OM->Get('Kernel::System::User')->UserAdd( %Param, ChangeUserID => 1 ) )
+{
     print "User $Param{UserLogin} added. User id is $Param{UID}.\n";
 }
 else {

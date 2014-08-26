@@ -24,7 +24,6 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::Time',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -47,7 +46,7 @@ Usually you do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        DBObject => {
+        'Kernel::System::DB' => {
             # if you don't supply the following parameters, the ones found in
             # Kernel/Config.pm are used instead:
             DatabaseDSN  => 'DBI:odbc:database=123;host=localhost;',
@@ -96,12 +95,7 @@ sub new {
         $Self->{'DB::Type'} = 'mysql';
     }
     elsif ( $Self->{DSN} =~ /:pg/i ) {
-        if ( $ConfigObject->Get('DatabasePostgresqlBefore82') ) {
-            $Self->{'DB::Type'} = 'postgresql_before_8_2';
-        }
-        else {
-            $Self->{'DB::Type'} = 'postgresql';
-        }
+        $Self->{'DB::Type'} = 'postgresql';
     }
     elsif ( $Self->{DSN} =~ /:oracle/i ) {
         $Self->{'DB::Type'} = 'oracle';

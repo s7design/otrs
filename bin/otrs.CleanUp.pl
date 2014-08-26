@@ -43,7 +43,7 @@ if ( $Opts{'h'} ) {
 
 # create common objects
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    LogObject => {
+    'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.CleanUp.pl',
     },
 );
@@ -58,7 +58,7 @@ else {
 }
 
 print "Cleaning up SessionData...";
-if ( $Kernel::OM->Get('Kernel::System::Session')->CleanUp() ) {
+if ( $Kernel::OM->Get('Kernel::System::AuthSession')->CleanUp() ) {
     print " done.\n";
 }
 else {

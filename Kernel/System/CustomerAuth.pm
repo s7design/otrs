@@ -17,9 +17,9 @@ our @ObjectDependencies = (
     'Kernel::System::CustomerUser',
     'Kernel::System::Log',
     'Kernel::System::Main',
+    'Kernel::System::SystemMaintenance',
     'Kernel::System::Time',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -68,6 +68,9 @@ sub new {
         $Self->{"Backend$Count"} = $GenericModule->new( %{$Self}, Count => $Count );
     }
 
+    # Initialize last error message
+    $Self->{LastErrorMessage} = '';
+
     return $Self;
 }
 
@@ -104,6 +107,7 @@ sub Auth {
     my ( $Self, %Param ) = @_;
 
     # get customer user object
+    my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
     # use all 11 backends and return on first auth
@@ -162,6 +166,21 @@ sub Auth {
         UserID => $CustomerData{UserLogin},
     );
 
+    # on system maintenance customers
+    # shouldn't be allowed get into the system
+    my $ActiveMaintenance
+        = $Kernel::OM->Get('Kernel::System::SystemMaintenance')->SystemMaintenanceIsActive();
+
+    # check if system maintenance is active
+    if ($ActiveMaintenance) {
+
+        $Self->{LastErrorMessage} =
+            $ConfigObject->Get('SystemMaintenance::IsActiveDefaultLoginErrorMessage')
+            || "It is currently not possible to login due to a scheduled system maintenance.";
+
+        return;
+    }
+
     # last login preferences update
     $CustomerUserObject->SetPreferences(
         Key    => 'UserLastLogin',
@@ -170,6 +189,24 @@ sub Auth {
     );
 
     return $User;
+}
+
+=item GetLastErrorMessage()
+
+Retrieve $Self->{LastErrorMessage} content.
+
+    my $AuthErrorMessage = $AuthObject->GetLastErrorMessage();
+
+    Result:
+
+        $AuthErrorMessage = "An error string message.";
+
+=cut
+
+sub GetLastErrorMessage {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->{LastErrorMessage};
 }
 
 1;

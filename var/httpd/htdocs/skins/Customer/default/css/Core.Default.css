@@ -57,6 +57,10 @@ strong {
     font-weight: bold;
 }
 
+.AsBlock {
+    display: block;
+}
+
 /**
  * @subsection  Header
  */
@@ -256,9 +260,9 @@ div.Clear {
     margin: 0 0 0 4px;
     height: 16px;
     width: 16px;
-    background: transparent url(../img/icons/calendar.png) no-repeat;
     display: inline-block;
-    vertical-align: top;
+    vertical-align: middle;
+    color: #333;
 }
 
 .RTL .DatepickerIcon {
@@ -328,6 +332,46 @@ form select.Error {
  */
 .ArticleBody{
     font-family: monospace,fixed;
+}
+
+
+/**
+ * @subsection  Chat
+ */
+
+.ArticleChat .Name {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.ArticleChat .Time {
+    padding-right: 5px;
+    color: #888;
+}
+
+.ArticleChat .SystemGenerated .Name {
+    display: none;
+}
+
+.ArticleChat .SystemGenerated .Text {
+    font-style: italic;
+    color: #888;
+}
+
+.ArticleChat .Own .Name {
+    color: red;
+}
+
+.ArticleChat > div {
+    display: table;
+}
+
+.ArticleChat > div > div {
+    display: table-row;
+}
+
+.ArticleChat > div > div > span {
+    display: table-cell;
 }
 
 } /* end @media */

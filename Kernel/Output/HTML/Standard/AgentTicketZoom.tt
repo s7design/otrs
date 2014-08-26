@@ -237,7 +237,7 @@
                         <label>[% Translate(Data.Label) | html %]:</label>
                         <p class="Value">
 [% RenderBlockStart("TicketDynamicFieldLink") %]
-                            <span title="[% Data.Title | html %]"><a href="[% Data.Link %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></span>
+                            <span title="[% Data.Title | html %]"><a href="[% Data.Link | Interpolate %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></span>
 [% RenderBlockEnd("TicketDynamicFieldLink") %]
 [% RenderBlockStart("TicketDynamicFieldPlain") %]
                             <span title="[% Data.Title | html %]">[% Data.Value %]</span>
@@ -455,7 +455,7 @@ $('.ShowFieldInfoOverlay').bind('click', function() {
                                 <p class="Value CutValue DynamicField_[% Data.Name %]">
 <!-- OutputFilterHook_WidgetDynamicFieldBegin -->
 [% RenderBlockStart("ProcessWidgetDynamicFieldLink") %]
-                                    <span title="[% Data.Title | html %]"><a href="[% Data.Link %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></span>
+                                    <span title="[% Data.Title | html %]"><a href="[% Data.Link | Interpolate %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></span>
 [% RenderBlockEnd("ProcessWidgetDynamicFieldLink") %]
 [% RenderBlockStart("ProcessWidgetDynamicFieldPlain") %]
                                     [% Data.Value %]
@@ -566,7 +566,7 @@ $('.ShowFieldInfoOverlay').bind('click', function() {
                                 </th>
                                 <th class="No Sortable"><a href="#">[% Translate("No.") | html %]</a></th>
                                 <th class="Type Sortable"><a href="#">[% Translate("Type") | html %]</a></th>
-                                <th class="Direction Sortable"><a href="#" title="[% Translate("Direction") | html %]"><span class="Direction"><!--Direction--></span></a></th>
+                                <th class="Direction Sortable"><a href="#" title="[% Translate("Direction") | html %]"><i class="fa fa-exchange"></i></a></th>
                                 <th class="From Sortable"><a href="#">[% Translate("From") | html %]</a></th>
                                 <th class="Subject Sortable"><a href="#">[% Translate("Subject") | html %]</a></th>
                                 <th class="Created Sortable"><a href="#">[% Translate("Created") | html %]</a></th>
@@ -609,15 +609,23 @@ $('.ShowFieldInfoOverlay').bind('click', function() {
                                 </td>
                                 <td class="Direction">
 [% RenderBlockStart("TreeItemDirectionIncoming") %]
-                                    <span class="Direction Incoming" title="[% Translate("Incoming message") | html %]"></span>
+                                    <span class="Direction Incoming" title="[% Translate("Incoming message") | html %]">
+                                        <i class="fa fa-long-arrow-left"></i>
+                                        <i class="fa fa-square-o"></i>
+                                    </span>
                                     <input type="hidden" class="SortData" value="0" />
 [% RenderBlockEnd("TreeItemDirectionIncoming") %]
 [% RenderBlockStart("TreeItemDirectionOutgoing") %]
-                                    <span class="Direction Outgoing" title="[% Translate("Outgoing message") | html %]"></span>
+                                    <span class="Direction Outgoing" title="[% Translate("Outgoing message") | html %]">
+                                        <i class="fa fa-long-arrow-right"></i>
+                                        <i class="fa fa-square-o"></i>
+                                    </span>
                                     <input type="hidden" class="SortData" value="1" />
 [% RenderBlockEnd("TreeItemDirectionOutgoing") %]
 [% RenderBlockStart("TreeItemDirectionInternal") %]
-                                    <span class="Direction Internal" title="[% Translate("Internal message") | html %]"></span>
+                                    <span class="Direction Internal" title="[% Translate("Internal message") | html %]">
+                                        <i class="fa fa-square-o"></i>
+                                    </span>
                                     <input type="hidden" class="SortData" value="2" />
 [% RenderBlockEnd("TreeItemDirectionInternal") %]
                                 </td>
@@ -818,7 +826,7 @@ $('#[% Data.FormID | html %] select[name=ResponseID]').bind('change', function (
 [% RenderBlockStart("ArticleDynamicField") %]
                     <label>[% Translate(Data.Label) | html %]:</label>
 [% RenderBlockStart("ArticleDynamicFieldLink") %]
-                    <p class="Value" title="[% Data.Title | html %]"><a href="[% Data.Link %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></p>
+                    <p class="Value" title="[% Data.Title | html %]"><a href="[% Data.Link | Interpolate %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></p>
 [% RenderBlockEnd("ArticleDynamicFieldLink") %]
 [% RenderBlockStart("ArticleDynamicFieldPlain") %]
                     <p class="Value" title="[% Data.Title | html %]">[% Data.Value %]</p>
@@ -832,7 +840,7 @@ $('#[% Data.FormID | html %] select[name=ResponseID]').bind('change', function (
 #[% RenderBlockStart("ArticleDynamicFieldField1") %]
 #                        <label>[% Translate(Data.Label) | html %]:</label>
 #[% RenderBlockStart("ArticleDynamicFieldField1Link") %]
-#                    <p class="Value" title="[% Data.Title | html %]"><a href="[% Data.Link %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></p>
+#                    <p class="Value" title="[% Data.Title | html %]"><a href="[% Data.Link | Interpolate %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></p>
 #[% RenderBlockEnd("ArticleDynamicField1Link") %]
 #[% RenderBlockStart("ArticleDynamicFieldField1Plain") %]
 #                    <p class="Value" title="[% Data.Title | html %]">[% Data.Value %]</p>
@@ -842,7 +850,7 @@ $('#[% Data.FormID | html %] select[name=ResponseID]').bind('change', function (
 #[% RenderBlockStart("ArticleDynamicFieldField2") %]
 #                        <label>[% Translate(Data.Label) | html %]:</label>
 #[% RenderBlockStart("ArticleDynamicFieldField2Link") %]
-#                    <p class="Value" title="[% Data.Title | html %]"><a href="[% Data.Link %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></p>
+#                    <p class="Value" title="[% Data.Title | html %]"><a href="[% Data.Link | Interpolate %]" target="_blank" class="DynamicFieldLink">[% Data.Value %]</a></p>
 #[% RenderBlockEnd("ArticleDynamicFieldField2Link") %]
 #[% RenderBlockStart("ArticleDynamicFieldField2Plain") %]
 #                    <p class="Value" title="[% Data.Title | html %]">[% Data.Value %]</p>
@@ -903,6 +911,9 @@ $('#[% Data.FormID | html %] select[name=ResponseID]').bind('change', function (
                     <iframe sandbox="allow-same-origin allow-popups" [% Data.MSSecurityRestricted %] width="100%" frameborder="0" id="Iframe[% Data.ArticleID | html %]" onload="window.setTimeout( function (){ if (typeof Core === 'object' && typeof Core.Agent === 'object' && typeof Core.Agent.TicketZoom === 'object') { Core.Agent.TicketZoom.IframeAutoHeight($('#Iframe[% Data.ArticleID | html %]')); } }, 500);" src="[% Env("Baselink") %]Action=AgentTicketAttachment;Subaction=HTMLView;ArticleID=[% Data.ArticleID | html %];FileID=[% Data.AttachmentIDOfHTMLBody | html %];[% Env("SessionName") | html %]=[% Env("SessionID") | html %]"></iframe>
                 </div>
 [% RenderBlockEnd("BodyHTML") %]
+[% RenderBlockStart("BodyChat") %]
+[% INCLUDE "ChatDisplay.tt" %]
+[% RenderBlockEnd("BodyChat") %]
             </div>
         </div>
     </div>
@@ -925,11 +936,43 @@ $('#[% Data.FormID | html %] select[name=ResponseID]').bind('change', function (
 [% RenderBlockEnd("TicketItemMarkAsSeen") %]
 
 [% RenderBlockStart("TicketZoomInit") %]
+
+[% INCLUDE "ChatStartForm.tt" %]
+
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
     Core.Agent.TicketZoom.Init({ ArticleTableHeight: parseInt('[% Env("UserTicketZoomArticleTableHeight") %]', 10)});
     Core.Config.Set('Ticket::Frontend::HTMLArticleHeightDefault', parseInt("[% Config("Ticket::Frontend::HTMLArticleHeightDefault") %]" || 0, 10));
     Core.Config.Set('Ticket::Frontend::HTMLArticleHeightMax', parseInt("[% Config("Ticket::Frontend::HTMLArticleHeightMax") %]" || 0, 10));
+    Core.Config.Set('Language.AttachmentViewMessage', '[% Translate('Article could not be opened! Perhaps it is on another article page?') %]');
+
+    $('a.CreateChatRequest').bind('click', function() {
+        var UserID = $(this).data('user-id'),
+            $Dialog = $('#DashboardUserOnlineChatStartDialog').clone();
+
+        $Dialog.find('input[name=ChatStartUserID]').val($(this).data('user-id'));
+        $Dialog.find('input[name=ChatStartUserType]').val($(this).data('user-type'));
+        $Dialog.find('input[name=ChatStartUserFullname]').val($(this).data('user-fullname'));
+
+        Core.UI.Dialog.ShowContentDialog($Dialog.html(), [% Translate('Start chat') | JSON %], '100px', 'Center', true);
+
+        // Only enable button if there is a message
+        $('.Dialog input[name="ChatStartFirstMessage"]').on('keyup', function(){
+            $('.Dialog button').prop('disabled', $(this).val().length ? false : true );
+        });
+
+        $('.Dialog form').on('submit', function(){
+            if (!$('.Dialog input[name=ChatStartFirstMessage]').val().length) {
+                return false;
+            }
+            // Close after submit
+            window.setTimeout(function(){
+                Core.UI.Dialog.CloseDialog($('.Dialog'));
+            }, 1);
+        });
+
+        return false;
+    });
 //]]></script>
 [% END %]
 [% RenderBlockEnd("TicketZoomInit") %]

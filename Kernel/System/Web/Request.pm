@@ -21,7 +21,6 @@ our @ObjectDependencies = (
     'Kernel::System::CheckItem',
     'Kernel::System::Encode',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -43,7 +42,7 @@ create param object. Do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        ParamObject => {
+        'Kernel::System::Web::Request' => {
             WebRequest   => CGI::Fast->new(), # optional, e. g. if fast cgi is used
         }
     );
@@ -332,6 +331,20 @@ sub GetCookie {
     my ( $Self, %Param ) = @_;
 
     return $Self->{Query}->cookie( $Param{Key} );
+}
+
+=item IsAJAXRequest()
+
+checks if the current request was sent by AJAX
+
+    my $IsAJAXRequest = $ParamObject->IsAJAXRequest();
+
+=cut
+
+sub IsAJAXRequest {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->{Query}->http('X-Requested-With') eq 'XMLHttpRequest' ? 1 : 0;
 }
 
 1;

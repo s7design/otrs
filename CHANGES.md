@@ -1,4 +1,23 @@
-#3.4.0.beta1 20??-??-??
+#4.0.0.beta1 20??-??-??
+ - 2014-08-25 Updated CPAN module YAML to version 1.09.
+ - 2014-08-25 Updated CPAN module URI to version 1.64.
+ - 2014-08-25 Updated CPAN module Selenium::Remote::Driver to version 0.2102.
+ - 2014-08-25 Updated CPAN module Net::SSLGlue to version 1.053.
+ - 2014-08-25 Updated CPAN module Net::IMAP::Simple to version 1.2205.
+ - 2014-08-25 Updated CPAN module Net::HTTP to version 6.07.
+ - 2014-08-25 Updated CPAN module Locale::Codes to version 3.31.
+ - 2014-08-25 Updated CPAN module LWP::Protocol::https to version 6.06.
+ - 2014-08-25 Updated CPAN module LWP to version 6.08.
+ - 2014-08-25 Updated CPAN module Email::Valid to version 1.194.
+ - 2014-08-25 Updated CPAN module CGI::Emulate::PSGI to version 0.18.
+ - 2014-08-25 Updated CPAN module CGI::Fast to version 2.02.
+ - 2014-08-25 Updated CPAN module CGI to version 4.03.
+ - 2014-08-18 Added Attachment Name option in ticket search screens.
+ - 2014-08-18 Added ProcessManagement Dashboard widget (for valid running process tickets).
+ - 2014-08-18 Fixed bug#[10682](http://bugs.otrs.org/show_bug.cgi?id=10682) - Customers are able to search in non customer articles.
+ - 2014-08-15 Moved Scheduler backend files from Kernel/Scheduler to Kernel/System/Scheduler.
+ - 2014-08-07 Removed possibility to start scheduler from GUI.
+ - 2014-08-07 Added possibility to use Date and Date/Time dynamic fields as restrictions in statistics.
  - 2014-08-07 Removed AgentZoom.pm.
  - 2014-08-04 Removed CacheInternal.pm. Caching is now done with the global Cache object stored in the ObjectManager, which also does in-memory caching.
  - 2014-07-25 Added possibility to use process ticket information as dynamic values for transition actions.
@@ -9,7 +28,7 @@
  - 2014-07-25 Changed ProcessManagement EntityIDs to random strings.
  - 2014-07-24 Fixed bug#[8244](http://bugs.otrs.org/show_bug.cgi?id=8244) - QueueView hides queues that do not have at least one unlocked ticket.
  - 2014-07-22 Fixed bug#[10644](http://bugs.otrs.org/show_bug.cgi?id=10644) - Module parameters in GenericAgent are copied to ticket parameters
- - 2017-07-21 Changed Action based Ticket ACLs format from a hash form to an array form just like the other ACLs, including possiblilty to define Action based Ticket ACLs in the PossibleNot and PossibleAdd sections.
+ - 2017-07-21 Changed Action based Ticket ACLs format from a hash form to an array form just like the other ACLs, including possibility to define Action based Ticket ACLs in the PossibleNot and PossibleAdd sections.
  - 2017-07-21 Added new Ticket ACL debugging options.
  - 2014-07-21 Added [Not], [NotRegExp] and [Notregexp] modifiers for all Ticket ACL sections.
  - 2014-07-21 Added possibility to combine different Ticket ACLs with Possible, PossibleAdd and PossibleNot sections.
@@ -97,6 +116,9 @@
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
 #3.3.9 2014-??-??
+ - 2014-08-21 Fixed bug#[10497](http://bugs.otrs.org/show_bug.cgi?id=10497) - CustomerUser secondary database access opens multitude of database connections.
+ - 2014-08-08 Fixed bug#[9756](http://bugs.otrs.org/show_bug.cgi?id=9756) - Owner will be set after QueueMove screen AND undo.
+ - 2014-08-08 Fixed bug#[10606](http://bugs.otrs.org/show_bug.cgi?id=10606) - Dynamic fields in dashboard overview are empty.
  - 2014-08-07 Fixed bug#[6284](http://bugs.otrs.org/show_bug.cgi?id=6284) - Problem with unicode characters when using FastCGI.
  - 2014-08-07 Updated Danish translation, thanks to Lars Jørgensen.
  - 2014-08-01 Fixed bug#[10670](http://bugs.otrs.org/show_bug.cgi?id=10670) - It is possible to start the scheduler more than once.

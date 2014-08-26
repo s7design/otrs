@@ -16,11 +16,10 @@ use Kernel::System::VariableCheck qw(IsHashRefWithData);
 
 our @ObjectDependencies = (
     'Kernel::GenericInterface::Requester',
-    'Kernel::Scheduler',
+    'Kernel::System::Scheduler',
     'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::Log',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -55,9 +54,7 @@ sub Run {
         }
     }
 
-    # get needed objects
-    my $RequesterObject  = $Kernel::OM->Get('Kernel::GenericInterface::Requester');
-    my $SchedulerObject  = $Kernel::OM->Get('Kernel::Scheduler');
+    # get webservice objects
     my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
 
     my %WebserviceList = %{
@@ -97,7 +94,7 @@ sub Run {
                     # create a scheduler task for later execution
                     if ( $Event->{Asynchronous} ) {
 
-                        my $TaskID = $SchedulerObject->TaskRegister(
+                        my $TaskID = $Kernel::OM->Get('Kernel::System::Scheduler')->TaskRegister(
                             Type => 'GenericInterface',
                             Data => {
                                 WebserviceID => $WebserviceID,
@@ -109,7 +106,7 @@ sub Run {
                     }
                     else {    # or execute Event directly
 
-                        $RequesterObject->Run(
+                        $Kernel::OM->Get('Kernel::GenericInterface::Requester')->Run(
                             WebserviceID => $WebserviceID,
                             Invoker      => $Invoker,
                             Data         => $Param{Data},

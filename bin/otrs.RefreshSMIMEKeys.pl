@@ -56,10 +56,10 @@ if ( $Opts{d} && lc $Opts{d} eq 'short' ) {
 # common objects
 # ---
 local $Kernel::OM = Kernel::System::ObjectManager->new(
-    LogObject => {
+    'Kernel::System::Log' => {
         LogPrefix => 'OTRS-otrs.RefreshSMIMEKeys.pl',
     },
-    CryptObject => {
+    'Kernel::System::Crypt' => {
         CryptType => 'SMIME',
     },
 );

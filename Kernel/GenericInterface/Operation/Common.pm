@@ -12,27 +12,13 @@ package Kernel::GenericInterface::Operation::Common;
 use strict;
 use warnings;
 
-# use Kernel::System::User;
-# use Kernel::System::Auth;
-# use Kernel::System::Group;
-# use Kernel::System::AuthSession;
-# use Kernel::System::CustomerUser;
-# use Kernel::System::CustomerAuth;
-# use Kernel::System::GenericInterface::Webservice;
 use Kernel::System::VariableCheck qw(:all);
 
-our @ObjectDependencies = (
-    'Kernel::GenericInterface::Debugger',
-    'Kernel::System::Auth',
-    'Kernel::System::AuthSession',
-    'Kernel::System::CustomerAuth',
-    'Kernel::System::User',
-);
-our $ObjectManagerAware = 1;
+our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 
-Kernel::GenericInterface::Operation::Common - common operation functions
+Kernel::GenericInterface::Operation::Common - Base class for all Operations
 
 =head1 SYNOPSIS
 
@@ -41,25 +27,6 @@ Kernel::GenericInterface::Operation::Common - common operation functions
 =over 4
 
 =cut
-
-=item new()
-
-create an object. Do not use it directly, instead use:
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $CommonObject = $Kernel::OM->Get('Kernel::GenericInterface::Operation::Common');
-
-=cut
-
-sub new {
-    my ( $Type, %Param ) = @_;
-
-    my $Self = {};
-    bless( $Self, $Type );
-
-    return $Self;
-}
 
 =item Auth()
 
@@ -146,7 +113,7 @@ helper function to return an error message.
 
     my $Return = $CommonObject->ReturnError(
         ErrorCode    => Ticket.AccessDenied,
-        ErrorMessage => 'You dont have rights to access this ticket',
+        ErrorMessage => 'You don't have rights to access this ticket',
     );
 
 =cut
@@ -154,7 +121,7 @@ helper function to return an error message.
 sub ReturnError {
     my ( $Self, %Param ) = @_;
 
-    $Kernel::OM->Get('Kernel::GenericInterface::Debugger')->Error(
+    $Self->{DebuggerObject}->Error(
         Summary => $Param{ErrorCode},
         Data    => $Param{ErrorMessage},
     );

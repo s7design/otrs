@@ -22,7 +22,6 @@ our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Encode',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -44,7 +43,7 @@ create a log object. Do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        LogObject => {
+        'Kernel::System::Log' => {
             LogPrefix => 'InstallScriptX',  # not required, but highly recommend
         },
     );

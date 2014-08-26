@@ -27,7 +27,6 @@ our @ObjectDependencies = (
     'Kernel::System::State',
     'Kernel::System::Ticket',
 );
-our $ObjectManagerAware = 1;
 
 =head1 NAME
 
@@ -49,7 +48,7 @@ create an object. Do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        PostMasterObject => {
+        'Kernel::System::PostMaster' => {
             Email        => \@ArrayOfEmailContent,
             Trusted      => 1, # 1|0 ignore X-OTRS header if false
         },

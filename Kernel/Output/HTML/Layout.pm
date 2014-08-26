@@ -21,6 +21,9 @@ use Kernel::System::VariableCheck qw(:all);
 use Storable;
 use URI::Escape qw();
 
+## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
+# Chat may not be declared as external dependency and is only needed on demand
+
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::Language',
@@ -32,6 +35,7 @@ our @ObjectDependencies = (
     'Kernel::System::JSON',
     'Kernel::System::Log',
     'Kernel::System::Main',
+    'Kernel::System::SystemMaintenance',
     'Kernel::System::Ticket',
     'Kernel::System::Time',
     'Kernel::System::User',
@@ -58,7 +62,7 @@ create a new object. Do not use it directly, instead use:
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        LayoutObject {
+        'Kernel::Output::HTML::Layout' => {
             Lang    => 'de',
         },
     );
@@ -69,7 +73,7 @@ to indicate that a database connection is not yet available.
 
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
-        LayoutObject {
+        'Kernel::Output::HTML::Layout' => {
             InstallerOnly => 1,
         },
     );
@@ -150,7 +154,7 @@ sub new {
     # create language object
     if ( !$Self->{LanguageObject} ) {
         $Kernel::OM->ObjectParamAdd(
-            LanguageObject => {
+            'Kernel::Language' => {
                 UserTimeZone => $Self->{UserTimeZone},
                 UserLanguage => $Self->{UserLanguage},
                 Action       => $Self->{Action},
@@ -714,6 +718,34 @@ sub Login {
         );
     }
 
+    # get system maintenance object
+    my $SystemMaintenanceObject = $Kernel::OM->Get('Kernel::System::SystemMaintenance');
+
+    my $ActiveMaintenance = $SystemMaintenanceObject->SystemMaintenanceIsActive();
+
+    # check if system maintenance is active
+    if ($ActiveMaintenance) {
+        my $SystemMaintenanceData = $SystemMaintenanceObject->SystemMaintenanceGet(
+            ID     => $ActiveMaintenance,
+            UserID => 1,
+        );
+
+        if ( $SystemMaintenanceData->{ShowLoginMessage} ) {
+
+            my $LoginMessage =
+                $SystemMaintenanceData->{LoginMessage}
+                || $Self->{ConfigObject}->Get('SystemMaintenance::IsActiveDefaultLoginMessage')
+                || "System maintenance is active, not possible to perform a login!";
+
+            $Self->Block(
+                Name => 'SystemMaintenance',
+                Data => {
+                    LoginMessage => $LoginMessage,
+                },
+            );
+        }
+    }
+
     # create & return output
     $Output .= $Self->Output( TemplateFile => 'Login', Data => \%Param );
 
@@ -954,6 +986,9 @@ sub Notify {
     }
     if ( $Param{Priority} && $Param{Priority} eq 'Error' ) {
         $BoxClass = 'Error';
+    }
+    elsif ( $Param{Priority} && $Param{Priority} eq 'Success' ) {
+        $BoxClass = 'Success';
     }
 
     if ( $Param{Link} ) {
@@ -1328,7 +1363,7 @@ sub Print {
     #   Work around this by converting to an utf8 byte stream instead.
     #   See also http://bugs.otrs.org/show_bug.cgi?id=6284 and
     #   http://bugs.otrs.org/show_bug.cgi?id=9802.
-    if ($ENV{FCGI_ROLE} || $ENV{FCGI_SOCKET_PATH}) { # are we on FCGI?
+    if ( $INC{'CGI/Fast.pm'} || $ENV{FCGI_ROLE} || $ENV{FCGI_SOCKET_PATH} ) {    # are we on FCGI?
         $Self->{EncodeObject}->EncodeOutput( $Param{Output} );
     }
 
@@ -3078,6 +3113,32 @@ sub CustomerLogin {
         );
     }
 
+    # get system maintenance object
+    my $SystemMaintenanceObject = $Kernel::OM->Get('Kernel::System::SystemMaintenance');
+
+    my $ActiveMaintenance = $SystemMaintenanceObject->SystemMaintenanceIsActive();
+
+    # check if system maintenance is active
+    if ($ActiveMaintenance) {
+        my $SystemMaintenanceData = $SystemMaintenanceObject->SystemMaintenanceGet(
+            ID     => $ActiveMaintenance,
+            UserID => 1,
+        );
+        if ( $SystemMaintenanceData->{ShowLoginMessage} ) {
+            my $LoginMessage =
+                $SystemMaintenanceData->{LoginMessage}
+                || $Self->{ConfigObject}->Get('SystemMaintenance::IsActiveDefaultLoginMessage')
+                || "System maintenance is active, not possible to perform a login!";
+
+            $Self->Block(
+                Name => 'SystemMaintenance',
+                Data => {
+                    LoginMessage => $LoginMessage,
+                },
+            );
+        }
+    }
+
     # create & return output
     $Output .= $Self->Output( TemplateFile => 'CustomerLogin', Data => \%Param );
 
@@ -3552,6 +3613,29 @@ sub CustomerNavigationBar {
             $Self->Block(
                 Name => 'Preferences',
                 Data => \%Param,
+            );
+        }
+
+        # show open chat requests (if chat engine is active)
+        if ( $Self->{ConfigObject}->Get('ChatEngine::Active') ) {
+
+            my $ChatObject = $Kernel::OM->Get('Kernel::System::Chat');
+            my $Chats      = $ChatObject->ChatList(
+                Status        => 'request',
+                TargetType    => 'Customer',
+                ChatterID     => $Self->{UserID},
+                ChatterType   => 'Customer',
+                ChatterActive => 0,
+            );
+
+            my $Count = scalar $Chats;
+
+            $Self->Block(
+                Name => 'ChatRequests',
+                Data => {
+                    Count => $Count,
+                    Class => ($Count) ? '' : 'Hidden',
+                },
             );
         }
     }
@@ -4614,8 +4698,8 @@ sub _BuildSelectionOutput {
             $String
                 .= ' <a href="#" title="'
                 . $TreeSelectionMessage
-                . '" class="ShowTreeSelection">'
-                . $TreeSelectionMessage . '</a>';
+                . '" class="ShowTreeSelection"><span>'
+                . $TreeSelectionMessage . '</span><i class="fa fa-code-fork"></i></a>';
         }
 
     }
