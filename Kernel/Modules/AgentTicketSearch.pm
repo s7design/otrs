@@ -640,10 +640,6 @@ sub Run {
                         DynamicFields => 0,
                     );
 
-                    $Self->{LogObject}->Log(
-                        Priority => 'error',
-                        Message  => "check >>> $#Article ",
-                    );
                     if ( $#Article == -1 ) {
                         $Data{ArticleTree}
                             .= 'This item has no articles yet.';
@@ -784,9 +780,6 @@ sub Run {
 
                     # set missing information
                     $Data{Subject} = $Data{Title} || 'Untitled';
-                    $Data{Body} = $Self->{LayoutObject}->{LanguageObject}->Get(
-                        'This item has no articles yet.'
-                    );
                     $Data{From} = '--';
                 }
 
