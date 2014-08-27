@@ -5199,6 +5199,7 @@ sub Data {
         'before' => 'пре',
         'default \'hot\'' => 'подразумевано \'hot\'',
         'settings' => 'подешавања',
+        'Customer Realname' => 'Право Име Корисника',
 
     };
     # $$STOP$$

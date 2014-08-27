@@ -6203,7 +6203,7 @@ sub Data {
         'Zip{CustomerUser}' => 'C√≥digo Postal',
         'accept license' => 'aceptar licencia',
         'before' => 'antes',
-        'customer realname' => 'Nombre del cliente',
+        'Customer Realname' => 'Nombre del Cliente',
         'default \'hot\'' => 'por defecto \'hot\'',
         'don\'t accept license' => 'no aceptar la licencia',
         'down' => 'abajo',

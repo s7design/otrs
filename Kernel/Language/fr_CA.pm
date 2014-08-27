@@ -8249,7 +8249,7 @@ sub Data {
         'black' => 'noir',
         'blue' => 'bleu',
         'compat module for AgentZoom to AgentTicketZoom' => 'Module « compat » (AgentZoom et AgentTicketZoom)',
-        'customer realname' => 'nom réel du client',
+        'Customer Realname' => 'Nom Réel du Client',
         'customer\'' => '\'Client\'',
         'cyan' => 'cyan',
         'default' => 'Par défaut',

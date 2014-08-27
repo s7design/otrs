@@ -5618,7 +5618,7 @@ sub Data {
         'Your language' => 'Diliniz',
         'Your own Ticket' => 'Kendi Biletiniz',
         'before' => 'önce',
-        'customer realname' => 'müşterinin gerçek adı',
+        'Customer Realname' => 'Müşterinin Gerçek Adı',
         'default \'hot\'' => 'varsayılan \'host\'',
         'down' => 'aşağı',
         'false' => 'false',
