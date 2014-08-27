@@ -592,6 +592,23 @@ sub Run {
                                 . $Articles->{Body};
                         }
                     }
+
+                    if ( $#Article == -1 ) {
+                        $Data{ArticleTree}
+                            .= 'This item has no articles yet.';
+                    }
+                    else
+                    {
+                        for my $Articles (@Article) {
+                            if ( $Articles->{Body} ) {
+                                $Data{ArticleTree}
+                                    .= "\n-->||$Articles->{ArticleType}||$Articles->{From}||"
+                                    . $Articles->{Created}
+                                    . "||<--------------\n"
+                                    . $Articles->{Body};
+                            }
+                        }
+                    }
                 }
 
                 # customer info (customer name)
