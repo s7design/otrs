@@ -1,7 +1,7 @@
 #4.0.0.beta1 20??-??-??
+ - 2014-08-29 Fixed bug#[10128](http://bugs.otrs.org/show_bug.cgi?id=10128) - WorkingTime/DestinationTime roundtrip exposes calculation errors.
  - 2014-08-25 Updated CPAN module YAML to version 1.09.
  - 2014-08-25 Updated CPAN module URI to version 1.64.
- - 2014-08-25 Updated CPAN module Selenium::Remote::Driver to version 0.2102.
  - 2014-08-25 Updated CPAN module Net::SSLGlue to version 1.053.
  - 2014-08-25 Updated CPAN module Net::IMAP::Simple to version 1.2205.
  - 2014-08-25 Updated CPAN module Net::HTTP to version 6.07.
@@ -116,6 +116,11 @@
  - 2013-12-12 Added additional information to install commands for different distributions (see perl bin/otrs.CheckModules.pl -h) for more information.
 
 #3.3.9 2014-??-??
+ - 2014-08-29 Fixed bug#[10697](http://bugs.otrs.org/show_bug.cgi?id=10697) - Column name in CSV report of stats is lowercase.
+ - 2014-08-29 Fixed bug#[10652](http://bugs.otrs.org/show_bug.cgi?id=10652) - Process tickets without any articles create empty lines in AgentTicketSearch CSV result file.
+ - 2014-08-29 Fixed bug#[10607](http://bugs.otrs.org/show_bug.cgi?id=10607) - SQL Box can change the database.
+ - 2014-08-28 Fixed bug#[10700](http://bugs.otrs.org/show_bug.cgi?id=10700) - Bugfix: TimeUnits not written if E-Mail is sent via BulkAction.
+ - 2014-08-28 Fixed bug#[10699](http://bugs.otrs.org/show_bug.cgi?id=10699) - Cannot add new customer (company).
  - 2014-08-21 Fixed bug#[10497](http://bugs.otrs.org/show_bug.cgi?id=10497) - CustomerUser secondary database access opens multitude of database connections.
  - 2014-08-08 Fixed bug#[9756](http://bugs.otrs.org/show_bug.cgi?id=9756) - Owner will be set after QueueMove screen AND undo.
  - 2014-08-08 Fixed bug#[10606](http://bugs.otrs.org/show_bug.cgi?id=10606) - Dynamic fields in dashboard overview are empty.
