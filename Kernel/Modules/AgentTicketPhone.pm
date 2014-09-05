@@ -1366,9 +1366,9 @@ sub Run {
         }
 
         # Permissions check were done earlier
-        if ($GetParam{FromChatID}) {
+        if ( $GetParam{FromChatID} ) {
             my $ChatObject = $Kernel::OM->Get('Kernel::System::Chat');
-            my %Chat = $ChatObject->ChatGet(
+            my %Chat       = $ChatObject->ChatGet(
                 ChatID => $GetParam{FromChatID},
             );
             my @ChatMessageList = $ChatObject->ChatMessageList(
@@ -1382,27 +1382,30 @@ sub Run {
                 );
 
                 my $ChatArticleType = 'chat-internal';
-                if ($Chat{RequesterType} eq 'Customer'
+                if (
+                    $Chat{RequesterType} eq 'Customer'
                     || $Chat{TargetType} eq 'Customer'
-                ) {
+                    )
+                {
                     $ChatArticleType = 'chat-external';
                 }
 
                 $ChatArticleID = $Self->{TicketObject}->ArticleCreate(
-                    NoAgentNotify    => $NoAgentNotify,
-                    TicketID         => $TicketID,
-                    ArticleType      => $ChatArticleType,
-                    SenderType       => $Self->{Config}->{SenderType},
+                    NoAgentNotify => $NoAgentNotify,
+                    TicketID      => $TicketID,
+                    ArticleType   => $ChatArticleType,
+                    SenderType    => $Self->{Config}->{SenderType},
+
                     # From             => $GetParam{From},
                     # To               => $To,
-                    Subject          => $Kernel::OM->Get('LanguageObject')->Translate('Chat'),
-                    Body             => $JSONBody,
-                    MimeType         => 'application/json',
-                    Charset          => $Self->{LayoutObject}->{UserCharset},
-                    UserID           => $Self->{UserID},
-                    HistoryType      => $Self->{Config}->{HistoryType},
-                    HistoryComment   => $Self->{Config}->{HistoryComment} || '%%',
-                    Queue => $Self->{QueueObject}->QueueLookup( QueueID => $NewQueueID ),
+                    Subject        => $Kernel::OM->Get('LanguageObject')->Translate('Chat'),
+                    Body           => $JSONBody,
+                    MimeType       => 'application/json',
+                    Charset        => $Self->{LayoutObject}->{UserCharset},
+                    UserID         => $Self->{UserID},
+                    HistoryType    => $Self->{Config}->{HistoryType},
+                    HistoryComment => $Self->{Config}->{HistoryComment} || '%%',
+                    Queue          => $Self->{QueueObject}->QueueLookup( QueueID => $NewQueueID ),
                 );
             }
             if ($ChatArticleID) {
@@ -1565,7 +1568,9 @@ sub Run {
         my $NewTos;
 
         if ($Tos) {
+            TOs:
             for my $KeyTo ( sort keys %{$Tos} ) {
+                next TOs if ( $Tos->{$KeyTo} eq '-' );
                 $NewTos->{"$KeyTo||$Tos->{$KeyTo}"} = $Tos->{$KeyTo};
             }
         }
@@ -1749,7 +1754,7 @@ sub Run {
                     Data         => $NewTos,
                     SelectedID   => $Dest,
                     Translation  => 0,
-                    PossibleNone => 0,
+                    PossibleNone => 1,
                     TreeView     => $TreeView,
                     Max          => 100,
                 },
