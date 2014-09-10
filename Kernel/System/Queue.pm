@@ -869,21 +869,6 @@ sub QueueAdd {
     }
 
     return $QueueID;
-
-    my $Result = $Self->{ $Param{Source} }->CustomerUserAdd(%Param);
-    return if !$Result;
-
-    # trigger event
-    $Self->EventHandler(
-        Event => 'CustomerUserAdd',
-        Data  => {
-            UserLogin => $Param{UserLogin},
-            NewData   => \%Param,
-        },
-        UserID => $Param{UserID},
-    );
-
-    return $Result;
 }
 
 =item QueueGet()
