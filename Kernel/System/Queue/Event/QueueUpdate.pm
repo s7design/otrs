@@ -27,9 +27,9 @@ sub new {
 }
 
 sub Run {
-my ( $Self, %Param ) = @_;
- 
- # check needed stuff
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
     for (qw( Data Event Config UserID )) {
         if ( !$Param{$_} ) {
             $Kernel::OM->Get('Kernel::System::Log')
@@ -37,33 +37,35 @@ my ( $Self, %Param ) = @_;
             return;
         }
     }
-# get needed objects
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');    
+
+    # get needed objects
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-    
+
     my $Module = $ConfigObject->Get('Ticket::IndexModule');
-    
-#check if ticket index accelerator module is StaticDB
-if ( $Module eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB' ) {
-# only update if Queue has really changed
-return 1 if $Param{Data}->{Queue}->{Name} eq $Param{Data}->{OldQueue}->{Name};
 
+    #check if ticket index accelerator module is StaticDB
+    if ( $Module eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB' ) {
 
-# update ticket_index
-if (
-!$TicketObject->TicketAcceleratorUpdateOnQueueUpdate(
-NewQueueName => $Param{Data}->{Queue}->{Name},
-OldQueueName => $Param{Data}->{OldQueue}->{Name},
-)
-)
-{
-$Kernel::OM->Get('Kernel::System::Log')
+        # only update if Queue has really changed
+        return 1 if $Param{Data}->{Queue}->{Name} eq $Param{Data}->{OldQueue}->{Name};
+
+        # update ticket_index
+        if (
+            !$TicketObject->TicketAcceleratorUpdateOnQueueUpdate(
+                NewQueueName => $Param{Data}->{Queue}->{Name},
+                OldQueueName => $Param{Data}->{OldQueue}->{Name},
+            )
+            )
+        {
+
+            $Kernel::OM->Get('Kernel::System::Log')
                 ->Log(
-Priority => 'error',
-Message => "Error during update queue in ticket_index! "
-);
-}
-}
-return 1;
+                Priority => 'error',
+                Message  => "Error during update queue in ticket_index! "
+                );
+        }
+    }
+    return 1;
 }
 1;

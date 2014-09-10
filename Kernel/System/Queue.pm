@@ -12,6 +12,10 @@ package Kernel::System::Queue;
 use strict;
 use warnings;
 
+use Kernel::System::EventHandler;
+
+use vars qw(@ISA);
+
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Cache',
@@ -23,6 +27,7 @@ our @ObjectDependencies = (
     'Kernel::System::StandardTemplate',
     'Kernel::System::SysConfig',
     'Kernel::System::Valid',
+    'Kernel::System::EventHandler'
 );
 
 =head1 NAME
@@ -42,7 +47,7 @@ All queue functions. E. g. to add queue or other functions.
 =item new()
 
 create an object. Do not use it directly, instead use:
-
+    
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new();
     my $QueueObject = $Kernel::OM->Get('Kernel::System::Auth');
@@ -87,6 +92,15 @@ sub new {
         FollowUpID          => 1,
         FollowUpLock        => 0,
     };
+
+    @ISA = qw(
+        Kernel::System::EventHandler
+    );
+
+    # init of event handler
+    $Self->EventHandlerInit(
+        Config => 'Queue::EventModulePost',
+    );
 
     return $Self;
 }
@@ -827,6 +841,18 @@ sub QueueAdd {
     my $StandardTemplateID2QueueByCreating
         = $ConfigObject->Get(' StandardTemplate2QueueByCreating');
 
+    # get queue data with updated name for QueueCreate event
+    my %Queue = $Self->QueueGet( Name => $Param{Name} );
+
+    # trigger event
+    $Self->EventHandler(
+        Event => 'QueueCreate',
+        Data  => {
+            Queue => \%Queue,
+        },
+        UserID => $Param{UserID},
+    );
+
     return $QueueID if !$StandardTemplateID2QueueByCreating;
     return $QueueID if ref $StandardTemplateID2QueueByCreating ne 'ARRAY';
     return $QueueID if !@{$StandardTemplateID2QueueByCreating};
@@ -843,6 +869,21 @@ sub QueueAdd {
     }
 
     return $QueueID;
+
+    my $Result = $Self->{ $Param{Source} }->CustomerUserAdd(%Param);
+    return if !$Result;
+
+    # trigger event
+    $Self->EventHandler(
+        Event => 'CustomerUserAdd',
+        Data  => {
+            UserLogin => $Param{UserLogin},
+            NewData   => \%Param,
+        },
+        UserID => $Param{UserID},
+    );
+
+    return $Result;
 }
 
 =item QueueGet()
@@ -1094,7 +1135,7 @@ sub QueueUpdate {
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
     # sql
-    return if !$DBObject->Do(
+    my $Result = $DBObject->Do(
         SQL => 'UPDATE queue SET name = ?, comments = ?, group_id = ?, '
             . ' unlock_timeout = ?, first_response_time = ?, first_response_notify = ?, '
             . ' update_time = ?, update_notify = ?, solution_time = ?, '
@@ -1112,6 +1153,21 @@ sub QueueUpdate {
             \$Param{SignatureID},       \$Param{ValidID},             \$Param{UserID},
             \$Param{QueueID},
         ],
+    );
+
+    return if !$Result;
+
+    # get queue data with updated name for QueueUpdate event
+    my %Queue = $Self->QueueGet( Name => $Param{Name} );
+
+    # trigger event
+    $Self->EventHandler(
+        Event => 'QueueUpdate',
+        Data  => {
+            Queue    => \%Queue,
+            OldQueue => \%OldQueue,
+        },
+        UserID => $Param{UserID},
     );
 
     # reset cache

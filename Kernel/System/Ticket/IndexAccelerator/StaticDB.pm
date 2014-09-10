@@ -143,6 +143,24 @@ sub TicketAcceleratorUpdate {
     return 1;
 }
 
+sub TicketAcceleratorUpdateOnQueueUpdate {
+    my ( $Self, %Param ) = @_;
+
+    #update ticket_index for edited queue
+    $Kernel::OM->Get('Kernel::System::DB')->Do(
+        SQL => '
+            UPDATE ticket_index
+            SET queue = ?
+            WHERE queue = ?',
+        Bind => [
+            \$Param{NewQueueName},
+            \$Param{OldQueueName},
+        ],
+    );
+    return 1;
+
+}
+
 sub TicketAcceleratorDelete {
     my ( $Self, %Param ) = @_;
 
