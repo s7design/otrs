@@ -185,13 +185,14 @@ sub Run {
         }
 
         # check if a standard template exist with this name
-        $Errors{UserLoginExists}
+        my $UserLoginExists
             = $Self->{UserObject}->UserLoginExistsCheck(
             UserLogin => $GetParam{UserLogin},
             UserID    => $GetParam{UserID}
             );
 
-        if ( $Errors{UserLoginExists} ) {
+        if ($UserLoginExists) {
+            $Errors{UserLoginExists} = 1;
             $Errors{'UserLoginInvalid'} = 'ServerError';
         }
 
@@ -344,10 +345,11 @@ sub Run {
         }
 
         # check if a standard template exist with this name
-        $Errors{UserLoginExists}
+        my $UserLoginExists
             = $Self->{UserObject}->UserLoginExistsCheck( UserLogin => $GetParam{UserLogin} );
 
-        if ( $Errors{UserLoginExists} ) {
+        if ($UserLoginExists) {
+            $Errors{UserLoginExists} = 1;
             $Errors{'UserLoginInvalid'} = 'ServerError';
         }
 
