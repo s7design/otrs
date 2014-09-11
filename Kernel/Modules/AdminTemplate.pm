@@ -104,11 +104,12 @@ sub Run {
         }
 
         # check if a standard template exist with this name
-        $Errors{NameExists}
+        my $NameExists
             = $Self->{StandardTemplateObject}
             ->NameExistsCheck( Name => $GetParam{Name}, ID => $GetParam{ID} );
 
-        if ( $Errors{NameExists} ) {
+        if ($NameExists) {
+            $Errors{NameExists} = 1;
             $Errors{'NameInvalid'} = 'ServerError';
         }
 
@@ -226,10 +227,11 @@ sub Run {
         }
 
         # check if a standard template exists with this name
-        $Errors{NameExists}
+        my $NameExists
             = $Self->{StandardTemplateObject}->NameExistsCheck( Name => $GetParam{Name} );
 
-        if ( $Errors{NameExists} ) {
+        if ($NameExists) {
+            $Errors{NameExists} = 1;
             $Errors{'NameInvalid'} = 'ServerError';
         }
 
