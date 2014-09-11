@@ -244,7 +244,12 @@
             </div>
         </div>
         <div class="Footer">
+[% RenderBlockStart("DisableSubmit") %]
+            <button class="Primary" id="submitRichText" accesskey="g" title="[% Translate("Submit") | html %] (g)" type="submit" value="[% Translate("Submit") | html %]" disabled="disabled">[% Translate("Submit") | html %]</button>
+[% RenderBlockEnd("DisableSubmit") %]
+[% RenderBlockStart("EnableSubmit") %]
             <button class="Primary" id="submitRichText" accesskey="g" title="[% Translate("Submit") | html %] (g)" type="submit" value="[% Translate("Submit") | html %]">[% Translate("Submit") | html %]</button>
+[% RenderBlockEnd("EnableSubmit") %]
         </div>
     </div>
 </form>

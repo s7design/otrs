@@ -286,6 +286,7 @@ sub Run {
     my $ActionFlag    = 0;
     my $Counter       = 1;
     $Param{TicketsWereLocked} = 0;
+    $Param{EnableAction}      = 0;
 
     TICKET_ID:
     for my $TicketID (@TicketIDs) {
@@ -355,6 +356,7 @@ sub Run {
                 Data => "$Ticket{TicketNumber}: "
                     . $Self->{LayoutObject}->{LanguageObject}->Translate("Ticket locked."),
             );
+            $Param{EnableAction} = 1;
         }
 
         # remember selected ticket ids
@@ -1063,6 +1065,24 @@ sub _Mask {
         $Self->{LayoutObject}->Block(
             Name => 'RichTextEmail',
             Data => \%Param,
+        );
+    }
+
+    # enable submit button
+    # if there are only locked tickets submit button is disabled
+    # see bug #10613 (http://bugs.otrs.org/show_bug.cgi?id=10613)
+    if ( $Param{EnableAction} ) {
+
+        # enable submit button
+        $Self->{LayoutObject}->Block(
+            Name => 'EnableSubmit',
+        );
+    }
+    else {
+
+        # disable submit button
+        $Self->{LayoutObject}->Block(
+            Name => 'DisableSubmit',
         );
     }
 
