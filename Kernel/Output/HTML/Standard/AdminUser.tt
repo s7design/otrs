@@ -177,7 +177,7 @@
                                 <p>[% Translate("This field is required.") | html %]</p>
 [% RenderBlockEnd("UserLoginServerError") %]
 [% RenderBlockStart("ExistUserLoginServerError") %]
-                                <p>[% Translate("An user with this username already exists!") | html %]</p>
+                                <p>[% Translate("A user with this username already exists!") | html %]</p>
 [% RenderBlockEnd("ExistUserLoginServerError") %]
                             </div>
                         </div>

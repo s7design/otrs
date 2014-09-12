@@ -184,7 +184,7 @@ sub Run {
             $Errors{ErrorType}        = $CheckItemObject->CheckErrorType();
         }
 
-        # check if a standard template exist with this name
+        # check if a user with this login (username) already exits
         my $UserLoginExists
             = $Self->{UserObject}->UserLoginExistsCheck(
             UserLogin => $GetParam{UserLogin},
@@ -339,7 +339,7 @@ sub Run {
             $Errors{ErrorType}        = $CheckItemObject->CheckErrorType();
         }
 
-        # check if a standard template exist with this name
+        # check if a user with this login (username) already exits
         my $UserLoginExists
             = $Self->{UserObject}->UserLoginExistsCheck( UserLogin => $GetParam{UserLogin} );
         if ($UserLoginExists) {
