@@ -393,7 +393,7 @@ sub UserAdd {
     if ( $Self->UserLoginExistsCheck( UserLogin => $Param{UserLogin} ) ) {
         $Self->{LogObject}->Log(
             Priority => 'error',
-            Message  => "An user with username '$Param{UserLogin}' already exists!"
+            Message  => "A user with username '$Param{UserLogin}' already exists!"
         );
         return;
     }
@@ -508,7 +508,7 @@ sub UserUpdate {
     if ( $Self->UserLoginExistsCheck( UserLogin => $Param{UserLogin}, UserID => $Param{UserID} ) ) {
         $Self->{LogObject}->Log(
             Priority => 'error',
-            Message  => "An user with username '$Param{UserLogin}' already exists!"
+            Message  => "A user with username '$Param{UserLogin}' already exists!"
         );
         return;
     }
