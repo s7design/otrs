@@ -179,7 +179,7 @@
                                 <p>$Text{"This field is required."}</p>
 <!-- dtl:block:UserLoginServerError -->
 <!-- dtl:block:ExistUserLoginServerError -->
-                                <p>$Text{"An user with this username already exists!"}</p>
+                                <p>$Text{"A user with this username already exists!"}</p>
 <!-- dtl:block:ExistUserLoginServerError -->
                             </div>
                         </div>
