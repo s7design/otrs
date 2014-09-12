@@ -244,7 +244,12 @@ $Include{"RichTextEditor"}
             </div>
         </div>
         <div class="Footer">
+<!-- dtl:block:DisableSubmit -->
+            <button class="Primary" id="submitRichText" accesskey="g" title="$Text{"Submit"} (g)" type="submit" value="$Text{"Submit"}" disabled="disabled">$Text{"Submit"}</button>
+<!-- dtl:block:DisableSubmit -->
+<!-- dtl:block:EnableSubmit -->
             <button class="Primary" id="submitRichText" accesskey="g" title="$Text{"Submit"} (g)" type="submit" value="$Text{"Submit"}">$Text{"Submit"}</button>
+<!-- dtl:block:EnableSubmit -->
         </div>
     </div>
 </form>
