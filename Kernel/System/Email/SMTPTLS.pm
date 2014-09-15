@@ -162,7 +162,18 @@ sub Send {
         $SMTP->quit();
         return;
     }
-    $SMTP->dataend();
+
+    eval { $SMTP->dataend() };
+    if ($@) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message =>
+                "Can't send message. Client does not have permissions to send as this sender! Enable Net::SMTP debug for more info!",
+        );
+        $SMTP->quit();
+        return;
+    }
+
     $SMTP->quit();
 
     # debug
