@@ -168,7 +168,7 @@ sub Send {
         $Self->{LogObject}->Log(
             Priority => 'error',
             Message =>
-                "Can't send message. Client does not have permissions to send as this sender! Enable Net::SMTP debug for more info!",
+                "Can't send message $@! Enable Net::SMTP debug for more info!",
         );
         $SMTP->quit();
         return;
