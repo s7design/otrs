@@ -118,7 +118,7 @@ Core.Form.Validate.SetSubmitFunction($('#AdminSelectBoxForm'), function (Form) {
                         <tr><td colspan="$QData{"Colspan"}">$Text{"No matches found."}</td></tr>
 <!-- dtl:block:NoMatches -->
 <!-- dtl:block:NoSelectResult -->
-                        <tr><td >$Text{"Query is executed."}</td></tr>
+                        <tr><td colspan="$QData{"Colspan"}">$Text{"Query is executed."}</td></tr>
 <!-- dtl:block:NoSelectResult -->
 <!-- dtl:block:Row -->
                         <tr>
