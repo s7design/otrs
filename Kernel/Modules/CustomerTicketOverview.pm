@@ -543,7 +543,7 @@ sub Run {
             %{ $Filters{ $Self->{Subaction} }->{ $Self->{Filter} }->{Search} },
             %SearchInArchive,
             Result => 'ARRAY',
-            Limit  => 1_000,
+            Limit  => 1_0000,
         );
 
         # show tickets
