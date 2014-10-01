@@ -1716,6 +1716,9 @@ sub TicketSearch {
                 my $DynamicField = $TicketDynamicFieldName2Config{$DynamicFieldName} ||
                     $ArticleDynamicFieldName2Config{$DynamicFieldName};
 
+                # current time needs for sorting when there are values "0"
+                my $CurrentSystemTime = $Self->{TimeObject}->SystemTime();
+
                 # If the table was already joined for searching, we reuse it.
                 if ( !$DynamicFieldJoinTables{$DynamicFieldName} ) {
 
@@ -1755,13 +1758,33 @@ sub TicketSearch {
                 );
 
                 $SQLSelect .= ", $SQLOrderField ";
-                $SQLExt    .= " $SQLOrderField ";
+
+                # if there ara "O" values sort is not right
+                # see bug #10741 http://bugs.otrs.org/show_bug.cgi?id=10741
+                if ( $SQLOrderField eq 'st.until_time' ) {
+                    $SQLExt .= ' ' . "IF(st.until_time=0,$CurrentSystemTime,st.until_time)";
+                }
+                else
+                {
+                    $SQLExt .= " $SQLOrderField ";
+                }
+
             }
             else {
 
-                # regular sort
                 $SQLSelect .= ', ' . $SortOptions{ $SortByArray[$Count] };
-                $SQLExt    .= ' ' . $SortOptions{ $SortByArray[$Count] };
+
+                # if there ara "O" values sort is not right for field with timestamp
+                # see bug #10741 http://bugs.otrs.org/show_bug.cgi?id=10741
+                if ( $SortOptions{ $SortByArray[$Count] } eq 'st.until_time' ) {
+                    $SQLExt .= ' ' . "IF(st.until_time=0,$CurrentSystemTime,st.until_time)";
+                }
+                else
+                {
+                    # regular sort
+                    $SQLExt .= ' ' . $SortOptions{ $SortByArray[$Count] };
+                }
+
             }
 
             if ( $OrderByArray[$Count] eq 'Up' ) {
