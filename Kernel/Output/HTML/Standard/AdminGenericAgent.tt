@@ -284,11 +284,13 @@ Core.Agent.Admin.GenericAgent.Init({
                             </p>
                         </div>
                         <div class="Clear"></div>
+
                         <label for="Title">[% Translate("Title") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="Title" id="Title" class="W33pc" value="[% Data.Title | html %]"/>
                         </div>
                         <div class="Clear"></div>
+
                         <label for="CustomerID">[% Translate("CustomerID") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerID" id="CustomerID" class="W33pc" value="[% Data.CustomerID | html %]"/>
@@ -297,6 +299,7 @@ Core.Agent.Admin.GenericAgent.Init({
                             </p>
                         </div>
                         <div class="Clear"></div>
+
                         <label for="CustomerIDRaw">[% Translate("CustomerIDRaw") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerIDRaw" id="CustomerIDRaw" class="W33pc" value="[% Data.CustomerIDRaw | html %]"/>
@@ -305,6 +308,7 @@ Core.Agent.Admin.GenericAgent.Init({
                             </p>
                         </div>
                         <div class="Clear"></div>
+
                         <label for="CustomerUserLogin">[% Translate("Customer login") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerUserLogin" id="CustomerUserLogin" class="W33pc" value="[% Data.CustomerUserLogin | html %]"/>
