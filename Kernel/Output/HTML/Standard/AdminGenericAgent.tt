@@ -290,12 +290,20 @@ Core.Agent.Admin.GenericAgent.Init({
                             <input type="text" name="Title" id="Title" class="W33pc" value="[% Data.Title | html %]"/>
                         </div>
                         <div class="Clear"></div>
-
                         <label for="CustomerID">[% Translate("CustomerID") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerID" id="CustomerID" class="W33pc" value="[% Data.CustomerID | html %]"/>
                             <p class="FieldExplanation">
-                                [% Translate("(e. g. 234321)") | html %]
+                                [% Translate("(e. g. 234321 or 23*345)") | html %]
+                            </p>
+                        </div>
+
+                        <div class="Clear"></div>
+                        <label for="CustomerIDRaw">[% Translate("CustomerIDRaw") | html %]:</label>
+                        <div class="Field">
+                            <input type="text" name="CustomerIDRaw" id="CustomerIDRaw" class="W33pc" value="[% Data.CustomerIDRaw | html %]"/>
+                            <p class="FieldExplanation">
+                                [% Translate("Search by 'CustomerID', there can use regex for searching.") | html %]
                             </p>
                         </div>
                         <div class="Clear"></div>

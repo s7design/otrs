@@ -1074,7 +1074,9 @@ sub TicketSearch {
 
         next ATTRIBUTE if !defined $Param{$Key};
 
-        next ATTRIBUTE if ( ( $Key eq 'CustomerID' ) && ( defined $Param{CustomerIDRaw} ) );
+        next ATTRIBUTE
+            if ( ( $Key eq 'CustomerID' )
+            && ( defined $Param{CustomerIDRaw} && $Param{CustomerIDRaw} ) );
         next ATTRIBUTE
             if ( ( $Key eq 'CustomerUserLogin' ) && ( defined $Param{CustomerUserLoginRaw} ) );
 

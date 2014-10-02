@@ -667,11 +667,17 @@ sub GetStatElement {
 
     # escape search attributes for ticket search
     my %AttributesToEscape = (
-        'CustomerID' => 1,
-        'Title'      => 1,
+        'CustomerIDRaw' => 1,
+        'Title'         => 1,
     );
 
     for my $ParameterName ( sort keys %Param ) {
+
+        if ( $ParameterName eq "CustomerID" ) {
+            $ParameterName = "CustomerIDRaw";
+            $Param{CustomerIDRaw} = $Param{CustomerID}
+        }
+
         if (
             $ParameterName =~ m{ \A DynamicField_ ( [a-zA-Z\d]+ ) (?: _ ( [a-zA-Z\d]+ ) )? \z }xms
             )

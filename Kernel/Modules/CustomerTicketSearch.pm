@@ -181,7 +181,7 @@ sub Run {
     # get search string params (get submitted params)
     else {
         for my $Key (
-            qw(TicketNumber From To Cc Subject Body CustomerID ResultForm TimeSearchType StateType
+            qw(TicketNumber From To Cc Subject Body CustomerID CustomerIDRaw ResultForm TimeSearchType StateType
             SearchInArchive AttachmentName
             TicketCreateTimePointFormat TicketCreateTimePoint
             TicketCreateTimePointStart
@@ -1028,7 +1028,7 @@ sub Run {
 
         KEY:
         for my $Key (
-            qw(TicketNumber From To Cc Subject Body CustomerID TimeSearchType StateType
+            qw(TicketNumber From To Cc Subject Body CustomerID CustomerIDRaw TimeSearchType StateType
             StateIDs StateTypeIDs PriorityIDs OwnerIDs ResponsibleIDs
             )
             )

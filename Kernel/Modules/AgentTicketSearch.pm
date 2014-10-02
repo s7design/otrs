@@ -180,7 +180,7 @@ sub Run {
     # get search string params (get submitted params)
     else {
         for my $Key (
-            qw(TicketNumber Title From To Cc Subject Body CustomerID CustomerUserLogin StateType
+            qw(TicketNumber Title From To Cc Subject Body CustomerID CustomerIDRaw CustomerUserLogin StateType
             Agent ResultForm TimeSearchType ChangeTimeSearchType CloseTimeSearchType LastChangeTimeSearchType EscalationTimeSearchType
             UseSubQueues AttachmentName
             ArticleTimeSearchType SearchInArchive
@@ -1045,7 +1045,8 @@ sub Run {
                 . ";Profile=" . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} )
                 . ";SortBy=" . $Self->{LayoutObject}->LinkEncode( $Self->{SortBy} )
                 . ";OrderBy=" . $Self->{LayoutObject}->LinkEncode( $Self->{OrderBy} )
-                . ";TakeLastSearch=1;StartHit=" . $Self->{LayoutObject}->LinkEncode( $Self->{StartHit} );
+                . ";TakeLastSearch=1;StartHit="
+                . $Self->{LayoutObject}->LinkEncode( $Self->{StartHit} );
 
             $Self->{SessionObject}->UpdateSessionID(
                 SessionID => $Self->{SessionID},
@@ -1066,12 +1067,16 @@ sub Run {
                 . ';View=' . $Self->{LayoutObject}->LinkEncode( $Self->{View} )
                 . ';SortBy=' . $Self->{LayoutObject}->LinkEncode( $Self->{SortBy} )
                 . ';OrderBy=' . $Self->{LayoutObject}->LinkEncode( $Self->{OrderBy} )
-                . ';Profile=' . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} ) . ';TakeLastSearch=1;Subaction=Search'
+                . ';Profile='
+                . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} )
+                . ';TakeLastSearch=1;Subaction=Search'
                 . ';';
             my $LinkSort = 'Filter='
                 . $Self->{LayoutObject}->LinkEncode( $Self->{Filter} )
                 . ';View=' . $Self->{LayoutObject}->LinkEncode( $Self->{View} )
-                . ';Profile=' . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} ) . ';TakeLastSearch=1;Subaction=Search'
+                . ';Profile='
+                . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} )
+                . ';TakeLastSearch=1;Subaction=Search'
                 . ';';
             my $LinkFilter = 'TakeLastSearch=1;Subaction=Search;Profile='
                 . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} )
@@ -1084,7 +1089,9 @@ sub Run {
                 = 'SortBy=' . $Self->{LayoutObject}->LinkEncode( $Self->{SortBy} )
                 . ';OrderBy=' . $Self->{LayoutObject}->LinkEncode( $Self->{OrderBy} )
                 . ';View=' . $Self->{LayoutObject}->LinkEncode( $Self->{View} )
-                . ';Profile=' . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} ) . ';TakeLastSearch=1;Subaction=Search'
+                . ';Profile='
+                . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} )
+                . ';TakeLastSearch=1;Subaction=Search'
                 . ';';
             $Output .= $Self->{LayoutObject}->TicketListShow(
                 TicketIDs => \@ViewableTicketIDs,
@@ -1204,7 +1211,11 @@ sub Run {
             },
             {
                 Key   => 'CustomerID',
-                Value => 'CustomerID',
+                Value => 'CustomerID (free search)',
+            },
+            {
+                Key   => 'CustomerIDRaw',
+                Value => 'CustomerIDRaw (exact search)',
             },
             {
                 Key   => 'CustomerUserLogin',
