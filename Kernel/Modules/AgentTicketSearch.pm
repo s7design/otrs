@@ -1188,42 +1188,211 @@ sub Run {
             {
                 Key   => 'StateIDs',
                 Value => 'State',
+                Order => 1,
             },
             {
                 Key   => 'QueueIDs',
                 Value => 'Queue',
+                Order => 2,
             },
             {
-                Key   => 'ArticleCreateTimePoint',
-                Value => 'Article Create Time (before/after)',
-            },
-            {
-                Key   => 'ArticleCreateTimeSlot',
-                Value => 'Article Create Time (between)',
-            },
-            {
-                Key   => 'Body',
-                Value => 'Body',
-            },
-            {
-                Key   => 'Cc',
-                Value => 'Cc',
-            },
-            {
-                Key   => 'CustomerID',
-                Value => 'CustomerID',
-            },
-            {
-                Key   => 'CustomerUserLogin',
-                Value => 'Customer User Login',
-            },
-            {
-                Key   => 'From',
-                Value => 'From',
+                Key   => 'TicketNumber',
+                Value => 'Ticket Number',
+                Order => 3,
             },
             {
                 Key   => 'Fulltext',
                 Value => 'Fulltext',
+                Order => 4,
+            },
+            {
+                Key   => 'Title',
+                Value => 'Title',
+                Order => 5,
+            },
+            {
+                Key      => '',
+                Value    => '-',
+                Disabled => 1,
+                Order    => 6,
+            },
+            {
+                Key   => 'From',
+                Value => 'From',
+                Order => 7,
+            },
+            {
+                Key   => 'To',
+                Value => 'To',
+                Order => 8,
+            },
+            {
+                Key   => 'Cc',
+                Value => 'Cc',
+                Order => 9,
+            },
+            {
+                Key   => 'Subject',
+                Value => 'Subject',
+                Order => 10,
+            },
+            {
+                Key   => 'Body',
+                Value => 'Body',
+                Order => 11,
+            },
+            {
+                Key      => '',
+                Value    => '-',
+                Disabled => 1,
+                Order    => 12,
+            },
+            {
+                Key   => 'CustomerID',
+                Value => 'CustomerID',
+                Order => 13,
+            },
+            {
+                Key   => 'CustomerUserLogin',
+                Value => 'Customer User Login',
+                Order => 14,
+            },
+            {
+                Key   => 'PriorityIDs',
+                Value => 'Priority',
+                Order => 15,
+            },
+            {
+                Key   => 'OwnerIDs',
+                Value => 'Owner',
+                Order => 16,
+            },
+            {
+                Key   => 'LockIDs',
+                Value => 'Lock',
+                Order => 17,
+            },
+            {
+                Key   => 'CreatedQueueIDs',
+                Value => 'Created in Queue',
+                Order => 18,
+            },
+            {
+                Key   => 'CreatedUserIDs',
+                Value => 'Created by',
+                Order => 19,
+            },
+        );
+
+        if ( $Self->{ConfigObject}->Get('Ticket::Service') ) {
+            push @Attributes, (
+                {
+                    Key   => 'ServiceIDs',
+                    Value => 'Service',
+                    Order => 20,
+                },
+                {
+                    Key   => 'SLAIDs',
+                    Value => 'SLA',
+                    Order => 21,
+                },
+            );
+        }
+
+        if ( $Self->{ConfigObject}->Get('Ticket::Watcher') ) {
+            push @Attributes, (
+                {
+                    Key   => 'WatchUserIDs',
+                    Value => 'Watcher',
+                    Order => 22,
+                },
+            );
+        }
+        if ( $Self->{ConfigObject}->Get('Ticket::Responsible') ) {
+            push @Attributes, (
+                {
+                    Key   => 'ResponsibleIDs',
+                    Value => 'Responsible',
+                    Order => 23,
+                },
+            );
+        }
+        if ( $Self->{ConfigObject}->Get('Ticket::Type') ) {
+            push @Attributes, (
+                {
+                    Key   => 'TypeIDs',
+                    Value => 'Type',
+                    Order => 24,
+                },
+            );
+        }
+
+        push @Attributes, (
+            {
+                Key      => '',
+                Value    => '-',
+                Disabled => 1,
+                Order    => 25,
+            },
+            {
+                Key   => 'TicketLastChangeTimePoint',
+                Value => 'Ticket Last Change Time (before/after)',
+                Order => 26,
+            },
+            {
+                Key   => 'TicketLastChangeTimeSlot',
+                Value => 'Ticket Last Change Time (between)',
+                Order => 27,
+            },
+            {
+                Key   => 'TicketChangeTimePoint',
+                Value => 'Ticket Change Time (before/after)',
+                Order => 28,
+            },
+            {
+                Key   => 'TicketChangeTimeSlot',
+                Value => 'Ticket Change Time (between)',
+                Order => 29,
+            },
+            {
+                Key   => 'TicketCloseTimePoint',
+                Value => 'Ticket Close Time (before/after)',
+                Order => 30,
+            },
+            {
+                Key   => 'TicketCloseTimeSlot',
+                Value => 'Ticket Close Time (between)',
+                Order => 31,
+            },
+            {
+                Key   => 'TicketCreateTimePoint',
+                Value => 'Ticket Create Time (before/after)',
+                Order => 32,
+            },
+            {
+                Key   => 'TicketCreateTimeSlot',
+                Value => 'Ticket Create Time (between)',
+                Order => 33,
+            },
+            {
+                Key   => 'TicketEscalationTimePoint',
+                Value => 'Ticket Escalation Time (before/after)',
+                Order => 34,
+            },
+            {
+                Key   => 'TicketEscalationTimeSlot',
+                Value => 'Ticket Escalation Time (between)',
+                Order => 35,
+            },
+            {
+                Key   => 'ArticleCreateTimePoint',
+                Value => 'Article Create Time (before/after)',
+                Order => 36,
+            },
+            {
+                Key   => 'ArticleCreateTimeSlot',
+                Value => 'Article Create Time (between)',
+                Order => 37,
             },
         );
 
@@ -1236,6 +1405,7 @@ sub Run {
             push @Attributes, {
                 Key   => 'AttachmentName',
                 Value => 'Attachment Name',
+                Order => 38,
                 },
         }
 
@@ -1244,141 +1414,13 @@ sub Run {
                 {
                     Key   => 'SearchInArchive',
                     Value => 'Archive Search',
-                },
-            );
-        }
-
-        push @Attributes, (
-            {
-                Key   => 'Subject',
-                Value => 'Subject',
-            },
-            {
-                Key      => '',
-                Value    => '-',
-                Disabled => 1,
-            },
-            {
-                Key   => 'TicketLastChangeTimePoint',
-                Value => 'Ticket Last Change Time (before/after)',
-            },
-            {
-                Key   => 'TicketLastChangeTimeSlot',
-                Value => 'Ticket Last Change Time (between)',
-            },
-            {
-                Key   => 'TicketChangeTimePoint',
-                Value => 'Ticket Change Time (before/after)',
-            },
-            {
-                Key   => 'TicketChangeTimeSlot',
-                Value => 'Ticket Change Time (between)',
-            },
-            {
-                Key   => 'TicketCloseTimePoint',
-                Value => 'Ticket Close Time (before/after)',
-            },
-            {
-                Key   => 'TicketCloseTimeSlot',
-                Value => 'Ticket Close Time (between)',
-            },
-            {
-                Key   => 'TicketCreateTimePoint',
-                Value => 'Ticket Create Time (before/after)',
-            },
-            {
-                Key   => 'TicketCreateTimeSlot',
-                Value => 'Ticket Create Time (between)',
-            },
-            {
-                Key   => 'TicketEscalationTimePoint',
-                Value => 'Ticket Escalation Time (before/after)',
-            },
-            {
-                Key   => 'TicketEscalationTimeSlot',
-                Value => 'Ticket Escalation Time (between)',
-            },
-            {
-                Key   => 'TicketNumber',
-                Value => 'Ticket Number',
-            },
-            {
-                Key   => 'Title',
-                Value => 'Title',
-            },
-            {
-                Key   => 'To',
-                Value => 'To',
-            },
-            {
-                Key      => '',
-                Value    => '-',
-                Disabled => 1,
-            },
-            {
-                Key   => 'PriorityIDs',
-                Value => 'Priority',
-            },
-            {
-                Key   => 'OwnerIDs',
-                Value => 'Owner',
-            },
-            {
-                Key   => 'CreatedQueueIDs',
-                Value => 'Created in Queue',
-            },
-            {
-                Key   => 'CreatedUserIDs',
-                Value => 'Created by',
-            },
-        );
-
-        if ( $Self->{ConfigObject}->Get('Ticket::Watcher') ) {
-            push @Attributes, (
-                {
-                    Key   => 'WatchUserIDs',
-                    Value => 'Watcher',
-                },
-            );
-        }
-        if ( $Self->{ConfigObject}->Get('Ticket::Responsible') ) {
-            push @Attributes, (
-                {
-                    Key   => 'ResponsibleIDs',
-                    Value => 'Responsible',
-                },
-            );
-        }
-        if ( $Self->{ConfigObject}->Get('Ticket::Type') ) {
-            push @Attributes, (
-                {
-                    Key   => 'TypeIDs',
-                    Value => 'Type',
-                },
-            );
-        }
-
-        push @Attributes, (
-            {
-                Key   => 'LockIDs',
-                Value => 'Lock',
-            },
-        );
-
-        if ( $Self->{ConfigObject}->Get('Ticket::Service') ) {
-            push @Attributes, (
-                {
-                    Key   => 'ServiceIDs',
-                    Value => 'Service',
-                },
-                {
-                    Key   => 'SLAIDs',
-                    Value => 'SLA',
+                    Order => 39,
                 },
             );
         }
 
         my $DynamicFieldSeparator = 1;
+        my $DynamicFieldOrder     = 40;
 
         # create dynamic fields search options for attribute select
         # cycle trough the activated Dynamic Fields for this screen
@@ -1395,10 +1437,11 @@ sub Run {
                         Key      => '',
                         Value    => '-',
                         Disabled => 1,
+                        Order    => $DynamicFieldOrder,
                     },
                 );
-
                 $DynamicFieldSeparator = 0;
+                $DynamicFieldOrder++;
             }
 
             # get search field preferences
@@ -1431,8 +1474,11 @@ sub Run {
                             . $DynamicFieldConfig->{Name}
                             . $Preference->{Type},
                         Value => $TranslatedDynamicFieldLabel . $TranslatedSuffix,
+                        Order => $DynamicFieldOrder,
                     },
                 );
+
+                $DynamicFieldOrder++;
             }
         }
 
@@ -1443,6 +1489,7 @@ sub Run {
                     Key      => '',
                     Value    => '-',
                     Disabled => 1,
+                    Order    => $DynamicFieldOrder,
                 },
             );
         }
@@ -1533,6 +1580,10 @@ sub Run {
                     );
             }
         }
+
+        @Attributes = sort {
+            $a->{Order} <=> $b->{Order}
+        } @Attributes;
 
         $Param{AttributesStrg} = $Self->{LayoutObject}->BuildSelection(
             Data     => \@Attributes,
@@ -2137,9 +2188,22 @@ sub Run {
                 }
             }
 
+            my @OrderedDefaults;
             if (%Defaults) {
+
+                # ordering atributes on the same order like in Atributes
+                for my $Item (@Attributes) {
+                    my $KeyAtr = $Item->{Key};
+                    for my $Key ( sort keys %Defaults ) {
+                        if ( $Key eq $KeyAtr ) {
+                            push @OrderedDefaults, $Key;
+                        }
+
+                    }
+                }
+
                 KEY:
-                for my $Key ( sort keys %Defaults ) {
+                for my $Key (@OrderedDefaults) {
                     next KEY if $Key eq 'DynamicField';    # Ignore entry for DF config
                     next KEY if $AlreadyShown{$Key};
                     $AlreadyShown{$Key} = 1;
