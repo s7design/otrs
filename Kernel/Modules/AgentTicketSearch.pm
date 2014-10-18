@@ -1185,6 +1185,7 @@ sub Run {
             }
         }
         my @Attributes = (
+
             # Main fields
             {
                 Key   => 'TicketNumber',
@@ -1203,6 +1204,7 @@ sub Run {
                 Value    => '-',
                 Disabled => 1,
             },
+
             # Article fields
             {
                 Key   => 'From',
@@ -1533,6 +1535,13 @@ sub Run {
                     LayoutObject => $Self->{LayoutObject},
                     Type         => $Preference->{Type},
                     );
+
+                # set default value for dynamic fields
+                if ( !defined $GetParam{"Search_DynamicField_$DynamicFieldConfig->{Name}"} ) {
+                    $GetParam{"Search_DynamicField_$DynamicFieldConfig->{Name}"}
+                        = $Self->{Config}->{Defaults}->{DynamicField}
+                        ->{ $DynamicFieldConfig->{Name} };
+                }
             }
         }
 
@@ -2095,6 +2104,51 @@ sub Run {
             @ShownAttributes = split /;/, $GetParamBackup{ShownAttributes};
         }
         my %AlreadyShown;
+
+        # at the top are shown items with set value
+        FILTERITEM:
+        for my $Item (@Attributes) {
+            my $Key = $Item->{Key};
+            next FILTERITEM if !$Key;
+
+            # show attribute
+            next FILTERITEM if $AlreadyShown{$Key};
+
+            # Skip undefined
+            next FILTERITEM if !defined $GetParamBackup{$Key};
+
+            # Skip empty strings
+            next FILTERITEM if $GetParamBackup{$Key} eq '';
+
+            # Skip empty arrays
+            if ( ref $GetParamBackup{$Key} eq 'ARRAY' && !@{ $GetParamBackup{$Key} } ) {
+                next FILTERITEM;
+            }
+
+            # check if shown
+            if (@ShownAttributes) {
+                my $Show = 0;
+                SHOWN_FILTERITEM:
+                for my $ShownAttribute (@ShownAttributes) {
+
+                    if ( 'Label' . $Key eq $ShownAttribute ) {
+                        $Show = 1;
+
+                        last SHOWN_FILTERITEM;
+                    }
+                }
+                next FILTERITEM if !$Show;
+            }
+
+            $AlreadyShown{$Key} = 1;
+            $Self->{LayoutObject}->Block(
+                Name => 'SearchAJAXShow',
+                Data => {
+                    Attribute => $Key,
+                },
+            );
+        }
+
         ITEM:
         for my $Item (@Attributes) {
             my $Key = $Item->{Key};
@@ -2115,10 +2169,12 @@ sub Run {
             else {
                 # Skip undefined
                 next ITEM if !defined $GetParamBackup{$Key};
+
                 # Skip empty strings
                 next ITEM if $GetParamBackup{$Key} eq '';
+
                 # Skip empty arrays
-                if (ref $GetParamBackup{$Key} eq 'ARRAY' && !@{$GetParamBackup{$Key}}) {
+                if ( ref $GetParamBackup{$Key} eq 'ARRAY' && !@{ $GetParamBackup{$Key} } ) {
                     next ITEM;
                 }
             }
