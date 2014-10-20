@@ -167,7 +167,9 @@ if (
     print "done\n";
 }
 else {
-    die "failed\n";
+    print "failed\n";
+    RemoveIncompleteBackup($Directory);
+    die "failed beckup\n";
 }
 
 # backup application
@@ -182,7 +184,9 @@ else {
             print "done\n";
         }
         else {
-            die "failed\n";
+            print "failed\n";
+            RemoveIncompleteBackup($Directory);
+            die "failed beckup\n";
         }
     }
 
@@ -193,7 +197,9 @@ else {
             print "done\n";
         }
         else {
-            die "failed\n";
+            print "failed\n";
+            RemoveIncompleteBackup($Directory);
+            die "failed beckup\n";
         }
     }
 
@@ -204,7 +210,9 @@ else {
             print "done\n";
         }
         else {
-            die "failed\n";
+            print "failed\n";
+            RemoveIncompleteBackup($Directory);
+            die "failed beckup\n";
         }
     }
 }
@@ -224,7 +232,9 @@ if ( $DB =~ m/mysql/i ) {
         print "done\n";
     }
     else {
-        die "failed\n";
+        print "failed\n";
+        RemoveIncompleteBackup($Directory);
+        die "failed beckup\n";
     }
 }
 else {
@@ -248,7 +258,9 @@ else {
         print "done\n";
     }
     else {
-        die "failed\n";
+        print "failed\n";
+        RemoveIncompleteBackup($Directory);
+        die "failed beckup\n";
     }
 }
 
@@ -258,7 +270,9 @@ if ( !system("$CompressCMD $Directory/DatabaseBackup.sql") ) {
     print "done\n";
 }
 else {
-    die "failed\n";
+    print "failed\n";
+    RemoveIncompleteBackup($Directory);
+    die "failed beckup\n";
 }
 
 # remove old backups
@@ -318,8 +332,6 @@ if ( defined $Opts{r} ) {
             );
             for my $File (@Files) {
                 if ( -e $File ) {
-
-                    #                    print "Notice: remove $File\n";
                     unlink $File;
                 }
             }
@@ -330,5 +342,29 @@ if ( defined $Opts{r} ) {
                 die "failed\n";
             }
         }
+    }
+}
+
+sub RemoveIncompleteBackup {
+
+    # get parameters
+    my $Directory = shift;
+
+    # remove files and directory
+    print "deleting incomplete backup $Directory ... ";
+    my @Files = $CommonObject{MainObject}->DirectoryRead(
+        Directory => $Directory,
+        Filter    => '*',
+    );
+    for my $File (@Files) {
+        if ( -e $File ) {
+            unlink $File;
+        }
+    }
+    if ( rmdir($Directory) ) {
+        print "done \n";
+    }
+    else {
+        die "failed \n";
     }
 }
