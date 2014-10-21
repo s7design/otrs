@@ -147,17 +147,17 @@ Core.Agent.TicketAction = (function (TargetNS) {
         // check if spell check is being used
         if (parseInt(Core.Config.Get('SpellChecker'), 10) === 1 && parseInt(Core.Config.Get('NeedSpellCheck'), 10) === 1) {
 
-            Core.Config.Set('TextIsSpellChecked', 0);
+            Core.Config.Set('TextIsSpellChecked', '0');
             $('#RichTextField, .RichTextField').on('click', '.cke_button__spellcheck', function() {
-                Core.Config.Set('TextIsSpellChecked', 1);
+                Core.Config.Set('TextIsSpellChecked', '1');
             });
             $('#OptionSpellCheck').bind('click', function() {
-                Core.Config.Set('TextIsSpellChecked', 1);
+                Core.Config.Set('TextIsSpellChecked', '1');
             });
 
             if ( parseInt(Core.Config.Get('RichTextSet'), 10) === 0){
                 $('#RichTextField, .RichTextField').on('change', '#RichText', function() {
-                    Core.Config.Set('TextIsSpellChecked', 0);
+                    Core.Config.Set('TextIsSpellChecked', '0');
                 });
             }
 
