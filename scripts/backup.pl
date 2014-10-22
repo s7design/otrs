@@ -169,7 +169,7 @@ if (
 else {
     print "failed\n";
     RemoveIncompleteBackup($Directory);
-    die "failed beckup\n";
+    die "Backup failed\n";
 }
 
 # backup application
@@ -186,7 +186,7 @@ else {
         else {
             print "failed\n";
             RemoveIncompleteBackup($Directory);
-            die "failed beckup\n";
+            die "Backup failed\n";
         }
     }
 
@@ -199,7 +199,7 @@ else {
         else {
             print "failed\n";
             RemoveIncompleteBackup($Directory);
-            die "failed beckup\n";
+            die "Backup failed\n";
         }
     }
 
@@ -212,7 +212,7 @@ else {
         else {
             print "failed\n";
             RemoveIncompleteBackup($Directory);
-            die "failed beckup\n";
+            die "Backup failed\n";
         }
     }
 }
@@ -234,7 +234,7 @@ if ( $DB =~ m/mysql/i ) {
     else {
         print "failed\n";
         RemoveIncompleteBackup($Directory);
-        die "failed beckup\n";
+        die "Backup failed\n";
     }
 }
 else {
@@ -260,7 +260,7 @@ else {
     else {
         print "failed\n";
         RemoveIncompleteBackup($Directory);
-        die "failed beckup\n";
+        die "Backup failed\n";
     }
 }
 
@@ -272,10 +272,10 @@ if ( !system("$CompressCMD $Directory/DatabaseBackup.sql") ) {
 else {
     print "failed\n";
     RemoveIncompleteBackup($Directory);
-    die "failed beckup\n";
+    die "Backup failed\n";
 }
 
-# remove old backups
+# remove old backups only after everything worked well
 if ( defined $Opts{r} ) {
     my %LeaveBackups;
     my $SystemTime = $CommonObject{TimeObject}->SystemTime();
@@ -345,6 +345,10 @@ if ( defined $Opts{r} ) {
     }
 }
 
+# if an error in the backup process occurs while there is already the old possible valid,
+# backup will not be removed.
+# if error occurs this functions remove incomlete backup folder
+# see bug #10665 (http://bugs.otrs.org/show_bug.cgi?id=10665)
 sub RemoveIncompleteBackup {
 
     # get parameters
@@ -365,6 +369,6 @@ sub RemoveIncompleteBackup {
         print "done \n";
     }
     else {
-        die "failed \n";
+        warn "failed \n";
     }
 }
