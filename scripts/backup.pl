@@ -140,78 +140,6 @@ for my $CMD ( 'cp', 'tar', $DBDump, $CompressCMD ) {
     }
 }
 
-# remove old backups
-if ( defined $Opts{r} ) {
-    my %LeaveBackups;
-    my $SystemTime = $CommonObject{TimeObject}->SystemTime();
-
-    # we'll be substracting days to the current time
-    # we don't want DST changes to affect our dates
-    # if it is < 2:00 AM, add two hours so we're sure DST will not change our timestamp
-    # to another day
-    my $TimeStamp = $CommonObject{TimeObject}->SystemTime2TimeStamp(
-        SystemTime => $SystemTime,
-        Type       => 'Short',
-    );
-
-    if ( substr( $TimeStamp, 0, 2 ) < 2 ) {
-        $SystemTime += ( 3600 * 2 );
-    }
-
-    for ( 0 .. $Opts{r} ) {
-        my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay )
-            = $CommonObject{TimeObject}->SystemTime2Date(
-            SystemTime => $SystemTime,
-            );
-
-        # legacy, old directories could be in the format 2013-4-8
-        $LeaveBackups{ sprintf( "%04d-%01d-%01d", $Year, $Month, $Day ) } = 1;
-        $LeaveBackups{ sprintf( "%04d-%02d-%01d", $Year, $Month, $Day ) } = 1;
-        $LeaveBackups{ sprintf( "%04d-%01d-%02d", $Year, $Month, $Day ) } = 1;
-        $LeaveBackups{ sprintf( "%04d-%02d-%02d", $Year, $Month, $Day ) } = 1;
-
-        # substract one day
-        $SystemTime -= ( 24 * 3600 );
-    }
-
-    my @Directories = $CommonObject{MainObject}->DirectoryRead(
-        Directory => $Opts{d},
-        Filter    => '*',
-    );
-
-    for my $Directory (@Directories) {
-        next if !-d $Directory;
-        my $Leave = 0;
-        for my $Data ( sort keys %LeaveBackups ) {
-            if ( $Directory =~ m/$Data/ ) {
-                $Leave = 1;
-            }
-        }
-        if ( !$Leave ) {
-
-            # remove files and directory
-            print "deleting old backup in $Directory ... ";
-            my @Files = $CommonObject{MainObject}->DirectoryRead(
-                Directory => $Directory,
-                Filter    => '*',
-            );
-            for my $File (@Files) {
-                if ( -e $File ) {
-
-                    #                    print "Notice: remove $File\n";
-                    unlink $File;
-                }
-            }
-            if ( rmdir($Directory) ) {
-                print "done\n";
-            }
-            else {
-                die "failed\n";
-            }
-        }
-    }
-}
-
 # create new backup directory
 my $Home = $CommonObject{ConfigObject}->Get('Home');
 chdir($Home);
@@ -331,4 +259,76 @@ if ( !system("$CompressCMD $Directory/DatabaseBackup.sql") ) {
 }
 else {
     die "failed\n";
+}
+
+# remove old backups
+if ( defined $Opts{r} ) {
+    my %LeaveBackups;
+    my $SystemTime = $CommonObject{TimeObject}->SystemTime();
+
+    # we'll be substracting days to the current time
+    # we don't want DST changes to affect our dates
+    # if it is < 2:00 AM, add two hours so we're sure DST will not change our timestamp
+    # to another day
+    my $TimeStamp = $CommonObject{TimeObject}->SystemTime2TimeStamp(
+        SystemTime => $SystemTime,
+        Type       => 'Short',
+    );
+
+    if ( substr( $TimeStamp, 0, 2 ) < 2 ) {
+        $SystemTime += ( 3600 * 2 );
+    }
+
+    for ( 0 .. $Opts{r} ) {
+        my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay )
+            = $CommonObject{TimeObject}->SystemTime2Date(
+            SystemTime => $SystemTime,
+            );
+
+        # legacy, old directories could be in the format 2013-4-8
+        $LeaveBackups{ sprintf( "%04d-%01d-%01d", $Year, $Month, $Day ) } = 1;
+        $LeaveBackups{ sprintf( "%04d-%02d-%01d", $Year, $Month, $Day ) } = 1;
+        $LeaveBackups{ sprintf( "%04d-%01d-%02d", $Year, $Month, $Day ) } = 1;
+        $LeaveBackups{ sprintf( "%04d-%02d-%02d", $Year, $Month, $Day ) } = 1;
+
+        # substract one day
+        $SystemTime -= ( 24 * 3600 );
+    }
+
+    my @Directories = $CommonObject{MainObject}->DirectoryRead(
+        Directory => $Opts{d},
+        Filter    => '*',
+    );
+
+    for my $Directory (@Directories) {
+        next if !-d $Directory;
+        my $Leave = 0;
+        for my $Data ( sort keys %LeaveBackups ) {
+            if ( $Directory =~ m/$Data/ ) {
+                $Leave = 1;
+            }
+        }
+        if ( !$Leave ) {
+
+            # remove files and directory
+            print "deleting old backup in $Directory ... ";
+            my @Files = $CommonObject{MainObject}->DirectoryRead(
+                Directory => $Directory,
+                Filter    => '*',
+            );
+            for my $File (@Files) {
+                if ( -e $File ) {
+
+                    #                    print "Notice: remove $File\n";
+                    unlink $File;
+                }
+            }
+            if ( rmdir($Directory) ) {
+                print "done\n";
+            }
+            else {
+                die "failed\n";
+            }
+        }
+    }
 }
