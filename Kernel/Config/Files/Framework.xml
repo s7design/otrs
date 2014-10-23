@@ -3019,7 +3019,7 @@
             <String Regex="">otrs@&lt;OTRS_CONFIG_FQDN&gt;</String>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="EnableAllSqlQueries" Required="1" Valid="1">
+    <ConfigItem Name="SQLBox::EnableAllSqlQueries" Required="1" Valid="1">
         <Description Translatable="1">If this option is enabled, then in SQL box are allowed all SQL queries in another case only select queries are allowed.</Description>
         <Group>Framework</Group>
         <SubGroup>Core</SubGroup>
