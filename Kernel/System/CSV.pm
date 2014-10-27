@@ -13,6 +13,7 @@ use strict;
 use warnings;
 
 use Text::CSV;
+use Excel::Writer::XLSX;
 
 our @ObjectDependencies = (
     'Kernel::System::Log',
@@ -62,8 +63,9 @@ Returns a csv formatted string based on a array with head data.
             [ 1, 9 ],
             [ 34, 4 ],
         ],
-        Separator => ';', # optional separator (default is ;)
-        Quote     => '"', # optional quote (default is ")
+        Separator => ';',  # optional separator (default is ;)
+        Quote     => '"',  # optional quote (default is ")
+        Format    => 'CSV', # optional format [Excel|CSV ] (default is CSV)
     );
 
 =cut
@@ -88,7 +90,30 @@ sub Array2CSV {
     if ( $Param{Data} ) {
         @Data = @{ $Param{Data} };
     }
-
+    
+    # get format
+    if ( !defined $Param{Format} ) {
+        $Param{Format} = 'CSV';
+    }
+    
+    my $Output = '';
+    
+    if ($Param{Format} eq 'Excel'){  
+     
+     open my $FileHandle, '>', \$Output or die "Failed to open filehandle: $!";
+     my $Workbook  = Excel::Writer::XLSX->new( $FileHandle );  
+     my $Worksheet = $Workbook->add_worksheet();     
+     my $Row = 1;
+     
+     $Worksheet->write_row(0 , 0, \@Head );   
+     
+     for my $DataRaw (@Data) {        
+        $Worksheet->write_row($Row++, 0, $DataRaw );    
+     }
+     $Worksheet->set_column( 0, $Row-1, 10 );  
+     $Workbook->close();
+    }
+    else{
     # get separator
     if ( !defined $Param{Separator} || $Param{Separator} eq '' ) {
         $Param{Separator} = ';';
@@ -116,8 +141,6 @@ sub Array2CSV {
         }
     );
 
-    my $Output = '';
-
     # if we have head param fill in header
     if (@Head) {
         my $Status = $CSV->combine(@Head);
@@ -137,6 +160,9 @@ sub Array2CSV {
             );
         }
     }
+    
+    }  
+    
     return $Output;
 }
 
