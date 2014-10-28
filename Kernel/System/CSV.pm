@@ -90,79 +90,77 @@ sub Array2CSV {
     if ( $Param{Data} ) {
         @Data = @{ $Param{Data} };
     }
-    
+
     # get format
-    if ( !defined $Param{Format} ) {
-        $Param{Format} = 'CSV';
-    }
-    
+    $Param{Format} //= 'CSV';
+
     my $Output = '';
-    
-    if ($Param{Format} eq 'Excel'){  
-     
-     open my $FileHandle, '>', \$Output or die "Failed to open filehandle: $!";
-     my $Workbook  = Excel::Writer::XLSX->new( $FileHandle );  
-     my $Worksheet = $Workbook->add_worksheet();     
-     my $Row = 1;
-     
-     $Worksheet->write_row(0 , 0, \@Head );   
-     
-     for my $DataRaw (@Data) {        
-        $Worksheet->write_row($Row++, 0, $DataRaw );    
-     }
-     $Worksheet->set_column( 0, $Row-1, 10 );  
-     $Workbook->close();
-    }
-    else{
-    # get separator
-    if ( !defined $Param{Separator} || $Param{Separator} eq '' ) {
-        $Param{Separator} = ';';
-    }
 
-    # get separator
-    if ( !defined $Param{Quote} ) {
-        $Param{Quote} = '"';
-    }
+    if ( $Param{Format} eq 'Excel' ) {
 
-    # create new csv backend object
-    my $CSV = Text::CSV->new(
-        {
-            quote_char          => $Param{Quote},
-            escape_char         => $Param{Quote},
-            sep_char            => $Param{Separator},
-            eol                 => '',
-            always_quote        => 1,
-            binary              => 1,
-            keep_meta_info      => 0,
-            allow_loose_quotes  => 0,
-            allow_loose_escapes => 0,
-            allow_whitespace    => 0,
-            verbatim            => 0,
+        open my $FileHandle, '>', \$Output or die "Failed to open filehandle: $!";
+        my $Workbook  = Excel::Writer::XLSX->new( $FileHandle );
+        my $Worksheet = $Workbook->add_worksheet();
+        my $Row       = 1;
+
+        $Worksheet->write_row( 0, 0, \@Head );
+
+        for my $DataRaw (@Data) {
+            $Worksheet->write_row( $Row++, 0, $DataRaw );
         }
-    );
-
-    # if we have head param fill in header
-    if (@Head) {
-        my $Status = $CSV->combine(@Head);
-        $Output .= $CSV->string() . "\n";
+        $Worksheet->set_column( 0, $Row - 1, 10 );
+        $Workbook->close();
     }
+    else {
+        # get separator
+        if ( !defined $Param{Separator} || $Param{Separator} eq '' ) {
+            $Param{Separator} = ';';
+        }
 
-    # fill in data
-    for my $Row (@Data) {
-        my $Status = $CSV->combine( @{$Row} );
-        if ($Status) {
+        # get separator
+        if ( !defined $Param{Quote} ) {
+            $Param{Quote} = '"';
+        }
+
+        # create new csv backend object
+        my $CSV = Text::CSV->new(
+            {
+                quote_char          => $Param{Quote},
+                escape_char         => $Param{Quote},
+                sep_char            => $Param{Separator},
+                eol                 => '',
+                always_quote        => 1,
+                binary              => 1,
+                keep_meta_info      => 0,
+                allow_loose_quotes  => 0,
+                allow_loose_escapes => 0,
+                allow_whitespace    => 0,
+                verbatim            => 0,
+            }
+        );
+
+        # if we have head param fill in header
+        if (@Head) {
+            my $Status = $CSV->combine(@Head);
             $Output .= $CSV->string() . "\n";
         }
-        else {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => 'Failed to build line: ' . $CSV->error_input(),
-            );
+
+        # fill in data
+        for my $Row (@Data) {
+            my $Status = $CSV->combine( @{$Row} );
+            if ($Status) {
+                $Output .= $CSV->string() . "\n";
+            }
+            else {
+                $Kernel::OM->Get('Kernel::System::Log')->Log(
+                    Priority => 'error',
+                    Message  => 'Failed to build line: ' . $CSV->error_input(),
+                );
+            }
         }
+
     }
-    
-    }  
-    
+
     return $Output;
 }
 

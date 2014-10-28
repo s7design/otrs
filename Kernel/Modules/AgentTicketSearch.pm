@@ -605,8 +605,13 @@ sub Run {
             %DynamicFieldSearchParameters,
         );
 
-        # CSV output
-        if ( $GetParam{ResultForm} eq 'CSV' ) {
+        # CSV and Excel output
+        if (
+            $GetParam{ResultForm} eq 'CSV'
+            ||
+            $GetParam{ResultForm} eq 'Excel'
+            )
+        {
 
             # create head (actual head and head for data fill)
             my @TmpCSVHead = @{ $Self->{Config}->{SearchCSVData} };
@@ -757,14 +762,7 @@ sub Run {
                 = map { $Self->{LayoutObject}->{LanguageObject}->Translate( $HeaderMap{$_} || $_ ); }
                 @CSVHead;
 
-            my $CSV = $Self->{CSVObject}->Array2CSV(
-                Head      => \@CSVHeadTranslated,
-                Data      => \@CSVData,
-                Separator => $UserCSVSeparator,
-            );
-
-            # return csv to download
-            my $CSVFile = 'ticket_search';
+            my $FileName = 'ticket_search';
             my ( $s, $m, $h, $D, $M, $Y ) = $Self->{TimeObject}->SystemTime2Date(
                 SystemTime => $Self->{TimeObject}->SystemTime(),
             );
@@ -772,186 +770,42 @@ sub Run {
             $D = sprintf( "%02d", $D );
             $h = sprintf( "%02d", $h );
             $m = sprintf( "%02d", $m );
-            return $Self->{LayoutObject}->Attachment(
-                Filename    => $CSVFile . "_" . "$Y-$M-$D" . "_" . "$h-$m.csv",
-                ContentType => "text/csv; charset=" . $Self->{LayoutObject}->{UserCharset},
-                Content     => $CSV,
-            );
+
+            # generate CSV output
+            if ( $GetParam{ResultForm} eq 'CSV' ) {
+                my $CSV = $Self->{CSVObject}->Array2CSV(
+                    Head      => \@CSVHeadTranslated,
+                    Data      => \@CSVData,
+                    Separator => $UserCSVSeparator,
+                );
+
+                # return csv to download
+                return $Self->{LayoutObject}->Attachment(
+                    Filename    => $FileName . "_" . "$Y-$M-$D" . "_" . "$h-$m.csv",
+                    ContentType => "text/csv; charset=" . $Self->{LayoutObject}->{UserCharset},
+                    Content     => $CSV,
+                );
+            }
+
+            # generate Excel output
+            elsif ( $GetParam{ResultForm} eq 'Excel' ) {
+                my $Excel = $Self->{CSVObject}->Array2CSV(
+                    Head   => \@CSVHeadTranslated,
+                    Data   => \@CSVData,
+                    Format => 'Excel',
+                );
+
+                # return Excel to download
+                return $Self->{LayoutObject}->Attachment(
+                    Filename => $FileName . "_" . "$Y-$M-$D" . "_" . "$h-$m.xlsx",
+                    ContentType =>
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    Content => $Excel,
+                );
+            }
         }
 
-        # Excel output
-        elsif ( $GetParam{ResultForm} eq 'Excel' ) {
-
-            # create head (actual head and head for data fill)
-            my @TmpCSVHead = @{ $Self->{Config}->{SearchCSVData} };
-            my @CSVHead    = @{ $Self->{Config}->{SearchCSVData} };
-
-            # include the selected dynamic fields in CVS results
-            DYNAMICFIELD:
-            for my $DynamicFieldConfig ( @{ $Self->{CSVDynamicField} } ) {
-                next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-                next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
-                next DYNAMICFIELD if $DynamicFieldConfig->{Name} eq '';
-
-                push @TmpCSVHead, 'DynamicField_' . $DynamicFieldConfig->{Name};
-                push @CSVHead,    $DynamicFieldConfig->{Label};
-            }
-
-            my @CSVData;
-            for my $TicketID (@ViewableTicketIDs) {
-
-                # get first article data
-                my %Data = $Self->{TicketObjectSearch}->ArticleFirstArticle(
-                    TicketID      => $TicketID,
-                    Extended      => 1,
-                    DynamicFields => 1,
-                );
-
-                if ( !%Data ) {
-
-                    # get ticket data instead
-                    %Data = $Self->{TicketObjectSearch}->TicketGet(
-                        TicketID      => $TicketID,
-                        DynamicFields => 1,
-                    );
-
-                    # set missing information
-                    $Data{Subject} = $Data{Title} || 'Untitled';
-                    $Data{Body} = $Self->{LayoutObject}->{LanguageObject}->Get(
-                        'This item has no articles yet.'
-                    );
-                    $Data{From} = '--';
-                }
-
-                for my $Key (qw(State Lock)) {
-                    $Data{$Key} = $Self->{LayoutObject}->{LanguageObject}->Translate( $Data{$Key} );
-                }
-
-                $Data{Age} = $Self->{LayoutObject}->CustomerAge( Age => $Data{Age}, Space => ' ' );
-
-                # get whole article (if configured!)
-                if ( $Self->{Config}->{SearchArticleCSVTree} ) {
-                    my @Article = $Self->{TicketObjectSearch}->ArticleGet(
-                        TicketID      => $TicketID,
-                        DynamicFields => 0,
-                    );
-
-                    if ( $#Article == -1 ) {
-                        $Data{ArticleTree}
-                            .= 'This item has no articles yet.';
-                    }
-                    else
-                    {
-                        for my $Articles (@Article) {
-                            if ( $Articles->{Body} ) {
-                                $Data{ArticleTree}
-                                    .= "\n-->||$Articles->{ArticleType}||$Articles->{From}||"
-                                    . $Articles->{Created}
-                                    . "||<--------------\n"
-                                    . $Articles->{Body};
-                            }
-                        }
-                    }
-                }
-
-                # customer info (customer name)
-                if ( $Data{CustomerUserID} ) {
-                    $Data{CustomerName} = $Self->{CustomerUserObject}->CustomerName(
-                        UserLogin => $Data{CustomerUserID},
-                    );
-                }
-
-                # user info
-                my %UserInfo = $Self->{UserObject}->GetUserData(
-                    User => $Data{Owner},
-                );
-
-                # merge row data
-                my %Info = (
-                    %Data,
-                    %UserInfo,
-                    AccountedTime =>
-                        $Self->{TicketObjectSearch}
-                        ->TicketAccountedTimeGet( TicketID => $TicketID ),
-                );
-
-                my @Data;
-                for my $Header (@TmpCSVHead) {
-
-                    # check if header is a dynamic field and get the value from dynamic field
-                    # backend
-                    if ( $Header =~ m{\A DynamicField_ ( [a-zA-Z\d]+ ) \z}xms ) {
-
-                        # loop over the dynamic fields configured for CSV output
-                        DYNAMICFIELD:
-                        for my $DynamicFieldConfig ( @{ $Self->{CSVDynamicField} } ) {
-                            next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-                            next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
-
-                            # skip all fields that does not match with current field name ($1)
-                            # with out the 'DynamicField_' prefix
-                            next DYNAMICFIELD if $DynamicFieldConfig->{Name} ne $1;
-
-                            # get the value as for print (to correctly display)
-                            my $ValueStrg = $Self->{BackendObject}->DisplayValueRender(
-                                DynamicFieldConfig => $DynamicFieldConfig,
-                                Value              => $Info{$Header},
-                                HTMLOutput         => 0,
-                                LayoutObject       => $Self->{LayoutObject},
-                            );
-                            push @Data, $ValueStrg->{Value};
-
-                            # terminate the DYNAMICFIELD loop
-                            last DYNAMICFIELD;
-                        }
-                    }
-
-                    # otherwise retrieve data from article
-                    else {
-                        push @Data, $Info{$Header};
-                    }
-                }
-                push @CSVData, \@Data;
-            }
-
-            # get Separator from language file
-            my $UserCSVSeparator = $Self->{LayoutObject}->{LanguageObject}->{Separator};
-
-            if ( $Self->{ConfigObject}->Get('PreferencesGroups')->{CSVSeparator}->{Active} ) {
-                my %UserData = $Self->{UserObject}->GetUserData( UserID => $Self->{UserID} );
-                $UserCSVSeparator = $UserData{UserCSVSeparator} if $UserData{UserCSVSeparator};
-            }
-
-            my %HeaderMap = (
-                TicketNumber => 'Ticket Number',
-                CustomerName => 'Customer Realname',
-            );
-
-            my @CSVHeadTranslated
-                = map { $Self->{LayoutObject}->{LanguageObject}->Translate( $HeaderMap{$_} || $_ ); }
-                @CSVHead;
-
-            my $Excel = $Self->{CSVObject}->Array2CSV(
-                Head   => \@CSVHeadTranslated,
-                Data   => \@CSVData,
-                Format => 'Excel',
-            );
-
-            # return csv to download
-            my $ExcelFile = 'ticket_search';
-            my ( $s, $m, $h, $D, $M, $Y ) = $Self->{TimeObject}->SystemTime2Date(
-                SystemTime => $Self->{TimeObject}->SystemTime(),
-            );
-            $M = sprintf( "%02d", $M );
-            $D = sprintf( "%02d", $D );
-            $h = sprintf( "%02d", $h );
-            $m = sprintf( "%02d", $m );
-            return $Self->{LayoutObject}->Attachment(
-                Filename    => $ExcelFile . "_" . "$Y-$M-$D" . "_" . "$h-$m.xlsx",
-                ContentType => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                Content     => $Excel,
-            );
-        }
+        # PDF output
         elsif ( $GetParam{ResultForm} eq 'Print' ) {
 
             use Kernel::System::PDF;
