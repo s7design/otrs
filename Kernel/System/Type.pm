@@ -113,6 +113,15 @@ sub TypeAdd {
         }
     }
 
+    # check if a standard template with this name already exits
+    if ( $Self->NameExistsCheck( Name => $Param{Name} ) ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "A type with name '$Param{Name}' already exists!"
+        );
+        return;
+    }
+
     return if !$Self->{DBObject}->Do(
         SQL => 'INSERT INTO ticket_type (name, valid_id, '
             . ' create_time, create_by, change_time, change_by)'
@@ -265,6 +274,15 @@ sub TypeUpdate {
         }
     }
 
+    # check if a type with this name already exits
+    if ( $Self->NameExistsCheck( Name => $Param{Name}, ID => $Param{ID} ) ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "A type with name '$Param{Name}' already exists!"
+        );
+        return;
+    }
+
     # sql
     return if !$Self->{DBObject}->Do(
         SQL => 'UPDATE ticket_type SET name = ?, valid_id = ?, '
@@ -388,6 +406,40 @@ sub TypeLookup {
     }
 
     return $ReturnData;
+}
+
+=item NameExistsCheck()
+
+return 1 if another type with this name already exits
+
+    $Exist = $TypeObject->NameExistsCheck(
+        Name => 'Some::Type',
+        ID => 1, # optional
+    );
+
+=cut
+
+sub NameExistsCheck {
+    my ( $Self, %Param ) = @_;
+
+    return if !$Self->{DBObject}->Prepare(
+        SQL  => 'SELECT id FROM ticket_type WHERE name = ?',
+        Bind => [ \$Param{Name} ],
+    );
+
+    # fetch the result
+    my $Flag;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        if ( !$Param{ID} || $Param{ID} ne $Row[0] ) {
+            $Flag = 1;
+        }
+    }
+
+    if ($Flag) {
+        return 1;
+    }
+
+    return 0;
 }
 
 1;
