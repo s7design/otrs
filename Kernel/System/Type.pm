@@ -113,7 +113,7 @@ sub TypeAdd {
         }
     }
 
-    # check if a standard template with this name already exits
+    # check if a type with this name already exits
     if ( $Self->NameExistsCheck( Name => $Param{Name} ) ) {
         $Self->{LogObject}->Log(
             Priority => 'error',
