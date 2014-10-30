@@ -59,6 +59,7 @@ my @Tests = (
         },
     },
 );
+my @IDs;
 
 for my $Test (@Tests) {
 
@@ -68,7 +69,18 @@ for my $Test (@Tests) {
     );
     $Self->True(
         $ID,
-        "StandardTemplateAdd()",
+        "StandardTemplateAdd() - $ID",
+    );
+
+    push( @IDs, $ID );
+
+    # add with existing name
+    my $IDWrong = $StandardTemplateObject->StandardTemplateAdd(
+        %{ $Test->{Add} },
+    );
+    $Self->False(
+        $IDWrong,
+        "StandardTemplateAdd() - try to add the standard template with existing name",
     );
 
     my %Data = $StandardTemplateObject->StandardTemplateGet(
@@ -111,6 +123,7 @@ for my $Test (@Tests) {
         $ID,
         "StandardTemplateUpdate()",
     );
+
     %Data = $StandardTemplateObject->StandardTemplateGet(
         ID => $ID,
     );
@@ -121,6 +134,28 @@ for my $Test (@Tests) {
             "StandardTemplateGet() - $Key",
         );
     }
+
+    # add another standard template
+    my $IDSecond = $StandardTemplateObject->StandardTemplateAdd(
+        %{ $Test->{Add} },
+    );
+
+    push( @IDs, $IDSecond );
+
+    $Self->True(
+        $IDSecond,
+        "StandardTemplateAdd() - $IDSecond",
+    );
+
+    # update with existing name
+    my $UpdateWrong = $StandardTemplateObject->StandardTemplateUpdate(
+        ID => $IDSecond,
+        %{ $Test->{Update} },
+    );
+    $Self->False(
+        $UpdateWrong,
+        "StandardTemplateUpdate() - try to update the standard template with existing name",
+    );
 
     # test StandardTemplateList()
     my %StandardTemplates = $StandardTemplateObject->StandardTemplateList();
@@ -161,14 +196,16 @@ for my $Test (@Tests) {
         'StandardTemplateList() - All Answer is not an empty hash',
     );
 
-    # delete
-    my $Delete = $StandardTemplateObject->StandardTemplateDelete(
-        ID => $ID,
-    );
-    $Self->True(
-        $ID,
-        "StandardTemplateDelete()",
-    );
+    # delete created standard template
+    for (@IDs) {
+        my $Delete = $StandardTemplateObject->StandardTemplateDelete(
+            ID => $_,
+        );
+        $Self->True(
+            $_,
+            "StandardTemplateDelete() - $_ ",
+        );
+    }
 }
 
 1;
