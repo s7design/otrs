@@ -109,13 +109,34 @@ sub Array2CSV {
         my $Workbook  = Excel::Writer::XLSX->new($FileHandle);
         my $Worksheet = $Workbook->add_worksheet();
         my $Row       = 1;
+        my $Format    = $Workbook->add_format( num_format => '#' );
 
         $Worksheet->write_row( 0, 0, \@Head );
 
+        my $CellLength;
+        my @RowLength;
+
         for my $DataRaw (@Data) {
-            $Worksheet->write_row( $Row++, 0, $DataRaw );
+            $CellLength = 10;
+            my $Col      = 0;
+            my $NumOfRaw = scalar( keys $DataRaw );
+            for ( 1 .. $NumOfRaw ) {
+                $CellLength = length( $DataRaw->[ $_ - 1 ] );
+                $CellLength = ( $CellLength >= 10 ) ? $CellLength : 10;
+                $RowLength[$Col]
+                    = ( !defined $RowLength[$Col] || $RowLength[$Col] <= $CellLength )
+                    ? $CellLength
+                    : $RowLength[$Col];
+                $Worksheet->write( $Row, $Col++, "$DataRaw->[$_-1]", $Format );
+            }
+            $Row++;
         }
-        $Worksheet->set_column( 0, $Row - 1, 10 );
+        my $Col = 0;
+        for (@RowLength) {
+            $Worksheet->set_column( $Col, $Col, $_ );
+            $Col++;
+        }
+
         $Workbook->close();
     }
     else {
