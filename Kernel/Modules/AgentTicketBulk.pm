@@ -129,21 +129,33 @@ sub Run {
         );
     }
 
+    my $Output .= $Self->{LayoutObject}->Header(
+        Type => 'Small',
+    );
+
     # get involved tickets, filtering empty TicketIDs
     my @TicketIDs
         = grep {$_}
         $Self->{ParamObject}->GetArray( Param => 'TicketID' );
 
+    # ticket numbers of locked tickets by another agent
+    my $IgnoredLockedTicketNumbers = '';
+
     # check needed stuff
     if ( !@TicketIDs ) {
-        return $Self->{LayoutObject}->ErrorScreen(
-            Message => 'No TicketID is given!',
-            Comment => 'You need at least one selected ticket!',
-        );
+        $IgnoredLockedTicketNumbers
+            = $Self->{ParamObject}->GetParam( Param => 'IgnoredLockedTicketNumbers' );
+        my @ArrayIgnoredLockedTicketNumbers = split( ',', $IgnoredLockedTicketNumbers );
+        for my $TicketNumber (@ArrayIgnoredLockedTicketNumbers) {
+            $Output .= $Self->{LayoutObject}->Notify(
+                Priority => 'Error',
+                Info     => $Self->{LayoutObject}->{LanguageObject}
+                    ->Translate(
+                    "$TicketNumber: Ticket is is locked by another agent. Bulk actions didn't execute!"
+                    ),
+            );
+        }
     }
-    my $Output .= $Self->{LayoutObject}->Header(
-        Type => 'Small',
-    );
 
     # declare the variables for all the parameters
     my %Error;
@@ -328,8 +340,11 @@ sub Run {
                     $Output .= $Self->{LayoutObject}->Notify(
                         Data => "$Ticket{TicketNumber}: "
                             . $Self->{LayoutObject}->{LanguageObject}
-                            ->Translate("Ticket is locked by another agent."),
+                            ->Translate(
+                            "Ticket is locked by another agent. This ticket will be ignored!"
+                            ),
                     );
+                    $IgnoredLockedTicketNumbers .= $Ticket{TicketNumber} . ',';
                     next TICKET_ID;
                 }
             }
@@ -729,9 +744,10 @@ sub Run {
         %Param,
         %GetParam,
         %Time,
-        TicketIDs     => \@TicketIDSelected,
-        LockedTickets => $LockedTickets,
-        Errors        => \%Error,
+        TicketIDs                  => \@TicketIDSelected,
+        LockedTickets              => $LockedTickets,
+        IgnoredLockedTicketNumbers => $IgnoredLockedTicketNumbers,
+        Errors                     => \%Error,
     );
     $Output .= $Self->{LayoutObject}->Footer(
         Type => 'Small',
