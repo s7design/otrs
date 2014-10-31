@@ -155,6 +155,14 @@ sub Run {
                     ),
             );
         }
+
+        $Output .= $Self->{LayoutObject}->Notify(
+            Priority => 'Error',
+            Info     => $Self->{LayoutObject}->{LanguageObject}
+                ->Translate(
+                "No TicketID is given or only locked tickets selected!"
+                ),
+        );
     }
 
     # declare the variables for all the parameters
