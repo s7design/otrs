@@ -14,6 +14,7 @@ use utf8;
 use vars (qw($Self));
 
 use Kernel::System::ObjectManager;
+my @IDs;
 
 # get needed objects
 my $TypeObject = $Kernel::OM->Get('Kernel::System::Type');
@@ -30,6 +31,20 @@ my $TypeID = $TypeObject->TypeAdd(
 $Self->True(
     $TypeID,
     'TypeAdd()',
+);
+
+push( @IDs, $TypeID );
+
+# add type with existing name
+my $TypeIDWrong = $TypeObject->TypeAdd(
+    Name    => $TypeNameRand0,
+    ValidID => 1,
+    UserID  => 1,
+);
+
+$Self->False(
+    $TypeIDWrong,
+    'TypeAdd( - try to add type with existing name',
 );
 
 # get the type by using the type id
@@ -78,6 +93,28 @@ my $TypeUpdate = $TypeObject->TypeUpdate(
 $Self->True(
     $TypeUpdate,
     'TypeUpdate()',
+);
+
+# add another type
+my $TypeIDSecond = $TypeObject->TypeAdd(
+    Name    => $TypeNameRand0 . '2',
+    ValidID => 1,
+    UserID  => 1,
+);
+
+push( @IDs, $TypeIDSecond );
+
+# update with existing name
+my $TypeUpdateWrong = $TypeObject->TypeUpdate(
+    ID      => $TypeIDSecond,
+    Name    => $TypeNameRand0 . '1',
+    ValidID => 1,
+    UserID  => 1,
+);
+
+$Self->False(
+    $TypeUpdateWrong,
+    "TypeUpdate() - try to update the type with existing name",
 );
 
 %Type = $TypeObject->TypeGet( ID => $TypeID );
@@ -136,5 +173,17 @@ $Self->True(
     $Hit,
     'TypeList() - all types',
 );
+
+# delete created type
+for (@IDs) {
+    my $TypeDel = $Kernel::OM->Get('Kernel::System::DB')->Do(
+        SQL => "DELETE FROM ticket_type WHERE id = $_",
+
+    );
+    $Self->True(
+        $_,
+        "TypeDelete() - $_",
+    );
+}
 
 1;
