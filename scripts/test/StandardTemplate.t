@@ -175,7 +175,7 @@ for my $Test (@Tests) {
 
     $Self->True(
         $Exist,
-        "NameExistsCheck() - A standard template with \'$Test->{AddSecond}->{Name}\ already exits!",
+        "NameExistsCheck() - A standard template with \'$Test->{AddSecond}->{Name}\' already exits!",
     );
 
     # there is a standard template with certain name, now check if there is another one
@@ -186,7 +186,7 @@ for my $Test (@Tests) {
 
     $Self->False(
         $Exist,
-        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\ for ID=$IDSecond does not exists!",
+        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\' for ID=$IDSecond does not exists!",
     );
 
     $Exist = $StandardTemplateObject->NameExistsCheck(
@@ -196,7 +196,7 @@ for my $Test (@Tests) {
 
     $Self->True(
         $Exist,
-        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\ for ID=$ID already exits!",
+        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\' for ID=$ID already exits!",
     );
 
     # check is there a standard template whose name has been updated in the meantime
@@ -206,7 +206,7 @@ for my $Test (@Tests) {
 
     $Self->False(
         $Exist,
-        "NameExistsCheck() - A standard template with \'$Test->{Add}->{Name}\ does not exists!",
+        "NameExistsCheck() - A standard template with \'$Test->{Add}->{Name}\' does not exists!",
     );
 
     $Exist = $StandardTemplateObject->NameExistsCheck(
@@ -216,7 +216,7 @@ for my $Test (@Tests) {
 
     $Self->False(
         $Exist,
-        "NameExistsCheck() - Another standard template \'$Test->{Add}->{Name}\ for ID=$ID does not exists!",
+        "NameExistsCheck() - Another standard template \'$Test->{Add}->{Name}\' for ID=$ID does not exists!",
     );
 
     # test StandardTemplateList()
@@ -264,7 +264,7 @@ for my $Test (@Tests) {
             ID => $ID,
         );
         $Self->True(
-            $ID,
+            $Delete,
             "StandardTemplateDelete() -  $ID ",
         );
     }
