@@ -151,7 +151,7 @@ sub Run {
                 Priority => 'Error',
                 Info     => $Self->{LayoutObject}->{LanguageObject}
                     ->Translate(
-                    "$TicketNumber: Ticket is is locked by another agent. Bulk actions didn't execute!"
+                    "$TicketNumber: Ticket is locked by another agent. Bulk actions didn't execute!"
                     ),
             );
         }
