@@ -32,6 +32,15 @@ my @Tests = (
             Comment      => 'some comment',
             UserID       => 1,
         },
+        AddSecond => {
+            Name         => 'text_second_' . $RandomID,
+            ValidID      => 1,
+            Template     => 'Template text',
+            ContentType  => 'text/plain; charset=iso-8859-1',
+            TemplateType => 'Answer',
+            Comment      => 'some comment',
+            UserID       => 1,
+        },
         AddGet => {
             Name         => 'text' . $RandomID,
             ValidID      => 1,
@@ -80,7 +89,7 @@ for my $Test (@Tests) {
     );
     $Self->False(
         $IDWrong,
-        "StandardTemplateAdd() - try to add the standard template with existing name",
+        "StandardTemplateAdd() - Try to add the standard template with existing name",
     );
 
     my %Data = $StandardTemplateObject->StandardTemplateGet(
@@ -137,7 +146,7 @@ for my $Test (@Tests) {
 
     # add another standard template
     my $IDSecond = $StandardTemplateObject->StandardTemplateAdd(
-        %{ $Test->{Add} },
+        %{ $Test->{AddSecond} },
     );
 
     push( @IDs, $IDSecond );
@@ -154,7 +163,60 @@ for my $Test (@Tests) {
     );
     $Self->False(
         $UpdateWrong,
-        "StandardTemplateUpdate() - try to update the standard template with existing name",
+        "StandardTemplateUpdate() - Try to update the standard template with existing name",
+    );
+
+    # check function NameExistsCheck()
+    # check is it exist a standard template with certain Name or
+    # check is it possible to set Name for standard template with certain ID
+    my $Exist = $StandardTemplateObject->NameExistsCheck(
+        Name => $Test->{AddSecond}->{Name},
+    );
+
+    $Self->True(
+        $Exist,
+        "NameExistsCheck() - A standard template with \'$Test->{AddSecond}->{Name}\ already exits!",
+    );
+
+    # there is a standard template with certain name, now check if there is another one
+    $Exist = $StandardTemplateObject->NameExistsCheck(
+        Name => "$Test->{AddSecond}->{Name}",
+        ID   => $IDSecond,
+    );
+
+    $Self->False(
+        $Exist,
+        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\ for ID=$IDSecond does not exists!",
+    );
+
+    $Exist = $StandardTemplateObject->NameExistsCheck(
+        Name => $Test->{AddSecond}->{Name},
+        ID   => $ID,
+    );
+
+    $Self->True(
+        $Exist,
+        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\ for ID=$ID already exits!",
+    );
+
+    # check is there a standard template whose name has been updated in the meantime
+    $Exist = $StandardTemplateObject->NameExistsCheck(
+        Name => "$Test->{Add}->{Name}",
+    );
+
+    $Self->False(
+        $Exist,
+        "NameExistsCheck() - A standard template with \'$Test->{Add}->{Name}\ does not exists!",
+    );
+
+    $Exist = $StandardTemplateObject->NameExistsCheck(
+        Name => "$Test->{Add}->{Name}",
+        ID   => $ID,
+    );
+
+    $Self->False(
+        $Exist,
+        "NameExistsCheck() - Another standard template \'$Test->{Add}->{Name}\ for ID=$ID does not exists!",
     );
 
     # test StandardTemplateList()
@@ -197,13 +259,13 @@ for my $Test (@Tests) {
     );
 
     # delete created standard template
-    for (@IDs) {
+    for my $ID (@IDs) {
         my $Delete = $StandardTemplateObject->StandardTemplateDelete(
-            ID => $_,
+            ID => $ID,
         );
         $Self->True(
-            $_,
-            "StandardTemplateDelete() - $_ ",
+            $ID,
+            "StandardTemplateDelete() -  $ID ",
         );
     }
 }
