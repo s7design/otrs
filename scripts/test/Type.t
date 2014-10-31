@@ -178,7 +178,6 @@ $Self->True(
 for (@IDs) {
     my $TypeDel = $Kernel::OM->Get('Kernel::System::DB')->Do(
         SQL => "DELETE FROM ticket_type WHERE id = $_",
-
     );
     $Self->True(
         $_,
