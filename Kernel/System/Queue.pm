@@ -797,6 +797,15 @@ sub QueueAdd {
         }
     }
 
+    # check if a queue with this name already exits
+    if ( $Self->NameExistsCheck( Name => $Param{Name} ) ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "A queue with name '$Param{Name}' already exists!"
+        );
+        return;
+    }
+
     for (qw(Name GroupID SystemAddressID SalutationID SignatureID ValidID UserID FollowUpID)) {
         if ( !$Param{$_} ) {
             $Self->{LogObject}->Log( Priority => 'error', Message => "Need $_!" );
@@ -1068,6 +1077,15 @@ sub QueueUpdate {
         }
     }
 
+    # check if a queue with this name already exits
+    if ( $Self->NameExistsCheck( Name => $Param{Name}, ID => $Param{ID} ) ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "A queue with name '$Param{Name}' already exists!"
+        );
+        return;
+    }
+
     # check CheckSysConfig param
     if ( !defined $Param{CheckSysConfig} ) {
         $Param{CheckSysConfig} = 1;
@@ -1303,6 +1321,40 @@ sub QueuePreferencesGet {
     my ( $Self, %Param ) = @_;
 
     return $Self->{PreferencesObject}->QueuePreferencesGet(%Param);
+}
+
+=item NameExistsCheck()
+
+return 1 if another queue with this name already exits
+
+    $Exist = $QueueObject->NameExistsCheck(
+        Name => 'Some::Queue',
+        ID => 1, # optional
+    );
+
+=cut
+
+sub NameExistsCheck {
+    my ( $Self, %Param ) = @_;
+
+    return if !$Self->{DBObject}->Prepare(
+        SQL  => 'SELECT id FROM queue WHERE name = ?',
+        Bind => [ \$Param{Name} ],
+    );
+
+    # fetch the result
+    my $Flag;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        if ( !$Param{ID} || $Param{ID} ne $Row[0] ) {
+            $Flag = 1;
+        }
+    }
+
+    if ($Flag) {
+        return 1;
+    }
+
+    return 0;
 }
 
 1;
