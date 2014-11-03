@@ -41,7 +41,33 @@ my $QueueID   = $QueueObject->QueueAdd(
 
 $Self->True(
     $QueueID,
-    'QueueAdd()',
+    "QueueAdd() - $QueueRand, $QueueID",
+);
+
+my @IDs;
+
+push( @IDs, $QueueID );
+
+my $QueueIDWrong = $QueueObject->QueueAdd(
+    Name                => $QueueRand,
+    ValidID             => 1,
+    GroupID             => 1,
+    FirstResponseTime   => 30,
+    FirstResponseNotify => 70,
+    UpdateTime          => 240,
+    UpdateNotify        => 80,
+    SolutionTime        => 2440,
+    SolutionNotify      => 90,
+    SystemAddressID     => 1,
+    SalutationID        => 1,
+    SignatureID         => 1,
+    UserID              => 1,
+    Comment             => 'Some Comment',
+);
+
+$Self->False(
+    $QueueIDWrong,
+    'QueueAdd() - Try to add new queue with existing queue name',
 );
 
 my %QueueGet = $QueueObject->QueueGet( ID => $QueueID );
@@ -103,7 +129,7 @@ $Self->True(
     'QueueLookup() by Name',
 );
 
-# a real szenario from AdminQueue.pm
+# a real scenario from AdminQueue.pm
 # for more information see 3139
 my $QueueUpdate2 = $QueueObject->QueueUpdate(
     QueueID             => $QueueID,
@@ -131,7 +157,7 @@ my $QueueUpdate2 = $QueueObject->QueueUpdate(
 
 $Self->True(
     $QueueUpdate2,
-    'QueueUpdate() - a real szenario from AdminQueue.pm',
+    'QueueUpdate() - a real scenario from AdminQueue.pm',
 );
 
 my $QueueUpdate1 = $QueueObject->QueueUpdate(
@@ -157,6 +183,98 @@ my $QueueUpdate1 = $QueueObject->QueueUpdate(
 $Self->True(
     $QueueUpdate1,
     'QueueUpdate()',
+);
+
+#add another queue for testing update queue with existing name
+my $Queue2Rand = 'Some::Queue2' . int( rand(1000000) );
+my $QueueID2   = $QueueObject->QueueAdd(
+    Name            => $Queue2Rand,
+    ValidID         => 1,
+    GroupID         => 1,
+    SystemAddressID => 1,
+    SalutationID    => 1,
+    SignatureID     => 1,
+    UserID          => 1,
+    Comment         => 'Some Comment',
+);
+
+$Self->True(
+    $QueueID2,
+    "QueueAdd() - $Queue2Rand, $QueueID2",
+);
+
+push( @IDs, $QueueID2 );
+
+#try to update queue with existing name
+my $QueueUpdateExist = $QueueObject->QueueUpdate(
+    Name            => $QueueRand . '1',
+    QueueID         => $QueueID2,
+    ValidID         => 1,
+    GroupID         => 1,
+    SystemAddressID => 1,
+    SalutationID    => 1,
+    SignatureID     => 1,
+    FollowUpID      => 1,
+    UserID          => 1,
+    Comment         => 'Some Comment1',
+);
+
+$Self->False(
+    $QueueUpdateExist,
+    "QueueUpdate() - update queue with existing name",
+);
+
+# check function NameExistsCheck()
+# check is it exist a queue with certain Name or
+# check is it possible to set Name for queue with certain ID
+my $Exist = $QueueObject->NameExistsCheck(
+    Name => $Queue2Rand,
+);
+
+$Self->True(
+    $Exist,
+    "NameExistsCheck() - A queue with \'$Queue2Rand\' already exits!",
+);
+
+# there is a queue with certain name, now check if there is another one
+$Exist = $QueueObject->NameExistsCheck(
+    Name => "$Queue2Rand",
+    ID   => $QueueID2,
+);
+
+$Self->False(
+    $Exist,
+    "NameExistsCheck() - Another queue \'$Queue2Rand\' for ID=$QueueID2 does not exists!",
+);
+
+$Exist = $QueueObject->NameExistsCheck(
+    Name => $Queue2Rand,
+    ID   => $QueueID,
+);
+
+$Self->True(
+    $Exist,
+    "NameExistsCheck() - Another queue \'$Queue2Rand\' for ID=$QueueID already exits!",
+);
+
+# check is there a queue whose name has been updated in the meantime
+$Exist = $QueueObject->NameExistsCheck(
+    Name => "$QueueRand",
+);
+
+$Self->False(
+    $Exist,
+    "NameExistsCheck() - A queue with \'$QueueRand\' does not exists!",
+);
+
+$Exist = $QueueObject->NameExistsCheck(
+    Name => "$QueueRand",
+    ID   => $QueueID,
+);
+
+$Self->False(
+    $Exist,
+    "NameExistsCheck() - Another queue \'$QueueRand\' for ID=$QueueID does not exists!",
 );
 
 # lookup the queue name for $QueueID
@@ -431,5 +549,16 @@ $Self->True(
     $Success,
     "StandardTemplateDelete() for QueueStandardTemplateMemeberAdd() | with True",
 );
+
+# delete created queue
+for my $ID (@IDs) {
+    my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+        SQL => "DELETE FROM queue WHERE id = $ID",
+    );
+    $Self->True(
+        $Success,
+        "QueueDelete - $ID",
+    );
+}
 
 1;
