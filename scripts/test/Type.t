@@ -154,14 +154,14 @@ $Self->False(
 );
 
 # check function NameExistsCheck()
-# check is it exist a type with certain Name or
+# check does it exist a type with certain Name or
 # check is it possible to set Name for type with certain ID
 my $Exist = $TypeObject->NameExistsCheck(
     Name => $TypeSecondName,
 );
 $Self->True(
     $Exist,
-    "NameExistsCheck() - A type with \'$TypeSecondName\' already exits!",
+    "NameExistsCheck() - A type with \'$TypeSecondName\' already exists!",
 );
 
 # there is a type with certain name, now check if there is another one
@@ -179,7 +179,7 @@ $Exist = $TypeObject->NameExistsCheck(
 );
 $Self->True(
     $Exist,
-    "NameExistsCheck() - Another type \'$TypeSecondName\' for ID=$TypeID already exits!",
+    "NameExistsCheck() - Another type \'$TypeSecondName\' for ID=$TypeID already exists!",
 );
 
 # check is there a type whose name has been updated in the meantime

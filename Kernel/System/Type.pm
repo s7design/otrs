@@ -80,7 +80,7 @@ sub TypeAdd {
         }
     }
 
-    # check if a type with this name already exits
+    # check if a type with this name already exists
     if ( $Self->NameExistsCheck( Name => $Param{Name} ) ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -258,7 +258,7 @@ sub TypeUpdate {
         }
     }
 
-    # check if a type with this name already exits
+    # check if a type with this name already exists
     if ( $Self->NameExistsCheck( Name => $Param{Name}, ID => $Param{ID} ) ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',

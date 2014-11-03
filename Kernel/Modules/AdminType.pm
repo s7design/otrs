@@ -90,7 +90,7 @@ sub Run {
             );
         }
 
-        # check if a type exist with this name
+        # check if a type exists with this name
         my $NameExists
             = $Self->{TypeObject}
             ->NameExistsCheck( Name => $GetParam{Name}, ID => $GetParam{ID} );
