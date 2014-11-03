@@ -225,7 +225,7 @@ $Self->False(
 );
 
 # check function NameExistsCheck()
-# check is it exist a queue with certain Name or
+# check does it exist a queue with certain Name or
 # check is it possible to set Name for queue with certain ID
 my $Exist = $QueueObject->NameExistsCheck(
     Name => $Queue2Rand,
@@ -233,7 +233,7 @@ my $Exist = $QueueObject->NameExistsCheck(
 
 $Self->True(
     $Exist,
-    "NameExistsCheck() - A queue with \'$Queue2Rand\' already exits!",
+    "NameExistsCheck() - A queue with \'$Queue2Rand\' already exists!",
 );
 
 # there is a queue with certain name, now check if there is another one
@@ -254,7 +254,7 @@ $Exist = $QueueObject->NameExistsCheck(
 
 $Self->True(
     $Exist,
-    "NameExistsCheck() - Another queue \'$Queue2Rand\' for ID=$QueueID already exits!",
+    "NameExistsCheck() - Another queue \'$Queue2Rand\' for ID=$QueueID already exists!",
 );
 
 # check is there a queue whose name has been updated in the meantime
