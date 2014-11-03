@@ -167,7 +167,7 @@ for my $Test (@Tests) {
     );
 
     # check function NameExistsCheck()
-    # check is it exist a standard template with certain Name or
+    # check does it exist a standard template with certain Name or
     # check is it possible to set Name for standard template with certain ID
     my $Exist = $StandardTemplateObject->NameExistsCheck(
         Name => $Test->{AddSecond}->{Name},
@@ -175,7 +175,7 @@ for my $Test (@Tests) {
 
     $Self->True(
         $Exist,
-        "NameExistsCheck() - A standard template with \'$Test->{AddSecond}->{Name}\' already exits!",
+        "NameExistsCheck() - A standard template with \'$Test->{AddSecond}->{Name}\' already exists!",
     );
 
     # there is a standard template with certain name, now check if there is another one
@@ -196,7 +196,7 @@ for my $Test (@Tests) {
 
     $Self->True(
         $Exist,
-        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\' for ID=$ID already exits!",
+        "NameExistsCheck() - Another standard template \'$Test->{AddSecond}->{Name}\' for ID=$ID already exists!",
     );
 
     # check is there a standard template whose name has been updated in the meantime
