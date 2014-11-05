@@ -206,8 +206,9 @@ $Self->True(
 push( @IDs, $QueueID2 );
 
 #try to update queue with existing name
+my $QueueUpdate = $QueueRand . '1';
 my $QueueUpdateExist = $QueueObject->QueueUpdate(
-    Name            => $QueueRand . '1',
+    Name            => $QueueUpdate,
     QueueID         => $QueueID2,
     ValidID         => 1,
     GroupID         => 1,
@@ -242,7 +243,12 @@ $Self->True(
     "QueueAdd() - $SubQueueName, $QueueID3",
 );
 
-#push( @IDs, $QueueID3 );
+$Self->True(
+    $QueueID3,
+    "QueueAdd() - $SubQueueName, $QueueID3",
+);
+
+push (@IDs, $QueueID3);
 
 # check function NameExistsCheck()
 # check does it exist a queue with certain Name or
@@ -570,6 +576,22 @@ $Self->True(
     "StandardTemplateDelete() for QueueStandardTemplateMemeberAdd() | with True",
 );
 
+# Since there are no tickets that rely on our test queues, we can remove them again
+# from the DB.
 
+for my $ID (@IDs) {
+    my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+        SQL => "DELETE FROM queue WHERE id = $ID",
+    );
+    $Self->True(
+        $Success,
+        "QueueDelete - $ID",
+    );
+}
+
+# Make sure the cache is correct.
+    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+        Type => 'Queue',
+    );
 
 1;
