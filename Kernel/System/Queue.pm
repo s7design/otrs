@@ -1109,7 +1109,7 @@ sub QueueUpdate {
     my %OldQueue = $Self->QueueGet( ID => $Param{QueueID} );
 
     # check if a queue with this name already exists
-    if ( $Self->NameExistsCheck( Name => $Param{Name} ) ) {
+    if ( $Self->NameExistsCheck( ID => $Param{QueueID}, Name => $Param{Name} ) ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
             Message  => "A queue with name '$Param{Name}' already exists!"
@@ -1332,6 +1332,8 @@ return 1 if another queue with this name already exists
 
 sub NameExistsCheck {
     my ( $Self, %Param ) = @_;
+    
+    
 
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');

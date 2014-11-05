@@ -224,6 +224,26 @@ $Self->False(
     "QueueUpdate() - update queue with existing name",
 );
 
+#add subqueue 
+my $SubQueueName = $Queue2Rand.'::SubQueue'. int( rand(1000000));
+my $QueueID3   = $QueueObject->QueueAdd(
+    Name            => $SubQueueName,
+    ValidID         => 1,
+    GroupID         => 1,
+    SystemAddressID => 1,
+    SalutationID    => 1,
+    SignatureID     => 1,
+    UserID          => 1,
+    Comment         => 'Some Comment',
+);
+
+$Self->True(
+    $QueueID3,
+    "QueueAdd() - $SubQueueName, $QueueID3",
+);
+
+#push( @IDs, $QueueID3 );
+
 # check function NameExistsCheck()
 # check does it exist a queue with certain Name or
 # check is it possible to set Name for queue with certain ID
@@ -550,15 +570,6 @@ $Self->True(
     "StandardTemplateDelete() for QueueStandardTemplateMemeberAdd() | with True",
 );
 
-# delete created queue
-for my $ID (@IDs) {
-    my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-        SQL => "DELETE FROM queue WHERE id = $ID",
-    );
-    $Self->True(
-        $Success,
-        "QueueDelete - $ID",
-    );
-}
+
 
 1;
