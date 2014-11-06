@@ -113,14 +113,14 @@ sub Array2CSV {
             num_format => '@',
         );
 
-        # Prevent Excel from auto-formatting ticket numbers as real numbers
-        my $NumberFormat = $Workbook->add_format( num_format => '#', );
+        # Format as a string. Doesn't change to a number when edited
+        my $NumberFormat = $Workbook->add_format( num_format => '@', );
 
         # We will try to determine the appropriate length for each column.
         my @ColumnLengths;
         my $Row = 0;
         for my $DataRaw ( \@Head, @Data ) {
-            for my $Col ( 0 .. ( scalar @{$DataRaw // []} ) - 1 ) {
+            for my $Col ( 0 .. ( scalar @{ $DataRaw // [] } ) - 1 ) {
                 my $CellLength = length( $DataRaw->[$Col] );
                 $CellLength = 30 if ( $CellLength > 30 );
                 if ( !defined $ColumnLengths[$Col] || $ColumnLengths[$Col] < $CellLength ) {
@@ -130,7 +130,7 @@ sub Array2CSV {
                     $Worksheet->write( $Row, $Col, "$DataRaw->[$Col]", $HeaderFormat );
                 }
                 else {
-                    $Worksheet->write( $Row, $Col, "$DataRaw->[$Col]", $NumberFormat );
+                    $Worksheet->write_string( $Row, $Col, "$DataRaw->[$Col]", $NumberFormat );
                 }
             }
             $Row++;
