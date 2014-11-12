@@ -132,7 +132,7 @@
                         <div class="Clear"></div>
 
 [% RenderBlockStart("StatePending") %]
-                        <label>[% Translate("Pending date") | html %]:</label>
+                        <label>[% Translate("Pending date") | html %] ([% Translate("for pending* states") | html %]):</label>
                         <div class="Field">
                             [% Data.DateString %]
                             <div id="DayServerError" class="TooltipErrorMessage"><p>[% Translate("Date invalid!") | html %]</p></div>
