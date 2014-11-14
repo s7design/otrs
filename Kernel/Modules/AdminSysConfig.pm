@@ -38,8 +38,9 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     my %Data;
-    my $Group = '';
-    my $Anker = '';
+    my $Group              = '';
+    my $Anker              = '';
+    my $TicketIndexCurrent = $Self->{ParamObject}->GetParam( Param => 'TicketIndexCurrent' );
 
     # write default file
     if ( !$Self->{ParamObject}->GetParam( Param => 'DontWriteDefault' ) ) {
@@ -125,6 +126,7 @@ sub Run {
             Group    => $Group,
             SubGroup => $SubGroup,
         );
+        my $RebuildIndex = 0;
 
         # list all Items
         ITEM:
@@ -206,6 +208,17 @@ sub Run {
                 if ( !$Update ) {
                     $Self->{LayoutObject}->FatalError( Message => "Can't write ConfigItem!" );
                 }
+
+                if (
+                    $ItemHash{Name} eq 'Ticket::IndexModule'
+                    && $TicketIndexCurrent ne $Content
+                    && $Content eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB'
+                    )
+                {
+                    # rebuild ticket index
+                    $RebuildIndex = 1;
+                }
+
             }
 
             # ConfigElement Hash
@@ -362,7 +375,8 @@ sub Run {
 
                 # get Params
                 for (qw(Description Title NavBarName)) {
-                    $Content{$_} = $Self->{ParamObject}->GetParam( Param => $ElementKey . '#' . $_ );
+                    $Content{$_}
+                        = $Self->{ParamObject}->GetParam( Param => $ElementKey . '#' . $_ );
                 }
                 for my $Type (qw(Group GroupRo)) {
                     my @Group = $Self->{ParamObject}->GetArray(
@@ -629,7 +643,8 @@ sub Run {
                             . ( $Index + 1 )
                     );
                     if ( !$Delete ) {
-                        $Content{ int( $Month[$Index] ) }->{ int( $Day[$Index] ) } = $Values[$Index];
+                        $Content{ int( $Month[$Index] ) }->{ int( $Day[$Index] ) }
+                            = $Values[$Index];
                     }
                     else {
                         $Anker = $ItemHash{Name};
@@ -666,7 +681,8 @@ sub Run {
                 my %Content;
                 for my $Index ( 1 .. $#{ $ItemHash{Setting}->[1]->{TimeWorkingHours}->[1]->{Day} } )
                 {
-                    my $Weekday = $ItemHash{Setting}->[1]->{TimeWorkingHours}->[1]->{Day}->[$Index]->{Name};
+                    my $Weekday
+                        = $ItemHash{Setting}->[1]->{TimeWorkingHours}->[1]->{Day}->[$Index]->{Name};
                     my @Hours = $Self->{ParamObject}->GetArray( Param => $_ . $Weekday . '[]' );
                     $Content{$Weekday} = \@Hours;
                 }
@@ -719,7 +735,7 @@ sub Run {
         # redirect
         return $Self->{LayoutObject}->Redirect(
             OP =>
-                "Action=$Self->{Action};Subaction=Edit;SysConfigSubGroup=$SubGroup;SysConfigGroup=$Group;#$Anker",
+                "Action=$Self->{Action};Subaction=Edit;SysConfigSubGroup=$SubGroup;SysConfigGroup=$Group;RebuildIndex=$RebuildIndex;#$Anker;",
         );
     }
 
@@ -727,6 +743,11 @@ sub Run {
     # edit config
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'Edit' ) {
+        my $RebuildIndex = $Self->{ParamObject}->GetParam( Param => 'RebuildIndex' );
+        if ($RebuildIndex) {
+            $Kernel::OM->Get('Kernel::System::Ticket')->TicketAcceleratorRebuild();
+        }
+
         my $SubGroup = $Self->{ParamObject}->GetParam( Param => 'SysConfigSubGroup' );
         my $Group    = $Self->{ParamObject}->GetParam( Param => 'SysConfigGroup' );
         my @List     = $Self->{SysConfigObject}->ConfigSubGroupConfigItemList(
@@ -1133,11 +1154,20 @@ sub ListConfigItem {
         $Self->{LayoutObject}->Block(
             Name => 'ConfigElementSelect',
             Data => {
-                Item    => $ItemHash{Name},
-                List    => $PulldownMenu,
-                Default => $Default,
+                Item       => $ItemHash{Name},
+                List       => $PulldownMenu,
+                Default    => $Default,
+                SelectedID => $Option->{SelectedID},
             },
         );
+        if ( $ItemHash{Name} eq 'Ticket::IndexModule' ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'TicketIndexModule',
+                Data => {
+                    SelectedID => $Option->{SelectedID},
+                },
+            );
+        }
         return 1;
     }
 
@@ -1410,7 +1440,8 @@ sub ListConfigItem {
                 $Data{ 'Key' . $Key }     = $Key;
                 $Data{ 'Content' . $Key } = '';
                 if ( defined $FrontendModuleReg->{NavBar}->[1]->{$Key}->[1]->{Content} ) {
-                    $Data{ 'Content' . $Key } = $FrontendModuleReg->{NavBar}->[$Index]->{$Key}->[1]->{Content};
+                    $Data{ 'Content' . $Key }
+                        = $FrontendModuleReg->{NavBar}->[$Index]->{$Key}->[1]->{Content};
                 }
             }
             $Data{ElementKey} = $ItemHash{Name} . '#NavBar';
@@ -1451,7 +1482,8 @@ sub ListConfigItem {
                     $Data{ 'Key' . $Key }     = $Key;
                     $Data{ 'Content' . $Key } = '';
                     if ( defined $FrontendModuleReg->{NavBarModule}->[1]->{$Key}->[1]->{Content} ) {
-                        $Data{ 'Content' . $Key } = $FrontendModuleReg->{NavBarModule}->[1]->{$Key}->[1]->{Content};
+                        $Data{ 'Content' . $Key }
+                            = $FrontendModuleReg->{NavBarModule}->[1]->{$Key}->[1]->{Content};
                     }
                 }
                 $Data{ElementKey} = $ItemHash{Name} . '#NavBarModule';
@@ -1474,7 +1506,8 @@ sub ListConfigItem {
                 $Data{ 'Key' . $Key }     = $Key;
                 $Data{ 'Content' . $Key } = '';
                 if ( defined $FrontendModuleReg->{NavBarModule}->{$Key}->[1]->{Content} ) {
-                    $Data{ 'Content' . $Key } = $FrontendModuleReg->{NavBarModule}->{$Key}->[1]->{Content};
+                    $Data{ 'Content' . $Key }
+                        = $FrontendModuleReg->{NavBarModule}->{$Key}->[1]->{Content};
                 }
             }
             $Data{ElementKey} = $ItemHash{Name} . '#NavBarModule';
@@ -1649,7 +1682,8 @@ sub ListConfigItem {
         for my $Index ( 1 .. $#{ $Item->{TimeWorkingHours}->[1]->{Day} } ) {
 
             # assign index id to day id for sorting
-            $SortWeekdays{ $WeekdayLookup{ $Item->{TimeWorkingHours}[1]{Day}[$Index]{Name} } } = $Index;
+            $SortWeekdays{ $WeekdayLookup{ $Item->{TimeWorkingHours}[1]{Day}[$Index]{Name} } }
+                = $Index;
         }
 
         # get output sorted by day id

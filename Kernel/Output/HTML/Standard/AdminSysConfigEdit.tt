@@ -45,6 +45,10 @@
                     <input type="hidden" name="SysConfigGroup" value="[% Data.Group | html %]"/>
                     <input type="hidden" name="SysConfigSubGroup" value="[% Data.SubGroup | html %]"/>
                     <input type="hidden" name="DontWriteDefault" value="1"/>
+[% RenderBlockStart("TicketIndexModule") %]
+                    <input type="hidden" name="TicketIndexCurrent" value="[% Data.SelectedID | html %]"/>
+[% RenderBlockEnd("TicketIndexModule") %]
+
 
 [% RenderBlockStart("ConfigElementBlock") %]
 
