@@ -126,7 +126,7 @@ sub Run {
             Group    => $Group,
             SubGroup => $SubGroup,
         );
-        my $RebuildIndex = 0;
+        my $RebuildTicketIndex = 0;
 
         # list all Items
         ITEM:
@@ -209,14 +209,15 @@ sub Run {
                     $Self->{LayoutObject}->FatalError( Message => "Can't write ConfigItem!" );
                 }
 
+# if ticket index module is changed on StaticDB, ticket index should be rebuilded
+# it will be done in Edit subaction, because there would be called TicketAcceleratorRebuild from RuntimeDB.pm
                 if (
                     $ItemHash{Name} eq 'Ticket::IndexModule'
                     && $TicketIndexCurrent ne $Content
                     && $Content eq 'Kernel::System::Ticket::IndexAccelerator::StaticDB'
                     )
                 {
-                    # rebuild ticket index
-                    $RebuildIndex = 1;
+                    $RebuildTicketIndex = 1;
                 }
 
             }
@@ -735,7 +736,7 @@ sub Run {
         # redirect
         return $Self->{LayoutObject}->Redirect(
             OP =>
-                "Action=$Self->{Action};Subaction=Edit;SysConfigSubGroup=$SubGroup;SysConfigGroup=$Group;RebuildIndex=$RebuildIndex;#$Anker;",
+                "Action=$Self->{Action};Subaction=Edit;SysConfigSubGroup=$SubGroup;SysConfigGroup=$Group;RebuildTicketIndex=$RebuildTicketIndex;#$Anker;",
         );
     }
 
@@ -743,11 +744,12 @@ sub Run {
     # edit config
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'Edit' ) {
-        my $RebuildIndex = $Self->{ParamObject}->GetParam( Param => 'RebuildIndex' );
-        if ($RebuildIndex) {
+
+        # rebuild ticket index if ticket index module was changed to StaticDB
+        my $RebuildTicketIndex = $Self->{ParamObject}->GetParam( Param => 'RebuildTicketIndex' );
+        if ($RebuildTicketIndex) {
             $Kernel::OM->Get('Kernel::System::Ticket')->TicketAcceleratorRebuild();
         }
-
         my $SubGroup = $Self->{ParamObject}->GetParam( Param => 'SysConfigSubGroup' );
         my $Group    = $Self->{ParamObject}->GetParam( Param => 'SysConfigGroup' );
         my @List     = $Self->{SysConfigObject}->ConfigSubGroupConfigItemList(
