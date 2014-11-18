@@ -1900,7 +1900,7 @@ sub TicketSearch {
         # get close state ids
         my @List = $Kernel::OM->Get('Kernel::System::State')->StateGetStatesByType(
             StateType => [ 'pending reminder', 'pending auto' ],
-            Result => 'ID',
+            Result    => 'ID',
         );
         if (@List) {
             $SQLExt .= " AND st.ticket_state_id IN (${\(join ', ', sort @List)}) ";
@@ -2056,9 +2056,9 @@ sub TicketSearch {
 
                     if ( $TicketDynamicFieldName2Config{$DynamicFieldName} ) {
 
-                       # Join the table for this dynamic field; use a left outer join in this case.
-                       # With an INNER JOIN we'd limit the result set to tickets which have an entry
-                       #   for the DF which is used for sorting.
+                        # Join the table for this dynamic field; use a left outer join in this case.
+                        # With an INNER JOIN we'd limit the result set to tickets which have an entry
+                        #   for the DF which is used for sorting.
                         $SQLFrom
                             .= " LEFT OUTER JOIN dynamic_field_value dfv$DynamicFieldJoinCounter
                             ON (st.id = dfv$DynamicFieldJoinCounter.object_id
@@ -2078,8 +2078,7 @@ sub TicketSearch {
                             $DBObject->Quote( $DynamicField->{ID}, 'Integer' ) . ") ";
                     }
 
-                    $DynamicFieldJoinTables{ $DynamicField->{Name} }
-                        = "dfv$DynamicFieldJoinCounter";
+                    $DynamicFieldJoinTables{ $DynamicField->{Name} } = "dfv$DynamicFieldJoinCounter";
 
                     $DynamicFieldJoinCounter++;
                 }

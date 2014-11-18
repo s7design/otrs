@@ -140,8 +140,7 @@ sub Run {
 
         # if no filter from web request, try from user preferences
         if ( !defined $FilterValue || $FilterValue eq '' ) {
-            $FilterValue
-                = $StoredFilters->{ 'DynamicField_' . $DynamicFieldConfig->{Name} }->{Equals};
+            $FilterValue = $StoredFilters->{ 'DynamicField_' . $DynamicFieldConfig->{Name} }->{Equals};
         }
 
         next DYNAMICFIELD if !defined $FilterValue;
@@ -178,7 +177,7 @@ sub Run {
             Name   => 'All',
             Prio   => 1000,
             Search => {
-                Locks => [ 'lock', 'tmp_lock' ],
+                Locks      => [ 'lock', 'tmp_lock' ],
                 OwnerIDs   => [ $Self->{UserID} ],
                 OrderBy    => $OrderBy,
                 SortBy     => $SortByS,
@@ -190,7 +189,7 @@ sub Run {
             Name   => 'New Article',
             Prio   => 1001,
             Search => {
-                Locks => [ 'lock', 'tmp_lock' ],
+                Locks         => [ 'lock', 'tmp_lock' ],
                 OwnerIDs      => [ $Self->{UserID} ],
                 NotTicketFlag => {
                     Seen => 1,
@@ -206,12 +205,12 @@ sub Run {
             Name   => 'Pending',
             Prio   => 1002,
             Search => {
-                Locks     => [ 'lock',             'tmp_lock' ],
-                StateType => [ 'pending reminder', 'pending auto' ],
-                OwnerIDs  => [ $Self->{UserID} ],
-                OrderBy   => $OrderBy,
-                SortBy    => $SortByS,
-                UserID    => 1,
+                Locks      => [ 'lock',             'tmp_lock' ],
+                StateType  => [ 'pending reminder', 'pending auto' ],
+                OwnerIDs   => [ $Self->{UserID} ],
+                OrderBy    => $OrderBy,
+                SortBy     => $SortByS,
+                UserID     => 1,
                 Permission => 'ro',
             },
         },
@@ -219,7 +218,7 @@ sub Run {
             Name   => 'Reminder Reached',
             Prio   => 1003,
             Search => {
-                Locks => [ 'lock', 'tmp_lock' ],
+                Locks                         => [ 'lock', 'tmp_lock' ],
                 StateType                     => ['pending reminder'],
                 TicketPendingTimeOlderMinutes => 1,
                 OwnerIDs                      => [ $Self->{UserID} ],

@@ -100,8 +100,8 @@ sub Run {
 
         if ( $ColumnName eq 'CustomerID' ) {
 
-        # adedd two atributes CustomerID and CustomerIDRaw
-        # one is needed for TicketSearch() while the other is needed for ColumnSettingsTrigger class
+            # adedd two atributes CustomerID and CustomerIDRaw
+            # one is needed for TicketSearch() while the other is needed for ColumnSettingsTrigger class
             push @{ $ColumnFilter{$ColumnName} }, $FilterValue;
             push @{ $ColumnFilter{CustomerIDRaw} }, $FilterValue;
             $GetColumnFilter{$ColumnName} = $FilterValue;
@@ -135,8 +135,7 @@ sub Run {
 
         # if no filter from web request, try from user preferences
         if ( !defined $FilterValue || $FilterValue eq '' ) {
-            $FilterValue
-                = $StoredFilters->{ 'DynamicField_' . $DynamicFieldConfig->{Name} }->{Equals};
+            $FilterValue = $StoredFilters->{ 'DynamicField_' . $DynamicFieldConfig->{Name} }->{Equals};
         }
 
         next DYNAMICFIELD if !defined $FilterValue;
@@ -303,8 +302,7 @@ sub Run {
     for my $ColumnName ( sort keys %GetColumnFilter ) {
         next COLUMNNAME if !$ColumnName;
         next COLUMNNAME if !$GetColumnFilter{$ColumnName};
-        my $ColumnNameValueEncoded
-            = $Self->{LayoutObject}->LinkEncode( $GetColumnFilter{$ColumnName} );
+        my $ColumnNameValueEncoded = $Self->{LayoutObject}->LinkEncode( $GetColumnFilter{$ColumnName} );
 
         $ColumnFilterLink
             .= ';' . $Self->{LayoutObject}->Ascii2Html( Text => 'ColumnFilter' . $ColumnName )

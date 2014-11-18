@@ -636,7 +636,7 @@ sub _MaskUpdate {
                 Next   => 'within the next ...',
                 Before => 'more than ... ago',
             },
-            Name => $Type . 'TimePointStart',
+            Name       => $Type . 'TimePointStart',
             SelectedID => $JobData{ $Type . 'TimePointStart' } || 'Last',
         );
         $JobData{ $Type . 'TimePointFormat' } = $Self->{LayoutObject}->BuildSelection(
@@ -710,7 +710,7 @@ sub _MaskUpdate {
             '1' => 'No',
             '0' => 'Yes'
         },
-        Name => 'NewSendNoNotification',
+        Name       => 'NewSendNoNotification',
         SelectedID => $JobData{NewSendNoNotification} || 0,
     );
     $Self->{LayoutObject}->Block(
@@ -880,7 +880,7 @@ sub _MaskUpdate {
                 NotArchivedTickets => 'Unarchived tickets',
                 AllTickets         => 'All tickets',
             },
-            Name => 'SearchInArchive',
+            Name       => 'SearchInArchive',
             SelectedID => $JobData{SearchInArchive} || 'AllTickets',
         );
 
@@ -1051,7 +1051,7 @@ sub _MaskUpdate {
         $Self->{LayoutObject}->Block(
             Name => 'EventRow',
             Data => {
-                Event => $Event,
+                Event     => $Event,
                 EventType => $EventType || '-',
             },
         );

@@ -43,9 +43,9 @@
                     <p>[% Translate("Search by 'CustomerID', there can use regex for searching.") | html %]</p>
                 </div>
                 <div>
-                    <label for="CustomerIDRaw">[% Translate("CustomerIDRaw (exact search)") | html %]</label>
+                    <label for="CustomerIDRaw">[% Translate("CustomerID (exact search)") | html %]</label>
                     <input title="[% Translate("CustomerIDRaw") | html %]" type="text" id="CustomerIDRaw" name="CustomerIDRaw" value="[% Data.CustomerIDRaw | html %]" size="20" />
-                    <p>[% Translate("Search by 'CustomerID' without query condition. If there is 'CustomerID (free search)' fied, only 'CustomerIDRaw (exact search)' will be used for searching!") | html %]</p>
+                    <p>[% Translate("Search by 'CustomerID' without query condition. If there is 'CustomerID (free search)' fied, only 'CustomerID (exact search)' will be used for searching!") | html %]</p>
                 </div>
             </fieldset>
             <fieldset>

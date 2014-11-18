@@ -598,8 +598,7 @@ sub GetObjectAttributes {
             if ( $DynamicFieldStatsParameter->{Block} eq 'Time' ) {
 
                 # create object attributes (date/time fields)
-                my $TimePeriodFormat
-                    = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
+                my $TimePeriodFormat = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
 
                 my %ObjectAttribute = (
                     Name             => $DynamicFieldStatsParameter->{Name},
@@ -706,12 +705,11 @@ sub GetStatElement {
                 next DYNAMICFIELD if !$IsStatsCondition;
 
                 # get new search parameter
-                my $DynamicFieldStatsSearchParameter
-                    = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
+                my $DynamicFieldStatsSearchParameter = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     Value              => $Param{$ParameterName},
                     Operator           => $Operator,
-                    );
+                );
 
                 # add new search parameter
                 if ( !IsHashRefWithData( $Param{"DynamicField_$FieldName"} ) ) {
@@ -739,8 +737,7 @@ sub GetStatElement {
             }
             else {
                 $Param{$ParameterName}
-                    = $Self->{DBSlaveObject}
-                    ->QueryStringEscape( QueryString => $Param{$ParameterName} );
+                    = $Self->{DBSlaveObject}->QueryStringEscape( QueryString => $Param{$ParameterName} );
             }
         }
     }

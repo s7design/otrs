@@ -294,7 +294,7 @@ Core.Agent.Admin.GenericAgent.Init({
                         </div>
                         <div class="Clear"></div>
 
-                        <label for="CustomerID">[% Translate("CustomerID - free search") | html %]:</label>
+                        <label for="CustomerID">[% Translate("CustomerID (free search)") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerID" id="CustomerID" class="W33pc" value="[% Data.CustomerID | html %]"/>
                             <p class="FieldExplanation">
@@ -303,7 +303,7 @@ Core.Agent.Admin.GenericAgent.Init({
                         </div>
                         <div class="Clear"></div>
 
-                        <label for="CustomerIDRaw">[% Translate("CustomerIDRaw - exact search") | html %]:</label>
+                        <label for="CustomerIDRaw">[% Translate("CustomerID (exact search)") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerIDRaw" id="CustomerIDRaw" class="W33pc" value="[% Data.CustomerIDRaw | html %]"/>
                             <p class="FieldExplanation">
@@ -312,7 +312,7 @@ Core.Agent.Admin.GenericAgent.Init({
                         </div>
                         <div class="Clear"></div>
 
-                        <label for="CustomerUserLogin">[% Translate("Customer login - free search") | html %]:</label>
+                        <label for="CustomerUserLogin">[% Translate("Customer login (free search)") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerUserLogin" id="CustomerUserLogin" class="W33pc" value="[% Data.CustomerUserLogin | html %]"/>
                             <p class="FieldExplanation">
@@ -321,7 +321,7 @@ Core.Agent.Admin.GenericAgent.Init({
                         </div>
                         <div class="Clear"></div>
 
-                        <label for="CustomerUserLoginRaw">[% Translate("Customer login raw - exact search") | html %]:</label>
+                        <label for="CustomerUserLoginRaw">[% Translate("Customer login (exact search)") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerUserLoginRaw" id="CustomerUserLoginRaw" class="W33pc" value="[% Data.CustomerUserLoginRaw | html %]"/>
                             <p class="FieldExplanation">

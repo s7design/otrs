@@ -276,7 +276,7 @@ sub Run {
                     Type                   => $Preference->{Type},
                 );
 
-              # set the complete value structure in GetParam to store it later in the search profile
+                # set the complete value structure in GetParam to store it later in the search profile
                 if ( IsHashRefWithData($DynamicFieldValue) ) {
                     %GetParam = ( %GetParam, %{$DynamicFieldValue} );
                 }
@@ -424,8 +424,7 @@ sub Run {
                     && $GetParam{ $TimeType . 'TimeStartYear' }
                     )
                 {
-                    $GetParam{ $TimeType . 'TimeNewerDate' }
-                        = $GetParam{ $TimeType . 'TimeStartYear' } . '-'
+                    $GetParam{ $TimeType . 'TimeNewerDate' } = $GetParam{ $TimeType . 'TimeStartYear' } . '-'
                         . $GetParam{ $TimeType . 'TimeStartMonth' } . '-'
                         . $GetParam{ $TimeType . 'TimeStartDay' }
                         . ' 00:00:00';
@@ -436,8 +435,7 @@ sub Run {
                     && $GetParam{ $TimeType . 'TimeStopYear' }
                     )
                 {
-                    $GetParam{ $TimeType . 'TimeOlderDate' }
-                        = $GetParam{ $TimeType . 'TimeStopYear' } . '-'
+                    $GetParam{ $TimeType . 'TimeOlderDate' } = $GetParam{ $TimeType . 'TimeStopYear' } . '-'
                         . $GetParam{ $TimeType . 'TimeStopMonth' } . '-'
                         . $GetParam{ $TimeType . 'TimeStopDay' }
                         . ' 23:59:59';
@@ -705,8 +703,7 @@ sub Run {
                     %Data,
                     %UserInfo,
                     AccountedTime =>
-                        $Self->{TicketObjectSearch}
-                        ->TicketAccountedTimeGet( TicketID => $TicketID ),
+                        $Self->{TicketObjectSearch}->TicketAccountedTimeGet( TicketID => $TicketID ),
                 );
 
                 my @Data;
@@ -761,8 +758,7 @@ sub Run {
                 CustomerName => 'Customer Realname',
             );
 
-            my @CSVHeadTranslated
-                = map { $Self->{LayoutObject}->{LanguageObject}->Translate( $HeaderMap{$_} || $_ ); }
+            my @CSVHeadTranslated = map { $Self->{LayoutObject}->{LanguageObject}->Translate( $HeaderMap{$_} || $_ ); }
                 @CSVHead;
 
             my $FileName = 'ticket_search';
@@ -929,27 +925,20 @@ sub Run {
                     # create the header
                     $CellData->[0]->[0]->{Content} = $Self->{ConfigObject}->Get('Ticket::Hook');
                     $CellData->[0]->[0]->{Font}    = 'ProportionalBold';
-                    $CellData->[0]->[1]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}->Translate('Created');
-                    $CellData->[0]->[1]->{Font} = 'ProportionalBold';
-                    $CellData->[0]->[2]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}->Translate('From');
-                    $CellData->[0]->[2]->{Font} = 'ProportionalBold';
-                    $CellData->[0]->[3]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}->Translate('Subject');
-                    $CellData->[0]->[3]->{Font} = 'ProportionalBold';
-                    $CellData->[0]->[4]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}->Translate('State');
-                    $CellData->[0]->[4]->{Font} = 'ProportionalBold';
-                    $CellData->[0]->[5]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}->Translate('Queue');
-                    $CellData->[0]->[5]->{Font} = 'ProportionalBold';
-                    $CellData->[0]->[6]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}->Translate('Owner');
-                    $CellData->[0]->[6]->{Font} = 'ProportionalBold';
-                    $CellData->[0]->[7]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}->Translate('CustomerID');
-                    $CellData->[0]->[7]->{Font} = 'ProportionalBold';
+                    $CellData->[0]->[1]->{Content} = $Self->{LayoutObject}->{LanguageObject}->Translate('Created');
+                    $CellData->[0]->[1]->{Font}    = 'ProportionalBold';
+                    $CellData->[0]->[2]->{Content} = $Self->{LayoutObject}->{LanguageObject}->Translate('From');
+                    $CellData->[0]->[2]->{Font}    = 'ProportionalBold';
+                    $CellData->[0]->[3]->{Content} = $Self->{LayoutObject}->{LanguageObject}->Translate('Subject');
+                    $CellData->[0]->[3]->{Font}    = 'ProportionalBold';
+                    $CellData->[0]->[4]->{Content} = $Self->{LayoutObject}->{LanguageObject}->Translate('State');
+                    $CellData->[0]->[4]->{Font}    = 'ProportionalBold';
+                    $CellData->[0]->[5]->{Content} = $Self->{LayoutObject}->{LanguageObject}->Translate('Queue');
+                    $CellData->[0]->[5]->{Font}    = 'ProportionalBold';
+                    $CellData->[0]->[6]->{Content} = $Self->{LayoutObject}->{LanguageObject}->Translate('Owner');
+                    $CellData->[0]->[6]->{Font}    = 'ProportionalBold';
+                    $CellData->[0]->[7]->{Content} = $Self->{LayoutObject}->{LanguageObject}->Translate('CustomerID');
+                    $CellData->[0]->[7]->{Font}    = 'ProportionalBold';
 
                     # create the content array
                     my $CounterRow = 1;
@@ -966,8 +955,7 @@ sub Run {
                 # otherwise, show 'No ticket data found' message
                 else {
                     $CellData->[0]->[0]->{Content}
-                        = $Self->{LayoutObject}->{LanguageObject}
-                        ->Translate('No ticket data found.');
+                        = $Self->{LayoutObject}->{LanguageObject}->Translate('No ticket data found.');
                 }
 
                 # page params
@@ -1287,7 +1275,7 @@ sub Run {
             },
             {
                 Key   => 'CustomerIDRaw',
-                Value => 'CustomerIDRaw (exact search)',
+                Value => 'CustomerID (exact search)',
             },
             {
                 Key   => 'CustomerUserLogin',
@@ -1295,7 +1283,7 @@ sub Run {
             },
             {
                 Key   => 'CustomerUserLoginRaw',
-                Value => 'Customer User Login Raw (exact search)',
+                Value => 'Customer User Login (exact search)',
             },
             {
                 Key   => 'StateIDs',
@@ -1728,7 +1716,7 @@ sub Run {
                 CSV    => 'CSV',
                 Excel  => 'Excel',
             },
-            Name => 'ResultForm',
+            Name       => 'ResultForm',
             SelectedID => $GetParam{ResultForm} || 'Normal',
         );
 
@@ -1740,7 +1728,7 @@ sub Run {
                     NotArchivedTickets => 'Unarchived tickets',
                     AllTickets         => 'All tickets',
                 },
-                Name => 'SearchInArchive',
+                Name       => 'SearchInArchive',
                 SelectedID => $GetParam{SearchInArchive} || 'NotArchivedTickets',
             );
         }
@@ -1833,7 +1821,7 @@ sub Run {
                 'Last'   => 'within the last ...',
                 'Before' => 'more than ... ago',
             },
-            Name => 'ArticleCreateTimePointStart',
+            Name       => 'ArticleCreateTimePointStart',
             SelectedID => $GetParam{ArticleCreateTimePointStart} || 'Last',
         );
         $Param{ArticleCreateTimePointFormat} = $Self->{LayoutObject}->BuildSelection(
@@ -1869,7 +1857,7 @@ sub Run {
                 'Last'   => 'within the last ...',
                 'Before' => 'more than ... ago',
             },
-            Name => 'TicketCreateTimePointStart',
+            Name       => 'TicketCreateTimePointStart',
             SelectedID => $GetParam{TicketCreateTimePointStart} || 'Last',
         );
         $Param{TicketCreateTimePointFormat} = $Self->{LayoutObject}->BuildSelection(
@@ -1906,7 +1894,7 @@ sub Run {
                 'Last'   => 'within the last ...',
                 'Before' => 'more than ... ago',
             },
-            Name => 'TicketChangeTimePointStart',
+            Name       => 'TicketChangeTimePointStart',
             SelectedID => $GetParam{TicketChangeTimePointStart} || 'Last',
         );
         $Param{TicketChangeTimePointFormat} = $Self->{LayoutObject}->BuildSelection(
@@ -1943,7 +1931,7 @@ sub Run {
                 'Last'   => 'within the last ...',
                 'Before' => 'more than ... ago',
             },
-            Name => 'TicketCloseTimePointStart',
+            Name       => 'TicketCloseTimePointStart',
             SelectedID => $GetParam{TicketCloseTimePointStart} || 'Last',
         );
         $Param{TicketCloseTimePointFormat} = $Self->{LayoutObject}->BuildSelection(
@@ -1980,7 +1968,7 @@ sub Run {
                 'Last'   => 'within the last ...',
                 'Before' => 'more than ... ago',
             },
-            Name => 'TicketLastChangeTimePointStart',
+            Name       => 'TicketLastChangeTimePointStart',
             SelectedID => $GetParam{TicketLastChangeTimePointStart} || 'Last',
         );
         $Param{TicketLastChangeTimePointFormat} = $Self->{LayoutObject}->BuildSelection(
@@ -2018,7 +2006,7 @@ sub Run {
                 'Next'   => 'within the next ...',
                 'Before' => 'more than ... ago',
             },
-            Name => 'TicketEscalationTimePointStart',
+            Name       => 'TicketEscalationTimePointStart',
             SelectedID => $GetParam{TicketEscalationTimePointStart} || 'Last',
         );
         $Param{TicketEscalationTimePointFormat} = $Self->{LayoutObject}->BuildSelection(

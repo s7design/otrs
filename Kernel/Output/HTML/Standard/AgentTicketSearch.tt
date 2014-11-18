@@ -86,12 +86,12 @@
             </div>
         </div>
         <div class="Clear"></div>
-        <label for="CustomerIDRaw" id="LabelCustomerIDRaw">[% Translate("CustomerIDRaw (exact search)") | html %] [% Translate("(e. g. 234321 without regex)") | html %]:</label>
+        <label for="CustomerIDRaw" id="LabelCustomerIDRaw">[% Translate("CustomerID (exact search)") | html %] [% Translate("(e. g. 234321 without regex)") | html %]:</label>
         <div class="Field">
             <input type="text" name="CustomerIDRaw" value="[% Data.CustomerIDRaw | html %]" class="W50pc"/>
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
             <div class="FieldExplanation">
-                [% Translate("Search by 'CustomerID' without query condition. If there is 'CustomerID (free search)' fied, only 'CustomerIDRaw (exact search)' will be used for searching!") | html %]
+                [% Translate("Search by 'CustomerID' without query condition. If there is 'CustomerID (free search)' fied, only 'CustomerID (exact search)' will be used for searching!") | html %]
             </div>
         </div>
         <div class="Clear"></div>
@@ -104,12 +104,12 @@
             </div>
         </div>
         <div class="Clear"></div>
-        <label for="CustomerUserLoginRaw" id="LabelCustomerUserLoginRaw">[% Translate("Customer User Login Raw (exact search)") | html %] :</label>
+        <label for="CustomerUserLoginRaw" id="LabelCustomerUserLoginRaw">[% Translate("Customer User Login (exact search)") | html %] :</label>
         <div class="Field">
             <input type="text" name="CustomerUserLoginRaw" placeholder="[% Translate("(e. g. U5150)") | html %]" value="[% Data.CustomerUserLoginRaw | html %]" class="W50pc"/>
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
             <div class="FieldExplanation">
-                [% Translate("Search by 'CustomerUserLogin' without query condition. If there is 'CustomerUserLogin (free search)' fied, only 'CustomerUserLoginRaw (exact search)' will be used for searching!") | html %]
+                [% Translate("Search by 'CustomerUserLogin' without query condition. If there is 'CustomerUserLogin (free search)' fied, only 'CustomerUserLogin (exact search)' will be used for searching!") | html %]
             </div>
         </div>
 
