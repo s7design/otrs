@@ -89,7 +89,8 @@ sub Run {
     # get customer user object
     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
-    my $CustomerIDs = { $CustomerUserObject->CustomerSearch( CustomerID => $Param{CustomerID} ) };
+    my $CustomerIDs
+        = { $CustomerUserObject->CustomerSearch( CustomerIDRaw => $Param{CustomerID} ) };
 
     # add page nav bar
     my $Total = scalar keys %{$CustomerIDs};
@@ -201,7 +202,8 @@ sub Run {
         );
     }
 
-    my @CustomerKeys = sort { lc( $CustomerIDs->{$a} ) cmp lc( $CustomerIDs->{$b} ) } keys %{$CustomerIDs};
+    my @CustomerKeys
+        = sort { lc( $CustomerIDs->{$a} ) cmp lc( $CustomerIDs->{$b} ) } keys %{$CustomerIDs};
     @CustomerKeys = splice @CustomerKeys, $Self->{StartHit} - 1, $Self->{PageShown};
 
     for my $CustomerKey (@CustomerKeys) {
@@ -242,7 +244,8 @@ sub Run {
         # 2. current user has access to the chat
         # 3. this customer user is online
         my $ChatStartingAgentsGroup
-            = $Kernel::OM->Get('Kernel::Config')->Get('ChatEngine::PermissionGroup::ChatStartingAgents');
+            = $Kernel::OM->Get('Kernel::Config')
+            ->Get('ChatEngine::PermissionGroup::ChatStartingAgents');
 
         if (
             $Kernel::OM->Get('Kernel::Config')->Get('ChatEngine::Active')

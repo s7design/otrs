@@ -113,11 +113,13 @@ sub Run {
 
         if ( $ColumnName eq 'CustomerID' ) {
             push @{ $ColumnFilter{$ColumnName} }, $FilterValue;
+            push @{ $ColumnFilter{CustomerIDRaw} }, $FilterValue;
             $GetColumnFilter{$ColumnName} = $FilterValue;
         }
         elsif ( $ColumnName eq 'CustomerUserID' ) {
-            push @{ $ColumnFilter{CustomerUserLogin} }, $FilterValue;
-            $GetColumnFilter{$ColumnName} = $FilterValue;
+            push @{ $ColumnFilter{CustomerUserLogin} },    $FilterValue;
+            push @{ $ColumnFilter{CustomerUserLoginRaw} }, $FilterValue;
+            $GetColumnFilter{CustomerUserLogin} = $FilterValue;
         }
         else {
             push @{ $ColumnFilter{ $ColumnName . 'IDs' } }, $FilterValue;
@@ -143,7 +145,8 @@ sub Run {
 
         # if no filter from web request, try from user preferences
         if ( !defined $FilterValue || $FilterValue eq '' ) {
-            $FilterValue = $StoredFilters->{ 'DynamicField_' . $DynamicFieldConfig->{Name} }->{Equals};
+            $FilterValue
+                = $StoredFilters->{ 'DynamicField_' . $DynamicFieldConfig->{Name} }->{Equals};
         }
 
         next DYNAMICFIELD if !defined $FilterValue;

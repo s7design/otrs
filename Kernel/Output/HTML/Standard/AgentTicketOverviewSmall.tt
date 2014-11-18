@@ -101,7 +101,8 @@ Core.Agent.TableFilters.InitCustomerUserAutocomplete( $(".CustomerUserAutoComple
 [% RenderBlockEnd("OverviewNavBarPageColumnFilter") %]
 
 [% RenderBlockStart("OverviewNavBarPageColumnFilterLink") %]
-                        <a href="#" class="ColumnSettingsTrigger" title="[% Data.FilterTitle | html %]">
+# use Env("HTTP_REFERER") instead href="#" because of url encoding of some parameters in URL (e.g CustomerID='water + fire')
+                        <a href="[% Env("HTTP_REFERER") | uri %]" class="ColumnSettingsTrigger" title="[% Data.FilterTitle | html %]">
                             <i class="fa fa-filter"></i>
                         </a>
                         <div class="ColumnSettingsContainer DontPrint">
@@ -133,7 +134,7 @@ Core.Agent.TableFilters.InitUserAutocomplete( $(".UserAutoComplete") );
 [% RenderBlockEnd("ContentLargeTicketGenericHeaderColumnFilterLinkUserSearch") %]
                             </div>
                         </div>
-                        <a name="OverviewControl" href="[% Env("Baselink") %]Action=[% Env("Action") %];[% Data.LinkSort %];SortBy=[% Data.ColumnName | uri %];OrderBy=[% Data.OrderBy | uri %]" title="[% Translate(Data.Title) | html %]">[% Data.ColumnNameTranslated | html %]</a>
+                        <a name="OverviewControl" href="[% Env("Baselink") %]Action=[% Env("Action") %];[% Data.LinkSort | uri %];SortBy=[% Data.ColumnName | uri %];OrderBy=[% Data.OrderBy | uri %]" title="[% Translate(Data.Title) | html %]">[% Data.ColumnNameTranslated | html %]</a>
 [% RenderBlockEnd("OverviewNavBarPageColumnFilterLink") %]
 
 [% RenderBlockStart("OverviewNavBarPageColumnLink") %]
@@ -569,7 +570,7 @@ $('.ColumnFilter').bind('change', function (Event) {
         URL += encodeURIComponent(Key) + '=' + encodeURIComponent(Value) + ';';
     });
     ColumnFilter = $(this)[0].name;
-    NewColumnFilterStrg = $(this)[0].name + '=' + $(this).val() + ';';
+    NewColumnFilterStrg = $(this)[0].name + '=' + encodeURIComponent( $(this).val() ) + ';';
     MyRegEx = new  RegExp(ColumnFilter+"=[^;]*;");
 
     // check for already set parameter and replace

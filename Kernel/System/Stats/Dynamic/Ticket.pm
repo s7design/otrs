@@ -598,7 +598,8 @@ sub GetObjectAttributes {
             if ( $DynamicFieldStatsParameter->{Block} eq 'Time' ) {
 
                 # create object attributes (date/time fields)
-                my $TimePeriodFormat = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
+                my $TimePeriodFormat
+                    = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
 
                 my %ObjectAttribute = (
                     Name             => $DynamicFieldStatsParameter->{Name},
@@ -664,11 +665,21 @@ sub GetStatElement {
 
     # escape search attributes for ticket search
     my %AttributesToEscape = (
-        'CustomerID' => 1,
-        'Title'      => 1,
+        'Title' => 1,
     );
 
     for my $ParameterName ( sort keys %Param ) {
+
+        if ( $ParameterName eq "CustomerID" ) {
+            $ParameterName = "CustomerIDRaw";
+            $Param{CustomerIDRaw} = $Param{CustomerID}
+        }
+
+        if ( $ParameterName eq "CustomerUserLogin" ) {
+            $ParameterName = "CustomerUserLoginRaw";
+            $Param{CustomerUserLoginRaw} = $Param{CustomerUserLogin}
+        }
+
         if (
             $ParameterName =~ m{ \A DynamicField_ ( [a-zA-Z\d]+ ) (?: _ ( [a-zA-Z\d]+ ) )? \z }xms
             )
@@ -695,11 +706,12 @@ sub GetStatElement {
                 next DYNAMICFIELD if !$IsStatsCondition;
 
                 # get new search parameter
-                my $DynamicFieldStatsSearchParameter = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
+                my $DynamicFieldStatsSearchParameter
+                    = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     Value              => $Param{$ParameterName},
                     Operator           => $Operator,
-                );
+                    );
 
                 # add new search parameter
                 if ( !IsHashRefWithData( $Param{"DynamicField_$FieldName"} ) ) {
@@ -727,7 +739,8 @@ sub GetStatElement {
             }
             else {
                 $Param{$ParameterName}
-                    = $Self->{DBSlaveObject}->QueryStringEscape( QueryString => $Param{$ParameterName} );
+                    = $Self->{DBSlaveObject}
+                    ->QueryStringEscape( QueryString => $Param{$ParameterName} );
             }
         }
     }

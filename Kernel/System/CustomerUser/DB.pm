@@ -53,9 +53,10 @@ sub new {
         || die "Need CustomerUser->CustomerKey in Kernel/Config.pm!";
     $Self->{CustomerID} = $Self->{CustomerUserMap}->{CustomerID}
         || die "Need CustomerUser->CustomerID in Kernel/Config.pm!";
-    $Self->{ReadOnly}                 = $Self->{CustomerUserMap}->{ReadOnly};
-    $Self->{ExcludePrimaryCustomerID} = $Self->{CustomerUserMap}->{CustomerUserExcludePrimaryCustomerID} || 0;
-    $Self->{SearchPrefix}             = $Self->{CustomerUserMap}->{CustomerUserSearchPrefix};
+    $Self->{ReadOnly} = $Self->{CustomerUserMap}->{ReadOnly};
+    $Self->{ExcludePrimaryCustomerID}
+        = $Self->{CustomerUserMap}->{CustomerUserExcludePrimaryCustomerID} || 0;
+    $Self->{SearchPrefix} = $Self->{CustomerUserMap}->{CustomerUserSearchPrefix};
 
     if ( !defined $Self->{SearchPrefix} ) {
         $Self->{SearchPrefix} = '';
@@ -179,11 +180,17 @@ sub CustomerSearch {
     my $Valid = defined $Param{Valid} ? $Param{Valid} : 1;
 
     # check needed stuff
-    if ( !$Param{Search} && !$Param{UserLogin} && !$Param{PostMasterSearch} && !$Param{CustomerID} )
+    if (
+        !$Param{Search}
+        && !$Param{UserLogin}
+        && !$Param{PostMasterSearch}
+        && !$Param{CustomerID}
+        && !$Param{CustomerIDRaw}
+        )
     {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
-            Message  => 'Need Search, UserLogin, PostMasterSearch or CustomerID!',
+            Message  => 'Need Search, UserLogin, PostMasterSearch, CustomerIDRaw or CustomerID!',
         );
         return;
     }
@@ -249,7 +256,8 @@ sub CustomerSearch {
                 if ($SQLExt) {
                     $SQLExt .= ' OR ';
                 }
-                my $PostMasterSearch = '%' . $Self->{DBObject}->Quote( $Param{PostMasterSearch}, 'Like' ) . '%';
+                my $PostMasterSearch
+                    = '%' . $Self->{DBObject}->Quote( $Param{PostMasterSearch}, 'Like' ) . '%';
                 push @Bind, \$PostMasterSearch;
 
                 if ( $Self->{CaseSensitive} ) {
@@ -298,6 +306,18 @@ sub CustomerSearch {
         }
         else {
             $SQL .= "LOWER($Self->{CustomerID}) LIKE LOWER(?) $LikeEscapeString";
+        }
+    }
+    elsif ( $Param{CustomerIDRaw} ) {
+
+        my $CustomerIDRaw = $Self->{DBObject}->Quote( $Param{CustomerIDRaw}, 'Like' );
+        push @Bind, \$CustomerIDRaw;
+
+        if ( $Self->{CaseSensitive} ) {
+            $SQL .= "$Self->{CustomerID} = ? $LikeEscapeString";
+        }
+        else {
+            $SQL .= "LOWER($Self->{CustomerID}) = LOWER(?) $LikeEscapeString";
         }
     }
 
@@ -620,9 +640,10 @@ sub CustomerUserDataGet {
 
     # add last login timestamp
     if ( $Preferences{UserLastLogin} ) {
-        $Preferences{UserLastLoginTimestamp} = $Kernel::OM->Get('Kernel::System::Time')->SystemTime2TimeStamp(
+        $Preferences{UserLastLoginTimestamp}
+            = $Kernel::OM->Get('Kernel::System::Time')->SystemTime2TimeStamp(
             SystemTime => $Preferences{UserLastLogin},
-        );
+            );
     }
 
     # cache request
@@ -994,7 +1015,8 @@ sub SetPassword {
     my $CryptedPw = '';
 
     # get crypt type
-    my $CryptType = $Kernel::OM->Get('Kernel::Config')->Get('Customer::AuthModule::DB::CryptType') || 'sha2';
+    my $CryptType
+        = $Kernel::OM->Get('Kernel::Config')->Get('Customer::AuthModule::DB::CryptType') || 'sha2';
 
     # get encode object
     my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
@@ -1121,7 +1143,7 @@ sub SetPassword {
         }
 
         return if !$Self->{DBObject}->Do(
-            SQL  => $SQL,
+            SQL => $SQL,
             Bind => [ \$CryptedPw, \$Param{UserLogin} ],
         );
 

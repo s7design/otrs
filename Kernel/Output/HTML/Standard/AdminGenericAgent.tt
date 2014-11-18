@@ -294,20 +294,38 @@ Core.Agent.Admin.GenericAgent.Init({
                         </div>
                         <div class="Clear"></div>
 
-                        <label for="CustomerID">[% Translate("CustomerID") | html %]:</label>
+                        <label for="CustomerID">[% Translate("CustomerID - free search") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerID" id="CustomerID" class="W33pc" value="[% Data.CustomerID | html %]"/>
                             <p class="FieldExplanation">
-                                [% Translate("(e. g. 234321)") | html %]
+                                [% Translate("(e. g. 234321 or 23*345)") | html %]
                             </p>
                         </div>
                         <div class="Clear"></div>
 
-                        <label for="CustomerUserLogin">[% Translate("Customer login") | html %]:</label>
+                        <label for="CustomerIDRaw">[% Translate("CustomerIDRaw - exact search") | html %]:</label>
+                        <div class="Field">
+                            <input type="text" name="CustomerIDRaw" id="CustomerIDRaw" class="W33pc" value="[% Data.CustomerIDRaw | html %]"/>
+                            <p class="FieldExplanation">
+                                [% Translate("Search by 'CustomerID', there cannot use regex for searching.") | html %]
+                            </p>
+                        </div>
+                        <div class="Clear"></div>
+
+                        <label for="CustomerUserLogin">[% Translate("Customer login - free search") | html %]:</label>
                         <div class="Field">
                             <input type="text" name="CustomerUserLogin" id="CustomerUserLogin" class="W33pc" value="[% Data.CustomerUserLogin | html %]"/>
                             <p class="FieldExplanation">
-                                [% Translate("(e. g. U5150)") | html %]
+                                [% Translate("(e. g. U5150 or U5*50)") | html %]
+                            </p>
+                        </div>
+                        <div class="Clear"></div>
+
+                        <label for="CustomerUserLoginRaw">[% Translate("Customer login raw - exact search") | html %]:</label>
+                        <div class="Field">
+                            <input type="text" name="CustomerUserLoginRaw" id="CustomerUserLoginRaw" class="W33pc" value="[% Data.CustomerUserLoginRaw | html %]"/>
+                            <p class="FieldExplanation">
+                                [% Translate("Search by 'CustomerUserLogin', there cannot use regex for searching.") | html %]
                             </p>
                         </div>
                         <div class="Clear"></div>

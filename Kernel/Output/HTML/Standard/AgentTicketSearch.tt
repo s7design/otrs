@@ -77,17 +77,42 @@
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
         </div>
         <div class="Clear"></div>
-        <label for="CustomerID" id="LabelCustomerID">[% Translate("CustomerID") | html %] [% Translate("(e. g. 234321)") | html %]:</label>
+        <label for="CustomerID" id="LabelCustomerID">[% Translate("CustomerID (free search)") | html %] [% Translate("(e. g. 234321* or 23*321)") | html %]:</label>
         <div class="Field">
             <input type="text" name="CustomerID" value="[% Data.CustomerID | html %]" class="W50pc"/>
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
+            <div class="FieldExplanation">
+                [% Translate("Search by 'CustomerID', there can use regex for searching.") | html %]
+            </div>
         </div>
         <div class="Clear"></div>
-        <label for="CustomerUserLogin" id="LabelCustomerUserLogin">[% Translate("Customer User Login") | html %] :</label>
+        <label for="CustomerIDRaw" id="LabelCustomerIDRaw">[% Translate("CustomerIDRaw (exact search)") | html %] [% Translate("(e. g. 234321 without regex)") | html %]:</label>
         <div class="Field">
-            <input type="text" name="CustomerUserLogin" placeholder="[% Translate("(e. g. U5150)") | html %]" value="[% Data.CustomerUserLogin | html %]" class="W50pc"/>
+            <input type="text" name="CustomerIDRaw" value="[% Data.CustomerIDRaw | html %]" class="W50pc"/>
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
+            <div class="FieldExplanation">
+                [% Translate("Search by 'CustomerID' without query condition. If there is 'CustomerID (free search)' fied, only 'CustomerIDRaw (exact search)' will be used for searching!") | html %]
+            </div>
         </div>
+        <div class="Clear"></div>
+        <label for="CustomerUserLogin" id="LabelCustomerUserLogin">[% Translate("Customer User Login  (free search)") | html %] :</label>
+        <div class="Field">
+            <input type="text" name="CustomerUserLogin" placeholder="[% Translate("(e. g. U5150 or U5*50)") | html %]" value="[% Data.CustomerUserLogin | html %]" class="W50pc"/>
+            <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
+            <div class="FieldExplanation">
+                [% Translate("Search by 'CustomerUserLogin' , there can use regex for searching.") | html %]
+            </div>
+        </div>
+        <div class="Clear"></div>
+        <label for="CustomerUserLoginRaw" id="LabelCustomerUserLoginRaw">[% Translate("Customer User Login Raw (exact search)") | html %] :</label>
+        <div class="Field">
+            <input type="text" name="CustomerUserLoginRaw" placeholder="[% Translate("(e. g. U5150)") | html %]" value="[% Data.CustomerUserLoginRaw | html %]" class="W50pc"/>
+            <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
+            <div class="FieldExplanation">
+                [% Translate("Search by 'CustomerUserLogin' without query condition. If there is 'CustomerUserLogin (free search)' fied, only 'CustomerUserLoginRaw (exact search)' will be used for searching!") | html %]
+            </div>
+        </div>
+
         <div class="Clear"></div>
         <label for="TypeIDs" id="LabelTypeIDs">[% Translate("Type") | html %]:</label>
         <div class="Field">

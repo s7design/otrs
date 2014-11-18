@@ -131,7 +131,7 @@ sub Run {
     my $Action    = $Param{Config}->{Action};
     my $Subaction = $Param{Config}->{Subaction};
     my $URL       = $Self->{LayoutObject}->{Baselink} . "Action=$Action;Subaction=$Subaction";
-    $URL .= ';CustomerID=' . $Self->{LayoutObject}->LinkEncode($CustomerIDRaw);
+    $URL .= ';CustomerIDRaw=' . $Self->{LayoutObject}->LinkEncode($CustomerIDRaw);
     for my $Key ( sort keys %TicketSearch ) {
         if ( ref $TicketSearch{$Key} eq 'ARRAY' ) {
             for my $Value ( @{ $TicketSearch{$Key} } ) {
@@ -182,7 +182,8 @@ sub Run {
                 && $TicketSearch{ $TimeType . 'TimeStartYear' }
                 )
             {
-                $TicketSearch{ $TimeType . 'TimeNewerDate' } = $TicketSearch{ $TimeType . 'TimeStartYear' } . '-'
+                $TicketSearch{ $TimeType . 'TimeNewerDate' }
+                    = $TicketSearch{ $TimeType . 'TimeStartYear' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStartMonth' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStartDay' }
                     . ' 00:00:00';
@@ -193,7 +194,8 @@ sub Run {
                 && $TicketSearch{ $TimeType . 'TimeStopYear' }
                 )
             {
-                $TicketSearch{ $TimeType . 'TimeOlderDate' } = $TicketSearch{ $TimeType . 'TimeStopYear' } . '-'
+                $TicketSearch{ $TimeType . 'TimeOlderDate' }
+                    = $TicketSearch{ $TimeType . 'TimeStopYear' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStopMonth' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStopDay' }
                     . ' 23:59:59';

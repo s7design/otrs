@@ -128,7 +128,8 @@ sub GetObjectAttributes {
     );
 
     my %TicketAttributes = %{ $Self->_TicketAttributes() };
-    my %OrderBy = map { $_ => $TicketAttributes{$_} } grep { $_ ne 'Number' } keys %TicketAttributes;
+    my %OrderBy
+        = map { $_ => $TicketAttributes{$_} } grep { $_ ne 'Number' } keys %TicketAttributes;
 
     # get dynamic field backend object
     my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
@@ -700,7 +701,8 @@ sub GetObjectAttributes {
             if ( $DynamicFieldStatsParameter->{Block} eq 'Time' ) {
 
                 # create object attributes (date/time fields)
-                my $TimePeriodFormat = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
+                my $TimePeriodFormat
+                    = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
 
                 my %ObjectAttribute = (
                     Name             => $DynamicFieldStatsParameter->{Name},
@@ -784,12 +786,21 @@ sub GetStatTable {
 
     # escape search attributes for ticket search
     my %AttributesToEscape = (
-        'CustomerID' => 1,
-        'Title'      => 1,
+        'Title' => 1,
     );
 
     ATTRIBUTE:
     for my $Key ( sort keys %{ $Param{Restrictions} } ) {
+
+        if ( $Key eq "CustomerID" ) {
+            $Key = "CustomerIDRaw";
+            $Param{Restrictions}->{$Key} = $Param{Restrictions}->{CustomerID};
+        }
+
+        if ( $Key eq "CustomerUserLogin" ) {
+            $Key = "CustomerUserLoginRaw";
+            $Param{Restrictions}->{$Key} = $Param{Restrictions}->{CustomerUserLogin};
+        }
 
         next ATTRIBUTE if !$AttributesToEscape{$Key};
 
@@ -839,11 +850,12 @@ sub GetStatTable {
                 next DYNAMICFIELD if !$IsStatsCondition;
 
                 # get new search parameter
-                my $DynamicFieldStatsSearchParameter = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
+                my $DynamicFieldStatsSearchParameter
+                    = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     Value              => $Param{Restrictions}->{$ParameterName},
                     Operator           => $Operator,
-                );
+                    );
 
                 # add new search parameter
                 if ( !IsHashRefWithData( $DynamicFieldRestrictions{"DynamicField_$FieldName"} ) ) {
@@ -1447,7 +1459,7 @@ sub _TicketAttributes {
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my %TicketAttributes = (
-        Number       => 'Number',                             # only a counter for a better readability
+        Number       => 'Number',                          # only a counter for a better readability
         TicketNumber => $ConfigObject->Get('Ticket::Hook'),
 
         #TicketID       => 'TicketID',
@@ -1472,7 +1484,7 @@ sub _TicketAttributes {
 
         #LockID         => 'LockID',
         UnlockTimeout       => 'UnlockTimeout',
-        AccountedTime       => 'Accounted time',        # the same wording is in AgentTicketPrint.dtl
+        AccountedTime       => 'Accounted time',       # the same wording is in AgentTicketPrint.dtl
         RealTillTimeNotUsed => 'RealTillTimeNotUsed',
 
         #GroupID        => 'GroupID',
@@ -1549,7 +1561,8 @@ sub _TicketAttributes {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
         next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
 
-        $TicketAttributes{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = $DynamicFieldConfig->{Label}
+        $TicketAttributes{ 'DynamicField_' . $DynamicFieldConfig->{Name} }
+            = $DynamicFieldConfig->{Label}
     }
 
     return \%TicketAttributes;

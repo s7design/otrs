@@ -123,12 +123,14 @@ sub Run {
                 }
                 my $StatsPermissionGroups = join( ';', @StatsPermissionGroupNames );
 
-                # replace all line breaks with spaces (otherwise Translate() will not work correctly)
+               # replace all line breaks with spaces (otherwise Translate() will not work correctly)
                 $StatsHash->{$StatID}->{Description} =~ s{\r?\n|\r}{ }msxg;
 
-                my $Description = $Self->{LayoutObject}->{LanguageObject}->Get( $StatsHash->{$StatID}->{Description} );
+                my $Description = $Self->{LayoutObject}->{LanguageObject}
+                    ->Get( $StatsHash->{$StatID}->{Description} );
 
-                my $Title = $Self->{LayoutObject}->{LanguageObject}->Get( $StatsHash->{$StatID}->{Title} );
+                my $Title = $Self->{LayoutObject}->{LanguageObject}
+                    ->Get( $StatsHash->{$StatID}->{Title} );
                 $Title = $Self->{LayoutObject}->{LanguageObject}->Translate('Statistic') . ': '
                     . $Title;
 
@@ -152,7 +154,8 @@ sub Run {
                 ->{JavaScript} || []
         };
         @ModuleJS = grep { $_ !~ m/d3js/ } @ModuleJS;
-        $Self->{ConfigObject}->Get('Frontend::Module')->{AgentDashboard}->{Loader}->{JavaScript} = \@ModuleJS;
+        $Self->{ConfigObject}->Get('Frontend::Module')->{AgentDashboard}->{Loader}->{JavaScript}
+            = \@ModuleJS;
     }
 
     if ( $Self->{Action} eq 'AgentCustomerInformationCenter' ) {
@@ -161,7 +164,7 @@ sub Run {
 
         # check CustomerID presence for all subactions that need it
         if ( $Self->{Subaction} ne 'UpdatePosition' ) {
-            if ( !$Self->{CustomerID} || $Self->{CustomerID} =~ /[*|%]/i ) {
+            if ( !$Self->{CustomerID} ) {
                 my $Output = $Self->{LayoutObject}->Header();
                 $Output .= $Self->{LayoutObject}->NavigationBar();
                 $Output .= $Self->{LayoutObject}->Output(
@@ -373,7 +376,8 @@ sub Run {
             qw(Owner Responsible State Queue Priority Type Lock Service SLA CustomerID CustomerUserID)
             )
         {
-            my $FilterValue = $Self->{ParamObject}->GetParam( Param => 'ColumnFilter' . $ColumnName . $Name )
+            my $FilterValue
+                = $Self->{ParamObject}->GetParam( Param => 'ColumnFilter' . $ColumnName . $Name )
                 || '';
             next COLUMNNAME if $FilterValue eq '';
 
@@ -412,7 +416,8 @@ sub Run {
             $ColumnFilter{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = {
                 Equals => $FilterValue,
             };
-            $GetColumnFilter{ 'DynamicField_' . $DynamicFieldConfig->{Name} . $Name } = $FilterValue;
+            $GetColumnFilter{ 'DynamicField_' . $DynamicFieldConfig->{Name} . $Name }
+                = $FilterValue;
             $GetColumnFilterSelect{ 'DynamicField_' . $DynamicFieldConfig->{Name} } = $FilterValue;
         }
 
@@ -497,7 +502,8 @@ sub Run {
         );
 
         if ( $CustomerCompanyData{CustomerCompanyName} ) {
-            $ContentBlockData{CustomerIDTitle} = "$CustomerCompanyData{CustomerCompanyName} ($Self->{CustomerID})";
+            $ContentBlockData{CustomerIDTitle}
+                = "$CustomerCompanyData{CustomerCompanyName} ($Self->{CustomerID})";
         }
     }
 
@@ -835,7 +841,7 @@ sub _Element {
     if ( !defined $Content || $SortBy ) {
         $CacheUsed = 0;
         $Content   = $Object->Run(
-            AJAX       => $Param{AJAX},
+            AJAX => $Param{AJAX},
             CustomerID => $Self->{CustomerID} || '',
         );
     }

@@ -618,7 +618,8 @@ sub GetObjectAttributes {
             if ( $DynamicFieldStatsParameter->{Block} eq 'Time' ) {
 
                 # create object attributes (date/time fields)
-                my $TimePeriodFormat = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
+                my $TimePeriodFormat
+                    = $DynamicFieldStatsParameter->{TimePeriodFormat} || 'DateInputFormatLong';
 
                 my %ObjectAttribute = (
                     Name             => $DynamicFieldStatsParameter->{Name},
@@ -938,8 +939,7 @@ sub _ReportingValues {
     # escape search attributes for ticket search
     #
     my %AttributesToEscape = (
-        'CustomerID' => 1,
-        'Title'      => 1,
+        'Title' => 1,
     );
 
     # get ticket search relevant attributes
@@ -963,6 +963,15 @@ sub _ReportingValues {
             $TicketSearch{$Attribute} = $SearchAttributes->{$Attribute};
         }
 
+        if ( $Attribute eq "CustomerID" ) {
+            $Attribute = "CustomerIDRaw";
+            $TicketSearch{$Attribute} = $TicketSearch{CustomerID};
+        }
+
+        if ( $Attribute eq "CustomerUserLogin" ) {
+            $Attribute = "CustomerUserLoginRaw";
+            $TicketSearch{$Attribute} = $TicketSearch{CustomerUserLogin};
+        }
         next ATTRIBUTE if !$AttributesToEscape{$Attribute};
 
         # escape search parameters for ticket search
@@ -1011,11 +1020,12 @@ sub _ReportingValues {
                 next DYNAMICFIELD if !$IsStatsCondition;
 
                 # get new search parameter
-                my $DynamicFieldStatsSearchParameter = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
+                my $DynamicFieldStatsSearchParameter
+                    = $DynamicFieldBackendObject->StatsSearchFieldParameterBuild(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     Value              => $TicketSearch{$ParameterName},
                     Operator           => $Operator,
-                );
+                    );
 
                 # add new search parameter
                 if ( !IsHashRefWithData( $TicketSearch{"DynamicField_$FieldName"} ) ) {
@@ -1157,8 +1167,10 @@ sub _ReportingValues {
         && $SearchAttributes->{ArticleAccountedTimeNewerDate}
         )
     {
-        my $Start = $Self->{DBSlaveObject}->Quote( $SearchAttributes->{ArticleAccountedTimeNewerDate} );
-        my $Stop  = $Self->{DBSlaveObject}->Quote( $SearchAttributes->{ArticleAccountedTimeOlderDate} );
+        my $Start
+            = $Self->{DBSlaveObject}->Quote( $SearchAttributes->{ArticleAccountedTimeNewerDate} );
+        my $Stop
+            = $Self->{DBSlaveObject}->Quote( $SearchAttributes->{ArticleAccountedTimeOlderDate} );
         push @Where, "create_time >= '$Start' AND create_time <= '$Stop'";
     }
     my $WhereString = '';
