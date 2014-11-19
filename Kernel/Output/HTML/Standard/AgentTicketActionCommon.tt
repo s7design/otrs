@@ -241,11 +241,12 @@ $('#TypeID').bind('change', function (Event) {
 [% END %]
 
 [% RenderBlockStart("StatePending") %]
-                        <label>[% Translate("Pending date") | html %] ([% Translate("for pending* states") | html %]):</label>
+                        <label>[% Translate("Pending date") | html %]:</label>
                         <div class="Field">
                     [% Data.DateString %]
                             <div id="DayServerError" class="TooltipErrorMessage"><p>[% Translate("Date invalid!") | html %]</p></div>
                             <div id="HourServerError" class="TooltipErrorMessage"><p>[% Translate("Date invalid!") | html %]</p></div>
+                            <p class="FieldExplanation">[% Translate("For all pending states, one should be choosen.") | html %]</p>
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("StatePending") %]
