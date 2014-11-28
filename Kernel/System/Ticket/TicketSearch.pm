@@ -1131,10 +1131,8 @@ sub TicketSearch {
 
             # replace wild card search
             if (
-                !(
-                    $Key eq 'CustomerIDRaw'
-                    || $Key eq 'CustomerUserLoginRaw'
-                )
+                $Key ne 'CustomerIDRaw'
+                && $Key ne 'CustomerUserLoginRaw'
                 )
             {
                 $Value =~ s/\*/%/gi;

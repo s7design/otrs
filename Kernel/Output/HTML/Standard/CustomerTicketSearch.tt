@@ -40,7 +40,7 @@
                 <div>
                     <label for="CustomerID">[% Translate("CustomerID (free search)") | html %]</label>
                     <input title="[% Translate("Customer ID") | html %]" type="text" id="CustomerID" name="CustomerID" value="[% Data.CustomerID | html %]" size="20" />
-                    <p>[% Translate("Search by 'CustomerID', there can use regex for searching.") | html %]</p>
+                    <p>[% Translate("Search by 'CustomerID', here you can use wildcards for searching.") | html %]</p>
                 </div>
                 <div>
                     <label for="CustomerIDRaw">[% Translate("CustomerID (exact search)") | html %]</label>

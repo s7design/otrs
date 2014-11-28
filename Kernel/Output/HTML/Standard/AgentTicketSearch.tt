@@ -82,11 +82,11 @@
             <input type="text" name="CustomerID" value="[% Data.CustomerID | html %]" class="W50pc"/>
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
             <div class="FieldExplanation">
-                [% Translate("Search by 'CustomerID', there can use regex for searching.") | html %]
+                [% Translate("Search by 'CustomerID', here you can use wildcards for searching.") | html %]
             </div>
         </div>
         <div class="Clear"></div>
-        <label for="CustomerIDRaw" id="LabelCustomerIDRaw">[% Translate("CustomerID (exact search)") | html %] [% Translate("(e. g. 234321 without regex)") | html %]:</label>
+        <label for="CustomerIDRaw" id="LabelCustomerIDRaw">[% Translate("CustomerID (exact search)") | html %] [% Translate("(e. g. 234321 without wildcards)") | html %]:</label>
         <div class="Field">
             <input type="text" name="CustomerIDRaw" value="[% Data.CustomerIDRaw | html %]" class="W50pc"/>
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
@@ -95,12 +95,12 @@
             </div>
         </div>
         <div class="Clear"></div>
-        <label for="CustomerUserLogin" id="LabelCustomerUserLogin">[% Translate("Customer User Login  (free search)") | html %] :</label>
+        <label for="CustomerUserLogin" id="LabelCustomerUserLogin">[% Translate("Customer User Login (free search)") | html %] :</label>
         <div class="Field">
             <input type="text" name="CustomerUserLogin" placeholder="[% Translate("(e. g. U5150 or U5*50)") | html %]" value="[% Data.CustomerUserLogin | html %]" class="W50pc"/>
             <a class="RemoveButton" href="#" title="[% Translate("Remove this entry") | html %]"><i class="fa fa-minus-square-o"></i><span class="InvisibleText">[% Translate("Remove") | html %]</span></a>
             <div class="FieldExplanation">
-                [% Translate("Search by 'CustomerUserLogin' , there can use regex for searching.") | html %]
+                [% Translate("Search by 'CustomerUserLogin', here you can use wildcards for searching.") | html %]
             </div>
         </div>
         <div class="Clear"></div>

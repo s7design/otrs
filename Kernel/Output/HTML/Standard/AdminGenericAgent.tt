@@ -307,7 +307,7 @@ Core.Agent.Admin.GenericAgent.Init({
                         <div class="Field">
                             <input type="text" name="CustomerIDRaw" id="CustomerIDRaw" class="W33pc" value="[% Data.CustomerIDRaw | html %]"/>
                             <p class="FieldExplanation">
-                                [% Translate("Search by 'CustomerID', there cannot use regex for searching.") | html %]
+                                [% Translate("Search by 'CustomerID', here you can use wildcards for searching.") | html %]
                             </p>
                         </div>
                         <div class="Clear"></div>
@@ -325,7 +325,7 @@ Core.Agent.Admin.GenericAgent.Init({
                         <div class="Field">
                             <input type="text" name="CustomerUserLoginRaw" id="CustomerUserLoginRaw" class="W33pc" value="[% Data.CustomerUserLoginRaw | html %]"/>
                             <p class="FieldExplanation">
-                                [% Translate("Search by 'CustomerUserLogin', there cannot use regex for searching.") | html %]
+                                [% Translate("Search by 'CustomerUserLogin', here you cannot use wildcards for searching.") | html %]
                             </p>
                         </div>
                         <div class="Clear"></div>
