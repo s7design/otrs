@@ -150,7 +150,7 @@ sub Run {
                 Message  => $Prefix
                     . "Stopped filter processing because of used 'StopAfterMatch' (Message-ID: $Param{GetParam}->{'Message-ID'}) ",
             );
-            return 1;
+            return 2;
         }
     }
     return 1;

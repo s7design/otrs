@@ -194,6 +194,12 @@ sub Run {
                         "Execute Run() of PreFilterModule $Jobs{$Job}->{Module} not successfully!",
                 );
             }
+            elsif ( $Run eq 2 ) {
+
+                # Stopped filter processing because of used 'StopAfterMatch'
+                last JOB;
+            }
+
         }
     }
 
