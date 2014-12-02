@@ -73,6 +73,24 @@ sub Run {
                 Message    => 'Please install mod_deflate to improve GUI speed.',
             );
         }
+        my $ModFilterLoaded =
+            Apache2::Module::loaded('mod_filter.c') || Apache2::Module::loaded('mod_filter.so');
+
+        if ($ModFilterLoaded) {
+            $Self->AddResultOk(
+                Identifier => "ModFilterLoaded",
+                Label      => 'mod_filter Usage',
+                Value      => 'active',
+            );
+        }
+        else {
+            $Self->AddResultWarning(
+                Identifier => "ModFilterLoaded",
+                Label      => 'mod_filter Usage',
+                Value      => 'not active',
+                Message    => 'Please install mod_filter to improve GUI speed.',
+            );
+        }
 
         my $ModHeadersLoaded =
             Apache2::Module::loaded('mod_headers.c') || Apache2::Module::loaded('mod_headers.so');
