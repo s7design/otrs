@@ -38,8 +38,8 @@ sub new {
 
 sub Run {
     my ( $Self, %Param ) = @_;
-
-    my $Nav = $Self->{ParamObject}->GetParam( Param => 'Nav' ) || 0;
+    my $Source = $Self->{ParamObject}->GetParam( Param => 'Source' ) || 'CustomerCompany';
+    my $Nav    = $Self->{ParamObject}->GetParam( Param => 'Nav' )    || 0;
     my $NavigationBarType = $Nav eq 'Agent' ? 'Companies' : 'Admin';
 
     # ------------------------------------------------------------ #
@@ -57,6 +57,7 @@ sub Run {
         $Self->_Edit(
             Action => 'Change',
             Nav    => $Nav,
+            Source => $Source,
             %Data,
         );
         $Output .= $Self->{LayoutObject}->Output(
@@ -105,7 +106,8 @@ sub Run {
                 )
             {
                 $Self->_Overview(
-                    Nav => $Nav,
+                    Nav    => $Nav,
+                    Source => $Source,
                 );
                 my $Output = $Self->{LayoutObject}->Header();
                 $Output .= $Self->{LayoutObject}->NavigationBar(
@@ -130,6 +132,7 @@ sub Run {
         $Self->_Edit(
             Action => 'Change',
             Nav    => $Nav,
+            Source => $Source,
             Errors => \%Errors,
             %GetParam,
         );
@@ -192,6 +195,7 @@ sub Run {
                 $Self->{CustomerCompanyObject}->CustomerCompanyAdd(
                     %GetParam,
                     UserID => $Self->{UserID},
+                    Source => $Source,
                 )
                 )
             {
@@ -221,6 +225,7 @@ sub Run {
         $Self->_Edit(
             Action => 'Add',
             Nav    => $Nav,
+            Source => $Source,
             Errors => \%Errors,
             %GetParam,
         );
