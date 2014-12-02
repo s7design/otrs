@@ -11,6 +11,7 @@
 
 [% RenderBlockStart("rw:Customer") %]
 <input type="hidden" name="SelectedCustomerUser" id="SelectedCustomerUser" value="[% Data.SelectedCustomerUser | html %]"/>
+<input type="hidden" name="PreSelectedCustomerUser" id="PreSelectedCustomerUser" value=""/>
 <label for="CustomerAutoComplete" class="[% Data.MandatoryClass | html %]">
 [% RenderBlockStart("LabelSpanCustomerUser") %]
     <span class="Marker">*</span>
@@ -24,7 +25,7 @@
     [% Data.LabelCustomerUser | html %]:
 </label>
 <div class="Field">
-    <input id="CustomerAutoComplete" type="text" name="CustomerUserID" value="[% Data.CustomerUserID | html %]" class="W75pc Validate_Required [% Data.CustomerUserIDServerError | html %]" autocomplete="off" />
+    <input id="CustomerAutoComplete" type="text" name="CustomerUserID" value="[% Data.CustomerUserID | html %]" class="W75pc Validate_Required [% Data.CustomerUserIDServerError | html %]" autocomplete="onf" />
     <div id="CustomerAutoCompleteError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
     <div id="CustomerAutoCompleteServerError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
 </div>
@@ -48,7 +49,37 @@
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
     Core.Config.Set('ProcessManagement.UpdatableFields', [% Data.FieldsToUpdate %]);
-   //]]></script>
+    Core.Agent.TicketAction.Init();
+
+
+// catch onfocus event from lock up dialog for customer user data
+// I couldn't use Ajax call in child window
+// function for event focusout for CustomerAutoComplete is because there is diferent onchange event for that field
+// actually for field with Customer AutoComplete class
+// and without this function on change focus for CustomerAutoComplete, customer data will be cleaned
+
+    $( "#CustomerAutoComplete" ).on( 'focus focusout ', function() {
+                            if($( "#SelectedCustomerUser" ).val())
+                            {
+                                 $( "#PreSelectedCustomerUser" ).val( $("#SelectedCustomerUser").val());
+                            }
+                            if($( "#PreSelectedCustomerUser" ).val())
+                            {
+                                    var Data = {
+                                            Action: 'AgentCustomerSearch',
+                                            Subaction: 'CustomerInfo',
+                                            CustomerUserID: $( "#PreSelectedCustomerUser" ).val()
+                                     };
+                                     Core.AJAX.FunctionCall(Core.Config.Get('Baselink'), Data, function (Response) {
+                                            $('#CustomerAutoComplete').val(Response.CustomerUserData);
+                                            $('#CustomerID').val(Response.CustomerID);
+                                     });
+                            $("#SelectedCustomerUser").val($( "#PreSelectedCustomerUser" ).val());
+                        }
+    });
+
+
+        //]]></script>
 [% END %]
 
 [% RenderBlockEnd("rw:Customer") %]

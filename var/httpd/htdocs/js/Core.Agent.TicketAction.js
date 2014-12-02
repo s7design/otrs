@@ -82,6 +82,22 @@ Core.Agent.TicketAction = (function (TargetNS) {
         Core.UI.Dialog.ShowContentDialog(CustomerIFrame, '', '10px', 'Center', true);
     }
 
+        /**
+        * @function
+        * @private
+        * @return nothing
+        * @description Open the FAQDialog screen
+        */
+        function OpenFAQDialog() {
+            var FAQIFrameURL, FAQIFrame;
+                            FAQIFrameURL = Core.Config.Get('CGIHandle') + '?Action==AgentFAQExplorer;Nav=None;Subject=;What=';
+                            FAQIFrameURL += SerializeData(Core.App.GetSessionInformation());
+
+                            FAQIFrame = '<iframe class="TextOption FAQ" src="' + FAQIFrameURL + '"></iframe>';
+                            Core.UI.Dialog.ShowContentDialog(FAQIFrame, '', '10px', 'Center', true);
+        }
+
+
     /**
      * @function
      * @private
@@ -125,6 +141,12 @@ Core.Agent.TicketAction = (function (TargetNS) {
      * @return nothing
      */
     TargetNS.Init = function () {
+
+        // Register event for FAQ dialog
+        $('#OptionFAQ').bind('click', function (Event) {
+                 OpenFAQDialog();
+                 return false;
+        });
 
         // Register event for spell checker dialog
         $('#OptionSpellCheck').bind('click', function (Event) {
@@ -300,9 +322,9 @@ Core.Agent.TicketAction = (function (TargetNS) {
      * @return nothing
      *      This function initializes the necessary stuff for spell check link  in TicketAction screens
      */
-    TargetNS.InitSpellCheck = function () {
-        // Register onchange event for dropdown and input field to change the radiobutton
-        $('#SpellCheck select, #SpellCheck input:text').bind('change', function (Event) {
+        TargetNS.InitSpellCheck = function () {
+                // Register onchange event for dropdown and input field to change the radiobutton
+                $('#SpellCheck select, #SpellCheck input:text').bind('change', function (Event) {
             var $Row = $(this).closest('tr'),
                 RowCount = parseInt($Row.attr('id').replace(/Row/, ''), 10);
             $Row.find('input:radio[id=ChangeWord' + RowCount + ']').prop('checked', true);
@@ -340,13 +362,25 @@ Core.Agent.TicketAction = (function (TargetNS) {
      *      customer into the main window, closing the dialog.
      */
     TargetNS.UpdateCustomer = function (Customer) {
-        var $UpdateForm = $('form[name=compose]', parent.document);
-        $UpdateForm
-            .find('#ExpandCustomerName').val('2')
-            .end()
-            .find('#PreSelectedCustomerUser').val(Customer)
-            .end()
-            .submit();
+                    // because parent page is created by AJAX, and after submit we give wrong page view
+                    // for AgentTicketProcess we set customer data from look up page on diferent way
+                    if ( parent.Core.Config.Get('Action') === 'AgentTicketProcess'){
+                            $('#PreSelectedCustomerUser', parent.document).val(Customer);
+                            $('#SelectedCustomerUser', parent.document).val(Customer);
+                            $('#CustomerAutoComplete', parent.document).focus();
+                            // without set focus on CustomerID, on submit form threw exception that this field is empty
+                            $('#CustomerID', parent.document).focus();
+                   }
+                   else{
+                            var $UpdateForm = $('form[name=compose]', parent.document);
+                            $UpdateForm
+                            .find('#ExpandCustomerName').val('2')
+                            .end()
+                            .find('#PreSelectedCustomerUser').val(Customer)
+                            .end()
+                            .submit();
+                    }
+
 
         // Because we are in an iframe, we need to call the parent frames javascript function
         // with a jQuery object which is in the parent frames context
