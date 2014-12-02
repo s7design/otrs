@@ -281,6 +281,7 @@ Core.Agent.CustomerSearch = (function (TargetNS) {
 
                         if (Core.Config.Get('Action') === 'AgentTicketProcess'){
                             // update services (trigger ServiceID change event)
+                            $('#SelectedCustomerUser').val( $('#PreSelectedCustomerUser').val());
                             Core.AJAX.FormUpdate($('#CustomerID').closest('form'), 'AJAXUpdate', 'ServiceID', Core.Config.Get('ProcessManagement.UpdatableFields') );
                         }
                     }
