@@ -344,6 +344,11 @@ sub Preferences {
         }
     }
 
+    # always set TicketNumber
+    if ( !grep { $_ eq 'TicketNumber' } @ColumnsEnabled ) {
+        unshift @ColumnsEnabled, 'TicketNumber';
+    }
+
     # remove CustomerID if Customer Information Center
     if ( $Self->{Action} eq 'AgentCustomerInformationCenter' ) {
         delete $Columns{Columns}->{CustomerID};

@@ -263,7 +263,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
         if (isJQueryObject($ClickedElement) && $ClickedElement.length) {
             $ClickedElement.click(function () {
                 var URL = Core.Config.Get('Baselink') + Core.AJAX.SerializeForm($Form),
-                    ValidationErrors = false;
+                    ValidationErrors = false,URL_dec;
 
                 // check for elements to validate
                 $ClickedElement.closest('fieldset').find('.StatsSettingsBox').find('.TimeRelativeUnitGeneric').each(function() {
@@ -291,6 +291,17 @@ Core.Agent.Dashboard = (function (TargetNS) {
                     Core.UI.ToggleTwoContainer($('#' + ElementID + '-setting'), $('#' + ElementID));
                     Core.UI.Table.InitCSSPseudoClasses();
                 });
+
+                // reload is necessary for update filter settings if TicketNumber is dragged from Visible Columns
+                // if TicketNumber drag&drop from Visible Columns, it will be returned and shown by default
+                URL_dec = decodeURIComponent(URL);
+
+                if (URL_dec.search("\"TicketNumber\":0") != -1) {
+                    // timeout is set because of reloading and toggling component in the same time
+                    // in some case in table with many tickets and columns it could be made a problem
+                   setInterval(function () {location.reload()}, 1000);
+                }
+
                 return false;
             });
         }
