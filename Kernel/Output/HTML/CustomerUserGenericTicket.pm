@@ -103,11 +103,35 @@ sub Run {
             next STRING if !$Self->{MainObject}->Require( $Lookup{$Key}->{Object} );
             my $Object = $Lookup{$Key}->{Object}->new( %{$Self} );
             my $Method = $Lookup{$Key}->{Method};
-            if ( $Key eq 'StateType' ){
-                my @ValueTmp = $Object->$Method( $Lookup{$Key}->{Input} => $Value, Result => "ID" );
-                $Value = \@ValueTmp;
+            if ( $Key eq 'StateType' ) {
+                my @ViewableState;
+                if ( $Value eq 'Open' ) {
+                    @ViewableState = $Object->$Method(
+                        Type   => 'Viewable',
+                        Result => "ID"
+                    );
+                }
+                elsif ( $Value eq 'Closed' ) {
+                    my %StateList = $Object->StateList( UserID => $Self->{UserID} );
+                    my @ViewableOpenState = $Object->$Method(
+                        Type   => 'Viewable',
+                        Result => "ID"
+                    );
+                    for my $Item ( sort keys %StateList ) {
+                        if ( !grep ( { $_ eq $Item } @ViewableOpenState ) ) {
+                            push @ViewableState, $Item;
+                        }
+                    }
+                }
+                else {
+                    @ViewableState = $Object->$Method(
+                        $Lookup{$Key}->{Input} => $Value,
+                        Result                 => "ID"
+                    );
+                }
+                $Value = \@ViewableState;
             }
-            else{
+            else {
                 $Value = $Object->$Method( $Lookup{$Key}->{Input} => $Value );
             }
             $Key = $Lookup{$Key}->{Return};
@@ -115,7 +139,7 @@ sub Run {
 
         # build link and search attributes
         if ( $Key =~ /IDs$/ ) {
-            if( !ref $Value){
+            if ( !ref $Value ) {
                 if ( !$TicketSearch{$Key} ) {
                     $TicketSearch{$Key} = [$Value];
                 }
@@ -123,14 +147,14 @@ sub Run {
                     push @{ $TicketSearch{$Key} }, $Value;
                 }
             }
-            else{
-                for my $State (@{$Value}) { 
+            else {
+                for my $State ( @{$Value} ) {
                     if ( !$TicketSearch{$Key} ) {
                         $TicketSearch{$Key} = [$State];
                     }
                     else {
                         push @{ $TicketSearch{$Key} }, $State;
-                    }   
+                    }
                 }
             }
         }
@@ -206,8 +230,7 @@ sub Run {
                 && $TicketSearch{ $TimeType . 'TimeStartYear' }
                 )
             {
-                $TicketSearch{ $TimeType . 'TimeNewerDate' }
-                    = $TicketSearch{ $TimeType . 'TimeStartYear' } . '-'
+                $TicketSearch{ $TimeType . 'TimeNewerDate' } = $TicketSearch{ $TimeType . 'TimeStartYear' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStartMonth' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStartDay' }
                     . ' 00:00:00';
@@ -218,8 +241,7 @@ sub Run {
                 && $TicketSearch{ $TimeType . 'TimeStopYear' }
                 )
             {
-                $TicketSearch{ $TimeType . 'TimeOlderDate' }
-                    = $TicketSearch{ $TimeType . 'TimeStopYear' } . '-'
+                $TicketSearch{ $TimeType . 'TimeOlderDate' } = $TicketSearch{ $TimeType . 'TimeStopYear' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStopMonth' } . '-'
                     . $TicketSearch{ $TimeType . 'TimeStopDay' }
                     . ' 23:59:59';
