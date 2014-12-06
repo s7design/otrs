@@ -73,23 +73,35 @@ sub Run {
                 Message    => 'Please install mod_deflate to improve GUI speed.',
             );
         }
+
+        #For Apache 2.4 mod_filter is required
         my $ModFilterLoaded =
             Apache2::Module::loaded('mod_filter.c') || Apache2::Module::loaded('mod_filter.so');
 
-        if ($ModFilterLoaded) {
-            $Self->AddResultOk(
-                Identifier => "ModFilterLoaded",
-                Label      => 'mod_filter Usage',
-                Value      => 'active',
-            );
-        }
-        else {
-            $Self->AddResultWarning(
-                Identifier => "ModFilterLoaded",
-                Label      => 'mod_filter Usage',
-                Value      => 'not active',
-                Message    => 'Please install mod_filter to improve GUI speed.',
-            );
+        if ( $ENV{SERVER_SOFTWARE} =~ m{2.4} ) {
+            if ($ModFilterLoaded) {
+                $Self->AddResultOk(
+                    Identifier => "ModFilterLoaded",
+                    Label      => 'mod_filter Usage',
+                    Value      => 'active',
+                );
+            }
+            elsif ( !$ModDeflateLoaded ) {
+                $Self->AddResultWarning(
+                    Identifier => "ModFilterLoaded",
+                    Label      => 'mod_filter Usage',
+                    Value      => 'not active',
+                    Message    => 'Please install mod_filter, it is required for mod_deflate!',
+                );
+            }
+            else {
+                $Self->AddResultProblem(
+                    Identifier => "ModFilterLoaded",
+                    Label      => 'mod_filter Usage',
+                    Value      => 'not active',
+                    Message    => 'Please install mod_filter if mod_deflate is used!',
+                );
+            }
         }
 
         my $ModHeadersLoaded =
