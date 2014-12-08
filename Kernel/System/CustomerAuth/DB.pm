@@ -145,8 +145,23 @@ sub Auth {
         $CryptedPw = $Pw;
     }
 
-    # md5 or sha pw
-    elsif ( $GetPw !~ /^.{13}$/ ) {
+    # crypt pw
+    elsif ( $Self->{CryptType} eq 'crypt' ) {
+
+        # strip salt only for (Extended) DES, not for any of modular crypt's
+        if ( $Salt !~ /^\$\d\$/ ) {
+            $Salt =~ s/^(..).*/$1/;
+        }
+
+        $EncodeObject->EncodeOutput( \$Pw );
+        $EncodeObject->EncodeOutput( \$Salt );
+
+        # encode output, needed by crypt() only non utf8 signs
+        $CryptedPw = crypt( $Pw, $Salt );
+        $EncodeObject->EncodeInput( \$CryptedPw );
+    }
+
+    else {
 
         # md5 pw
         if ( $GetPw =~ m{\A \$.+? \$.+? \$.* \z}xms ) {
@@ -225,22 +240,6 @@ sub Auth {
             $CryptedPw = $SHAObject->hexdigest();
             $EncodeObject->EncodeInput( \$CryptedPw );
         }
-    }
-
-    # crypt pw
-    else {
-
-        # strip salt only for (Extended) DES, not for any of modular crypt's
-        if ( $Salt !~ /^\$\d\$/ ) {
-            $Salt =~ s/^(..).*/$1/;
-        }
-
-        $EncodeObject->EncodeOutput( \$Pw );
-        $EncodeObject->EncodeOutput( \$Salt );
-
-        # encode output, needed by crypt() only non utf8 signs
-        $CryptedPw = crypt( $Pw, $Salt );
-        $EncodeObject->EncodeInput( \$CryptedPw );
     }
 
     # just in case!
