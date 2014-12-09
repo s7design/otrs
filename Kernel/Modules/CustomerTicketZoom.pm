@@ -1169,7 +1169,7 @@ sub _Mask {
             ObjectID           => $Param{TicketID},
         );
 
-        next DYNAMICFIELD if !$Value;
+        next DYNAMICFIELD if !defined $Value;
         next DYNAMICFIELD if $Value eq "";
 
         # get print string for this dynamic field
