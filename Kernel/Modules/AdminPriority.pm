@@ -27,9 +27,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $PriorityObject   = $Kernel::OM->Get('Kernel::System::Priority');
+    my $LayoutObject   = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ParamObject    = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
 
     # ------------------------------------------------------------ #
     # change
@@ -276,7 +276,8 @@ sub _Overview {
         Data => \%Param,
     );
 
-    my $PriorityObject   = $Kernel::OM->Get('Kernel::System::Priority');
+    my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
+
     # get priority list
     my %PriorityList = $PriorityObject->PriorityList(
         Valid  => 0,
