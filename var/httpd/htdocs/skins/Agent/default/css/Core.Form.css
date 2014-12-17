@@ -167,7 +167,7 @@ a.Reset{
     padding: 3px;
 }
 
-.AddButton, 
+.AddButton,
 .RemoveButton {
     color: #000;
     font-size: 14px;
@@ -633,7 +633,8 @@ fieldset.TableLike.FixedLabelSmall > .FixedValueSmall,
 fieldset.TableLike.FixedLabelSmall > .Row > .FixedValueSmall {
     width: 143px;
 }
-fieldset.TableLike.FixedLabelSmall > p.FixedValueSmall > em.Error {
+fieldset.TableLike.FixedLabelSmall > p.FixedValueSmall > em.Error,
+fieldset.TableLike.FixedLabelSmall > div.FixedValueSmall > em.Error {
     display: block;
     font-size: 11px;
     margin-top: 3px;
