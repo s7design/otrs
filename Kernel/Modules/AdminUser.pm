@@ -12,8 +12,9 @@ package Kernel::Modules::AdminUser;
 use strict;
 use warnings;
 
-use Kernel::System::Valid;
 use Kernel::System::CheckItem;
+
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -22,21 +23,21 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # check all needed objects
-    for my $Needed (qw(ParamObject DBObject LayoutObject ConfigObject LogObject UserObject)) {
-        if ( !$Self->{$Needed} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $Needed!" );
-        }
-    }
-    $Self->{ValidObject} = Kernel::System::Valid->new(%Param);
-
     return $Self;
 }
 
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $Search = $Self->{ParamObject}->GetParam( Param => 'Search' ) || '';
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
+    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
+    my $GroupObject  = $Kernel::OM->Get('Kernel::System::Group');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $Search = $ParamObject->GetParam( Param => 'Search' ) || '';
 
     #create local object
     my $CheckItemObject = Kernel::System::CheckItem->new( %{$Self} );
@@ -46,21 +47,21 @@ sub Run {
     # ------------------------------------------------------------ #
     if (
         $Self->{Subaction} eq 'Switch'
-        && $Self->{ConfigObject}->Get('SwitchToUser')
+        && $ConfigObject->Get('SwitchToUser')
         )
     {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
-        my $UserID = $Self->{ParamObject}->GetParam( Param => 'UserID' ) || '';
-        my %UserData = $Self->{UserObject}->GetUserData(
+        my $UserID = $ParamObject->GetParam( Param => 'UserID' ) || '';
+        my %UserData = $UserObject->GetUserData(
             UserID        => $UserID,
             NoOutOfOffice => 1,
         );
 
         # get groups rw
-        my %GroupData = $Self->{GroupObject}->PermissionUserGet(
+        my %GroupData = $GroupObject->PermissionUserGet(
             UserID => $UserData{UserID},
             Type   => 'rw',
         );
@@ -69,81 +70,81 @@ sub Run {
         }
 
         # get groups ro
-        %GroupData = $Self->{GroupObject}->PermissionUserGet(
+        %GroupData = $GroupObject->PermissionUserGet(
             UserID => $UserData{UserID},
             Type   => 'ro',
         );
         for my $GroupKey ( sort keys %GroupData ) {
             $UserData{"UserIsGroupRo[$GroupData{$GroupKey}]"} = 'Yes';
         }
-        my $NewSessionID = $Self->{SessionObject}->CreateSessionID(
+        my $NewSessionID = $Kernel::OM->Get('Kernel::System::AuthSession')->CreateSessionID(
             %UserData,
-            UserLastRequest => $Self->{TimeObject}->SystemTime(),
+            UserLastRequest => $Kernel::OM->Get('Kernel::System::Time')->SystemTime(),
             UserType        => 'User',
         );
 
         # create a new LayoutObject with SessionIDCookie
-        my $Expires = '+' . $Self->{ConfigObject}->Get('SessionMaxTime') . 's';
-        if ( !$Self->{ConfigObject}->Get('SessionUseCookieAfterBrowserClose') ) {
+        my $Expires = '+' . $ConfigObject->Get('SessionMaxTime') . 's';
+        if ( !$ConfigObject->Get('SessionUseCookieAfterBrowserClose') ) {
             $Expires = '';
         }
 
         my $SecureAttribute;
-        if ( $Self->{ConfigObject}->Get('HttpType') eq 'https' ) {
+        if ( $ConfigObject->Get('HttpType') eq 'https' ) {
 
             # Restrict Cookie to HTTPS if it is used.
             $SecureAttribute = 1;
         }
 
-        my $LayoutObject = Kernel::Output::HTML::Layout->new(
+        my $LayoutObjectSession = Kernel::Output::HTML::Layout->new(
             %{$Self},
             SetCookies => {
-                SessionIDCookie => $Self->{ParamObject}->SetCookie(
-                    Key      => $Self->{ConfigObject}->Get('SessionName'),
+                SessionIDCookie => $ParamObject->SetCookie(
+                    Key      => $ConfigObject->Get('SessionName'),
                     Value    => $NewSessionID,
                     Expires  => $Expires,
-                    Path     => $Self->{ConfigObject}->Get('ScriptAlias'),
+                    Path     => $ConfigObject->Get('ScriptAlias'),
                     Secure   => scalar $SecureAttribute,
                     HTTPOnly => 1,
                 ),
             },
             SessionID   => $NewSessionID,
-            SessionName => $Self->{ConfigObject}->Get('SessionName'),
+            SessionName => $ConfigObject->Get('SessionName'),
         );
 
         # log event
-        $Self->{LogObject}->Log(
+        $LogObject->Log(
             Priority => 'notice',
             Message  => "Switched to User ($Self->{UserLogin} -=> $UserData{UserLogin})",
         );
 
         # redirect with new session id
-        return $LayoutObject->Redirect( OP => '' );
+        return $LayoutObjectSession->Redirect( OP => '' );
     }
 
     # ------------------------------------------------------------ #
     # change
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'Change' ) {
-        my $UserID = $Self->{ParamObject}->GetParam( Param => 'UserID' )
-            || $Self->{ParamObject}->GetParam( Param => 'ID' )
+        my $UserID = $ParamObject->GetParam( Param => 'UserID' )
+            || $ParamObject->GetParam( Param => 'ID' )
             || '';
-        my %UserData = $Self->{UserObject}->GetUserData(
+        my %UserData = $UserObject->GetUserData(
             UserID        => $UserID,
             NoOutOfOffice => 1,
         );
-        my $Output = $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        my $Output = $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
         $Self->_Edit(
             Action => 'Change',
             Search => $Search,
             %UserData,
         );
-        $Output .= $Self->{LayoutObject}->Output(
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminUser',
             Data         => \%Param,
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -153,7 +154,7 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'ChangeAction' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
         my $Note = '';
         my ( %GetParam, %Errors );
@@ -161,9 +162,9 @@ sub Run {
             qw(UserID UserTitle UserLogin UserFirstname UserLastname UserEmail UserPw ValidID Search)
             )
         {
-            $GetParam{$Parameter} = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
+            $GetParam{$Parameter} = $ParamObject->GetParam( Param => $Parameter ) || '';
         }
-        $GetParam{Preferences} = $Self->{ParamObject}->GetParam( Param => 'Preferences' ) || '';
+        $GetParam{Preferences} = $ParamObject->GetParam( Param => 'Preferences' ) || '';
 
         for my $Needed (qw(UserID UserFirstname UserLastname UserLogin ValidID)) {
             if ( !$GetParam{$Needed} ) {
@@ -182,7 +183,7 @@ sub Run {
         }
 
         # check if a user with this login (username) already exits
-        my $UserLoginExists = $Self->{UserObject}->UserLoginExistsCheck(
+        my $UserLoginExists = $UserObject->UserLoginExistsCheck(
             UserLogin => $GetParam{UserLogin},
             UserID    => $GetParam{UserID}
         );
@@ -196,25 +197,25 @@ sub Run {
         {
 
             # update user
-            my $Update = $Self->{UserObject}->UserUpdate(
+            my $Update = $UserObject->UserUpdate(
                 %GetParam,
                 ChangeUserID => $Self->{UserID},
             );
 
             if ($Update) {
-                my %Preferences = %{ $Self->{ConfigObject}->Get('PreferencesGroups') };
+                my %Preferences = %{ $ConfigObject->Get('PreferencesGroups') };
                 GROUP:
                 for my $Group ( sort keys %Preferences ) {
                     next GROUP if $Group eq 'Password';
 
                     # get user data
-                    my %UserData = $Self->{UserObject}->GetUserData(
+                    my %UserData = $UserObject->GetUserData(
                         UserID        => $GetParam{UserID},
                         NoOutOfOffice => 1,
                     );
                     my $Module = $Preferences{$Group}->{Module};
-                    if ( !$Self->{MainObject}->Require($Module) ) {
-                        return $Self->{LayoutObject}->FatalError();
+                    if ( !$MainObject->Require($Module) ) {
+                        return $LayoutObject->FatalError();
                     }
 
                     my $Object = $Module->new(
@@ -226,7 +227,7 @@ sub Run {
                     if (@Params) {
                         my %GetParam;
                         for my $ParamItem (@Params) {
-                            my @Array = $Self->{ParamObject}->GetArray( Param => $ParamItem->{Name} );
+                            my @Array = $ParamObject->GetArray( Param => $ParamItem->{Name} );
                             if (@Array) {
                                 $GetParam{ $ParamItem->{Name} } = \@Array;
                             }
@@ -238,34 +239,34 @@ sub Run {
                             )
                             )
                         {
-                            $Note .= $Self->{LayoutObject}->Notify( Info => $Object->Error() );
+                            $Note .= $LayoutObject->Notify( Info => $Object->Error() );
                         }
                     }
                 }
 
                 if ( !$Note ) {
                     $Self->_Overview( Search => $Search );
-                    my $Output = $Self->{LayoutObject}->Header();
-                    $Output .= $Self->{LayoutObject}->NavigationBar();
-                    $Output .= $Self->{LayoutObject}->Notify( Info => 'Agent updated!' );
-                    $Output .= $Self->{LayoutObject}->Output(
+                    my $Output = $LayoutObject->Header();
+                    $Output .= $LayoutObject->NavigationBar();
+                    $Output .= $LayoutObject->Notify( Info => 'Agent updated!' );
+                    $Output .= $LayoutObject->Output(
                         TemplateFile => 'AdminUser',
                         Data         => \%Param,
                     );
-                    $Output .= $Self->{LayoutObject}->Footer();
+                    $Output .= $LayoutObject->Footer();
                     return $Output;
                 }
             }
             else {
-                $Note .= $Self->{LogObject}->GetLogEntry(
+                $Note .= $LogObject->GetLogEntry(
                     Type => 'Error',
                     What => 'Message',
                 );
             }
         }
-        my $Output = $Self->{LayoutObject}->Header();
+        my $Output = $LayoutObject->Header();
         $Output .= $Note;
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        $Output .= $LayoutObject->NavigationBar();
         $Self->_Edit(
             Action    => 'Change',
             Search    => $Search,
@@ -273,11 +274,11 @@ sub Run {
             %GetParam,
             %Errors,
         );
-        $Output .= $Self->{LayoutObject}->Output(
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminUser',
             Data         => \%Param,
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
 
     }
@@ -288,20 +289,20 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'Add' ) {
         my %GetParam = ();
 
-        $GetParam{UserLogin} = $Self->{ParamObject}->GetParam( Param => 'UserLogin' );
+        $GetParam{UserLogin} = $ParamObject->GetParam( Param => 'UserLogin' );
 
-        my $Output = $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        my $Output = $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
         $Self->_Edit(
             Action => 'Add',
             Search => $Search,
             %GetParam,
         );
-        $Output .= $Self->{LayoutObject}->Output(
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminUser',
             Data         => \%Param,
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -311,7 +312,7 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'AddAction' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
         my $Note = '';
         my ( %GetParam, %Errors );
@@ -319,9 +320,9 @@ sub Run {
             qw(UserTitle UserLogin UserFirstname UserLastname UserEmail UserPw ValidID Search)
             )
         {
-            $GetParam{$Parameter} = $Self->{ParamObject}->GetParam( Param => $Parameter ) || '';
+            $GetParam{$Parameter} = $ParamObject->GetParam( Param => $Parameter ) || '';
         }
-        $GetParam{Preferences} = $Self->{ParamObject}->GetParam( Param => 'Preferences' ) || '';
+        $GetParam{Preferences} = $ParamObject->GetParam( Param => 'Preferences' ) || '';
 
         for my $Needed (qw(UserFirstname UserLastname UserLogin UserEmail ValidID)) {
             if ( !$GetParam{$Needed} ) {
@@ -340,7 +341,7 @@ sub Run {
         }
 
         # check if a user with this login (username) already exits
-        my $UserLoginExists = $Self->{UserObject}->UserLoginExistsCheck( UserLogin => $GetParam{UserLogin} );
+        my $UserLoginExists = $UserObject->UserLoginExistsCheck( UserLogin => $GetParam{UserLogin} );
         if ($UserLoginExists) {
             $Errors{UserLoginExists} = 1;
             $Errors{'UserLoginInvalid'} = 'ServerError';
@@ -351,7 +352,7 @@ sub Run {
         {
 
             # add user
-            my $UserID = $Self->{UserObject}->UserAdd(
+            my $UserID = $UserObject->UserAdd(
                 %GetParam,
                 ChangeUserID => $Self->{UserID}
             );
@@ -359,18 +360,18 @@ sub Run {
             if ($UserID) {
 
                 # update preferences
-                my %Preferences = %{ $Self->{ConfigObject}->Get('PreferencesGroups') };
+                my %Preferences = %{ $ConfigObject->Get('PreferencesGroups') };
                 GROUP:
                 for my $Group ( sort keys %Preferences ) {
                     next GROUP if $Group eq 'Password';
 
                     # get user data
-                    my %UserData = $Self->{UserObject}->GetUserData(
+                    my %UserData = $UserObject->GetUserData(
                         UserID        => $UserID,
                         NoOutOfOffice => 1,
                     );
                     my $Module = $Preferences{$Group}->{Module};
-                    if ( $Self->{MainObject}->Require($Module) ) {
+                    if ( $MainObject->Require($Module) ) {
                         my $Object = $Module->new(
                             %{$Self},
                             ConfigItem => $Preferences{$Group},
@@ -383,7 +384,7 @@ sub Run {
                             PARAMITEM:
                             for my $ParamItem (@Params) {
                                 next PARAMITEM if !$ParamItem->{Name};
-                                my @Array = $Self->{ParamObject}->GetArray( Param => $ParamItem->{Name} );
+                                my @Array = $ParamObject->GetArray( Param => $ParamItem->{Name} );
 
                                 $GetParam{ $ParamItem->{Name} } = \@Array;
                             }
@@ -394,51 +395,51 @@ sub Run {
                                 )
                                 )
                             {
-                                $Note .= $Self->{LayoutObject}->Notify( Info => $Object->Error() );
+                                $Note .= $LayoutObject->Notify( Info => $Object->Error() );
                             }
                         }
                     }
                     else {
-                        return $Self->{LayoutObject}->FatalError();
+                        return $LayoutObject->FatalError();
                     }
                 }
 
                 # redirect
                 if (
-                    !$Self->{ConfigObject}->Get('Frontend::Module')->{AdminUserGroup}
-                    && $Self->{ConfigObject}->Get('Frontend::Module')->{AdminRoleUser}
+                    !$ConfigObject->Get('Frontend::Module')->{AdminUserGroup}
+                    && $ConfigObject->Get('Frontend::Module')->{AdminRoleUser}
                     )
                 {
-                    return $Self->{LayoutObject}->Redirect(
+                    return $LayoutObject->Redirect(
                         OP => "Action=AdminRoleUser;Subaction=User;ID=$UserID",
                     );
                 }
-                if ( $Self->{ConfigObject}->Get('Frontend::Module')->{AdminUserGroup} ) {
-                    return $Self->{LayoutObject}->Redirect(
+                if ( $ConfigObject->Get('Frontend::Module')->{AdminUserGroup} ) {
+                    return $LayoutObject->Redirect(
                         OP => "Action=AdminUserGroup;Subaction=User;ID=$UserID",
                     );
                 }
                 else {
-                    return $Self->{LayoutObject}->Redirect(
+                    return $LayoutObject->Redirect(
                         OP => 'Action=AdminUser',
                     );
                 }
             }
             else {
-                $Note .= $Self->{LogObject}->GetLogEntry(
+                $Note .= $LogObject->GetLogEntry(
                     Type => 'Error',
                     What => 'Message',
                 );
             }
         }
-        my $Output = $Self->{LayoutObject}->Header();
+        my $Output = $LayoutObject->Header();
         $Output .= $Note
-            ? $Self->{LayoutObject}->Notify(
+            ? $LayoutObject->Notify(
             Priority => 'Error',
             Info     => $Note,
             )
             : '';
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        $Output .= $LayoutObject->NavigationBar();
         $Self->_Edit(
             Action    => 'Add',
             Search    => $Search,
@@ -446,11 +447,11 @@ sub Run {
             %GetParam,
             %Errors,
         );
-        $Output .= $Self->{LayoutObject}->Output(
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminUser',
             Data         => \%Param,
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -459,13 +460,13 @@ sub Run {
     # ------------------------------------------------------------ #
     else {
         $Self->_Overview( Search => $Search );
-        my $Output = $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
-        $Output .= $Self->{LayoutObject}->Output(
+        my $Output = $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminUser',
             Data         => \%Param,
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 }
@@ -473,36 +474,39 @@ sub Run {
 sub _Edit {
     my ( $Self, %Param ) = @_;
 
-    $Self->{LayoutObject}->Block(
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    $LayoutObject->Block(
         Name => 'Overview',
         Data => \%Param,
     );
-    $Self->{LayoutObject}->Block( Name => 'ActionList' );
-    $Self->{LayoutObject}->Block( Name => 'ActionOverview' );
+    $LayoutObject->Block( Name => 'ActionList' );
+    $LayoutObject->Block( Name => 'ActionOverview' );
 
     # get valid list
-    my %ValidList        = $Self->{ValidObject}->ValidList();
+    my %ValidList        = $Kernel::OM->Get('Kernel::System::Valid')->ValidList();
     my %ValidListReverse = reverse %ValidList;
 
-    $Param{ValidOption} = $Self->{LayoutObject}->BuildSelection(
+    $Param{ValidOption} = $LayoutObject->BuildSelection(
         Data       => \%ValidList,
         Name       => 'ValidID',
         SelectedID => $Param{ValidID} || $ValidListReverse{valid},
     );
 
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'OverviewUpdate',
         Data => \%Param,
     );
 
     # shows header
     if ( $Param{Action} eq 'Change' ) {
-        $Self->{LayoutObject}->Block( Name => 'HeaderEdit' );
+        $LayoutObject->Block( Name => 'HeaderEdit' );
     }
     else {
-        $Self->{LayoutObject}->Block( Name => 'HeaderAdd' );
-        $Self->{LayoutObject}->Block( Name => 'MarkerMandatory' );
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block( Name => 'HeaderAdd' );
+        $LayoutObject->Block( Name => 'MarkerMandatory' );
+        $LayoutObject->Block(
             Name => 'ShowPasswordHint',
         );
     }
@@ -511,13 +515,13 @@ sub _Edit {
     if ( $Param{UserEmail} && $Param{ErrorType} ) {
 
         # display server error msg according with the occurred email error type
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'UserEmail' . $Param{ErrorType} . 'ServerErrorMsg',
             Data => {},
         );
     }
     else {
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => "UserEmailServerErrorMsg",
             Data => {},
         );
@@ -525,16 +529,16 @@ sub _Edit {
 
     # show appropriate messages for ServerError
     if ( defined $Param{UserLoginExists} && $Param{UserLoginExists} == 1 ) {
-        $Self->{LayoutObject}->Block( Name => 'ExistUserLoginServerError' );
+        $LayoutObject->Block( Name => 'ExistUserLoginServerError' );
     }
     else {
-        $Self->{LayoutObject}->Block( Name => 'UserLoginServerError' );
+        $LayoutObject->Block( Name => 'UserLoginServerError' );
     }
 
-    my @Groups = @{ $Self->{ConfigObject}->Get('PreferencesView') };
+    my @Groups = @{ $ConfigObject->Get('PreferencesView') };
     for my $Column (@Groups) {
         my %Data        = ();
-        my %Preferences = %{ $Self->{ConfigObject}->Get('PreferencesGroups') };
+        my %Preferences = %{ $ConfigObject->Get('PreferencesGroups') };
 
         GROUP:
         for my $Group ( sort keys %Preferences ) {
@@ -563,17 +567,17 @@ sub _Edit {
         PRIO:
         for my $Prio ( sort keys %Data ) {
             my $Group = $Data{$Prio};
-            if ( !$Self->{ConfigObject}->{PreferencesGroups}->{$Group} ) {
+            if ( !$ConfigObject->{PreferencesGroups}->{$Group} ) {
                 next PRIO;
             }
-            my %Preference = %{ $Self->{ConfigObject}->{PreferencesGroups}->{$Group} };
+            my %Preference = %{ $ConfigObject->{PreferencesGroups}->{$Group} };
             if ( $Group eq 'Password' ) {
                 next PRIO;
             }
             my $Module = $Preference{Module} || 'Kernel::Output::HTML::PreferencesGeneric';
 
             # load module
-            if ( $Self->{MainObject}->Require($Module) ) {
+            if ( $Kernel::OM->Get('Kernel::System::Main')->Require($Module) ) {
                 my $Object = $Module->new(
                     %{$Self},
                     ConfigItem => \%Preference,
@@ -582,7 +586,7 @@ sub _Edit {
                 my @Params = $Object->Param( UserData => \%Param );
                 if (@Params) {
                     for my $ParamItem (@Params) {
-                        $Self->{LayoutObject}->Block(
+                        $LayoutObject->Block(
                             Name => 'Item',
                             Data => { %Param, },
                         );
@@ -591,11 +595,11 @@ sub _Edit {
                             || ref( $Preference{Data} ) eq 'HASH'
                             )
                         {
-                            $ParamItem->{'Option'} = $Self->{LayoutObject}->BuildSelection(
+                            $ParamItem->{'Option'} = $LayoutObject->BuildSelection(
                                 %Preference, %{$ParamItem},
                             );
                         }
-                        $Self->{LayoutObject}->Block(
+                        $LayoutObject->Block(
                             Name => $ParamItem->{Block} || $Preference{Block} || 'Option',
                             Data => {
                                 Group => $Group,
@@ -607,7 +611,7 @@ sub _Edit {
                 }
             }
             else {
-                return $Self->{LayoutObject}->FatalError();
+                return $LayoutObject->FatalError();
             }
         }
     }
@@ -617,52 +621,56 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
+
     # when there is no data to show, a message is displayed on the table with this colspan
     my $ColSpan = 7;
 
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'Overview',
         Data => \%Param,
     );
 
-    $Self->{LayoutObject}->Block( Name => 'ActionList' );
-    $Self->{LayoutObject}->Block( Name => 'ActionSearch' );
-    $Self->{LayoutObject}->Block( Name => 'ActionAdd' );
+    $LayoutObject->Block( Name => 'ActionList' );
+    $LayoutObject->Block( Name => 'ActionSearch' );
+    $LayoutObject->Block( Name => 'ActionAdd' );
 
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'OverviewHeader',
         Data => {},
     );
 
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'OverviewResult',
         Data => \%Param,
     );
-    if ( $Self->{ConfigObject}->Get('SwitchToUser') ) {
+    if ( $ConfigObject->Get('SwitchToUser') ) {
         $ColSpan = 8;
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'OverviewResultSwitchToUser',
         );
     }
 
-    my %List = $Self->{UserObject}->UserSearch(
+    my %List = $UserObject->UserSearch(
         Search => $Param{Search} . '*',
         Limit  => 400,
         Valid  => 0,
     );
 
     # get valid list
-    my %ValidList = $Self->{ValidObject}->ValidList();
+    my %ValidList = $Kernel::OM->Get('Kernel::System::Valid')->ValidList();
 
     # if there are results to show
     if (%List) {
         for my $ListKey ( sort { $List{$a} cmp $List{$b} } keys %List ) {
 
-            my %UserData = $Self->{UserObject}->GetUserData(
+            my %UserData = $UserObject->GetUserData(
                 UserID        => $ListKey,
                 NoOutOfOffice => 1,
             );
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'OverviewResultRow',
                 Data => {
                     Valid  => $ValidList{ $UserData{ValidID} },
@@ -670,8 +678,8 @@ sub _Overview {
                     %UserData,
                 },
             );
-            if ( $Self->{ConfigObject}->Get('SwitchToUser') ) {
-                $Self->{LayoutObject}->Block(
+            if ( $ConfigObject->Get('SwitchToUser') ) {
+                $LayoutObject->Block(
                     Name => 'OverviewResultRowSwitchToUser',
                     Data => {
                         Search => $Param{Search},
@@ -683,7 +691,7 @@ sub _Overview {
     }
 
     else {
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'NoDataFoundMsg',
             Data => {
                 ColSpan => $ColSpan,

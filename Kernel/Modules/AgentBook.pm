@@ -12,7 +12,7 @@ package Kernel::Modules::AgentBook;
 use strict;
 use warnings;
 
-use Kernel::System::CustomerUser;
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -21,38 +21,32 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # check all needed objects
-    for (qw(TicketObject ParamObject DBObject QueueObject LayoutObject ConfigObject LogObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
-        }
-    }
-
-    # create additional objects
-    $Self->{CustomerUserObject} = Kernel::System::CustomerUser->new(%Param);
-
     return $Self;
 }
 
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+
     # get params
     for (qw(ToCustomer CcCustomer BccCustomer)) {
-        $Param{$_} = $Self->{ParamObject}->GetParam( Param => $_ );
+        $Param{$_} = $ParamObject->GetParam( Param => $_ );
     }
 
     # get list of users
-    my $Search = $Self->{ParamObject}->GetParam( Param => 'Search' );
+    my $Search = $ParamObject->GetParam( Param => 'Search' );
     my %CustomerUserList;
     if ($Search) {
-        %CustomerUserList = $Self->{CustomerUserObject}->CustomerSearch(
+        %CustomerUserList = $CustomerUserObject->CustomerSearch(
             Search => $Search,
         );
     }
     my %List;
     for ( sort keys %CustomerUserList ) {
-        my %CustomerUserData = $Self->{CustomerUserObject}->CustomerUserDataGet(
+        my %CustomerUserData = $CustomerUserObject->CustomerUserDataGet(
             User => $_,
         );
         if ( $CustomerUserData{UserEmail} ) {
@@ -61,18 +55,18 @@ sub Run {
     }
 
     # build customer search autocomplete field
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'CustomerSearchAutoComplete',
     );
 
     if (%List) {
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'SearchResult',
         );
 
         my $Count = 1;
         for ( reverse sort { $List{$b} cmp $List{$a} } keys %List ) {
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'Row',
                 Data => {
                     Name  => $List{$_},
@@ -85,12 +79,12 @@ sub Run {
     }
 
     # start with page ...
-    my $Output = $Self->{LayoutObject}->Header( Type => 'Small' );
-    $Output .= $Self->{LayoutObject}->Output(
+    my $Output = $LayoutObject->Header( Type => 'Small' );
+    $Output .= $LayoutObject->Output(
         TemplateFile => 'AgentBook',
         Data         => \%Param
     );
-    $Output .= $Self->{LayoutObject}->Footer( Type => 'Small' );
+    $Output .= $LayoutObject->Footer( Type => 'Small' );
 
     return $Output;
 }

@@ -12,18 +12,11 @@ package Kernel::Modules::AdminGenericAgent;
 use strict;
 use warnings;
 
-use Kernel::System::Priority;
-use Kernel::System::Lock;
-use Kernel::System::Service;
-use Kernel::System::SLA;
-use Kernel::System::State;
-use Kernel::System::Type;
 use Kernel::System::Event;
-use Kernel::System::GenericAgent;
-use Kernel::System::CheckItem;
 use Kernel::System::DynamicField;
-use Kernel::System::DynamicField::Backend;
 use Kernel::System::VariableCheck qw(:all);
+
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -32,22 +25,7 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # check needed objects
-    for my $Needed (qw(ParamObject DBObject TicketObject LayoutObject LogObject ConfigObject)) {
-        if ( !$Self->{$Needed} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $Needed!" );
-        }
-    }
-
-    $Self->{PriorityObject}     = Kernel::System::Priority->new(%Param);
-    $Self->{StateObject}        = Kernel::System::State->new(%Param);
-    $Self->{LockObject}         = Kernel::System::Lock->new(%Param);
-    $Self->{ServiceObject}      = Kernel::System::Service->new(%Param);
-    $Self->{SLAObject}          = Kernel::System::SLA->new(%Param);
-    $Self->{TypeObject}         = Kernel::System::Type->new(%Param);
-    $Self->{GenericAgentObject} = Kernel::System::GenericAgent->new(%Param);
     $Self->{DynamicFieldObject} = Kernel::System::DynamicField->new(%Param);
-    $Self->{BackendObject}      = Kernel::System::DynamicField::Backend->new(%Param);
     $Self->{EventObject}        = Kernel::System::Event->new(
         %Param,
         DynamicFieldObject => $Self->{DynamicFieldObject},
@@ -65,18 +43,23 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');
+    my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
     # create local object
     my $CheckItemObject = Kernel::System::CheckItem->new( %{$Self} );
 
     # secure mode message (don't allow this action till secure mode is enabled)
-    if ( !$Self->{ConfigObject}->Get('SecureMode') ) {
-        return $Self->{LayoutObject}->SecureMode();
+    if ( !$Kernel::OM->Get('Kernel::Config')->Get('SecureMode') ) {
+        return $LayoutObject->SecureMode();
     }
 
     # get config data
-    $Self->{Profile}    = $Self->{ParamObject}->GetParam( Param => 'Profile' )    || '';
-    $Self->{OldProfile} = $Self->{ParamObject}->GetParam( Param => 'OldProfile' ) || '';
-    $Self->{Subaction}  = $Self->{ParamObject}->GetParam( Param => 'Subaction' )  || '';
+    $Self->{Profile}    = $ParamObject->GetParam( Param => 'Profile' )    || '';
+    $Self->{OldProfile} = $ParamObject->GetParam( Param => 'OldProfile' ) || '';
+    $Self->{Subaction}  = $ParamObject->GetParam( Param => 'Subaction' )  || '';
 
     # ---------------------------------------------------------- #
     # run a generic agent job -> "run now"
@@ -84,22 +67,22 @@ sub Run {
     if ( $Self->{Subaction} eq 'RunNow' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
-        my $Run = $Self->{GenericAgentObject}->JobRun(
+        my $Run = $GenericAgentObject->JobRun(
             Job    => $Self->{Profile},
             UserID => 1,
         );
 
         # redirect
         if ($Run) {
-            return $Self->{LayoutObject}->Redirect(
+            return $LayoutObject->Redirect(
                 OP => "Action=$Self->{Action}",
             );
         }
 
         # redirect
-        return $Self->{LayoutObject}->ErrorScreen();
+        return $LayoutObject->ErrorScreen();
     }
 
     if ( $Self->{Subaction} eq 'Run' ) {
@@ -114,12 +97,12 @@ sub Run {
     if ( $Self->{Subaction} eq 'UpdateAction' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
         my ( %GetParam, %Errors );
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
         # get single params
         for my $Parameter (
@@ -139,7 +122,7 @@ sub Run {
             )
             )
         {
-            $GetParam{$Parameter} = $Self->{ParamObject}->GetParam( Param => $Parameter );
+            $GetParam{$Parameter} = $ParamObject->GetParam( Param => $Parameter );
 
             # remove leading and trailing blank spaces
             $CheckItemObject->StringClean( StringRef => \$GetParam{$Parameter} )
@@ -151,7 +134,7 @@ sub Run {
             )
         {
             my $Key = $Type . 'SearchType';
-            $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
+            $GetParam{$Key} = $ParamObject->GetParam( Param => $Key );
         }
         for my $Type (
             qw(
@@ -172,7 +155,7 @@ sub Run {
                 )
             {
                 my $Key = $Type . $Attribute;
-                $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
+                $GetParam{$Key} = $ParamObject->GetParam( Param => $Key );
             }
 
             # validate data
@@ -195,10 +178,10 @@ sub Run {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             # extract the dynamic field value form the web request
-            my $DynamicFieldValue = $Self->{BackendObject}->EditFieldValueGet(
+            my $DynamicFieldValue = $BackendObject->EditFieldValueGet(
                 DynamicFieldConfig      => $DynamicFieldConfig,
-                ParamObject             => $Self->{ParamObject},
-                LayoutObject            => $Self->{LayoutObject},
+                ParamObject             => $ParamObject,
+                LayoutObject            => $LayoutObject,
                 ReturnTemplateStructure => 1,
             );
 
@@ -219,8 +202,8 @@ sub Run {
         {
 
             # get search array params (get submitted params)
-            if ( $Self->{ParamObject}->GetArray( Param => $Parameter ) ) {
-                @{ $GetParam{$Parameter} } = $Self->{ParamObject}->GetArray( Param => $Parameter );
+            if ( $ParamObject->GetArray( Param => $Parameter ) ) {
+                @{ $GetParam{$Parameter} } = $ParamObject->GetArray( Param => $Parameter );
             }
         }
 
@@ -231,7 +214,7 @@ sub Run {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             # get search field preferences
-            my $SearchFieldPreferences = $Self->{BackendObject}->SearchFieldPreferences(
+            my $SearchFieldPreferences = $BackendObject->SearchFieldPreferences(
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
@@ -241,11 +224,11 @@ sub Run {
             for my $Preference ( @{$SearchFieldPreferences} ) {
 
                 # extract the dynamic field value from the web request
-                my $DynamicFieldValue = $Self->{BackendObject}->SearchFieldValueGet(
+                my $DynamicFieldValue = $BackendObject->SearchFieldValueGet(
                     DynamicFieldConfig     => $DynamicFieldConfig,
-                    ParamObject            => $Self->{ParamObject},
+                    ParamObject            => $ParamObject,
                     ReturnProfileStructure => 1,
-                    LayoutObject           => $Self->{LayoutObject},
+                    LayoutObject           => $LayoutObject,
                     Type                   => $Preference->{Type},
                 );
 
@@ -268,14 +251,14 @@ sub Run {
             if ( $Self->{OldProfile} ) {
 
                 # remove/clean up old profile stuff
-                $Self->{GenericAgentObject}->JobDelete(
+                $GenericAgentObject->JobDelete(
                     Name   => $Self->{OldProfile},
                     UserID => $Self->{UserID},
                 );
             }
 
             # insert new profile params
-            my $JobAddResult = $Self->{GenericAgentObject}->JobAdd(
+            my $JobAddResult = $GenericAgentObject->JobAdd(
                 Name => $Self->{Profile},
                 Data => {
                     %GetParam,
@@ -285,7 +268,7 @@ sub Run {
             );
 
             if ($JobAddResult) {
-                return $Self->{LayoutObject}->Redirect(
+                return $LayoutObject->Redirect(
                     OP => "Action=$Self->{Action}",
                 );
             }
@@ -305,13 +288,13 @@ sub Run {
         );
 
         # generate search mask
-        my $Output = $Self->{LayoutObject}->Header( Title => 'Edit' );
-        $Output .= $Self->{LayoutObject}->NavigationBar();
-        $Output .= $Self->{LayoutObject}->Output(
+        my $Output = $LayoutObject->Header( Title => 'Edit' );
+        $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminGenericAgent',
             Data         => $JobDataReference,
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -323,13 +306,13 @@ sub Run {
         $JobDataReference = $Self->_MaskUpdate(%Param);
 
         # generate search mask
-        my $Output = $Self->{LayoutObject}->Header( Title => 'Edit' );
-        $Output .= $Self->{LayoutObject}->NavigationBar();
-        $Output .= $Self->{LayoutObject}->Output(
+        my $Output = $LayoutObject->Header( Title => 'Edit' );
+        $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminGenericAgent',
             Data         => $JobDataReference,
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -339,10 +322,10 @@ sub Run {
     if ( $Self->{Subaction} eq 'Delete' && $Self->{Profile} ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
         if ( $Self->{Profile} ) {
-            $Self->{GenericAgentObject}->JobDelete(
+            $GenericAgentObject->JobDelete(
                 Name   => $Self->{Profile},
                 UserID => $Self->{UserID},
             );
@@ -352,22 +335,22 @@ sub Run {
     # ---------------------------------------------------------- #
     # overview of all generic agent jobs
     # ---------------------------------------------------------- #
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'ActionList',
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'ActionAdd',
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'Overview',
     );
-    my %Jobs = $Self->{GenericAgentObject}->JobList();
+    my %Jobs = $GenericAgentObject->JobList();
 
     # if there are any data, it is shown
     if (%Jobs) {
         my $Counter = 1;
         for my $JobKey ( sort keys %Jobs ) {
-            my %JobData = $Self->{GenericAgentObject}->JobGet( Name => $JobKey );
+            my %JobData = $GenericAgentObject->JobGet( Name => $JobKey );
 
             # css setting and text for valid or invalid jobs
             if ( $JobData{Valid} ) {
@@ -379,7 +362,7 @@ sub Run {
 
             # seperate each searchresult line by using several css
 
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'Row',
                 Data => {%JobData},
             );
@@ -388,46 +371,56 @@ sub Run {
 
     # otherwise a no data found msg is displayed
     else {
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'NoDataFoundMsg',
             Data => {},
         );
     }
 
     # generate search mask
-    my $Output = $Self->{LayoutObject}->Header();
-    $Output .= $Self->{LayoutObject}->NavigationBar();
-    $Output .= $Self->{LayoutObject}->Output(
+    my $Output = $LayoutObject->Header();
+    $Output .= $LayoutObject->NavigationBar();
+    $Output .= $LayoutObject->Output(
         TemplateFile => 'AdminGenericAgent',
         Data         => \%Param,
     );
-    $Output .= $Self->{LayoutObject}->Footer();
+    $Output .= $LayoutObject->Footer();
     return $Output;
 }
 
 sub _MaskUpdate {
     my ( $Self, %Param ) = @_;
 
+    my $ParamObject    = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $TicketObject   = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $LayoutObject   = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
+    my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
+    my $StateObject    = $Kernel::OM->Get('Kernel::System::State');
+    my $LockObject     = $Kernel::OM->Get('Kernel::System::Lock');
+    my $BackendObject  = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $QueueObject    = $Kernel::OM->Get('Kernel::System::Queue');
+
     my %JobData;
 
     if ( $Self->{Profile} ) {
 
         # get db job data
-        %JobData = $Self->{GenericAgentObject}->JobGet( Name => $Self->{Profile} );
+        %JobData = $Kernel::OM->Get('Kernel::System::GenericAgent')->JobGet( Name => $Self->{Profile} );
     }
     $JobData{Profile} = $Self->{Profile};
 
     # get list type
     my $TreeView = 0;
-    if ( $Self->{ConfigObject}->Get('Ticket::Frontend::ListType') eq 'tree' ) {
+    if ( $ConfigObject->Get('Ticket::Frontend::ListType') eq 'tree' ) {
         $TreeView = 1;
     }
 
-    my %ShownUsers = $Self->{UserObject}->UserList(
+    my %ShownUsers = $Kernel::OM->Get('Kernel::System::User')->UserList(
         Type  => 'Long',
         Valid => 1,
     );
-    $JobData{OwnerStrg} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{OwnerStrg} = $LayoutObject->BuildSelection(
         Data        => \%ShownUsers,
         Name        => 'OwnerIDs',
         Multiple    => 1,
@@ -435,7 +428,7 @@ sub _MaskUpdate {
         Translation => 0,
         SelectedID  => $JobData{OwnerIDs},
     );
-    $JobData{NewOwnerStrg} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{NewOwnerStrg} = $LayoutObject->BuildSelection(
         Data        => \%ShownUsers,
         Name        => 'NewOwnerID',
         Size        => 5,
@@ -447,7 +440,7 @@ sub _MaskUpdate {
     for my $Number ( 0 .. 23 ) {
         $Hours{$Number} = sprintf( "%02d", $Number );
     }
-    $JobData{ScheduleHoursList} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{ScheduleHoursList} = $LayoutObject->BuildSelection(
         Data        => \%Hours,
         Name        => 'ScheduleHours',
         Size        => 6,
@@ -455,7 +448,7 @@ sub _MaskUpdate {
         Translation => 0,
         SelectedID  => $JobData{ScheduleHours},
     );
-    $JobData{ScheduleMinutesList} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{ScheduleMinutesList} = $LayoutObject->BuildSelection(
         Data => {
             '00' => '00',
             10   => '10',
@@ -470,7 +463,7 @@ sub _MaskUpdate {
         Translation => 0,
         SelectedID  => $JobData{ScheduleMinutes},
     );
-    $JobData{ScheduleDaysList} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{ScheduleDaysList} = $LayoutObject->BuildSelection(
         Data => {
             1 => 'Mon',
             2 => 'Tue',
@@ -487,9 +480,9 @@ sub _MaskUpdate {
         SelectedID => $JobData{ScheduleDays},
     );
 
-    $JobData{StatesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{StatesStrg} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{StateObject}->StateList(
+            $StateObject->StateList(
                 UserID => 1,
                 Action => $Self->{Action},
             ),
@@ -499,9 +492,9 @@ sub _MaskUpdate {
         Size       => 5,
         SelectedID => $JobData{StateIDs},
     );
-    $JobData{NewStatesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{NewStatesStrg} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{StateObject}->StateList(
+            $StateObject->StateList(
                 UserID => 1,
                 Action => $Self->{Action},
             ),
@@ -511,7 +504,7 @@ sub _MaskUpdate {
         Multiple   => 0,
         SelectedID => $JobData{NewStateID},
     );
-    $JobData{NewPendingTimeTypeStrg} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{NewPendingTimeTypeStrg} = $LayoutObject->BuildSelection(
         Data => [
             {
                 Key   => 60,
@@ -540,10 +533,10 @@ sub _MaskUpdate {
         Multiple    => 0,
         SelectedID  => $JobData{NewPendingTimeType},
         Translation => 1,
-        Title       => $Self->{LayoutObject}->{LanguageObject}->Translate('Time unit'),
+        Title       => $LayoutObject->{LanguageObject}->Translate('Time unit'),
     );
-    $JobData{QueuesStrg} = $Self->{LayoutObject}->AgentQueueListOption(
-        Data               => { $Self->{QueueObject}->GetAllQueues(), },
+    $JobData{QueuesStrg} = $LayoutObject->AgentQueueListOption(
+        Data               => { $QueueObject->GetAllQueues(), },
         Size               => 5,
         Multiple           => 1,
         Name               => 'QueueIDs',
@@ -551,8 +544,8 @@ sub _MaskUpdate {
         TreeView           => $TreeView,
         OnChangeSubmit     => 0,
     );
-    $JobData{NewQueuesStrg} = $Self->{LayoutObject}->AgentQueueListOption(
-        Data           => { $Self->{QueueObject}->GetAllQueues(), },
+    $JobData{NewQueuesStrg} = $LayoutObject->AgentQueueListOption(
+        Data           => { $QueueObject->GetAllQueues(), },
         Size           => 5,
         Multiple       => 0,
         Name           => 'NewQueueID',
@@ -560,9 +553,9 @@ sub _MaskUpdate {
         TreeView       => $TreeView,
         OnChangeSubmit => 0,
     );
-    $JobData{PrioritiesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{PrioritiesStrg} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{PriorityObject}->PriorityList(
+            $PriorityObject->PriorityList(
                 UserID => 1,
                 Action => $Self->{Action},
             ),
@@ -572,9 +565,9 @@ sub _MaskUpdate {
         Multiple   => 1,
         SelectedID => $JobData{PriorityIDs},
     );
-    $JobData{NewPrioritiesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{NewPrioritiesStrg} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{PriorityObject}->PriorityList(
+            $PriorityObject->PriorityList(
                 UserID => 1,
                 Action => $Self->{Action},
             ),
@@ -624,13 +617,13 @@ sub _MaskUpdate {
         }
 
         # time
-        $JobData{ $Type . 'TimePoint' } = $Self->{LayoutObject}->BuildSelection(
+        $JobData{ $Type . 'TimePoint' } = $LayoutObject->BuildSelection(
             Data        => \%Counter,
             Name        => $Type . 'TimePoint',
             SelectedID  => $JobData{ $Type . 'TimePoint' },
             Translation => 0,
         );
-        $JobData{ $Type . 'TimePointStart' } = $Self->{LayoutObject}->BuildSelection(
+        $JobData{ $Type . 'TimePointStart' } = $LayoutObject->BuildSelection(
             Data => {
                 Last   => 'within the last ...',
                 Next   => 'within the next ...',
@@ -639,7 +632,7 @@ sub _MaskUpdate {
             Name       => $Type . 'TimePointStart',
             SelectedID => $JobData{ $Type . 'TimePointStart' } || 'Last',
         );
-        $JobData{ $Type . 'TimePointFormat' } = $Self->{LayoutObject}->BuildSelection(
+        $JobData{ $Type . 'TimePointFormat' } = $LayoutObject->BuildSelection(
             Data => {
                 minute => 'minute(s)',
                 hour   => 'hour(s)',
@@ -651,14 +644,14 @@ sub _MaskUpdate {
             Name       => $Type . 'TimePointFormat',
             SelectedID => $JobData{ $Type . 'TimePointFormat' },
         );
-        $JobData{ $Type . 'TimeStart' } = $Self->{LayoutObject}->BuildDateSelection(
+        $JobData{ $Type . 'TimeStart' } = $LayoutObject->BuildDateSelection(
             %JobData,
             Prefix   => $Type . 'TimeStart',
             Format   => 'DateInputFormat',
             DiffTime => -( 60 * 60 * 24 ) * 30,
             Validate => 1,
         );
-        $JobData{ $Type . 'TimeStop' } = $Self->{LayoutObject}->BuildDateSelection(
+        $JobData{ $Type . 'TimeStop' } = $LayoutObject->BuildDateSelection(
             %JobData,
             Prefix   => $Type . 'TimeStop',
             Format   => 'DateInputFormat',
@@ -666,19 +659,19 @@ sub _MaskUpdate {
         );
     }
 
-    $JobData{DeleteOption} = $Self->{LayoutObject}->BuildSelection(
-        Data       => $Self->{ConfigObject}->Get('YesNoOptions'),
+    $JobData{DeleteOption} = $LayoutObject->BuildSelection(
+        Data       => $ConfigObject->Get('YesNoOptions'),
         Name       => 'NewDelete',
         SelectedID => $JobData{NewDelete} || 0,
     );
-    $JobData{ValidOption} = $Self->{LayoutObject}->BuildSelection(
-        Data       => $Self->{ConfigObject}->Get('YesNoOptions'),
+    $JobData{ValidOption} = $LayoutObject->BuildSelection(
+        Data       => $ConfigObject->Get('YesNoOptions'),
         Name       => 'Valid',
         SelectedID => defined( $JobData{Valid} ) ? $JobData{Valid} : 1,
     );
-    $JobData{LockOption} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{LockOption} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{LockObject}->LockList(
+            $LockObject->LockList(
                 UserID => 1,
                 Action => $Self->{Action},
             ),
@@ -688,9 +681,9 @@ sub _MaskUpdate {
         Size       => 3,
         SelectedID => $JobData{LockIDs},
     );
-    $JobData{NewLockOption} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{NewLockOption} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{LockObject}->LockList(
+            $LockObject->LockList(
                 UserID => 1,
                 Action => $Self->{Action},
             ),
@@ -705,7 +698,7 @@ sub _MaskUpdate {
     # "Send agent/customer notifications on changes" in frontend.
     # But the backend code is still the same (compatiblity).
     # Because of this case we changed 1=>'Yes' to 1=>'No'
-    $JobData{SendNoNotificationOption} = $Self->{LayoutObject}->BuildSelection(
+    $JobData{SendNoNotificationOption} = $LayoutObject->BuildSelection(
         Data => {
             '1' => 'No',
             '0' => 'Yes'
@@ -713,13 +706,13 @@ sub _MaskUpdate {
         Name       => 'NewSendNoNotification',
         SelectedID => $JobData{NewSendNoNotification} || 0,
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'ActionList',
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'ActionOverview',
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'Edit',
         Data => {
             %Param,
@@ -730,7 +723,7 @@ sub _MaskUpdate {
     # check for profile errors
     if ( defined $Param{ProfileInvalid} ) {
         $Param{ProfileInvalidMsg} //= '';
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'ProfileInvalidMsg' . $Param{ProfileInvalidMsg},
         );
     }
@@ -742,17 +735,17 @@ sub _MaskUpdate {
         || !defined $JobData{ScheduleMinutes}->[0]
         )
     {
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'JobScheduleWarning',
         );
     }
 
     # build type string
-    if ( $Self->{ConfigObject}->Get('Ticket::Type') ) {
-        my %Type = $Self->{TypeObject}->TypeList(
+    if ( $ConfigObject->Get('Ticket::Type') ) {
+        my %Type = $Kernel::OM->Get('Kernel::System::Type')->TypeList(
             UserID => $Self->{UserID},
         );
-        $JobData{TypesStrg} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{TypesStrg} = $LayoutObject->BuildSelection(
             Data        => \%Type,
             Name        => 'TypeIDs',
             SelectedID  => $JobData{TypeIDs},
@@ -761,11 +754,11 @@ sub _MaskUpdate {
             Multiple    => 1,
             Translation => 0,
         );
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'TicketType',
             Data => \%JobData,
         );
-        $JobData{NewTypesStrg} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{NewTypesStrg} = $LayoutObject->BuildSelection(
             Data        => \%Type,
             Name        => 'NewTypeID',
             SelectedID  => $JobData{NewTypeID},
@@ -774,23 +767,23 @@ sub _MaskUpdate {
             Multiple    => 0,
             Translation => 0,
         );
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'NewTicketType',
             Data => \%JobData,
         );
     }
 
     # build service string
-    if ( $Self->{ConfigObject}->Get('Ticket::Service') ) {
+    if ( $ConfigObject->Get('Ticket::Service') ) {
 
         # get list type
-        my %Service = $Self->{ServiceObject}->ServiceList(
+        my %Service = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
             Valid        => 1,
             KeepChildren => 1,
             UserID       => $Self->{UserID},
         );
         my %NewService = %Service;
-        $JobData{ServicesStrg} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{ServicesStrg} = $LayoutObject->BuildSelection(
             Data        => \%Service,
             Name        => 'ServiceIDs',
             SelectedID  => $JobData{ServiceIDs},
@@ -800,7 +793,7 @@ sub _MaskUpdate {
             Translation => 0,
             Max         => 200,
         );
-        $JobData{NewServicesStrg} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{NewServicesStrg} = $LayoutObject->BuildSelection(
             Data        => \%NewService,
             Name        => 'NewServiceID',
             SelectedID  => $JobData{NewServiceID},
@@ -810,10 +803,10 @@ sub _MaskUpdate {
             Translation => 0,
             Max         => 200,
         );
-        my %SLA = $Self->{SLAObject}->SLAList(
+        my %SLA = $Kernel::OM->Get('Kernel::System::SLA')->SLAList(
             UserID => $Self->{UserID},
         );
-        $JobData{SLAsStrg} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{SLAsStrg} = $LayoutObject->BuildSelection(
             Data        => \%SLA,
             Name        => 'SLAIDs',
             SelectedID  => $JobData{SLAIDs},
@@ -823,7 +816,7 @@ sub _MaskUpdate {
             Translation => 0,
             Max         => 200,
         );
-        $JobData{NewSLAsStrg} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{NewSLAsStrg} = $LayoutObject->BuildSelection(
             Data        => \%SLA,
             Name        => 'NewSLAID',
             SelectedID  => $JobData{NewSLAID},
@@ -833,19 +826,19 @@ sub _MaskUpdate {
             Translation => 0,
             Max         => 200,
         );
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'TicketService',
             Data => {%JobData},
         );
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'NewTicketService',
             Data => {%JobData},
         );
     }
 
     # ticket responsible string
-    if ( $Self->{ConfigObject}->Get('Ticket::Responsible') ) {
-        $JobData{ResponsibleStrg} = $Self->{LayoutObject}->BuildSelection(
+    if ( $ConfigObject->Get('Ticket::Responsible') ) {
+        $JobData{ResponsibleStrg} = $LayoutObject->BuildSelection(
             Data        => \%ShownUsers,
             Name        => 'ResponsibleIDs',
             Size        => 5,
@@ -853,7 +846,7 @@ sub _MaskUpdate {
             Translation => 0,
             SelectedID  => $JobData{ResponsibleIDs},
         );
-        $JobData{NewResponsibleStrg} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{NewResponsibleStrg} = $LayoutObject->BuildSelection(
             Data        => \%ShownUsers,
             Name        => 'NewResponsibleID',
             Size        => 5,
@@ -861,20 +854,20 @@ sub _MaskUpdate {
             Translation => 0,
             SelectedID  => $JobData{NewResponsibleID},
         );
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'TicketResponsible',
             Data => {%JobData},
         );
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'NewTicketResponsible',
             Data => {%JobData},
         );
     }
 
     # prepare archive
-    if ( $Self->{ConfigObject}->Get('Ticket::ArchiveSystem') ) {
+    if ( $ConfigObject->Get('Ticket::ArchiveSystem') ) {
 
-        $JobData{'SearchInArchiveStrg'} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{'SearchInArchiveStrg'} = $LayoutObject->BuildSelection(
             Data => {
                 ArchivedTickets    => 'Archived tickets',
                 NotArchivedTickets => 'Unarchived tickets',
@@ -884,12 +877,12 @@ sub _MaskUpdate {
             SelectedID => $JobData{SearchInArchive} || 'AllTickets',
         );
 
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'SearchInArchive',
             Data => {%JobData},
         );
 
-        $JobData{'NewArchiveFlagStrg'} = $Self->{LayoutObject}->BuildSelection(
+        $JobData{'NewArchiveFlagStrg'} = $LayoutObject->BuildSelection(
             Data => {
                 y => 'archive tickets',
                 n => 'restore tickets from archive',
@@ -899,7 +892,7 @@ sub _MaskUpdate {
             SelectedID   => $JobData{NewArchiveFlag} || '',
         );
 
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'NewArchiveFlag',
             Data => {%JobData},
         );
@@ -914,7 +907,7 @@ sub _MaskUpdate {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         # get search field preferences
-        my $SearchFieldPreferences = $Self->{BackendObject}->SearchFieldPreferences(
+        my $SearchFieldPreferences = $BackendObject->SearchFieldPreferences(
             DynamicFieldConfig => $DynamicFieldConfig,
         );
 
@@ -924,12 +917,12 @@ sub _MaskUpdate {
         for my $Preference ( @{$SearchFieldPreferences} ) {
 
             # get field html
-            my $DynamicFieldHTML = $Self->{BackendObject}->SearchFieldRender(
+            my $DynamicFieldHTML = $BackendObject->SearchFieldRender(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Profile            => \%JobData,
                 DefaultValue =>
                     $Self->{Config}->{Defaults}->{DynamicField}->{ $DynamicFieldConfig->{Name} },
-                LayoutObject           => $Self->{LayoutObject},
+                LayoutObject           => $LayoutObject,
                 ConfirmationCheckboxes => 1,
                 Type                   => $Preference->{Type},
             );
@@ -937,12 +930,12 @@ sub _MaskUpdate {
             next PREFERENCE if !IsHashRefWithData($DynamicFieldHTML);
 
             if ($PrintDynamicFieldsSearchHeader) {
-                $Self->{LayoutObject}->Block( Name => 'DynamicField' );
+                $LayoutObject->Block( Name => 'DynamicField' );
                 $PrintDynamicFieldsSearchHeader = 0;
             }
 
             # output dynamic field
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'DynamicFieldElement',
                 Data => {
                     Label => $DynamicFieldHTML->{Label},
@@ -962,7 +955,7 @@ sub _MaskUpdate {
 
         my $PossibleValuesFilter;
 
-        my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
+        my $IsACLReducible = $BackendObject->HasBehavior(
             DynamicFieldConfig => $DynamicFieldConfig,
             Behavior           => 'IsACLReducible',
         );
@@ -970,7 +963,7 @@ sub _MaskUpdate {
         if ($IsACLReducible) {
 
             # get PossibleValues
-            my $PossibleValues = $Self->{BackendObject}->PossibleValuesGet(
+            my $PossibleValues = $BackendObject->PossibleValuesGet(
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
@@ -982,7 +975,7 @@ sub _MaskUpdate {
                 @AclData{ keys %AclData } = keys %AclData;
 
                 # set possible values filter from ACLs
-                my $ACL = $Self->{TicketObject}->TicketAcl(
+                my $ACL = $TicketObject->TicketAcl(
                     Action        => $Self->{Action},
                     Type          => 'DynamicField_' . $DynamicFieldConfig->{Name},
                     ReturnType    => 'Ticket',
@@ -991,7 +984,7 @@ sub _MaskUpdate {
                     UserID        => $Self->{UserID},
                 );
                 if ($ACL) {
-                    my %Filter = $Self->{TicketObject}->TicketAclData();
+                    my %Filter = $TicketObject->TicketAclData();
 
                     # convert Filer key => key back to key => value using map
                     %{$PossibleValuesFilter} = map { $_ => $PossibleValues->{$_} }
@@ -1001,11 +994,11 @@ sub _MaskUpdate {
         }
 
         # get field html
-        my $DynamicFieldHTML = $Self->{BackendObject}->EditFieldRender(
+        my $DynamicFieldHTML = $BackendObject->EditFieldRender(
             DynamicFieldConfig   => $DynamicFieldConfig,
             PossibleValuesFilter => $PossibleValuesFilter,
-            LayoutObject         => $Self->{LayoutObject},
-            ParamObject          => $Self->{ParamObject},
+            LayoutObject         => $LayoutObject,
+            ParamObject          => $ParamObject,
             UseDefaultValue      => 0,
             OverridePossibleNone => 1,
             ConfirmationNeeded   => 1,
@@ -1016,12 +1009,12 @@ sub _MaskUpdate {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldHTML);
 
         if ($PrintDynamicFieldsEditHeader) {
-            $Self->{LayoutObject}->Block( Name => 'NewDynamicField' );
+            $LayoutObject->Block( Name => 'NewDynamicField' );
             $PrintDynamicFieldsEditHeader = 0;
         }
 
         # output dynamic field
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'NewDynamicFieldElement',
             Data => {
                 Label => $DynamicFieldHTML->{Label},
@@ -1049,7 +1042,7 @@ sub _MaskUpdate {
         }
 
         # paint each event row in event triggers table
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'EventRow',
             Data => {
                 Event     => $Event,
@@ -1059,7 +1052,7 @@ sub _MaskUpdate {
     }
 
     my @EventTypeList;
-    my $SelectedEventType = $Self->{ParamObject}->GetParam( Param => 'EventType' ) || 'Ticket';
+    my $SelectedEventType = $ParamObject->GetParam( Param => 'EventType' ) || 'Ticket';
 
     # create event trigger selectors (one for each type)
     TYPE:
@@ -1074,16 +1067,16 @@ sub _MaskUpdate {
         }
 
         # paint each selector
-        my $EventStrg = $Self->{LayoutObject}->BuildSelection(
+        my $EventStrg = $LayoutObject->BuildSelection(
             Data => $RegisteredEvents{$Type} || [],
             Name => $Type . 'Event',
             Sort => 'AlphanumericValue',
             PossibleNone => 0,
             Class        => 'EventList GenericInterfaceSpacing ' . $EventListHidden,
-            Title        => $Self->{LayoutObject}->{LanguageObject}->Translate('Event'),
+            Title        => $LayoutObject->{LanguageObject}->Translate('Event'),
         );
 
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'EventAdd',
             Data => {
                 EventStrg => $EventStrg,
@@ -1094,16 +1087,16 @@ sub _MaskUpdate {
     }
 
     # create event type selector
-    my $EventTypeStrg = $Self->{LayoutObject}->BuildSelection(
+    my $EventTypeStrg = $LayoutObject->BuildSelection(
         Data          => \@EventTypeList,
         Name          => 'EventType',
         Sort          => 'AlphanumericValue',
         SelectedValue => $SelectedEventType,
         PossibleNone  => 0,
         Class         => '',
-        Title         => $Self->{LayoutObject}->{LanguageObject}->Translate('Type'),
+        Title         => $LayoutObject->{LanguageObject}->Translate('Type'),
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'EventTypeStrg',
         Data => {
             EventTypeStrg => $EventTypeStrg,
@@ -1116,10 +1109,14 @@ sub _MaskUpdate {
 sub _MaskRun {
     my ( $Self, %Param ) = @_;
 
+    my $TicketObject  = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
     my %JobData;
 
     if ( $Self->{Profile} ) {
-        %JobData = $Self->{GenericAgentObject}->JobGet( Name => $Self->{Profile} );
+        %JobData = $Kernel::OM->Get('Kernel::System::GenericAgent')->JobGet( Name => $Self->{Profile} );
         if ( exists $JobData{SearchInArchive} && $JobData{SearchInArchive} eq 'ArchivedTickets' ) {
             $JobData{ArchiveFlags} = ['y'];
         }
@@ -1128,7 +1125,7 @@ sub _MaskRun {
         }
     }
     else {
-        $Self->{LayoutObject}->FatalError( Message => "Need Profile!" );
+        $LayoutObject->FatalError( Message => "Need Profile!" );
     }
     $JobData{Profile} = $Self->{Profile};
 
@@ -1141,7 +1138,7 @@ sub _MaskRun {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         # get search field preferences
-        my $SearchFieldPreferences = $Self->{BackendObject}->SearchFieldPreferences(
+        my $SearchFieldPreferences = $BackendObject->SearchFieldPreferences(
             DynamicFieldConfig => $DynamicFieldConfig,
         );
 
@@ -1162,10 +1159,10 @@ sub _MaskRun {
             }
 
             # extract the dynamic field value from the profile
-            my $SearchParameter = $Self->{BackendObject}->SearchFieldParameterBuild(
+            my $SearchParameter = $BackendObject->SearchFieldParameterBuild(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Profile            => \%JobData,
-                LayoutObject       => $Self->{LayoutObject},
+                LayoutObject       => $LayoutObject,
                 Type               => $Preference->{Type},
             );
 
@@ -1178,7 +1175,7 @@ sub _MaskRun {
     }
 
     # perform ticket search
-    my $Counter = $Self->{TicketObject}->TicketSearch(
+    my $Counter = $TicketObject->TicketSearch(
         Result          => 'COUNT',
         SortBy          => 'Age',
         OrderBy         => 'Down',
@@ -1189,7 +1186,7 @@ sub _MaskRun {
         %DynamicFieldSearchParameters,
     ) || 0;
 
-    my @TicketIDs = $Self->{TicketObject}->TicketSearch(
+    my @TicketIDs = $TicketObject->TicketSearch(
         Result          => 'ARRAY',
         SortBy          => 'Age',
         OrderBy         => 'Down',
@@ -1200,13 +1197,13 @@ sub _MaskRun {
         %DynamicFieldSearchParameters,
     );
 
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'ActionList',
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'ActionOverview',
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'Result',
         Data => {
             %Param,
@@ -1216,11 +1213,11 @@ sub _MaskRun {
     );
 
     if (@TicketIDs) {
-        $Self->{LayoutObject}->Block( Name => 'ResultBlock' );
+        $LayoutObject->Block( Name => 'ResultBlock' );
         for my $TicketID (@TicketIDs) {
 
             # get first article data
-            my %Data = $Self->{TicketObject}->ArticleFirstArticle(
+            my %Data = $TicketObject->ArticleFirstArticle(
                 TicketID      => $TicketID,
                 DynamicFields => 0,
             );
@@ -1229,7 +1226,7 @@ sub _MaskRun {
             if ( !%Data ) {
 
                 # get ticket data instead
-                %Data = $Self->{TicketObject}->TicketGet(
+                %Data = $TicketObject->TicketGet(
                     TicketID      => $TicketID,
                     DynamicFields => 0,
                 );
@@ -1238,40 +1235,40 @@ sub _MaskRun {
                 $Data{Subject} = $Data{Title};
             }
 
-            $Data{Age} = $Self->{LayoutObject}->CustomerAge(
+            $Data{Age} = $LayoutObject->CustomerAge(
                 Age   => $Data{Age},
                 Space => ' '
             );
             $Data{css} = "PriorityID-$Data{PriorityID}";
 
             # user info
-            my %UserInfo = $Self->{UserObject}->GetUserData(
+            my %UserInfo = $Kernel::OM->Get('Kernel::System::User')->GetUserData(
                 User => $Data{Owner},
             );
             $Data{UserLastname}  = $UserInfo{UserLastname};
             $Data{UserFirstname} = $UserInfo{UserFirstname};
 
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'Ticket',
                 Data => \%Data,
             );
         }
 
         if ( $JobData{NewDelete} ) {
-            $Self->{LayoutObject}->Block( Name => 'DeleteWarning' );
+            $LayoutObject->Block( Name => 'DeleteWarning' );
         }
     }
 
     # html search mask output
-    my $Output = $Self->{LayoutObject}->Header( Title => 'Affected Tickets' );
-    $Output .= $Self->{LayoutObject}->NavigationBar();
-    $Output .= $Self->{LayoutObject}->Output(
+    my $Output = $LayoutObject->Header( Title => 'Affected Tickets' );
+    $Output .= $LayoutObject->NavigationBar();
+    $Output .= $LayoutObject->Output(
         TemplateFile => 'AdminGenericAgent',
         Data         => \%Param,
     );
 
     # build footer
-    $Output .= $Self->{LayoutObject}->Footer();
+    $Output .= $LayoutObject->Footer();
     return $Output;
 }
 
