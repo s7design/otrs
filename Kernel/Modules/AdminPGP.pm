@@ -12,7 +12,7 @@ package Kernel::Modules::AdminPGP;
 use strict;
 use warnings;
 
-use Kernel::System::Crypt;
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -20,13 +20,6 @@ sub new {
     # allocate new hash for object
     my $Self = {%Param};
     bless( $Self, $Type );
-
-    # check all needed objects
-    for (qw(ParamObject DBObject LayoutObject ConfigObject LogObject MainObject EncodeObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
-        }
-    }
 
     $Self->{CryptObject} = Kernel::System::Crypt->new( %Param, CryptType => 'PGP' );
 
@@ -36,24 +29,29 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
+    my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
+
     # ------------------------------------------------------------ #
     # check if feature is active
     # ------------------------------------------------------------ #
-    if ( !$Self->{ConfigObject}->Get('PGP') ) {
+    if ( !$ConfigObject->Get('PGP') ) {
 
-        my $Output .= $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        my $Output .= $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
 
-        $Self->{LayoutObject}->Block( Name => 'Overview' );
-        $Self->{LayoutObject}->Block( Name => 'Disabled' );
+        $LayoutObject->Block( Name => 'Overview' );
+        $LayoutObject->Block( Name => 'Disabled' );
 
-        $Output .= $Self->{LayoutObject}->Output( TemplateFile => 'AdminPGP' );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Output( TemplateFile => 'AdminPGP' );
+        $Output .= $LayoutObject->Footer();
 
         return $Output;
     }
 
-    $Param{Search} = $Self->{ParamObject}->GetParam( Param => 'Search' );
+    $Param{Search} = $ParamObject->GetParam( Param => 'Search' );
     if ( !defined( $Param{Search} ) ) {
         $Param{Search} = $Self->{PGPSearch} || '';
     }
@@ -61,7 +59,7 @@ sub Run {
         $Param{Search} = '';
     }
 
-    $Self->{SessionObject}->UpdateSessionID(
+    $SessionObject->UpdateSessionID(
         SessionID => $Self->{SessionID},
         Key       => 'PGPSearch',
         Value     => $Param{Search},
@@ -73,19 +71,19 @@ sub Run {
     if ( $Self->{Subaction} eq 'Delete' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
-        $Self->{LayoutObject}->Block( Name => 'Overview' );
-        $Self->{LayoutObject}->Block( Name => 'ActionList' );
-        $Self->{LayoutObject}->Block( Name => 'ActionSearch' );
-        $Self->{LayoutObject}->Block( Name => 'ActionAdd' );
-        $Self->{LayoutObject}->Block( Name => 'Hint' );
-        $Self->{LayoutObject}->Block( Name => 'OverviewResult' );
+        $LayoutObject->Block( Name => 'Overview' );
+        $LayoutObject->Block( Name => 'ActionList' );
+        $LayoutObject->Block( Name => 'ActionSearch' );
+        $LayoutObject->Block( Name => 'ActionAdd' );
+        $LayoutObject->Block( Name => 'Hint' );
+        $LayoutObject->Block( Name => 'OverviewResult' );
 
-        my $Key  = $Self->{ParamObject}->GetParam( Param => 'Key' )  || '';
-        my $Type = $Self->{ParamObject}->GetParam( Param => 'Type' ) || '';
+        my $Key  = $ParamObject->GetParam( Param => 'Key' )  || '';
+        my $Type = $ParamObject->GetParam( Param => 'Type' ) || '';
         if ( !$Key ) {
-            return $Self->{LayoutObject}->ErrorScreen(
+            return $LayoutObject->ErrorScreen(
                 Message => 'Need param Key to delete!',
             );
         }
@@ -99,37 +97,37 @@ sub Run {
         my @List = $Self->{CryptObject}->KeySearch( Search => $Param{Search} );
         if (@List) {
             for my $Key (@List) {
-                $Self->{LayoutObject}->Block(
+                $LayoutObject->Block(
                     Name => 'Row',
                     Data => { %{$Key} },
                 );
             }
         }
         else {
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'NoDataFoundMsg',
                 Data => {},
             );
         }
-        my $Output = $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        my $Output = $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
         my $Message = '';
         if ($Success) {
             $Message = "Key $Key deleted!";
         }
         else {
-            $Message = $Self->{LogObject}->GetLogEntry(
+            $Message = $Kernel::OM->Get('Kernel::System::Log')->GetLogEntry(
                 Type => 'Error',
                 What => 'Message',
             );
         }
-        $Output .= $Self->{LayoutObject}->Notify( Info => $Message );
+        $Output .= $LayoutObject->Notify( Info => $Message );
 
-        $Output .= $Self->{LayoutObject}->Output(
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminPGP',
             Data         => \%Param
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -137,16 +135,16 @@ sub Run {
     # add key (form)
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'Add' ) {
-        my $Output = $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        my $Output = $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
 
-        $Self->{LayoutObject}->Block( Name => 'Overview' );
-        $Self->{LayoutObject}->Block( Name => 'ActionList' );
-        $Self->{LayoutObject}->Block( Name => 'ActionOverview' );
-        $Self->{LayoutObject}->Block( Name => 'AddKey' );
+        $LayoutObject->Block( Name => 'Overview' );
+        $LayoutObject->Block( Name => 'ActionList' );
+        $LayoutObject->Block( Name => 'ActionOverview' );
+        $LayoutObject->Block( Name => 'AddKey' );
 
-        $Output .= $Self->{LayoutObject}->Output( TemplateFile => 'AdminPGP' );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Output( TemplateFile => 'AdminPGP' );
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -158,14 +156,14 @@ sub Run {
         my %Errors;
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
-        $Self->{SessionObject}->UpdateSessionID(
+        $SessionObject->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'PGPSearch',
             Value     => '',
         );
-        my %UploadStuff = $Self->{ParamObject}->GetUploadAll(
+        my %UploadStuff = $ParamObject->GetUploadAll(
             Param => 'FileUpload',
         );
         if ( !%UploadStuff ) {
@@ -179,51 +177,51 @@ sub Run {
             my $KeyAdd = $Self->{CryptObject}->KeyAdd( Key => $UploadStuff{Content} );
 
             if ($KeyAdd) {
-                $Self->{LayoutObject}->Block( Name => 'Overview' );
-                $Self->{LayoutObject}->Block( Name => 'ActionList' );
-                $Self->{LayoutObject}->Block( Name => 'ActionSearch' );
-                $Self->{LayoutObject}->Block( Name => 'ActionAdd' );
-                $Self->{LayoutObject}->Block( Name => 'OverviewResult' );
+                $LayoutObject->Block( Name => 'Overview' );
+                $LayoutObject->Block( Name => 'ActionList' );
+                $LayoutObject->Block( Name => 'ActionSearch' );
+                $LayoutObject->Block( Name => 'ActionAdd' );
+                $LayoutObject->Block( Name => 'OverviewResult' );
 
                 my @List = $Self->{CryptObject}->KeySearch( Search => '' );
                 if (@List) {
                     for my $Key (@List) {
-                        $Self->{LayoutObject}->Block(
+                        $LayoutObject->Block(
                             Name => 'Row',
                             Data => { %{$Key} },
                         );
                     }
                 }
                 else {
-                    $Self->{LayoutObject}->Block(
+                    $LayoutObject->Block(
                         Name => 'NoDataFoundMsg',
                         Data => {},
                     );
                 }
 
-                my $Output = $Self->{LayoutObject}->Header();
-                $Output .= $Self->{LayoutObject}->NavigationBar();
-                $Output .= $Self->{LayoutObject}->Notify( Info => $KeyAdd );
+                my $Output = $LayoutObject->Header();
+                $Output .= $LayoutObject->NavigationBar();
+                $Output .= $LayoutObject->Notify( Info => $KeyAdd );
 
-                $Output .= $Self->{LayoutObject}->Output( TemplateFile => 'AdminPGP' );
-                $Output .= $Self->{LayoutObject}->Footer();
+                $Output .= $LayoutObject->Output( TemplateFile => 'AdminPGP' );
+                $Output .= $LayoutObject->Footer();
                 return $Output;
             }
         }
 
         # something went wrong
-        my $Output = $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
-        $Output .= $Self->{LayoutObject}->Notify( Priority => 'Error' );
-        $Self->{LayoutObject}->Block( Name => 'Overview' );
-        $Self->{LayoutObject}->Block( Name => 'ActionList' );
-        $Self->{LayoutObject}->Block( Name => 'ActionOverview' );
-        $Self->{LayoutObject}->Block(
+        my $Output = $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Priority => 'Error' );
+        $LayoutObject->Block( Name => 'Overview' );
+        $LayoutObject->Block( Name => 'ActionList' );
+        $LayoutObject->Block( Name => 'ActionOverview' );
+        $LayoutObject->Block(
             Name => 'AddKey',
             Data => \%Errors,
         );
-        $Output .= $Self->{LayoutObject}->Output( TemplateFile => 'AdminPGP' );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Output( TemplateFile => 'AdminPGP' );
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 
@@ -233,12 +231,12 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'Download' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
-        my $Key  = $Self->{ParamObject}->GetParam( Param => 'Key' )  || '';
-        my $Type = $Self->{ParamObject}->GetParam( Param => 'Type' ) || '';
+        my $Key  = $ParamObject->GetParam( Param => 'Key' )  || '';
+        my $Type = $ParamObject->GetParam( Param => 'Type' ) || '';
         if ( !$Key ) {
-            return $Self->{LayoutObject}->ErrorScreen(
+            return $LayoutObject->ErrorScreen(
                 Message => 'Need param Key to download!',
             );
         }
@@ -249,7 +247,7 @@ sub Run {
         else {
             $KeyString = $Self->{CryptObject}->PublicKeyGet( Key => $Key );
         }
-        return $Self->{LayoutObject}->Attachment(
+        return $LayoutObject->Attachment(
             ContentType => 'text/plain',
             Content     => $KeyString,
             Filename    => "$Key.asc",
@@ -263,12 +261,12 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'DownloadFingerprint' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
-        my $Key  = $Self->{ParamObject}->GetParam( Param => 'Key' )  || '';
-        my $Type = $Self->{ParamObject}->GetParam( Param => 'Type' ) || '';
+        my $Key  = $ParamObject->GetParam( Param => 'Key' )  || '';
+        my $Type = $ParamObject->GetParam( Param => 'Type' ) || '';
         if ( !$Key ) {
-            return $Self->{LayoutObject}->ErrorScreen(
+            return $LayoutObject->ErrorScreen(
                 Message => 'Need param Key to download!',
             );
         }
@@ -285,7 +283,7 @@ sub Run {
                 $Download = $Result[0]->{Fingerprint};
             }
         }
-        return $Self->{LayoutObject}->Attachment(
+        return $LayoutObject->Attachment(
             ContentType => 'text/plain',
             Content     => $Download,
             Filename    => "$Key.txt",
@@ -298,25 +296,25 @@ sub Run {
     # ------------------------------------------------------------ #
     else {
 
-        my $Output .= $Self->{LayoutObject}->Header();
-        $Output .= $Self->{LayoutObject}->NavigationBar();
+        my $Output .= $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
 
-        if ( !$Self->{CryptObject} && $Self->{ConfigObject}->Get('PGP') ) {
-            $Output .= $Self->{LayoutObject}->Notify(
+        if ( !$Self->{CryptObject} && $ConfigObject->Get('PGP') ) {
+            $Output .= $LayoutObject->Notify(
                 Priority => 'Error',
-                Data     => $Self->{LayoutObject}->{LanguageObject}->Translate( "Cannot create %s!", "CryptObject" ),
+                Data     => $LayoutObject->{LanguageObject}->Translate( "Cannot create %s!", "CryptObject" ),
                 Link =>
-                    $Self->{LayoutObject}->{Baselink}
+                    $LayoutObject->{Baselink}
                     . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Framework;SysConfigSubGroup=Crypt::PGP',
             );
         }
 
-        $Self->{LayoutObject}->Block( Name => 'Overview' );
-        $Self->{LayoutObject}->Block( Name => 'ActionList' );
-        $Self->{LayoutObject}->Block( Name => 'ActionSearch' );
-        $Self->{LayoutObject}->Block( Name => 'ActionAdd' );
-        $Self->{LayoutObject}->Block( Name => 'Hint' );
-        $Self->{LayoutObject}->Block( Name => 'OverviewResult' );
+        $LayoutObject->Block( Name => 'Overview' );
+        $LayoutObject->Block( Name => 'ActionList' );
+        $LayoutObject->Block( Name => 'ActionSearch' );
+        $LayoutObject->Block( Name => 'ActionAdd' );
+        $LayoutObject->Block( Name => 'Hint' );
+        $LayoutObject->Block( Name => 'OverviewResult' );
 
         my @List = ();
         if ( $Self->{CryptObject} ) {
@@ -324,30 +322,30 @@ sub Run {
         }
         if (@List) {
             for my $Key (@List) {
-                $Self->{LayoutObject}->Block(
+                $LayoutObject->Block(
                     Name => 'Row',
                     Data => { %{$Key} },
                 );
             }
         }
         else {
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'NoDataFoundMsg',
                 Data => {},
             );
         }
 
         if ( $Self->{CryptObject} && $Self->{CryptObject}->Check() ) {
-            $Output .= $Self->{LayoutObject}->Notify(
+            $Output .= $LayoutObject->Notify(
                 Priority => 'Error',
-                Data     => $Self->{LayoutObject}->{LanguageObject}->Translate( $Self->{CryptObject}->Check() ),
+                Data     => $LayoutObject->{LanguageObject}->Translate( $Self->{CryptObject}->Check() ),
             );
         }
-        $Output .= $Self->{LayoutObject}->Output(
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminPGP',
             Data         => \%Param
         );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 }
