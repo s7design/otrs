@@ -55,8 +55,14 @@ sub Run {
         my %CustomerUserData = $Self->{CustomerUserObject}->CustomerUserDataGet(
             User => $_,
         );
+
+
         if ( $CustomerUserData{UserEmail} ) {
-            $List{ $CustomerUserData{UserEmail} } = $CustomerUserList{$_};
+            $List{ $CustomerUserData{UserEmail} } = { 
+                        Email =>  $CustomerUserList{$_},
+                        CustomerKey => $_
+                };
+
         }
     }
 
@@ -75,11 +81,18 @@ sub Run {
             $Self->{LayoutObject}->Block(
                 Name => 'Row',
                 Data => {
-                    Name  => $List{$_},
+                    Name  => $List{$_}->{Email},
                     Email => $_,
+                    CustomerKey => $List{$_}->{CustomerKey}, 
                     Count => $Count,
                 },
             );
+
+            $Self->{LogObject}->Log(
+                Priority => "error",
+                Message  => " >>>> $List{$_}->{Email} // $_ // $List{$_}->{CustomerKey}"
+            );
+
             $Count++;
         }
     }

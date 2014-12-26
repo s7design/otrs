@@ -322,6 +322,9 @@ Core.Agent.CustomerSearch = (function (TargetNS) {
             return false;
         }
 
+        console.log(CustomerValue);
+        console.log(CustomerKey);
+
         // clone customer entry
         var $Clone = $('.CustomerTicketTemplate' + Field).clone(),
             CustomerTicketCounter = $('#CustomerTicketCounter' + Field).val(),
