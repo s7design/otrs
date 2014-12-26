@@ -95,7 +95,7 @@ Core.Agent.TicketAction = (function (TargetNS) {
         if (NewValue.length) {
             NewValue = NewValue + ', ';
         }
-        NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email');
+        NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email') + "*"+ $Link.attr('data-customerkey');
         $Element.val(NewValue);
     }
 
@@ -269,8 +269,11 @@ Core.Agent.TicketAction = (function (TargetNS) {
                 $Bcc = $('#BccCustomer', parent.document);
 
                 $.each($('#ToCustomer').val().split(/, ?/), function(Index, Value){
-                    $To.val(Value);
-                    parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer', Value );
+                    
+                        var arr = Value.split('*');
+                        $To.val(arr[0]);
+                        parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer', arr[0] ,  arr[1]);
+                    
                 });
 
                 $.each($('#CcCustomer').val().split(/, ?/), function(Index, Value){
