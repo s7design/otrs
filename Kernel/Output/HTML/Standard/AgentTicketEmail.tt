@@ -90,12 +90,11 @@ $('#Dest').bind('change', function (Event) {
 <script type="text/javascript">//<![CDATA[
     $('.CustomerTicketRadio').bind('change', function () {
         var CustomerKey;
-        if ( $(this).attr('checked') ){
 
             CustomerKey = $( '#CustomerKey_' +$(this).val() ).val();
             // get customer tickets
             Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
-        }
+
         return false;
     });
 
@@ -129,7 +128,7 @@ $('#Dest').bind('change', function (Event) {
                         <div class="CustomerTicketTemplateToCustomer Hidden">
                             <input name="CustomerSelected" title="[% Translate("Select this customer as the main customer.") | html %]" id="CustomerSelected" class="CustomerTicketRadio" type="radio" value=""/>
                             <input name="CustomerKey" id="CustomerKey" class="CustomerKey" type="hidden" value=""/>
-                            <input class="CustomerTicketText Radio" title="[% Translate("To customer user") | html %]" name="CustomerTicketText" id="CustomerTicketText" type="text" value="" readonly="readonly" />
+                            <input class="CustomerTicketText " title="[% Translate("To customer user") | html %]" name="CustomerTicketText" id="CustomerTicketText" type="text" value="" readonly="readonly" />
                             <a href="#" id="RemoveCustomerTicket" class="RemoveButton CustomerTicketRemove">
                                 <i class="fa fa-minus-square-o"></i>
                                 <span class="InvisibleText">[% Translate("Remove Ticket Customer User") | html %]</span>

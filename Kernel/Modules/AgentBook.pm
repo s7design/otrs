@@ -55,8 +55,13 @@ sub Run {
         my %CustomerUserData = $Self->{CustomerUserObject}->CustomerUserDataGet(
             User => $_,
         );
+
         if ( $CustomerUserData{UserEmail} ) {
-            $List{ $CustomerUserData{UserEmail} } = $CustomerUserList{$_};
+            $List{ $CustomerUserData{UserEmail} } = {
+                Email       => $CustomerUserList{$_},
+                CustomerKey => $_
+            };
+
         }
     }
 
@@ -71,13 +76,14 @@ sub Run {
         );
 
         my $Count = 1;
-        for ( reverse sort { $List{$b} cmp $List{$a} } keys %List ) {
+        for ( reverse sort { $List{$b}->{Email} cmp $List{$a}->{Email} } keys %List ) {
             $Self->{LayoutObject}->Block(
                 Name => 'Row',
                 Data => {
-                    Name  => $List{$_},
-                    Email => $_,
-                    Count => $Count,
+                    Name        => $List{$_}->{Email},
+                    Email       => $_,
+                    CustomerKey => $List{$_}->{CustomerKey},
+                    Count       => $Count,
                 },
             );
             $Count++;
