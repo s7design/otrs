@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminPGP.pm - to add/update/delete pgp keys
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -21,8 +21,6 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    $Self->{CryptObject} = Kernel::System::Crypt->new( %Param, CryptType => 'PGP' );
-
     return $Self;
 }
 
@@ -33,6 +31,12 @@ sub Run {
     my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
     my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
+    $Kernel::OM->ObjectParamAdd(
+        'Kernel::System::Crypt' => {
+            CryptType => 'PGP',
+        },
+    );
+    my $CryptObject = $Kernel::OM->Get('Kernel::System::Crypt');
 
     # ------------------------------------------------------------ #
     # check if feature is active
@@ -89,12 +93,12 @@ sub Run {
         }
         my $Success = '';
         if ( $Type eq 'sec' ) {
-            $Success = $Self->{CryptObject}->SecretKeyDelete( Key => $Key );
+            $Success = $CryptObject->SecretKeyDelete( Key => $Key );
         }
         else {
-            $Success = $Self->{CryptObject}->PublicKeyDelete( Key => $Key );
+            $Success = $CryptObject->PublicKeyDelete( Key => $Key );
         }
-        my @List = $Self->{CryptObject}->KeySearch( Search => $Param{Search} );
+        my @List = $CryptObject->KeySearch( Search => $Param{Search} );
         if (@List) {
             for my $Key (@List) {
                 $LayoutObject->Block(
@@ -174,7 +178,7 @@ sub Run {
         if ( !%Errors ) {
 
             # add pgp key
-            my $KeyAdd = $Self->{CryptObject}->KeyAdd( Key => $UploadStuff{Content} );
+            my $KeyAdd = $CryptObject->KeyAdd( Key => $UploadStuff{Content} );
 
             if ($KeyAdd) {
                 $LayoutObject->Block( Name => 'Overview' );
@@ -183,7 +187,7 @@ sub Run {
                 $LayoutObject->Block( Name => 'ActionAdd' );
                 $LayoutObject->Block( Name => 'OverviewResult' );
 
-                my @List = $Self->{CryptObject}->KeySearch( Search => '' );
+                my @List = $CryptObject->KeySearch( Search => '' );
                 if (@List) {
                     for my $Key (@List) {
                         $LayoutObject->Block(
@@ -242,10 +246,10 @@ sub Run {
         }
         my $KeyString = '';
         if ( $Type eq 'sec' ) {
-            $KeyString = $Self->{CryptObject}->SecretKeyGet( Key => $Key );
+            $KeyString = $CryptObject->SecretKeyGet( Key => $Key );
         }
         else {
-            $KeyString = $Self->{CryptObject}->PublicKeyGet( Key => $Key );
+            $KeyString = $CryptObject->PublicKeyGet( Key => $Key );
         }
         return $LayoutObject->Attachment(
             ContentType => 'text/plain',
@@ -272,13 +276,13 @@ sub Run {
         }
         my $Download = '';
         if ( $Type eq 'sec' ) {
-            my @Result = $Self->{CryptObject}->PrivateKeySearch( Search => $Key );
+            my @Result = $CryptObject->PrivateKeySearch( Search => $Key );
             if ( $Result[0] ) {
                 $Download = $Result[0]->{Fingerprint};
             }
         }
         else {
-            my @Result = $Self->{CryptObject}->PublicKeySearch( Search => $Key );
+            my @Result = $CryptObject->PublicKeySearch( Search => $Key );
             if ( $Result[0] ) {
                 $Download = $Result[0]->{Fingerprint};
             }
@@ -299,7 +303,7 @@ sub Run {
         my $Output .= $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
 
-        if ( !$Self->{CryptObject} && $ConfigObject->Get('PGP') ) {
+        if ( !$CryptObject && $ConfigObject->Get('PGP') ) {
             $Output .= $LayoutObject->Notify(
                 Priority => 'Error',
                 Data     => $LayoutObject->{LanguageObject}->Translate( "Cannot create %s!", "CryptObject" ),
@@ -317,8 +321,8 @@ sub Run {
         $LayoutObject->Block( Name => 'OverviewResult' );
 
         my @List = ();
-        if ( $Self->{CryptObject} ) {
-            @List = $Self->{CryptObject}->KeySearch( Search => $Param{Search} );
+        if ($CryptObject) {
+            @List = $CryptObject->KeySearch( Search => $Param{Search} );
         }
         if (@List) {
             for my $Key (@List) {
@@ -335,10 +339,10 @@ sub Run {
             );
         }
 
-        if ( $Self->{CryptObject} && $Self->{CryptObject}->Check() ) {
+        if ( $CryptObject && $CryptObject->Check() ) {
             $Output .= $LayoutObject->Notify(
                 Priority => 'Error',
-                Data     => $LayoutObject->{LanguageObject}->Translate( $Self->{CryptObject}->Check() ),
+                Data     => $LayoutObject->{LanguageObject}->Translate( $CryptObject->Check() ),
             );
         }
         $Output .= $LayoutObject->Output(
