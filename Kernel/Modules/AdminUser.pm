@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminUser.pm - to add/update/delete user and preferences
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -29,18 +29,15 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
-    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
-    my $GroupObject  = $Kernel::OM->Get('Kernel::System::Group');
-    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
-
-    my $Search = $ParamObject->GetParam( Param => 'Search' ) || '';
-
-    #create local object
-    my $CheckItemObject = Kernel::System::CheckItem->new( %{$Self} );
+    my $ParamObject     = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LayoutObject    = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $UserObject      = $Kernel::OM->Get('Kernel::System::User');
+    my $GroupObject     = $Kernel::OM->Get('Kernel::System::Group');
+    my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
+    my $Search          = $ParamObject->GetParam( Param => 'Search' ) || '';
+    my $CheckItemObject = $Kernel::OM->Get('Kernel::System::CheckItem');
 
     # ------------------------------------------------------------ #
     #  switch to user
@@ -96,21 +93,26 @@ sub Run {
             $SecureAttribute = 1;
         }
 
-        my $LayoutObjectSession = Kernel::Output::HTML::Layout->new(
-            %{$Self},
-            SetCookies => {
-                SessionIDCookie => $ParamObject->SetCookie(
-                    Key      => $ConfigObject->Get('SessionName'),
-                    Value    => $NewSessionID,
-                    Expires  => $Expires,
-                    Path     => $ConfigObject->Get('ScriptAlias'),
-                    Secure   => scalar $SecureAttribute,
-                    HTTPOnly => 1,
-                ),
-            },
-            SessionID   => $NewSessionID,
-            SessionName => $ConfigObject->Get('SessionName'),
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::Output::HTML::Layout' => {
+                %UserData,
+                SetCookies => {
+                    SessionIDCookie => $ParamObject->SetCookie(
+                        Key      => $ConfigObject->Get('SessionName'),
+                        Value    => $NewSessionID,
+                        Expires  => $Expires,
+                        Path     => $ConfigObject->Get('ScriptAlias'),
+                        Secure   => scalar $SecureAttribute,
+                        HTTPOnly => 1,
+                    ),
+                },
+                SessionID   => $NewSessionID,
+                SessionName => $ConfigObject->Get('SessionName'),
+                }
         );
+
+        $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout'] );
+        my $LayoutObjectSession = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
         # log event
         $LogObject->Log(
