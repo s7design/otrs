@@ -955,8 +955,14 @@ sub SendEmail {
         }
         $To .= $GetParam{$Key}
     }
+
+    # if there is no ArticleTypeID, use the default value
+    my $ArticleTypeID = ( defined $GetParam{ArticleTypeID} )
+        ? $GetParam{ArticleTypeID}
+        : $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $Self->{Config}->{ArticleTypeDefault} );
+
     my $ArticleID = $Self->{TicketObject}->ArticleSend(
-        ArticleTypeID  => $Self->{GetParam}->{ArticleTypeID},
+        ArticleTypeID  => $ArticleTypeID,
         SenderType     => 'agent',
         TicketID       => $Self->{TicketID},
         HistoryType    => 'Forward',
@@ -1264,24 +1270,34 @@ sub _Mask {
         PossibleNone => 1,
         %State,
     );
+
+    #  get article type
     my %ArticleTypes;
-    my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
-    for (@ArticleTypesPossible) {
-        $ArticleTypes{ $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $_ ) } = $_;
-    }
-    if ( $Self->{GetParam}->{ArticleTypeID} ) {
-        $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
-            Data       => \%ArticleTypes,
-            Name       => 'ArticleTypeID',
-            SelectedID => $Self->{GetParam}->{ArticleTypeID},
-        );
-    }
-    else {
-        $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
-            Data          => \%ArticleTypes,
-            Name          => 'ArticleTypeID',
-            SelectedValue => $Self->{Config}->{ArticleTypeDefault},
-        );
+
+    if ( $Self->{Config}->{ArticleTypes} ) {
+
+        my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
+        for (@ArticleTypesPossible) {
+            $ArticleTypes{ $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $_ ) } = $_;
+        }
+        if ( $Self->{GetParam}->{ArticleTypeID} ) {
+            $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
+                Data       => \%ArticleTypes,
+                Name       => 'ArticleTypeID',
+                SelectedID => $Self->{GetParam}->{ArticleTypeID},
+            );
+        }
+        else {
+            $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
+                Data          => \%ArticleTypes,
+                Name          => 'ArticleTypeID',
+                SelectedValue => $Self->{Config}->{ArticleTypeDefault},
+            );
+            $Self->{LayoutObject}->Block(
+                Name => 'ArticleType',
+                Data => \%Param,
+            );
+        }
     }
 
     # build customer search autocomplete field

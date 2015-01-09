@@ -782,9 +782,14 @@ sub Run {
             );
         }
 
+        # if there is no ArticleTypeID, use the default value
+        my $ArticleTypeID = ( defined $GetParam{ArticleTypeID} )
+            ? $GetParam{ArticleTypeID}
+            : $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $Self->{Config}->{DefaultArticleType} );
+
         # send email
         my $ArticleID = $Self->{TicketObject}->ArticleSend(
-            ArticleTypeID  => $GetParam{ArticleTypeID},
+            ArticleTypeID  => $ArticleTypeID,
             SenderType     => 'agent',
             TicketID       => $Self->{TicketID},
             HistoryType    => 'SendAnswer',
@@ -1595,33 +1600,41 @@ sub _Mask {
 
     #  get article type
     my %ArticleTypes;
-    my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
-    for my $ArticleTypeID (@ArticleTypesPossible) {
-        $ArticleTypes{ $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $ArticleTypeID ) } = $ArticleTypeID;
+
+    if ( $Self->{Config}->{ArticleTypes} ) {
+
+        my @ArticleTypesPossible = @{ $Self->{Config}->{ArticleTypes} };
+        for my $ArticleTypeID (@ArticleTypesPossible) {
+            $ArticleTypes{ $Self->{TicketObject}->ArticleTypeLookup( ArticleType => $ArticleTypeID ) } = $ArticleTypeID;
+        }
+
+        my $DefaultArticleTypeID = $Self->{TicketObject}->ArticleTypeLookup(
+            ArticleType => $Self->{Config}->{DefaultArticleType},
+        );
+
+        my $ArticleTypeIDSelected = $ArticleTypes{ $Param{ArticleTypeID} }
+            ?
+            $Param{ArticleTypeID}
+            :
+            $DefaultArticleTypeID;
+
+        if ( $Param{GetParam}->{ArticleTypeID} ) {
+
+            # set param ArticleType
+            $ArticleTypeIDSelected = $Param{GetParam}->{ArticleTypeID};
+
+        }
+
+        $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
+            Data       => \%ArticleTypes,
+            Name       => 'ArticleTypeID',
+            SelectedID => $ArticleTypeIDSelected,
+        );
+        $Self->{LayoutObject}->Block(
+            Name => 'ArticleType',
+            Data => \%Param,
+        );
     }
-
-    my $DefaultArticleTypeID = $Self->{TicketObject}->ArticleTypeLookup(
-        ArticleType => $Self->{Config}->{DefaultArticleType},
-    );
-
-    my $ArticleTypeIDSelected = $ArticleTypes{ $Param{ArticleTypeID} }
-        ?
-        $Param{ArticleTypeID}
-        :
-        $DefaultArticleTypeID;
-
-    if ( $Param{GetParam}->{ArticleTypeID} ) {
-
-        # set param ArticleType
-        $ArticleTypeIDSelected = $Param{GetParam}->{ArticleTypeID};
-
-    }
-
-    $Param{ArticleTypesStrg} = $Self->{LayoutObject}->BuildSelection(
-        Data       => \%ArticleTypes,
-        Name       => 'ArticleTypeID',
-        SelectedID => $ArticleTypeIDSelected,
-    );
 
     # build customer search autocomplete field
     $Self->{LayoutObject}->Block(
