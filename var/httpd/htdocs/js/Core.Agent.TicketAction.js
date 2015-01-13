@@ -103,7 +103,7 @@ Core.Agent.TicketAction = (function (TargetNS) {
             if(NewData.length){
                 NewData = NewData + ', ';
             }
-            NewData = NewData + $Link.data('customerkey');
+            NewData = NewData + Core.Data.Get($Link, 'customerkey');
             $Element.attr("data-customerkey",NewData);
         }
     }
@@ -278,9 +278,9 @@ Core.Agent.TicketAction = (function (TargetNS) {
                 $Bcc = $('#BccCustomer', parent.document);
 
                 $.each($('#ToCustomer').val().split(/, ?/), function(Index, Value){
-                        $To.val(Value);
-                        var CustomerKey = $('#ToCustomer').data("customerkey").split(/, ?/);
-                        parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer',Value , CustomerKey[Index] );
+                    $To.val(Value);
+                    var CustomerKey = Core.Data.Get($('#ToCustomer'), "customerkey").split(/, ?/);
+                    parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer',Value , CustomerKey[Index] );
                 });
 
                 $.each($('#CcCustomer').val().split(/, ?/), function(Index, Value){
