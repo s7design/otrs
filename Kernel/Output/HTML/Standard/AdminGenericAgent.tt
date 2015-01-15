@@ -1,6 +1,6 @@
 # --
 # AdminGenericAgent.tt - provides HTML form for AdminGenericAgent.pm
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -19,7 +19,7 @@
                 <ul class="ActionList">
 [% RenderBlockStart("ActionAdd") %]
                     <li>
-                        <a class="CallForAction Fullsize Center" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Update"><span><i class="fa fa-plus-square"></i>[% Translate("Add job") | html %]</span></a>
+                        <a class="CallForAction Fullsize Center Create" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Update"><span><i class="fa fa-plus-square"></i>[% Translate("Add job") | html %]</span></a>
                     </li>
 [% RenderBlockEnd("ActionAdd") %]
 [% RenderBlockStart("ActionOverview") %]

@@ -40,7 +40,7 @@
 [% RenderBlockEnd("ActionSearch") %]
 [% RenderBlockStart("ActionAdd") %]
                     <li>
-                        <a class="CallForAction Fullsize Center" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Add">
+                        <a class="CallForAction Fullsize Center Create" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Add">
                             <span><i class="fa fa-plus-square"></i> [% Translate("Add agent") | html %]</span>
                         </a>
                     </li>
@@ -290,7 +290,7 @@
 [% RenderBlockEnd("OutOfOffice") %]
 [% RenderBlockEnd("Item") %]
                         <div class="Field SpacingTop">
-                            <button class="Primary CallForAction" type="submit" value="[% Translate("Submit") | html %]"><span>[% Translate("Submit") | html %]</span></button>
+                            <button class="Primary CallForAction Create" type="submit" value="[% Translate("Submit") | html %]"><span>[% Translate("Submit") | html %]</span></button>
                             [% Translate("or") | html %]
                             <a href="[% Env("Baselink") %]Action=[% Env("Action") %]">[% Translate("Cancel") | html %]</a>
                         </div>
