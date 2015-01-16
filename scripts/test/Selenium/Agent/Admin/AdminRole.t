@@ -49,7 +49,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "table tbody tr td", 'css' );
 
         # click 'add new role' linK
-        $Selenium->find_element( "a.Create", 'css' )->click();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=Add' )]")->click();
 
         # check add page
         my $Element = $Selenium->find_element( "#Name", 'css' );
