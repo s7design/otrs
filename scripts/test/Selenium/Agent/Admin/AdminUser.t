@@ -64,7 +64,8 @@ $Selenium->RunTest(
         );
 
         # check add agent page
-        $Selenium->find_element( "a.Create", 'css' )->click();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=Add' )]")->click();
+
         for my $ID (
             qw(UserFirstname UserLastname UserLogin UserEmail)
             )
@@ -94,7 +95,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#UserLastname",  'css' )->send_keys($RandomID);
         $Selenium->find_element( "#UserLogin",     'css' )->send_keys($RandomID);
         $Selenium->find_element( "#UserEmail",     'css' )->send_keys( $RandomID . '@localhost.com' );
-        $Selenium->find_element( "button.Create",  'css' )->click();
+        $Selenium->find_element( "#UserFirstname", 'css' )->submit();
 
         #edit real test agent values
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminUser");
@@ -105,7 +106,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#UserFirstname", 'css' )->send_keys($EditRandomID);
         $Selenium->find_element( "#UserLastname",  'css' )->clear();
         $Selenium->find_element( "#UserLastname",  'css' )->send_keys($EditRandomID);
-        $Selenium->find_element( "button.Create",  'css' )->click();
+        $Selenium->find_element( "#UserFirstname", 'css' )->submit();
 
         #check new agent values
         $Selenium->find_element( $RandomID, 'link_text' )->click();
@@ -130,9 +131,9 @@ $Selenium->RunTest(
             "#UserEmail stored value",
         );
 
-        # set test agent to invalid
+        # set added test agent to invalid
         $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
-        $Selenium->find_element( "button.Create",              'css' )->click();
+        $Selenium->find_element( "#UserFirstname",             'css' )->submit();
 
         }
 
