@@ -48,7 +48,7 @@ JAVASCRIPT
 
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups   => ['admin'],
-            Language => 'de',
+            Language => 'en',
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -148,9 +148,9 @@ JAVASCRIPT
         # now we should not be able to add the same element again, an alert box should appear
         $Selenium->execute_script($CheckAlertJS);
         $Selenium->find_element( ".ItemAddLevel1 option[value='Properties']", 'css' )->click();
-        my $LanguageObject = Kernel::Language->new(
-            UserLanguage => 'de',
-        );
+
+        my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+
         $Self->Is(
             $Selenium->execute_script(
                 "return window.getLastAlert()"
