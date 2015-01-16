@@ -60,7 +60,7 @@ $Selenium->RunTest(
 
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminMailAccount");
 
-        # check AdminMailAccount page
+        # check AdminMailAccount screen
         $Selenium->find_element( "table",             'css' );
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
@@ -72,7 +72,7 @@ $Selenium->RunTest(
             "$TestMailHost found on page",
         );
 
-        # check AdminEmailAccount add new page
+        # check add mail account
         $Selenium->find_element("//a[contains(\@href, \'Subaction=AddNew' )]")->click();
 
         for my $ID (

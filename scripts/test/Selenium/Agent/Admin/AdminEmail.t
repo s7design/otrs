@@ -93,7 +93,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#RichText",                        'css' )->send_keys($Text);
         $Selenium->find_element( "#Subject",                         'css' )->submit();
 
-        # check if test admin notification was success
+        # check if test admin notification is success
         my $Expected = "Your message was sent to: $TestUserLogin\@localunittest.com";
 
         $Self->True(

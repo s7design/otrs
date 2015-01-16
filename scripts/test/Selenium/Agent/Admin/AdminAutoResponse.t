@@ -94,7 +94,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ValidID option[value='1']",   'css' )->click();
         $Selenium->find_element( "#Name",                        'css' )->submit();
 
-        # check if test auto resposne show on AdminAutoResponse
+        # check if test auto resposne show on AdminAutoResponse screen
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID ) > -1,
             "$RandomID job found on page",
