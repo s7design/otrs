@@ -1,5 +1,5 @@
 # --
-# AdminAttacnment.t - frontend tests for AdminAttacnment
+# AdminAttachment.t - frontend tests for AdminAttachment
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -44,8 +44,8 @@ $Selenium->RunTest(
 
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminAttachment");
 
-         # check overview AdminGroup
-        $Selenium->find_element( "table", 'css' );
+        # check overview AdminGroup
+        $Selenium->find_element( "table",             'css' );
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
@@ -57,12 +57,12 @@ $Selenium->RunTest(
 
             # file checks
             my $Location = $ConfigObject->Get('Home')
-             . "/scripts/test/sample/StdAttachment/StdAttachment-Test1.$File";
+                . "/scripts/test/sample/StdAttachment/StdAttachment-Test1.$File";
             my $RandomID = $Helper->GetRandomID();
-            $Selenium->find_element( "#Name",         'css' )->send_keys($RandomID);
-            $Selenium->find_element( "#ValidID option[value='1']",         'css' )->click();
-            $Selenium->find_element( "#FileUpload",         'css' )->send_keys($Location);
-            $Selenium->find_element( "#Name",         'css' )->submit();
+            $Selenium->find_element( "#Name",                      'css' )->send_keys($RandomID);
+            $Selenium->find_element( "#ValidID option[value='1']", 'css' )->click();
+            $Selenium->find_element( "#FileUpload",                'css' )->send_keys($Location);
+            $Selenium->find_element( "#Name",                      'css' )->submit();
 
             # check if standard attachment show on AdminAttacnment screen
             $Self->True(
@@ -74,10 +74,10 @@ $Selenium->RunTest(
             $Selenium->find_element( "table tbody tr td", 'css' );
 
             # go to new standard attacment again and edit
-            $Selenium->find_element( $RandomID, 'link_text' )->click();
-            $Selenium->find_element( "#ValidID option[value='2']",         'css' )->click();
-            $Selenium->find_element( "#Comment",                           'css' )->send_keys('Selenium test attachment');
-            $Selenium->find_element( "#Name",                              'css' )->submit();
+            $Selenium->find_element( $RandomID,                    'link_text' )->click();
+            $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
+            $Selenium->find_element( "#Comment",                   'css' )->send_keys('Selenium test attachment');
+            $Selenium->find_element( "#Name",                      'css' )->submit();
 
             # check overview page
             $Self->True(
