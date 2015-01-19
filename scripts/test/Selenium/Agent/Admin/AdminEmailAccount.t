@@ -42,20 +42,6 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # add test mail account
-        my $MailAccountAdd = $MailAccountObject->MailAccountAdd(
-            Login         => 'mail',
-            Password      => 'SomePassword',
-            Host          => 'pop3.example.com',
-            Type          => 'POP3',
-            ValidID       => 1,
-            Trusted       => 0,
-            IMAPFolder    => 'Foo',
-            DispatchingBy => 'Queue',
-            QueueID       => 1,
-            UserID        => 1,
-        );
-
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminMailAccount");
@@ -65,14 +51,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
-        # check if test mail account is present
-        my $TestMailHost = "pop3.example.com / mail";
-        $Self->True(
-            index( $Selenium->get_page_source(), $TestMailHost ) > -1,
-            "$TestMailHost found on page",
-        );
-
-        # check add mail account
+        # check "Add mail account" link
         $Selenium->find_element("//a[contains(\@href, \'Subaction=AddNew' )]")->click();
 
         for my $ID (
@@ -84,29 +63,53 @@ $Selenium->RunTest(
             $Element->is_displayed();
         }
 
-        # return to previous screen
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminMailAccount");
+        # add real test mail account
+        my $RandomID = $Helper->GetRandomID();
+
+        $Selenium->find_element( "#TypeAdd option[value='IMAP']",        'css' )->click();
+        $Selenium->find_element( "#LoginAdd",                            'css' )->send_keys($RandomID);
+        $Selenium->find_element( "#PasswordAdd",                         'css' )->send_keys("SomePassword");
+        $Selenium->find_element( "#HostAdd",                             'css' )->send_keys("pop3.example.com");
+        $Selenium->find_element( "#Trusted option[value='0']",           'css' )->click();
+        $Selenium->find_element( "#DispatchingBy option[value='Queue']", 'css' )->click();
+        $Selenium->find_element( "#Comment",  'css' )->send_keys("Selenium test AdminMailAccount");
+        $Selenium->find_element( "#LoginAdd", 'css' )->submit();
+
+        # check if test mail account is present
+        my $TestMailHost = "pop3.example.com / $RandomID";
+        $Self->True(
+            index( $Selenium->get_page_source(), $TestMailHost ) > -1,
+            "$TestMailHost found on page",
+        );
 
         # edit test mail account and set it to invalid
         $Selenium->find_element( $TestMailHost, 'link_text' )->click();
 
-        $Selenium->find_element( "#LoginEdit",                 'css' )->send_keys("edit");
+        $Selenium->find_element( "#HostEdit",                  'css' )->clear();
+        $Selenium->find_element( "#HostEdit",                  'css' )->send_keys("pop3edit.example.com");
         $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
         $Selenium->find_element( "#LoginEdit",                 'css' )->submit();
 
         # check for edited mail account
-        my $TestMailHostEdit = "pop3.example.com / mailedit";
+        my $TestMailHostEdit = "pop3edit.example.com / $RandomID";
         $Self->True(
             index( $Selenium->get_page_source(), $TestMailHostEdit ) > -1,
             "$TestMailHostEdit found on page",
         );
 
-        # delete test mail account
-        my %MailAccount = $MailAccountObject->MailAccountGet(
-            ID => $MailAccountAdd,
+        # test mail account delete button
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+        my $Success  = $DBObject->Prepare(
+            SQL => "SELECT id FROM mail_account WHERE login='$RandomID'",
         );
 
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$MailAccount{ID}' )]")->click();
+        if ($Success) {
+            my $MailAccountID;
+            while ( my @Row = $DBObject->FetchrowArray() ) {
+                $MailAccountID = $Row[0];
+            }
+            $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$MailAccountID' )]")->click();
+        }
 
         }
 
