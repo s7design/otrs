@@ -65,8 +65,8 @@ $Selenium->RunTest(
         $Selenium->find_element("//button[\@value='Submit'][\@type='submit']")->click();
 
         # check overview AdminUserGroup
-        $Selenium->find_element( "div.Size1of2 #Users",  'css' );
-        $Selenium->find_element( "div.Size1of2 #Groups", 'css' );
+        $Selenium->find_element( "#Users",  'css' );
+        $Selenium->find_element( "#Groups", 'css' );
 
         # test filter for Agents using substring from created test agent
         $Selenium->find_element( "div.Content #FilterUsers", 'css' )->send_keys( substr $TestUserLogin, 4 );
