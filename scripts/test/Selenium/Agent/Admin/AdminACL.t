@@ -46,9 +46,12 @@ $Selenium->RunTest(
 }());
 JAVASCRIPT
 
+        # defined user language for testing if message is being translated correctly
+        my $Language = "de";
+
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups   => ['admin'],
-            Language => 'en',
+            Language => $Language,
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -149,7 +152,9 @@ JAVASCRIPT
         $Selenium->execute_script($CheckAlertJS);
         $Selenium->find_element( ".ItemAddLevel1 option[value='Properties']", 'css' )->click();
 
-        my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+        my $LanguageObject = Kernel::Language->new(
+            UserLanguage => $Language,
+        );
 
         $Self->Is(
             $Selenium->execute_script(
