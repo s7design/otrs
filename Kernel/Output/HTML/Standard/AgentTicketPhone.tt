@@ -144,12 +144,9 @@
 <script type="text/javascript">//<![CDATA[
     $('.CustomerTicketRadio').bind('change', function () {
         var CustomerKey;
-        if ( $(this).attr('checked') ){
-
-            CustomerKey = $( '#CustomerKey_' +$(this).val() ).val();
-            // get customer tickets
-            Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
-        }
+        CustomerKey = $( '#CustomerKey_' +$(this).val() ).val();
+        // get customer tickets
+        Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
         return false;
     });
 
