@@ -75,19 +75,26 @@ $Selenium->RunTest(
             "$GroupRandomID group found on page",
         );
 
-        # test filter for Roles using name of created test role
+        # test filter for Roles
         $Selenium->find_element( "#FilterRoles", 'css' )->send_keys($RoleRandomID);
+        sleep 1;
         $Self->True(
-            index( $Selenium->get_page_source(), $RoleRandomID ) > -1,
+            $Selenium->find_element( "$RoleRandomID", 'link_text' )->is_displayed(),
             "$RoleRandomID role found on page",
         );
 
-        # test filter for Groups using name of created test group
+        # test filter for Groups
         $Selenium->find_element( "#FilterGroups", 'css' )->send_keys($GroupRandomID);
+        sleep 1;
         $Self->True(
-            index( $Selenium->get_page_source(), $GroupRandomID ) > -1,
+            $Selenium->find_element( "$GroupRandomID", 'link_text' )->is_displayed(),
             "$GroupRandomID group found on page",
         );
+
+        # clear test filter for Roles and Groups
+        $Selenium->find_element( "#FilterRoles",  'css' )->clear();
+        $Selenium->find_element( "#FilterGroups", 'css' )->clear();
+        sleep 1;
 
         # edit group relations for test role
         $Selenium->find_element( $RoleRandomID, 'link_text' )->click();
