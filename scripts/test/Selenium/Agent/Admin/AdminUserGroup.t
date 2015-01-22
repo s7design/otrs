@@ -67,20 +67,28 @@ $Selenium->RunTest(
         # check overview AdminUserGroup
         $Selenium->find_element( "#Users",  'css' );
         $Selenium->find_element( "#Groups", 'css' );
+        my $FullTestUserLogin = "$TestUserLogin ($TestUserLogin $TestUserLogin)";
 
-        # test filter for Agents using substring from created test agent
-        $Selenium->find_element( "div.Content #FilterUsers", 'css' )->send_keys( substr $TestUserLogin, 4 );
+        # test filter for Users
+        $Selenium->find_element( "#FilterUsers", 'css' )->send_keys($FullTestUserLogin);
+        sleep 1;
         $Self->True(
-            index( $Selenium->get_page_source(), $TestUserLogin ) > -1,
-            "$TestUserLogin found on page",
+            $Selenium->find_element( "$FullTestUserLogin", 'link_text' )->is_displayed(),
+            "$FullTestUserLogin user found on page",
         );
 
-        # test filter for Groups using substring from created test group
-        $Selenium->find_element( "div.Content #FilterGroups", 'css' )->send_keys( substr $RandomID, 4 );
+        # test filter for groups
+        $Selenium->find_element( "#FilterGroups", 'css' )->send_keys($RandomID);
+        sleep 1;
         $Self->True(
-            index( $Selenium->get_page_source(), $RandomID ) > -1,
-            "$RandomID found on page",
+            $Selenium->find_element( "$RandomID", 'link_text' )->is_displayed(),
+            "$RandomID group found on page",
         );
+
+        # clear test filter for Users and Groups
+        $Selenium->find_element( "#FilterUsers",  'css' )->clear();
+        $Selenium->find_element( "#FilterGroups", 'css' )->clear();
+        sleep 1;
 
         # edit test group permission for test agent
         $Selenium->find_element( $RandomID, 'link_text' )->click();
@@ -118,16 +126,14 @@ $Selenium->RunTest(
             Group => $RandomID,
         );
 
-        my $TmpTestUserLogin = "$TestUserLogin ($TestUserLogin $TestUserLogin)";
-
-        $Selenium->find_element( $TmpTestUserLogin, 'link_text' )->click();
+        $Selenium->find_element( $FullTestUserLogin, 'link_text' )->click();
         $Selenium->find_element("//input[\@value='$TestGroupID'][\@name='ro']")->click();
         $Selenium->find_element("//input[\@value='$TestGroupID'][\@name='note']")->click();
 
         $Selenium->find_element("//button[\@value='Submit'][\@type='submit']")->click();
 
         # check edited test agent permissions
-        $Selenium->find_element( $TmpTestUserLogin, 'link_text' )->click();
+        $Selenium->find_element( $FullTestUserLogin, 'link_text' )->click();
 
         $Self->Is(
             $Selenium->find_element("//input[\@value='$TestGroupID'][\@name='ro']")->is_selected(),
