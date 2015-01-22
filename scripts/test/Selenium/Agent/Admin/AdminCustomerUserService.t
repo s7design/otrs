@@ -73,24 +73,26 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Customers",          'css' );
         $Selenium->find_element( "#Service",            'css' );
 
-        # test search filters
+        # test search filter for CustomerUser
         $Selenium->find_element( "#CustomerUserSearch", 'css' )->clear();
         $Selenium->find_element( "#CustomerUserSearch", 'css' )->send_keys($RandomID);
         $Selenium->find_element( "#CustomerUserSearch", 'css' )->submit();
-        $Selenium->find_element( "#FilterServices",     'css' )->send_keys($RandomID2);
-
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID ) > -1,
             "CustomerUser $RandomID found on page",
         );
-        $Self->True(
-            index( $Selenium->get_page_source(), $RandomID2 ) > -1,
-            "CustomerService $RandomID2 found on page",
-        );
-
-        # clear customer user search filter
         $Selenium->find_element( "#CustomerUserSearch", 'css' )->clear();
         $Selenium->find_element( "#CustomerUserSearch", 'css' )->submit();
+
+        # filter for service. It is autocomplete, submit is not necessary
+        $Selenium->find_element( "#FilterServices", 'css' )->send_keys($RandomID2);
+        sleep 1;
+        $Self->True(
+            $Selenium->find_element( "$RandomID2", 'link_text' )->is_displayed(),
+            "$RandomID2 service found on page",
+        );
+        $Selenium->find_element( "#FilterServices", 'css' )->clear();
+        sleep 1;
 
         # allocate test service to test customer user
         $Selenium->find_element("//a[contains(\@href, \'CustomerUserLogin=$RandomID' )]")->click();
