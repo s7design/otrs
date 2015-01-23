@@ -400,7 +400,7 @@ sub _Edit {
 
         # reformat from plain to html
         if ( $Param{ContentType} && $Param{ContentType} =~ /text\/plain/i ) {
-            $Param{Template} = $HTMLUtilsObject > ToHTML(
+            $Param{Template} = $HTMLUtilsObject->ToHTML(
                 String => $Param{Template},
             );
         }
