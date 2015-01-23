@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminTemplate.pm - provides admin std template module
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -400,7 +400,7 @@ sub _Edit {
 
         # reformat from plain to html
         if ( $Param{ContentType} && $Param{ContentType} =~ /text\/plain/i ) {
-            $Param{Template} = $HTMLUtilsObject > ToHTML(
+            $Param{Template} = $HTMLUtilsObject->ToHTML(
                 String => $Param{Template},
             );
         }
