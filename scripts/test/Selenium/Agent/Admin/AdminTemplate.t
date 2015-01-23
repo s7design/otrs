@@ -90,7 +90,6 @@ $Selenium->RunTest(
 
         # test search filter
         $Selenium->find_element( "#Filter", 'css' )->send_keys($TemplateRandomID);
-
         sleep 1;
 
         $Self->True(
@@ -150,40 +149,13 @@ $Selenium->RunTest(
         $Selenium->go_back();
 
         # test template delete button
-        my $Success = $DBObject->Prepare(
-            SQL => "SELECT id FROM standard_template WHERE name = '$TemplateRandomID'",
+        my $TemplateID = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateLookup(
+            StandardTemplate => $TemplateRandomID,
         );
 
-        if ($Success) {
-            my $TemplateID;
-            while ( my @Row = $DBObject->FetchrowArray() ) {
-                $TemplateID = $Row[0];
-            }
-            $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$TemplateID' )]")->click();
-        }
-
-=start
-        # Since there are no tickets that rely on our test template, we can remove them again
-        # from the DB.
-        if ($TemplateRandomID) {
-            $TemplateRandomID = $DBObject->Quote($TemplateRandomID);
-            my $Success = $DBObject->Do(
-                SQL => "DELETE FROM standard_template WHERE name = ?",
-                Bind => [ \$TemplateRandomID ],
-            );
-            $Self->True(
-                $Success,
-                "Deleted - $TemplateRandomID",
-            );
-        }
-        # Make sure the cache is correct.
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-            Type => 'StandardTemplate',
-        );
-=cut
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$TemplateID' )]")->click();
 
         }
-
 );
 
 1;
