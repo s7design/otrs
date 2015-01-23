@@ -17,8 +17,11 @@ use Kernel::System::UnitTest::Helper;
 use Kernel::System::UnitTest::Selenium;
 
 # get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
+my $ConfigObject           = $Kernel::OM->Get('Kernel::Config');
+my $DBObject               = $Kernel::OM->Get('Kernel::System::DB');
+my $StdAttachmentObject    = $Kernel::OM->Get('Kernel::System::StdAttachment');
+my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
+my $MainObject             = $Kernel::OM->Get('Kernel::System::Main');
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
@@ -41,28 +44,47 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
+        my $UserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
+            UserLogin => $TestUserLogin,
+        );
+
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         my $AttachmentRandomID = "attachment" . $Helper->GetRandomID();
         my $TemplateRandomID   = "template" . $Helper->GetRandomID();
 
         # create test attachment
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminAttachment");
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=Add' )]")->click();
-
         my $Location = $ConfigObject->Get('Home')
             . "/scripts/test/sample/StdAttachment/StdAttachment-Test1.txt";
 
-        $Selenium->find_element( "#Name",       'css' )->send_keys($AttachmentRandomID);
-        $Selenium->find_element( "#FileUpload", 'css' )->send_keys($Location);
-        $Selenium->find_element( "#Name",       'css' )->submit();
+        my $ContentRef = $MainObject->FileRead(
+            Location => $Location,
+            Mode     => 'binmode',
+        );
+
+        my $Content = ${$ContentRef};
+
+        my $MD5 = $MainObject->MD5sum( String => \$Content );
+
+        my $AttachmentID = $StdAttachmentObject->StdAttachmentAdd(
+            Name        => $AttachmentRandomID,
+            ValidID     => 1,
+            Content     => $Content,
+            ContentType => 'text/xml',
+            Filename    => 'StdAttachment Test1äöüß.txt',
+            Comment     => 'Some Comment',
+            UserID      => $UserID,
+        );
 
         # create test template
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminTemplate");
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=Add' )]")->click();
-
-        $Selenium->find_element( "#Name", 'css' )->send_keys($TemplateRandomID);
-        $Selenium->find_element( "#Name", 'css' )->submit();
+        my $TemplateID = $StandardTemplateObject->StandardTemplateAdd(
+            Name         => $TemplateRandomID,
+            Template     => 'Thank you for your email.',
+            ContentType  => 'text/plain; charset=utf-8',
+            TemplateType => 'Answer',
+            ValidID      => 1,
+            UserID       => $UserID,
+        );
 
         # check overview AdminTemplateAttachment screen
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminTemplateAttachment");
@@ -86,18 +108,9 @@ $Selenium->RunTest(
             "$AttachmentRandomID found on screen"
         );
 
-        # get id's for created test Template and Attachment
-        my $TemplateID = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateLookup(
-            StandardTemplate => $TemplateRandomID,
-        );
-        my $AttachmentID = $Kernel::OM->Get('Kernel::System::StdAttachment')->StdAttachmentLookup(
-            StdAttachment => $AttachmentRandomID,
-        );
-
         # test search filters
         $Selenium->find_element( "#FilterTemplates",   'css' )->send_keys($TemplateRandomID);
         $Selenium->find_element( "#FilterAttachments", 'css' )->send_keys($AttachmentRandomID);
-
         sleep 1;
 
         $Self->True(
@@ -121,47 +134,39 @@ $Selenium->RunTest(
 
         $Self->True(
             $Selenium->find_element("//input[\@value='$TemplateID'][\@type='checkbox']")->is_selected(),
-            "$AttachmentRandomID found on screen with filter on",
+            "$AttachmentRandomID is in a relation with $TemplateRandomID",
         );
+
+        $Selenium->find_element("//input[\@value='$TemplateID'][\@type='checkbox']")->click();
+        $Selenium->find_element("//button[\@value='Submit'][\@type='submit']")->click();
 
         # Since there are no tickets that rely on our test TemplateAttachment,
         # we can remove test template and  test attchment from the DB
-        my $Success = $DBObject->Do(
-            SQL => "DELETE FROM standard_template_attachment WHERE standard_attachment_id = $AttachmentID",
+        my $Success = $StdAttachmentObject->StdAttachmentStandardTemplateMemberAdd(
+            AttachmentID       => $AttachmentID,
+            StandardTemplateID => $TemplateID,
+            Active             => 0,
+            UserID             => $UserID
         );
         $Self->True(
             $Success,
-            "Deleted standard_template_attachment relation"
+            "StdAttachmentStandardTemplateMemberAdd() removal for Attachment -> Template tests | with True",
         );
 
-        if ($TemplateRandomID) {
-            my $Success = $DBObject->Do(
-                SQL => "DELETE FROM standard_template WHERE id = $TemplateID",
-            );
-            $Self->True(
-                $Success,
-                "Deleted - $TemplateRandomID",
-            );
-        }
-        if ($AttachmentRandomID) {
-            my $Success = $DBObject->Do(
-                SQL => "DELETE FROM standard_attachment WHERE id = $AttachmentID",
-            );
-            $Self->True(
-                $Success,
-                "Deleted - $AttachmentRandomID",
-            );
-        }
+        $Success = $StdAttachmentObject->StdAttachmentDelete( ID => $AttachmentID );
+        $Self->True(
+            $Success,
+            "StdAttachemntDelete() for Attachment -> Template tests | with True",
+        );
 
-        # Make sure the cache is correct.
-        for my $Cache (
-            qw (StandardTemplate StandardAttachment)
-            )
-        {
-            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-                Type => $Cache,
-            );
-        }
+        $Success = $StandardTemplateObject->StandardTemplateDelete(
+            ID => $TemplateID,
+        );
+
+        $Self->True(
+            $Success,
+            "StandardTemplateDelete() for Attachment -> Template tests | with True",
+        );
 
         }
 
