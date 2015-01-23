@@ -17,8 +17,9 @@ use Kernel::System::UnitTest::Helper;
 use Kernel::System::UnitTest::Selenium;
 
 # get needed objects
-my $ConfigObject        = $Kernel::OM->Get('Kernel::Config');
-my $DBObject            = $Kernel::OM->Get('Kernel::System::DB');
+my $ConfigObject           = $Kernel::OM->Get('Kernel::Config');
+my $DBObject               = $Kernel::OM->Get('Kernel::System::DB');
+my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
@@ -41,41 +42,48 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
+        my $UserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
+            UserLogin => $TestUserLogin,
+        );
+
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
+        my $QueueRandomID    = "queue" . $Helper->GetRandomID();
+        my $TemplateRandomID = "template" . $Helper->GetRandomID();
+
         # add test queue
-        my $QueueRandomID = "queue" . $Helper->GetRandomID();
-        my $QueueID   = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-            Name                => $QueueRandomID,
-            ValidID             => 1,
-            GroupID             => 1,
-            SystemAddressID     => 1,
-            SalutationID        => 1,
-            SignatureID         => 1,
-            UserID              => 1,
-            Comment             => 'Selenium Test Queue',
+        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
+            Name            => $QueueRandomID,
+            ValidID         => 1,
+            GroupID         => 1,
+            SystemAddressID => 1,
+            SalutationID    => 1,
+            SignatureID     => 1,
+            UserID          => $UserID,
+            Comment         => 'Selenium Test Queue',
         );
 
         # create test template
-        my $TemplateRandomID = "template" . $Helper->GetRandomID();
-
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminTemplate");
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=Add' )]")->click();
-
-        $Selenium->find_element( "#Name",   'css' )->send_keys($TemplateRandomID);
-        $Selenium->find_element( "#Name",   'css' )->submit();
+        my $TemplateID = $StandardTemplateObject->StandardTemplateAdd(
+            Name         => $TemplateRandomID,
+            Template     => 'Thank you for your email.',
+            ContentType  => 'text/plain; charset=utf-8',
+            TemplateType => 'Answer',
+            ValidID      => 1,
+            UserID       => $UserID,
+        );
 
         # check overview AdminQueueTemplates screen
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminQueueTemplates");
 
         for my $ID (
-                qw(Templates Queues FilterTemplates FilterQueues)
-                )
-            {
-                my $Element = $Selenium->find_element( "#$ID", 'css' );
-                $Element->is_enabled();
-                $Element->is_displayed();
-            }
+            qw(Templates Queues FilterTemplates FilterQueues)
+            )
+        {
+            my $Element = $Selenium->find_element( "#$ID", 'css' );
+            $Element->is_enabled();
+            $Element->is_displayed();
+        }
 
         # check for test template and test queue on screen
         $Self->True(
@@ -87,18 +95,9 @@ $Selenium->RunTest(
             "$QueueRandomID found on screen"
         );
 
-        # get id's for created test Template and Queue
-        my $TemplateID = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateLookup(
-            StandardTemplate => $TemplateRandomID,
-            );
-        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueLookup(
-             Queue => $QueueRandomID,
-             );
-
         # test search filters
-        $Selenium->find_element( "#FilterTemplates",   'css' )->send_keys($TemplateRandomID);
-        $Selenium->find_element( "#FilterQueues", 'css' )->send_keys($QueueRandomID);
-
+        $Selenium->find_element( "#FilterTemplates", 'css' )->send_keys($TemplateRandomID);
+        $Selenium->find_element( "#FilterQueues",    'css' )->send_keys($QueueRandomID);
         sleep 1;
 
         $Self->True(
@@ -122,30 +121,23 @@ $Selenium->RunTest(
 
         $Self->True(
             $Selenium->find_element("//input[\@value='$TemplateID'][\@type='checkbox']")->is_selected(),
-            "$QueueRandomID found on screen with filter on",
+            "$QueueRandomID is in a relation with $TemplateRandomID",
         );
 
-        # Since there are no tickets that rely on our test TemplateQueue,
-        # we can remove test template and  test attchment from the DB
-        my $Success = $DBObject->Do(
-            SQL => "DELETE FROM queue_standard_template WHERE queue_id = $QueueID",
+        # Since there are no tickets that rely on our test QueueTemplate,
+        # we can remove test template and  test queue from the DB
+
+        my $Success;
+        if ($QueueID) {
+            $Success = $DBObject->Do(
+                SQL => "DELETE FROM queue_standard_template WHERE queue_id = $QueueID",
             );
             $Self->True(
                 $Success,
                 "Deleted standard_template_queue relation"
             );
 
-        if ($TemplateRandomID) {
-            my $Success = $DBObject->Do(
-                SQL => "DELETE FROM standard_template WHERE id = $TemplateID",
-            );
-            $Self->True(
-                $Success,
-                "Deleted - $TemplateRandomID",
-            );
-        }
-        if ($QueueRandomID) {
-            my $Success = $DBObject->Do(
+            $Success = $DBObject->Do(
                 SQL => "DELETE FROM queue WHERE id = $QueueID",
             );
             $Self->True(
@@ -154,20 +146,19 @@ $Selenium->RunTest(
             );
         }
 
-        # Make sure the cache is correct.
-        for my $Cache (
-            qw (StandardTemplate Queue)
-            )
-        {
-            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-                Type => $Cache,
+        if ($TemplateID) {
+            $Success = $StandardTemplateObject->StandardTemplateDelete(
+                ID => $TemplateID,
             );
         }
 
-}
+        # Make sure the cache is correct.
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+            Type => "Queue",
+        );
+
+        }
 
 );
 
 1;
-
-

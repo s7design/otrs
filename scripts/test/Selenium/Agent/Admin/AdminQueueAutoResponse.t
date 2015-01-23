@@ -46,20 +46,20 @@ $Selenium->RunTest(
 
         # add test queue
         my $QueueRandomID = "queue" . $Helper->GetRandomID();
-        my $QueueID   = $QueueObject->QueueAdd(
-            Name                => $QueueRandomID,
-            ValidID             => 1,
-            GroupID             => 1,
-            SystemAddressID     => 1,
-            SalutationID        => 1,
-            SignatureID         => 1,
-            UserID              => 1,
-            Comment             => 'Selenium Test',
+        my $QueueID       = $QueueObject->QueueAdd(
+            Name            => $QueueRandomID,
+            ValidID         => 1,
+            GroupID         => 1,
+            SystemAddressID => 1,
+            SalutationID    => 1,
+            SignatureID     => 1,
+            UserID          => 1,
+            Comment         => 'Selenium Test',
         );
 
         # add test system address
         my $SystemAddressRandomID = "sysadd" . $Helper->GetRandomID();
-        my $SystemAddressID        = $SystemAddressObject->SystemAddressAdd(
+        my $SystemAddressID       = $SystemAddressObject->SystemAddressAdd(
             Name     => $SystemAddressRandomID . '@example.com',
             Realname => $SystemAddressRandomID,
             ValidID  => 1,
@@ -104,13 +104,13 @@ $Selenium->RunTest(
                 Comment => "Auto response remove selenium test",
             },
 
-            );
+        );
 
         # add test auto responses
         my @AutoResponseIDs;
         for my $Test (@Tests) {
             my $AutoResponseNameRand = $Test->{Name} . $Helper->GetRandomID();
-            my $AutoResponseID = $AutoResponseObject->AutoResponseAdd(
+            my $AutoResponseID       = $AutoResponseObject->AutoResponseAdd(
                 Name        => $AutoResponseNameRand,
                 Subject     => $Test->{Subject},
                 Response    => 'Some Response',
@@ -123,8 +123,10 @@ $Selenium->RunTest(
                 UserID      => 1,
             );
 
-            push @AutoResponseIDs, { ID => $AutoResponseID,
-                                     Name =>  $AutoResponseNameRand };
+            push @AutoResponseIDs, {
+                ID   => $AutoResponseID,
+                Name => $AutoResponseNameRand
+            };
         }
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
@@ -133,13 +135,13 @@ $Selenium->RunTest(
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminQueueAutoResponse");
 
         for my $ID (
-                qw(Queues AutoResponses FilterQueues FilterAutoResponses)
-                )
-            {
-                my $Element = $Selenium->find_element( "#$ID", 'css' );
-                $Element->is_enabled();
-                $Element->is_displayed();
-            }
+            qw(Queues AutoResponses FilterQueues FilterAutoResponses)
+            )
+        {
+            my $Element = $Selenium->find_element( "#$ID", 'css' );
+            $Element->is_enabled();
+            $Element->is_displayed();
+        }
 
         # check for created test Queue and AutoResponses on screen
         $Self->True(
@@ -147,77 +149,83 @@ $Selenium->RunTest(
             "$QueueRandomID found on screen"
         );
 
-        for my $AutoResponse ( @AutoResponseIDs ){
-        $Self->True(
-            index( $Selenium->get_page_source(), $AutoResponse->{Name}  ) > -1,
-            "$AutoResponse->{Name} auto response found on screen"
-        );
+        for my $AutoResponse (@AutoResponseIDs) {
+            $Self->True(
+                index( $Selenium->get_page_source(), $AutoResponse->{Name} ) > -1,
+                "$AutoResponse->{Name} auto response found on screen"
+            );
         }
 
         # test search filter auto response
-        $Selenium->find_element( "#FilterAutoResponses", 'css' )->send_keys($AutoResponseIDs[1]->{Name});
+        $Selenium->find_element( "#FilterAutoResponses", 'css' )->send_keys( $AutoResponseIDs[1]->{Name} );
         sleep 1;
         $Self->True(
-            $Selenium->find_element( "//a[contains(\@href, 'Action=AdminAutoResponse;Subaction=Change;ID=$AutoResponseIDs[1]->{ID}' )]" )->is_displayed(),
+            $Selenium->find_element(
+                "//a[contains(\@href, 'Action=AdminAutoResponse;Subaction=Change;ID=$AutoResponseIDs[1]->{ID}' )]"
+                )->is_displayed(),
             "$AutoResponseIDs[1]->{Name} found on screen",
         );
 
         my $Success;
-             eval {
-             $Success = $Selenium->find_element( "//a[contains(\@href, 'Action=AdminAutoResponse;Subaction=Change;ID=$AutoResponseIDs[2]->{ID}' )]" )->is_displayed(),
-             };
+        eval {
+            $Success = $Selenium->find_element(
+                "//a[contains(\@href, 'Action=AdminAutoResponse;Subaction=Change;ID=$AutoResponseIDs[2]->{ID}' )]"
+                )->is_displayed(),
+        };
 
-             $Self->False(
-                $Success,
-                "$AutoResponseIDs[2]->{Name} is not found screen",
-             );
+        $Self->False(
+            $Success,
+            "$AutoResponseIDs[2]->{Name} is not found screen",
+        );
         $Selenium->find_element( "#FilterAutoResponses", 'css' )->clear();
 
         # test search filter queue
-        $Selenium->find_element( "#FilterQueues",        'css' )->send_keys($QueueRandomID);
+
+        $Selenium->find_element( "#FilterQueues", 'css' )->send_keys($QueueRandomID);
         sleep 1;
 
         $Self->True(
-             $Selenium->find_element( $QueueRandomID, 'link_text' )->is_displayed(),
-             "$QueueRandomID found on screen",
-            );
+            $Selenium->find_element( $QueueRandomID, 'link_text' )->is_displayed(),
+            "$QueueRandomID found on screen",
+        );
         $Selenium->find_element( "#FilterQueues", 'css' )->clear();
         sleep 1;
 
         # check auto response relation for queue screen
         $Selenium->find_element( $QueueRandomID, 'link_text' )->click();
         my $Index = 0;
-        for my $Test ( @Tests )
-            {
-                my $Element = $Selenium->find_element( "#IDs_$Test->{TypeID}", 'css' );
-                $Element->is_enabled();
-                $Element->is_displayed();
+        for my $Test (@Tests)
+        {
+            my $Element = $Selenium->find_element( "#IDs_$Test->{TypeID}", 'css' );
+            $Element->is_enabled();
+            $Element->is_displayed();
 
-                # check auto response relation for queue default values
-                $Self->Is(
-                    $Selenium->find_element( "#IDs_$Test->{TypeID} option[value='']", 'css' )->is_displayed(),
-                    1,
-                    "Relation between auto response $Test->{Name} and $QueueRandomID is not set"
-                );
+            # check auto response relation for queue default values
+            $Self->Is(
+                $Selenium->find_element( "#IDs_$Test->{TypeID} option[value='']", 'css' )->is_displayed(),
+                1,
+                "Relation between auto response $Test->{Name} and $QueueRandomID is not set"
+            );
 
-                # change auto response relation for test queue
-                $Selenium->find_element( "#IDs_$Test->{TypeID} option[value='$AutoResponseIDs[$Index]->{ID}']", 'css' )->click();
-                $Index++;
-            }
+            # change auto response relation for test queue
+            $Selenium->find_element( "#IDs_$Test->{TypeID} option[value='$AutoResponseIDs[$Index]->{ID}']", 'css' )
+                ->click();
+            $Index++;
+        }
 
         $Selenium->find_element("//button[\@value='Submit'][\@type='submit']")->click();
 
         # check new QueueAutoResponse relations
         $Selenium->find_element( $QueueRandomID, 'link_text' )->click();
         $Index = 0;
-        for my $Test ( @Tests )
-            {
+        for my $Test (@Tests)
+        {
 
             $Self->Is(
-                    $Selenium->find_element( "#IDs_$Test->{TypeID}", 'css' )->get_value(),
-                    $AutoResponseIDs[$Index]->{ID},
-                    "$AutoResponseIDs[$Index]->{Name} stored value",
-                );
+                $Selenium->find_element( "#IDs_$Test->{TypeID}", 'css' )->get_value(),
+                $AutoResponseIDs[$Index]->{ID},
+                "$AutoResponseIDs[$Index]->{Name} stored value",
+            );
             $Index++;
 
         }
@@ -226,16 +234,16 @@ $Selenium->RunTest(
         # we can remove test queue, system address and auto response from the DB
         $Success = $DBObject->Do(
             SQL => "DELETE FROM queue_auto_response WHERE queue_id = $QueueID",
-            );
-            $Self->True(
-                $Success,
-                "Deleted QueueAutoResponse",
-            );
+        );
+        $Self->True(
+            $Success,
+            "Deleted QueueAutoResponse",
+        );
 
-        for my $AutoResponse ( @AutoResponseIDs ){
+        for my $AutoResponse (@AutoResponseIDs) {
 
             $Success = $DBObject->Do(
-                SQL  => "DELETE FROM auto_response WHERE id = $AutoResponse->{ID}",
+                SQL => "DELETE FROM auto_response WHERE id = $AutoResponse->{ID}",
             );
             $Self->True(
                 $Success,
@@ -255,11 +263,11 @@ $Selenium->RunTest(
         }
 
         if ($SystemAddressRandomID) {
-        my %SystemAddressID = $SystemAddressObject->SystemAddressGet(
-            ID => $SystemAddressID
+            my %SystemAddressID = $SystemAddressObject->SystemAddressGet(
+                ID => $SystemAddressID
             );
             $Success = $DBObject->Do(
-                SQL  => "DELETE FROM system_address WHERE id= $SystemAddressID",
+                SQL => "DELETE FROM system_address WHERE id= $SystemAddressID",
             );
             $Self->True(
                 $Success,
@@ -277,7 +285,7 @@ $Selenium->RunTest(
             );
         }
 
-    }
+        }
 
 );
 
