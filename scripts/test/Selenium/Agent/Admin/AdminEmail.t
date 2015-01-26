@@ -30,6 +30,8 @@ $Selenium->RunTest(
             RestoreSystemConfiguration => 0,
         );
 
+        my $Language = 'de';
+
         # do not check RichText
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
@@ -38,7 +40,8 @@ $Selenium->RunTest(
         );
 
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => ['admin'],
+            Groups   => ['admin'],
+            Language => $Language,
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -54,7 +57,7 @@ $Selenium->RunTest(
         # check page
         for my $ID (
             qw(From UserIDs GroupIDs GroupPermissionRO GroupPermissionRW
-            NotifyCustomerUsers RoleIDs Subject RichText)
+            NotifyCustomerUsers Subject RichText)
             )
         {
             my $Element = $Selenium->find_element( "#$ID", 'css' );
@@ -62,9 +65,17 @@ $Selenium->RunTest(
             $Element->is_displayed();
         }
 
+        # if there are roles, there will be select box for roles in AdminEmail
+        my %RoleList = $Kernel::OM->Get('Kernel::System::Group')->RoleList( Valid => 1 );
+        if (%RoleList) {
+            my $Element = $Selenium->find_element( "#RoleIDs", 'css' );
+            $Element->is_enabled();
+            $Element->is_displayed();
+        }
+
         $Self->Is(
             $Selenium->find_element( '#From', 'css' )->get_value(),
-            "admin\@example.com",
+            $Kernel::OM->Get('Kernel::Config')->Get("AdminEmail"),
             "#From stored value",
         );
 
@@ -94,7 +105,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Subject",                         'css' )->submit();
 
         # check if test admin notification is success
-        my $Expected = "Your message was sent to: $TestUserLogin\@localunittest.com";
+        my $LanguageObject = Kernel::Language->new(
+            UserLanguage => $Language,
+        );
+
+        my $Expected = $LanguageObject->Get(
+            "Your message was sent to"
+        ) . ": $TestUserLogin\@localunittest.com";
 
         $Self->True(
             index( $Selenium->get_page_source(), $Expected ) > -1,
