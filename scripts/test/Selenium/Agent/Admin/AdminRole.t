@@ -30,8 +30,11 @@ $Selenium->RunTest(
             RestoreSystemConfiguration => 0,
         );
 
+        my $Language = 'de';
+
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => ['admin'],
+            Groups   => ['admin'],
+            Language => $Language,
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -44,9 +47,30 @@ $Selenium->RunTest(
 
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminRole");
 
-        $Selenium->find_element( "table",             'css' );
-        $Selenium->find_element( "table thead tr th", 'css' );
-        $Selenium->find_element( "table tbody tr td", 'css' );
+        # check roles overview screen,
+        # if there are roles, check is there table on screen
+        # otherwise check is there a message that no roles are defined
+        my %RoleList = $Kernel::OM->Get('Kernel::System::Group')->RoleList();
+        if (%RoleList) {
+            $Selenium->find_element( "table",             'css' );
+            $Selenium->find_element( "table thead tr th", 'css' );
+            $Selenium->find_element( "table tbody tr td", 'css' );
+        }
+        else {
+            my $LanguageObject = Kernel::Language->new(
+                UserLanguage => $Language,
+            );
+
+            $Self->True(
+                index(
+                    $Selenium->get_page_source(),
+                    $LanguageObject->Get(
+                        "There are no roles defined. Please use the 'Add' button to create a new role."
+                        )
+                    ) > -1,
+                "There are no roles defined.",
+            );
+        }
 
         # click 'add new role' linK
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Add' )]")->click();
@@ -156,7 +180,7 @@ $Selenium->RunTest(
 
         # Make sure the cache is correct.
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-            Type => 'Role',
+            Type => 'Group',
         );
 
         }
