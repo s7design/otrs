@@ -825,11 +825,16 @@ sub _Element {
             . ( $Self->{CustomerID} || '' ) . '-'
             . $Self->{LayoutObject}->{UserLanguage};
     }
+
     if ( $Config{CacheTTL} ) {
-        $Content = $Self->{CacheObject}->Get(
+        my $PreviewContent = $Self->{CacheObject}->Get(
             Type => 'Dashboard',
             Key  => $CacheKey,
         );
+
+          if ( $PreviewContent =~ /OTRSAgentInterface=$Self->{SessionID}/i){
+                $Content = $PreviewContent;
+          }
     }
 
     # execute backends
