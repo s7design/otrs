@@ -832,7 +832,7 @@ sub _Element {
             Key  => $CacheKey,
         );
 
-          if ( $PreviewContent =~ /OTRSAgentInterface=$Self->{SessionID}/i){
+          if ( $PreviewContent =~ /$Self->{SessionName}.'='.$Self->{SessionID}/i){
                 $Content = $PreviewContent;
           }
     }
