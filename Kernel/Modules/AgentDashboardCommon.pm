@@ -832,9 +832,11 @@ sub _Element {
             Key  => $CacheKey,
         );
 
-          if ( $PreviewContent =~ /$Self->{SessionName}.'='.$Self->{SessionID}/i){
+        if ( $Self->{'HttpType'} eq 'https' && $PreviewContent =~ /$Self->{SessionName}/ ) {
+            if ( $PreviewContent =~ /$Self->{SessionName}.'='.$Self->{SessionID}/i ) {
                 $Content = $PreviewContent;
-          }
+            }
+        }
     }
 
     # execute backends
