@@ -31,12 +31,9 @@ sub Run {
     my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
     my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
-    $Kernel::OM->ObjectParamAdd(
-        'Kernel::System::Crypt' => {
-            CryptType => 'PGP',
-        },
+    my $CryptObject   = Kernel::System::Crypt->new(
+        CryptType => 'PGP',
     );
-    my $CryptObject = $Kernel::OM->Get('Kernel::System::Crypt');
 
     # ------------------------------------------------------------ #
     # check if feature is active
