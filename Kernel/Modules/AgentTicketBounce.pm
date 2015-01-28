@@ -404,7 +404,7 @@ $Param{Signature}";
             if ( $Self->{LayoutObject}->{BrowserRichText} ) {
 
                 # prepare bounce tags
-                $Param{Body} =~ s/&lt;OTRS_TICKET&gt;/&amp;$Ticket{TicketNumber}/gi;
+                $Param{Body} =~ s/&lt;OTRS_TICKET&gt;/$Ticket{TicketNumber}/gi;
                 $Param{Body} =~ s/&lt;OTRS_BOUNCE_TO&gt;/&amp;lt;OTRS_BOUNCE_TO&amp;gt;/gi;
             }
 
