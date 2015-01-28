@@ -220,7 +220,7 @@ sub Run {
         if ( $Self->{LayoutObject}->{BrowserRichText} ) {
 
             # prepare bounce tags
-            $Param{BounceText} =~ s/<OTRS_TICKET>/&lt;OTRS_TICKET&gt;/g;
+            $Param{BounceText} =~ s/<OTRS_TICKET>/$Ticket{TicketNumber}/g;
             $Param{BounceText} =~ s/<OTRS_BOUNCE_TO>/&lt;OTRS_BOUNCE_TO&gt;/g;
 
             $Param{BounceText} = $Self->{LayoutObject}->Ascii2RichText(
@@ -404,7 +404,7 @@ $Param{Signature}";
             if ( $Self->{LayoutObject}->{BrowserRichText} ) {
 
                 # prepare bounce tags
-                $Param{Body} =~ s/&lt;OTRS_TICKET&gt;/&amp;lt;OTRS_TICKET&amp;gt;/gi;
+                $Param{Body} =~ s/&lt;OTRS_TICKET&gt;/&amp;$Ticket{TicketNumber}/gi;
                 $Param{Body} =~ s/&lt;OTRS_BOUNCE_TO&gt;/&amp;lt;OTRS_BOUNCE_TO&amp;gt;/gi;
             }
 
