@@ -21,8 +21,6 @@ use Kernel::System::Crypt;
 my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 my $DBObject        = $Kernel::OM->Get('Kernel::System::DB');
 my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
@@ -111,7 +109,7 @@ $Selenium->RunTest(
             Key   => 'PGP',
             Value => 1,
         );
-        my $CryptObject     = Kernel::System::Crypt->new(
+        my $CryptObject = Kernel::System::Crypt->new(
             CryptType => 'PGP',
         );
         for my $Count ( 1 .. 2 ) {
