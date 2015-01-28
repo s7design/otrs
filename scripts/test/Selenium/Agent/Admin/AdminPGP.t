@@ -21,9 +21,8 @@ use Kernel::System::Crypt;
 my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 my $DBObject        = $Kernel::OM->Get('Kernel::System::DB');
 my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-my $CryptObject     = Kernel::System::Crypt->new(
-    CryptType => 'PGP',
-);
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
@@ -36,13 +35,6 @@ $Selenium->RunTest(
             RestoreSystemConfiguration => 0,
         );
 
-        # enable PGP
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'PGP',
-            Value => 1
-        );
-
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
         ) || die "Did not get test user";
@@ -51,6 +43,13 @@ $Selenium->RunTest(
             Type     => 'Agent',
             User     => $TestUserLogin,
             Password => $TestUserLogin,
+        );
+
+        # enable PGP
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'PGP',
+            Value => 1
         );
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
@@ -108,6 +107,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Search", 'css' )->submit();
 
         # delete test PGP keys
+        $ConfigObject->Set(
+            Key   => 'PGP',
+            Value => 1,
+        );
+        my $CryptObject     = Kernel::System::Crypt->new(
+            CryptType => 'PGP',
+        );
         for my $Count ( 1 .. 2 ) {
             my @Keys = $CryptObject->KeySearch(
                 Search => $PGPKey{$Count},
