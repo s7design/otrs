@@ -161,6 +161,9 @@ sub GroupAdd {
         Type => 'Group',
         Key  => 'GroupList::1',
     );
+    $CacheObject->CleanUp(
+        Type => 'CustomerGroup',
+    );
 
     return $GroupID;
 }
