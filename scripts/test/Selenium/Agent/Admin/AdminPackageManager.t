@@ -68,7 +68,7 @@ my $String = '<?xml version="1.0" encoding="utf-8" ?>
     <TableDrop Name="test_package"/>
   </DatabaseUninstall>
   <Filelist>
-    <File Location="Test" Permission="644" Encode="Base64">aGVsbG8K</File>
+    <File Location="var/tmp/Test" Permission="644" Encode="Base64">aGVsbG8K</File>
     <File Location="var/Test" Permission="644" Encode="Base64">aGVsbG8K</File>
   </Filelist>
 </otrs_package>
@@ -99,13 +99,15 @@ $Selenium->RunTest(
 
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminPackageManager");
 
-        my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
+        my $Element = $Selenium->find_element( "#FileUpload", 'css' );
+        $Element->is_enabled();
+        $Element->is_displayed();
 
+        my $PackageObject  = $Kernel::OM->Get('Kernel::System::Package');
         my $PackageInstall = $PackageObject->PackageInstall( String => $String );
-
-        my $Download = $PackageObject->PackageOnlineGet(
+        my $Download       = $PackageObject->PackageOnlineGet(
             Source => 'http://ftp.otrs.org/pub/otrs/packages',
-            File   => 'Support-1.4.4.opm',
+            File   => 'Support-1.5.4.opm',
         );
 
         $Self->True(
@@ -120,43 +122,24 @@ $Selenium->RunTest(
 
         $Selenium->refresh();
 
+        # load page with metadata of installed package
         $Selenium->find_element(
             "//a[contains(\@href, \'Subaction=View;Name=Test' )]"
         )->click();
 
-        $Selenium->go_back();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=Download' )]");
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=RebuildPackage' )]");
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=Reinstall' )]");
 
+        # go back to overview
+        $Selenium->find_element("//a[contains(\@href, \'Action=AdminPackageManager' )]")->click();
+
+        # uninstall package
         $Selenium->find_element(
             "//a[contains(\@href, \'Subaction=Uninstall;Name=Test' )]"
         )->click();
 
-        $Selenium->find_element( "//button[\@value='Uninstall package'][\@type='submit']")->click();
-
-
-
-    my $Data = $Selenium->screenshot();
-    if ($Data ){
-        $Data = MIME::Base64::decode_base64($Data);
-
-        # This file should survive unit test scenario runs, so save it in a global directory.
-        my ( $FH, $Filename ) = File::Temp::tempfile(
-            DIR    => '/tmp/',
-            SUFFIX => '.png',
-            UNLINK => 0,
-        );
-        close $FH;
-        $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
-            Location => $Filename,
-            Content  => \$Data,
-        );
-
-        $Self->True(
-            1,
-            "Saved screenshot in file://$Filename",
-        );
-    }
-
-
+        $Selenium->find_element("//button[\@value='Uninstall package'][\@type='submit']")->click();
 
         }
 );
