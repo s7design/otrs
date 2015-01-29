@@ -29,51 +29,6 @@ $OTRSVersion =~ s{ (\d+ \. \d+) .+ }{$1}msx;
 # add x as patch level version
 $OTRSVersion .= '.x';
 
-my $String = '<?xml version="1.0" encoding="utf-8" ?>
-<otrs_package version="1.0">
-  <Name>Test</Name>
-  <Version>0.0.1</Version>
-  <Vendor>OTRS AG</Vendor>
-  <URL>http://otrs.org/</URL>
-  <License>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</License>
-  <ChangeLog>2005-11-10 New package (some test &lt; &gt; &amp;).</ChangeLog>
-  <Description Lang="en">A test package (some test &lt; &gt; &amp;).</Description>
-  <Description Lang="de">Ein Test Paket (some test &lt; &gt; &amp;).</Description>
-  <ModuleRequired Version="1.112">Encode</ModuleRequired>
-  <Framework>' . $OTRSVersion . '</Framework>
-  <BuildDate>2005-11-10 21:17:16</BuildDate>
-  <BuildHost>yourhost.example.com</BuildHost>
-  <CodeInstall>
-   # just a test &lt;some&gt; plus some &amp; text
-  </CodeInstall>
-  <DatabaseInstall>
-    <TableCreate Name="test_package">
-        <Column Name="name_a" Required="true" Type="INTEGER"/>
-        <Column Name="name_b" Required="true" Size="60" Type="VARCHAR"/>
-        <Column Name="name_c" Required="false" Size="60" Type="VARCHAR"/>
-    </TableCreate>
-    <Insert Table="test_package">
-        <Data Key="name_a">1234</Data>
-        <Data Key="name_b" Type="Quote">some text</Data>
-        <Data Key="name_c" Type="Quote">some text &lt;more&gt;
-          text &amp; text
-        </Data>
-    </Insert>
-    <Insert Table="test_package">
-        <Data Key="name_a">0</Data>
-        <Data Key="name_b" Type="Quote">1</Data>
-    </Insert>
-  </DatabaseInstall>
-  <DatabaseUninstall>
-    <TableDrop Name="test_package"/>
-  </DatabaseUninstall>
-  <Filelist>
-    <File Location="var/tmp/Test" Permission="644" Encode="Base64">aGVsbG8K</File>
-    <File Location="var/Test" Permission="644" Encode="Base64">aGVsbG8K</File>
-  </Filelist>
-</otrs_package>
-';
-
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
 );
@@ -103,24 +58,20 @@ $Selenium->RunTest(
         $Element->is_enabled();
         $Element->is_displayed();
 
-        my $PackageObject  = $Kernel::OM->Get('Kernel::System::Package');
-        my $PackageInstall = $PackageObject->PackageInstall( String => $String );
-        my $Download       = $PackageObject->PackageOnlineGet(
-            Source => 'http://ftp.otrs.org/pub/otrs/packages',
-            File   => 'Support-1.5.4.opm',
-        );
+        # install test package
+        my $Location = $ConfigObject->Get('Home') . "/scripts/test/sample/PackageManager/TestPackage.opm";
+
+        $Selenium->find_element( "#FileUpload", 'css' )->send_keys($Location);
+
+        $Selenium->find_element("//button[\@value='Install'][\@type='submit']")->click();
+        $Selenium->find_element("//button[\@value='Continue'][\@type='submit']")->click();
 
         $Self->True(
-            $Download,
-            "PackageOnlineGet - get Support package from ftp.otrs.org",
+            $Selenium->find_element(
+                "//a[contains(\@href, \'Subaction=View;Name=Test' )]"
+                )->is_displayed(),
+            'Test package is installed',
         );
-
-        $Self->True(
-            $PackageInstall,
-            'PackageInstall() - Package Test',
-        );
-
-        $Selenium->refresh();
 
         # load page with metadata of installed package
         $Selenium->find_element(
@@ -140,6 +91,16 @@ $Selenium->RunTest(
         )->click();
 
         $Selenium->find_element("//button[\@value='Uninstall package'][\@type='submit']")->click();
+
+        my $Success;
+        eval {
+            $Success = $Selenium->find_element("//a[contains(\@href, \'Subaction=View;Name=Test' )]")->is_displayed();
+        };
+
+        $Self->False(
+            $Success,
+            'Test package is uninstalled',
+        );
 
         }
 );
