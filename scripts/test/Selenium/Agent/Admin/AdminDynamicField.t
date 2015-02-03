@@ -32,14 +32,23 @@ $Selenium->RunTest(
 
         my $ConfirmJS = <<"JAVASCRIPT";
 (function () {
+    var lastAlert = undefined;
     window.confirm = function (message) {
-        return message;
+        lastAlert = message;
+        return 1;
+    };
+    window.getLastAlert = function () {
+        var result = lastAlert;
+        lastAlert = undefined;
+        return result;
     };
 }());
 JAVASCRIPT
 
+        my $Language      = 'de';
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => ['admin'],
+            Groups   => ['admin'],
+            Language => $Language,
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -125,10 +134,24 @@ JAVASCRIPT
                     "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
                 )->click();
 
+                # check for opened confirm text
+                my $LanguageObject = Kernel::Language->new(
+                    UserLanguage => $Language,
+                );
+
+                $Self->Is(
+                    $Selenium->execute_script(
+                        "return window.getLastAlert()"
+                    ),
+                    $LanguageObject->Get(
+                        'Do you really want to delete this dynamic field? ALL associated data will be LOST!'),
+                    'Check for opened confirm text',
+                );
+
                 $Selenium->refresh();
                 my $Success;
                 eval {
-                    $Selenium->find_element( $RandomID, 'link_text' )->is_displayed();
+                    $Success = $Selenium->find_element( $RandomID, 'link_text' )->is_displayed();
                 };
 
                 $Self->False(
