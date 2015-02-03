@@ -243,7 +243,7 @@ sub Run {
             # add notification
             push @NotifyData, {
                 Priority => 'Notice',
-                Info     => 'All sessions has been killed, exept the current one!',
+                Info     => 'All sessions has been killed, except the current one!',
             };
 
             # set class for expanding sessions widget
@@ -462,24 +462,26 @@ sub _ShowEdit {
     $Param{StartDateString} = $Self->{LayoutObject}->BuildDateSelection(
         %{$SystemMaintenanceData},
         %{ $TimeConfig{StartDate} },
-        Prefix           => 'StartDate',
-        Format           => 'DateInputFormatLong',
-        YearPeriodPast   => 0,
-        YearPeriodFuture => 0,
-        StartDateClass   => $Param{StartDateInvalid} || ' ',
-        Validate         => 1,
+        Prefix               => 'StartDate',
+        Format               => 'DateInputFormatLong',
+        YearPeriodPast       => 0,
+        YearPeriodFuture     => 1,
+        StartDateClass       => $Param{StartDateInvalid} || ' ',
+        Validate             => 1,
+        ValidateDateInFuture => 1,
     );
 
     # stop date info
     $Param{StopDateString} = $Self->{LayoutObject}->BuildDateSelection(
         %{$SystemMaintenanceData},
         %{ $TimeConfig{StopDate} },
-        Prefix           => 'StopDate',
-        Format           => 'DateInputFormatLong',
-        YearPeriodPast   => 0,
-        YearPeriodFuture => 0,
-        StopDateClass    => $Param{StopDateInvalid} || ' ',
-        Validate         => 1,
+        Prefix               => 'StopDate',
+        Format               => 'DateInputFormatLong',
+        YearPeriodPast       => 0,
+        YearPeriodFuture     => 1,
+        StopDateClass        => $Param{StopDateInvalid} || ' ',
+        Validate             => 1,
+        ValidateDateInFuture => 1,
     );
 
     # get valid list
