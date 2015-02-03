@@ -30,6 +30,14 @@ $Selenium->RunTest(
             RestoreSystemConfiguration => 0,
         );
 
+        my $ConfirmJS = <<"JAVASCRIPT";
+(function () {
+    window.confirm = function (message) {
+        return message;
+    };
+}());
+JAVASCRIPT
+
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
         ) || die "Did not get test user";
@@ -78,14 +86,14 @@ $Selenium->RunTest(
                     "$RandomID $Type DynamicField found on page",
                 );
 
-                # go to new state again
+                # go to new DynamicField again
                 $Selenium->find_element( $RandomID,                    'link_text' )->click();
                 $Selenium->find_element( "#Label",                     'css' )->clear();
                 $Selenium->find_element( "#Label",                     'css' )->send_keys( $RandomID . "-update" );
                 $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
                 $Selenium->find_element( "#Name",                      'css' )->submit();
 
-                # go to new state again after update and check values
+                # go to new DynamicField again after update and check values
                 $Selenium->find_element( $RandomID, 'link_text' )->click();
 
                 # check new DynamicField values
@@ -107,21 +115,27 @@ $Selenium->RunTest(
 
                 $Selenium->go_back();
 
-                # delete DynamicFields
-                my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldGet(
-                    Name => $RandomID,
-                );
+                # delete DynamicFields, check button for deleting Dynamic Field
+                my $DynamicFieldID = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldGet(
+                    Name => $RandomID
+                )->{ID};
 
-                my $Success = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldDelete(
-                    ID     => $DynamicField->{ID},
-                    UserID => 1,
-                );
+                $Selenium->execute_script($ConfirmJS);
+                $Selenium->find_element(
+                    "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
+                )->click();
 
-                # sanity check
-                $Self->True(
+                $Selenium->refresh();
+                my $Success;
+                eval {
+                    $Selenium->find_element( $RandomID, 'link_text' )->is_displayed();
+                };
+
+                $Self->False(
                     $Success,
-                    "DynamicFieldDelete() - $RandomID"
+                    "$RandomID dynamic filed is deleted!",
                 );
+
             }
 
             # Make sure the cache is correct.
