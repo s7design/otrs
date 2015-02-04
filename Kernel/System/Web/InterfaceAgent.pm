@@ -28,6 +28,7 @@ our @ObjectDependencies = (
     'Kernel::System::Time',
     'Kernel::System::User',
     'Kernel::System::Web::Request',
+    'Kernel::System::Valid',
 );
 
 =head1 NAME
@@ -247,6 +248,41 @@ sub Run {
         # login is invalid
         if ( !$User ) {
 
+            my %UserInvalid = $Self->{UserObject}->GetUserData(
+                User => $PostUser,
+            );
+
+            # check is agent invalid
+
+            if (
+                %UserInvalid
+                &&
+                $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( ValidID => $UserInvalid{ValidID} ) ne
+                'valid'
+                )
+            {
+
+                my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+                # show normal login
+                $LayoutObject->Print(
+                    Output => \$LayoutObject->Login(
+                        Title   => 'Login',
+                        Message => $Self->{LogObject}->GetLogEntry(
+                            Type => 'Info',
+                            What => 'Message',
+                            )
+                            || $Self->{LanguageObject}->Translate( $AuthObject->GetLastErrorMessage() )
+                            || $Self->{LanguageObject}
+                            ->Translate('Login failed! Invalid user, please contact system administrator!'),
+                        User        => $PostUser,
+                        LoginFailed => 1,
+                        %Param,
+                    ),
+                );
+                return;
+            }
+
             my $Expires = '+' . $Self->{ConfigObject}->Get('SessionMaxTime') . 's';
             if ( !$Self->{ConfigObject}->Get('SessionUseCookieAfterBrowserClose') ) {
                 $Expires = '';
@@ -287,7 +323,8 @@ sub Run {
                         What => 'Message',
                         )
                         || $Self->{LanguageObject}->Translate( $AuthObject->GetLastErrorMessage() )
-                        || $Self->{LanguageObject}->Translate('Login failed! Your user name or password was entered incorrectly.'),
+                        || $Self->{LanguageObject}
+                        ->Translate('Login failed! Your user name or password was entered incorrectly.'),
                     LoginFailed => 1,
                     User        => $User,
                     %Param,
@@ -510,7 +547,7 @@ sub Run {
                 %UserData,
             },
         );
-        $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout', 'Kernel::Language'] );
+        $Kernel::OM->ObjectsDiscard( Objects => [ 'Kernel::Output::HTML::Layout', 'Kernel::Language' ] );
         $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
         # Prevent CSRF attacks
@@ -775,7 +812,7 @@ sub Run {
                     }
             );
 
-            $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout', 'Kernel::Language'] );
+            $Kernel::OM->ObjectsDiscard( Objects => [ 'Kernel::Output::HTML::Layout', 'Kernel::Language' ] );
             my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
             # create AuthObject
@@ -907,7 +944,7 @@ sub Run {
                 ModuleReg => $ModuleReg,
             },
         );
-        $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout', 'Kernel::Language'] );
+        $Kernel::OM->ObjectsDiscard( Objects => [ 'Kernel::Output::HTML::Layout', 'Kernel::Language' ] );
 
         # updated last request time
         $Self->{SessionObject}->UpdateSessionID(

@@ -28,6 +28,8 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::Time',
     'Kernel::System::Web::Request',
+    'Kernel::System::Valid',
+
 );
 
 =head1 NAME
@@ -254,6 +256,42 @@ sub Run {
 
         # login is invalid
         if ( !$User ) {
+
+            my %CustomerData = $Self->{UserObject}->CustomerUserDataGet(
+                User => $PostUser,
+            );
+
+            # check if exists customer user but it is invalid
+            if (
+                %CustomerData
+                &&
+                $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup( ValidID => $CustomerData{ValidID} ) ne
+                'valid'
+                )
+            {
+
+                my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+                # show normal login
+                $LayoutObject->Print(
+                    Output => \$LayoutObject->CustomerLogin(
+                        Title   => 'Login',
+                        Message => $Self->{LogObject}->GetLogEntry(
+                            Type => 'Info',
+                            What => 'Message',
+                            )
+                            || $AuthObject->GetLastErrorMessage()
+                            || $Self->{LanguageObject}
+                            ->Translate('Login failed! Invalid customer, please contact system administrator!'),
+                        User        => $PostUser,
+                        LoginFailed => 1,
+                        %Param,
+                    ),
+                );
+                return;
+
+            }
+
             $Kernel::OM->ObjectParamAdd(
                 'Kernel::Output::HTML::Layout' => {
                     SetCookies => {
