@@ -33,13 +33,12 @@ sub Run {
     my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
     my $OTRSBusinessObject = $Kernel::OM->Get('Kernel::System::OTRSBusiness');
     my $EnvironmentObject  = $Kernel::OM->Get('Kernel::System::Environment');
-
-    $Self->{RegistrationState} = $Kernel::OM->Get('Kernel::System::SystemData')->SystemDataGet(
+    my $RegistrationState  = $Kernel::OM->Get('Kernel::System::SystemData')->SystemDataGet(
         Key => 'Registration::State',
     ) || '';
 
     # if system is not yet registered, subaction should be 'register'
-    if ( $Self->{RegistrationState} ne 'registered' ) {
+    if ( $RegistrationState ne 'registered' ) {
 
         $Self->{Subaction} ||= 'OTRSIDValidate';
 
@@ -54,7 +53,7 @@ sub Run {
     # ------------------------------------------------------------ #
     if (
         $Self->{Subaction} ne 'OTRSIDValidate'
-        && $Self->{RegistrationState} ne 'registered'
+        && $RegistrationState ne 'registered'
         && !$Self->_SchedulerRunning()
         )
     {
@@ -96,7 +95,7 @@ sub Run {
 
         # redirect to next page on success
         if ( $Response{Token} ) {
-            my $NextAction = $Self->{RegistrationState} ne 'registered' ? 'Register' : 'Deregister';
+            my $NextAction = $RegistrationState ne 'registered' ? 'Register' : 'Deregister';
             return $LayoutObject->Redirect(
                 OP => "Action=AdminRegistration;Subaction=$NextAction;Token="
                     . $LayoutObject->LinkEncode( $Response{Token} )
@@ -135,7 +134,7 @@ sub Run {
             Data => \%Param,
         );
 
-        my $Block = $Self->{RegistrationState} ne 'registered'
+        my $Block = $RegistrationState ne 'registered'
             ? 'OTRSIDRegistration'
             : 'OTRSIDDeregistration';
 
@@ -165,7 +164,7 @@ sub Run {
         );
 
         my $EntitlementStatus = 'forbidden';
-        if ( $Self->{RegistrationState} eq 'registered' ) {
+        if ( $RegistrationState eq 'registered' ) {
 
             # Only call cloud service for a registered system
             $EntitlementStatus = $OTRSBusinessObject->OTRSBusinessEntitlementStatus(
@@ -176,7 +175,7 @@ sub Run {
         # users should not be able to de-register their system if they either have
         # OTRS Business Solution installed or are entitled to use it (by having a valid contract).
         if (
-            $Self->{RegistrationState} eq 'registered'
+            $RegistrationState eq 'registered'
             && ( $OTRSBusinessObject->OTRSBusinessIsInstalled() || $EntitlementStatus ne 'forbidden' )
             )
         {
@@ -196,7 +195,7 @@ sub Run {
             );
 
             # check if the scheduler is not running
-            if ( $Self->{RegistrationState} ne 'registered' && !$Self->_SchedulerRunning() ) {
+            if ( $RegistrationState ne 'registered' && !$Self->_SchedulerRunning() ) {
 
                 $LayoutObject->Block(
                     Name => 'OTRSIDValidationSchedulerNotRunning',
@@ -210,7 +209,7 @@ sub Run {
                 );
             }
 
-            my $Block = $Self->{RegistrationState} ne 'registered' ? 'OTRSIDRegistration' : 'OTRSIDDeregistration';
+            my $Block = $RegistrationState ne 'registered' ? 'OTRSIDRegistration' : 'OTRSIDDeregistration';
             $LayoutObject->Block(
                 Name => $Block,
             );
@@ -545,10 +544,6 @@ sub _SentDataOverview {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    $Self->{RegistrationState} = $Kernel::OM->Get('Kernel::System::SystemData')->SystemDataGet(
-        Key => 'Registration::State',
-    ) || '';
-
     my $Output = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
 
@@ -566,7 +561,11 @@ sub _SentDataOverview {
         Name => 'SentDataOverview',
     );
 
-    if ( $Self->{RegistrationState} ne 'registered' ) {
+    my $RegistrationState = $Kernel::OM->Get('Kernel::System::SystemData')->SystemDataGet(
+        Key => 'Registration::State',
+    ) || '';
+
+    if ( $RegistrationState ne 'registered' ) {
         $LayoutObject->Block( Name => 'SentDataOverviewNoData' );
     }
     else {

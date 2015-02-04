@@ -12,6 +12,7 @@ use warnings;
 use utf8;
 
 use vars (qw($Self));
+use File::Path qw(mkpath rmtree);
 
 use Kernel::System::UnitTest::Helper;
 use Kernel::System::UnitTest::Selenium;
@@ -49,10 +50,10 @@ $Selenium->RunTest(
         );
 
         # create directory for certificates and private keys
-        my $CertPath    = "/tmp/certs";
-        my $PrivatePath = "/tmp/private";
-        mkdir( $CertPath,    0777 );
-        mkdir( $PrivatePath, 0777 );
+        my $CertPath    = $ConfigObject->Get('Home') . "/var/tmp/certs";
+        my $PrivatePath = $ConfigObject->Get('Home') . "/var/tmp/private";
+        mkpath( [$CertPath],    0, 0770 );    ## no critic
+        mkpath( [$PrivatePath], 0, 0770 );    ## no critic
 
         # set SMIME paths in sysConfig
         $SysConfigObject->ConfigItemUpdate(
@@ -116,9 +117,14 @@ $Selenium->RunTest(
             );
         }
 
-        # remove created test directories
-        rmdir($CertPath);
-        rmdir($PrivatePath);
+        # delete needed test directories
+        for my $Directory ( $CertPath, $PrivatePath ) {
+            my $Success = rmtree( [$Directory] );
+            $Self->True(
+                $Success,
+                "Directory deleted - '$Directory'",
+            );
+        }
 
         }
 
