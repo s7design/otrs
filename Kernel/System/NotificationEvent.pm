@@ -16,6 +16,7 @@ our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::Log',
     'Kernel::System::Valid',
+    'Kernel::System::Encode',
 );
 
 =head1 NAME
@@ -118,8 +119,33 @@ sub NotificationGet {
         );
     }
 
+    # get encode object
+    my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
+
     my %Data;
     while ( my @Row = $DBObject->FetchrowArray() ) {
+
+        # convert body
+        $Row[3] = $EncodeObject->Convert(
+            Text  => $Row[3],
+            From  => $Row[5],
+            To    => 'utf-8',
+            Force => 1,
+        );
+
+        # convert subject
+        $Row[2] = $EncodeObject->Convert(
+            Text  => $Row[2],
+            From  => $Row[5],
+            To    => 'utf-8',
+            Force => 1,
+        );
+
+        # set new charset
+        $Row[5] = 'utf-8';
+
+        # fix some bad stuff from some browsers (Opera)!
+        $Row[3] =~ s/(\n\r|\r\r\n|\r\n|\r)/\n/g;
         $Data{ID}         = $Row[0];
         $Data{Name}       = $Row[1];
         $Data{Subject}    = $Row[2];
