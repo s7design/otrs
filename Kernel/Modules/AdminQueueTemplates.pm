@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminQueueTemplates.pm - to manage queue <-> templates assignments
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -187,8 +187,6 @@ sub Run {
 sub _Change {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     my %Data   = %{ $Param{Data} };
     my $Type   = $Param{Type} || 'Template';
     my $NeType = $Type eq 'Queue' ? 'Template' : 'Queue';
@@ -199,6 +197,8 @@ sub _Change {
     );
 
     my $MyType = $VisibleType{$Type};
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block( Name => 'Overview' );
     $LayoutObject->Block( Name => 'ActionList' );
@@ -269,8 +269,7 @@ sub _Change {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject           = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -282,6 +281,8 @@ sub _Overview {
     $LayoutObject->Block( Name => 'FilterTemplate' );
     $LayoutObject->Block( Name => 'FilterQueue' );
     $LayoutObject->Block( Name => 'OverviewResult' );
+
+    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
 
     # get std template list
     my %StandardTemplateData = $StandardTemplateObject->StandardTemplateList(

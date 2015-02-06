@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminTemplateAttachment.pm - to add/update/delete groups <-> users
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -248,8 +248,7 @@ sub _Change {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject           = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -261,6 +260,8 @@ sub _Overview {
     # no actions in action list
     #    $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'OverviewResult' );
+
+    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
 
     # get StandardTemplate data
     my %StandardTemplateData = $StandardTemplateObject->StandardTemplateList(

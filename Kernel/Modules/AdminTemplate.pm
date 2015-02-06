@@ -325,8 +325,7 @@ sub Run {
 sub _Edit {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject    = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -391,6 +390,8 @@ sub _Edit {
         $LayoutObject->Block( Name => 'NameServerError' );
     }
 
+    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
     # add rich text editor
     if ( $LayoutObject->{BrowserRichText} ) {
         $LayoutObject->Block(
@@ -420,8 +421,7 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject           = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -436,7 +436,9 @@ sub _Overview {
         Name => 'OverviewResult',
         Data => \%Param,
     );
-    my %List = $StandardTemplateObject->StandardTemplateList(
+
+    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
+    my %List                   = $StandardTemplateObject->StandardTemplateList(
         UserID => 1,
         Valid  => 0,
     );
