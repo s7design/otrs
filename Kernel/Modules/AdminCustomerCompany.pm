@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminCustomerCompany.pm - to add/update/delete customer companies
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -261,8 +261,6 @@ sub _Edit {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ValidObject  = $Kernel::OM->Get('Kernel::System::Valid');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -288,11 +286,15 @@ sub _Edit {
         $LayoutObject->Block( Name => 'HeaderAdd' );
     }
 
+    my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
+
     $Param{'ValidOption'} = $LayoutObject->BuildSelection(
         Data       => { $ValidObject->ValidList(), },
         Name       => 'ValidID',
         SelectedID => $Param{ValidID},
     );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     for my $Entry ( @{ $ConfigObject->Get( $Param{Source} )->{Map} } ) {
         if ( $Entry->[0] ) {
@@ -419,8 +421,7 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
-    my $LayoutObject          = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -432,6 +433,8 @@ sub _Overview {
         Name => 'ActionSearch',
         Data => \%Param,
     );
+
+    my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 
     # get writable data sources
     my %CustomerCompanySource = $CustomerCompanyObject->CustomerCompanySourceList(

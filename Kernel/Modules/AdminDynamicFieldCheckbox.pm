@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminDynamicFieldCheckbox.pm - provides a dynamic fields text config view for admins
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -66,8 +66,6 @@ sub Run {
 sub _Add {
     my ( $Self, %Param ) = @_;
 
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
     my %GetParam;
     for my $Needed (qw(ObjectType FieldType FieldOrder)) {
         $GetParam{$Needed} = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => $Needed );
@@ -79,6 +77,8 @@ sub _Add {
     }
 
     # get the object type and field type display name
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     my $ObjectTypeName
         = $ConfigObject->Get('DynamicFields::ObjectType')->{ $GetParam{ObjectType} }->{DisplayName} || '';
     my $FieldTypeName = $ConfigObject->Get('DynamicFields::Driver')->{ $GetParam{FieldType} }->{DisplayName} || '';
@@ -98,8 +98,7 @@ sub _AddAction {
     my %Errors;
     my %GetParam;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     for my $Needed (qw(Name Label FieldOrder)) {
         $GetParam{$Needed} = $ParamObject->GetParam( Param => $Needed );
@@ -154,6 +153,8 @@ sub _AddAction {
         $GetParam{$ConfigParam} = $ParamObject->GetParam( Param => $ConfigParam );
     }
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     # uncorrectable errors
     if ( !$GetParam{ValidID} ) {
         return $LayoutObject->ErrorScreen(
@@ -203,7 +204,6 @@ sub _Change {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my %GetParam;
     for my $Needed (qw(ObjectType FieldType)) {
@@ -216,6 +216,8 @@ sub _Change {
     }
 
     # get the object type and field type display name
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     my $ObjectTypeName
         = $ConfigObject->Get('DynamicFields::ObjectType')->{ $GetParam{ObjectType} }->{DisplayName} || '';
     my $FieldTypeName = $ConfigObject->Get('DynamicFields::Driver')->{ $GetParam{FieldType} }->{DisplayName} || '';
@@ -264,7 +266,6 @@ sub _ChangeAction {
 
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField');
 
     my %Errors;
     my %GetParam;
@@ -283,6 +284,8 @@ sub _ChangeAction {
             Message => "Need ID",
         );
     }
+
+    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField');
 
     # get dynamic field data
     my $DynamicFieldData = $DynamicField->DynamicFieldGet(
@@ -408,14 +411,14 @@ sub _ChangeAction {
 sub _ShowScreen {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     $Param{DisplayFieldName} = 'New';
 
     if ( $Param{Mode} eq 'Change' ) {
         $Param{ShowWarning}      = 'ShowWarning';
         $Param{DisplayFieldName} = $Param{Name};
     }
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # header
     my $Output = $LayoutObject->Header();

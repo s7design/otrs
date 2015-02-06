@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminCustomerUser.pm - to add/update/delete customer user and preferences
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -29,12 +29,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
-    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
-    my $ConfigObject          = $Kernel::OM->Get('Kernel::Config');
-    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my $Nav    = $ParamObject->GetParam( Param => 'Nav' )    || '';
     my $Source = $ParamObject->GetParam( Param => 'Source' ) || 'CustomerUser';
@@ -56,6 +53,8 @@ sub Run {
         );
     }
 
+    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+
     # check the permission for the SwitchToCustomer feature
     if ( $ConfigObject->Get('SwitchToCustomer') ) {
 
@@ -76,6 +75,9 @@ sub Run {
             $Self->{SwitchToCustomerPermission} = 1;
         }
     }
+
+    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+    my $MainObject         = $Kernel::OM->Get('Kernel::System::Main');
 
     # ------------------------------------------------------------ #
     #  switch to customer
@@ -154,7 +156,7 @@ sub Run {
         );
 
         # log event
-       $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'notice',
             Message =>
                 "Switched from Agent to Customer ($Self->{UserLogin} -=> $UserData{UserLogin})",
@@ -631,9 +633,7 @@ sub Run {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-     my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
-     my $ConfigObject          = $Kernel::OM->Get('Kernel::Config');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -645,6 +645,8 @@ sub _Overview {
         Name => 'ActionSearch',
         Data => \%Param,
     );
+
+    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
     # get writable data sources
     my %CustomerSource = $CustomerUserObject->CustomerSourceList(
@@ -669,6 +671,8 @@ sub _Overview {
         Name => 'OverviewHeader',
         Data => {},
     );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # when there is no data to show, a message is displayed on the table with this colspan
     my $ColSpan = 6;
@@ -779,8 +783,7 @@ sub _Overview {
 sub _Edit {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject          = $Kernel::OM->Get('Kernel::Config');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $Output = '';
 
@@ -807,6 +810,8 @@ sub _Edit {
     else {
         $LayoutObject->Block( Name => 'HeaderAdd' );
     }
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     ENTRY:
     for my $Entry ( @{ $ConfigObject->Get( $Param{Source} )->{Map} } ) {
@@ -870,7 +875,8 @@ sub _Edit {
 
             # make sure the encoding stamp is set
             for my $Key ( sort keys %{$SelectionsData} ) {
-                $SelectionsData->{$Key} = $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( $SelectionsData->{$Key} );
+                $SelectionsData->{$Key}
+                    = $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( $SelectionsData->{$Key} );
             }
 
             # build option string
@@ -904,7 +910,7 @@ sub _Edit {
             )
         {
             my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
-            my %CompanyList = (
+            my %CompanyList           = (
                 $CustomerCompanyObject->CustomerCompanyList(),
                 '' => '-',
             );
