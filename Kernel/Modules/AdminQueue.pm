@@ -28,12 +28,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
-
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $QueueID = $ParamObject->GetParam( Param => 'QueueID' ) || '';
 
     my @Params = (
@@ -50,6 +45,8 @@ sub Run {
     # get possible sign keys
     my %KeyList;
     my %QueueData;
+
+    my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
 
     if ($QueueID) {
 
@@ -79,6 +76,10 @@ sub Run {
             }
         }
     }
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
 
     # ------------------------------------------------------------ #
     # change
@@ -453,10 +454,7 @@ sub Run {
 sub _Edit {
     my ( $Self, %Param ) = @_;
 
-    my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
-    my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -475,6 +473,8 @@ sub _Edit {
         SelectedID => $Param{ValidID} || $ValidListReverse{valid},
         Class      => 'Validate_Required ' . ( $Param{Errors}->{'ValidIDInvalid'} || '' ),
     );
+
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
     $Param{GroupOption} = $LayoutObject->BuildSelection(
         Data => {
@@ -502,6 +502,7 @@ sub _Edit {
         $Param{Name} = $Queue[$#Queue];
     }
 
+    my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
     my %Data = $QueueObject->QueueList( Valid => 0 );
 
     my $QueueName = '';
@@ -519,6 +520,8 @@ sub _Edit {
             delete $CleanHash{$Key};
         }
     }
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # get list type
     my $ListType = $ConfigObject->Get('Ticket::Frontend::ListType');
@@ -773,7 +776,6 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
@@ -788,6 +790,8 @@ sub _Overview {
         Name => 'OverviewResult',
         Data => \%Param,
     );
+
+    my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
 
     # get queue list
     my %List = $QueueObject->QueueList( Valid => 0 );
