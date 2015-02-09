@@ -78,13 +78,12 @@ sub Run {
         $LayoutObject->Block( Name => 'ActionOverview' );
 
         my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-
-        my %Action     = ();
-        my $MaxRequest = 0;
-        my $Slot       = 60;
-        my $MinuteSlot = $ParamObject->GetParam( Param => 'Minute' );
-        my $Interface  = $ParamObject->GetParam( Param => 'Interface' );
-        my $Module     = $ParamObject->GetParam( Param => 'Module' );
+        my %Action      = ();
+        my $MaxRequest  = 0;
+        my $Slot        = 60;
+        my $MinuteSlot  = $ParamObject->GetParam( Param => 'Minute' );
+        my $Interface   = $ParamObject->GetParam( Param => 'Interface' );
+        my $Module      = $ParamObject->GetParam( Param => 'Module' );
         if ( $MinuteSlot < 31 ) {
             $Slot = 1;
         }
@@ -389,8 +388,7 @@ sub _DatabaseCheck {
     my ( $Self, %Param ) = @_;
 
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    my $File = $ConfigObject->Get('PerformanceLog::File');
+    my $File         = $ConfigObject->Get('PerformanceLog::File');
 
     # check file size
     my $FileSize = -s $File;
