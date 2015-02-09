@@ -304,10 +304,8 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject        = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $SystemAddressObject = $Kernel::OM->Get('Kernel::System::SystemAddress');
-
-    my $Output = '';
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $Output       = '';
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -321,7 +319,9 @@ sub _Overview {
         Name => 'OverviewResult',
         Data => \%Param,
     );
-    my %List = $SystemAddressObject->SystemAddressList(
+
+    my $SystemAddressObject = $Kernel::OM->Get('Kernel::System::SystemAddress');
+    my %List                = $SystemAddressObject->SystemAddressList(
         Valid => 0,
     );
 

@@ -29,10 +29,7 @@ sub Run {
 
     my $LayoutObject    = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ParamObject     = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-    my $TimeObject      = $Kernel::OM->Get('Kernel::System::Time');
-
     my %Data;
     my $Group = '';
     my $Anker = '';
@@ -43,6 +40,9 @@ sub Run {
             return $LayoutObject->ErrorScreen();
         }
     }
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
 
     # ------------------------------------------------------------ #
     # download
@@ -1039,11 +1039,9 @@ sub ListConfigItem {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-
-    my %ItemHash = %{ $Param{Hash} };
-    my $Default  = '';
-    my $Item     = $ItemHash{Setting}->[1];
+    my %ItemHash     = %{ $Param{Hash} };
+    my $Default      = '';
+    my $Item         = $ItemHash{Setting}->[1];
 
     # ConfigElement String
     if ( defined $Item->{String} ) {
@@ -1491,6 +1489,8 @@ sub ListConfigItem {
         }
         return 1;
     }
+
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     # ConfigElement TimeVacationDaysOneTime
     if ( defined $Item->{TimeVacationDaysOneTime} ) {
