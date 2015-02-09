@@ -28,7 +28,6 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # ------------------------------------------------------------ #
@@ -47,6 +46,8 @@ sub Run {
 
         return $Output;
     }
+
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     $Param{Search} = $ParamObject->GetParam( Param => 'Search' );
     if ( !defined( $Param{Search} ) ) {
