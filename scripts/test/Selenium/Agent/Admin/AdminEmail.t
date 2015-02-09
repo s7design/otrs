@@ -27,7 +27,7 @@ $Selenium->RunTest(
     sub {
 
         my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+            RestoreSystemConfiguration => 1,
         );
 
         my $Language = 'de';
@@ -116,13 +116,6 @@ $Selenium->RunTest(
         $Self->True(
             index( $Selenium->get_page_source(), $Expected ) > -1,
             "$RandomID admin notification was sent",
-        );
-
-        # restore RichText config
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Frontend::RichText',
-            Value => 1
         );
 
         }

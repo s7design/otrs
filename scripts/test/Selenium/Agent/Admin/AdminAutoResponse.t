@@ -27,7 +27,7 @@ $Selenium->RunTest(
     sub {
 
         my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+            RestoreSystemConfiguration => 1,
         );
 
         # do not check RichText
@@ -114,13 +114,6 @@ $Selenium->RunTest(
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID2 ) > -1,
             "$RandomID2 auto response found on page",
-        );
-
-        # restore RichText config
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Frontend::RichText',
-            Value => 1
         );
 
         # Since there are no tickets that rely on our test auto response, we can remove them
