@@ -28,11 +28,8 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $CSVObject    = $Kernel::OM->Get('Kernel::System::CSV');
 
     # secure mode message (don't allow this action until secure mode is enabled)
     if ( !$ConfigObject->Get('SecureMode') ) {
@@ -54,6 +51,8 @@ sub Run {
             Name => 'ExplanationAllSqlQueries',
         );
     }
+
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     # ------------------------------------------------------------ #
     # do select
@@ -87,6 +86,8 @@ sub Run {
 
         # if no errors occurred
         if ( !%Errors ) {
+
+            my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
             # fetch database and add row blocks
             if (
@@ -184,6 +185,8 @@ sub Run {
                 $TimeStamp =~ s/[:-]//g;
                 $TimeStamp =~ s/ /-/;
                 my $FileName = 'admin-select-' . $TimeStamp;
+
+                my $CSVObject = $Kernel::OM->Get('Kernel::System::CSV');
 
                 # generate csv output
                 if ( $Param{ResultFormat} eq 'CSV' ) {

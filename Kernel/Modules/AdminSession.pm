@@ -29,7 +29,6 @@ sub Run {
 
     my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
-    my $TimeObject    = $Kernel::OM->Get('Kernel::System::Time');
 
     my $WantSessionID = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'WantSessionID' ) || '';
 
@@ -104,7 +103,9 @@ sub Run {
                     $Data{$Key} = $LayoutObject->Ascii2Html( Text => $Data{$Key} );
                 }
                 if ( $Key eq 'UserSessionStart' ) {
-                    my $Age = int(
+
+                    my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+                    my $Age        = int(
                         ( $TimeObject->SystemTime() - $Data{UserSessionStart} )
                         / 3600
                     );

@@ -30,7 +30,6 @@ sub Run {
     my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
-    my $LogObject     = $Kernel::OM->Get('Kernel::System::Log');
     my $ServiceObject = $Kernel::OM->Get('Kernel::System::Service');
 
     # ------------------------------------------------------------ #
@@ -72,6 +71,8 @@ sub Run {
         }
 
         if ( !%Error ) {
+
+            my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
             # save to database
             if ( $GetParam{ServiceID} eq 'NEW' ) {
@@ -255,8 +256,6 @@ sub Run {
 sub _MaskNew {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
     my $ServiceObject = $Kernel::OM->Get('Kernel::System::Service');
 
     my %ServiceData;
@@ -270,6 +269,8 @@ sub _MaskNew {
         );
     }
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     # output overview
     $LayoutObject->Block(
         Name => 'Overview',
@@ -278,6 +279,8 @@ sub _MaskNew {
 
     $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'ActionOverview' );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # get list type
     my $ListType = $ConfigObject->Get('Ticket::Frontend::ListType');

@@ -57,10 +57,7 @@ sub Run {
 sub _SupportDataCollectorView {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject     = $Kernel::OM->Get('Kernel::Config');
-    my $SystemDataObject = $Kernel::OM->Get('Kernel::System::SystemData');
-
+    my $SystemDataObject  = $Kernel::OM->Get('Kernel::System::SystemData');
     my $RegistrationState = $SystemDataObject->SystemDataGet(
         Key => 'Registration::State',
     ) || '';
@@ -71,6 +68,8 @@ sub _SupportDataCollectorView {
     my %SupportData = $Kernel::OM->Get('Kernel::System::SupportDataCollector')->Collect(
         UseCache => 1,
     );
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     if ( !$SupportData{Success} ) {
         $LayoutObject->Block(
@@ -179,11 +178,14 @@ sub _SupportDataCollectorView {
         Cached => 1,
     );
 
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # get sender email address
     if ( $User{UserEmail} && $User{UserEmail} !~ /root\@localhost/ ) {
         $Param{SenderAddress} = $User{UserEmail};
     }
     elsif (
+
         $ConfigObject->Get('AdminEmail')
         && $ConfigObject->Get('AdminEmail') !~ /root\@localhost/
         && $ConfigObject->Get('AdminEmail') !~ /admin\@example.com/
@@ -213,16 +215,15 @@ sub _SupportDataCollectorView {
 sub _GenerateSupportBundle {
     my ( $Self, %Param ) = @_;
 
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
-
-    my $RandomID = $MainObject->GenerateRandomString(
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+    my $RandomID   = $MainObject->GenerateRandomString(
         Length     => 8,
         Dictionary => [ 0 .. 9, 'a' .. 'f' ],
     );
 
     # remove any older file
-    my $TempDir = $ConfigObject->Get('TempDir') . '/SupportBundleDownloadCache';
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $TempDir      = $ConfigObject->Get('TempDir') . '/SupportBundleDownloadCache';
 
     if ( !-d $TempDir ) {
         mkdir $TempDir;
@@ -284,7 +285,6 @@ sub _DownloadSupportBundle {
 
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
 
     my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
     my $RandomID = $ParamObject->GetParam( Param => 'RandomID' ) || '';
@@ -297,6 +297,8 @@ sub _DownloadSupportBundle {
 
     my $TempDir  = $Kernel::OM->Get('Kernel::Config')->Get('TempDir') . '/SupportBundleDownloadCache/' . $RandomID;
     my $Location = $TempDir . '/' . $Filename;
+
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
     my $Content = $MainObject->FileRead(
         Location => $Location,
@@ -335,10 +337,8 @@ sub _DownloadSupportBundle {
 sub _SendSupportBundle {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
-    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
 
     my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
     my $RandomID = $ParamObject->GetParam( Param => 'RandomID' ) || '';
@@ -346,10 +346,14 @@ sub _SendSupportBundle {
     my $Success;
     if ($Filename) {
 
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
         my $TempDir = $ConfigObject->Get('TempDir')
             . '/SupportBundleDownloadCache/'
             . $RandomID;
         my $Location = $TempDir . '/' . $Filename;
+
+        my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
         my $Content = $MainObject->FileRead(
             Location => $Location,

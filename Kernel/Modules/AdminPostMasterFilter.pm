@@ -27,10 +27,8 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject      = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $PostMasterFilter = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
-    my $ConfigObject     = $Kernel::OM->Get('Kernel::Config');
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my $Name           = $ParamObject->GetParam( Param => 'Name' );
     my $OldName        = $ParamObject->GetParam( Param => 'OldName' );
@@ -43,6 +41,9 @@ sub Run {
         $GetParam{"SetHeader$Number"}   = $ParamObject->GetParam( Param => "SetHeader$Number" );
         $GetParam{"SetValue$Number"}    = $ParamObject->GetParam( Param => "SetValue$Number" );
     }
+
+    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $PostMasterFilter = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
 
     # ------------------------------------------------------------ #
     # delete
@@ -210,9 +211,6 @@ sub Run {
 sub _MaskUpdate {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
     my %Data    = %{ $Param{Data} };
     my $Counter = 0;
     if ( $Data{Match} ) {
@@ -236,12 +234,16 @@ sub _MaskUpdate {
         }
     }
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     my $Output = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
 
     $LayoutObject->Block( Name => 'Overview' );
     $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'ActionOverview' );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # all headers
     my @Headers = @{ $ConfigObject->Get('PostmasterX-Header') };
