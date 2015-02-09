@@ -190,15 +190,16 @@ sub Run {
 sub _Change {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my %Data         = %{ $Param{Data} };
-    my $Type         = $Param{Type} || 'User';
-    my $NeType       = $Type eq 'Role' ? 'User' : 'Role';
+    my %Data   = %{ $Param{Data} };
+    my $Type   = $Param{Type} || 'User';
+    my $NeType = $Type eq 'Role' ? 'User' : 'Role';
 
     my %VisibleType = (
         Role => 'Role',
         User => 'Agent'
     );
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Change',
