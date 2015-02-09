@@ -1125,7 +1125,6 @@ sub _MaskRun {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     my %JobData;
 
     if ( $Self->{Profile} ) {

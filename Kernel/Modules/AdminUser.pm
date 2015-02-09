@@ -34,7 +34,6 @@ sub Run {
     my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
     my $UserObject      = $Kernel::OM->Get('Kernel::System::User');
-    my $GroupObject     = $Kernel::OM->Get('Kernel::System::Group');
     my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
     my $Search          = $ParamObject->GetParam( Param => 'Search' ) || '';
     my $CheckItemObject = $Kernel::OM->Get('Kernel::System::CheckItem');
@@ -58,7 +57,8 @@ sub Run {
         );
 
         # get groups rw
-        my %GroupData = $GroupObject->PermissionUserGet(
+        my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+        my %GroupData   = $GroupObject->PermissionUserGet(
             UserID => $UserData{UserID},
             Type   => 'rw',
         );
