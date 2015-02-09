@@ -29,7 +29,7 @@ $Selenium->RunTest(
     sub {
 
         my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+            RestoreSystemConfiguration => 1,
         );
 
         # enable PerformanceLog
@@ -70,13 +70,6 @@ $Selenium->RunTest(
             # click on "Go to overview"
             $Selenium->find_element("//a[contains(\@href, \'Action=AdminPerformanceLog' )]")->click();
         }
-
-        # disable PerformanceLog
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'PerformanceLog',
-            Value => 0
-        );
 
         }
 

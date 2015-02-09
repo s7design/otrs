@@ -30,7 +30,7 @@ $Selenium->RunTest(
     sub {
 
         my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+            RestoreSystemConfiguration => 1,
         );
 
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -140,13 +140,6 @@ $Selenium->RunTest(
                 }
             }
         }
-
-        # disable PGP
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'PGP',
-            Value => 0
-        );
 
         }
 
