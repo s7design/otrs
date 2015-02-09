@@ -31,8 +31,7 @@ sub Run {
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     my $SLAObject    = $Kernel::OM->Get('Kernel::System::SLA');
-
-    my %Error = ();
+    my %Error        = ();
 
     # ------------------------------------------------------------ #
     # sla edit

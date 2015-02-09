@@ -541,8 +541,7 @@ sub _ShowOverview {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ACLObject    = $Kernel::OM->Get('Kernel::System::ACL::DB::ACL');
-
-    my $Output = $LayoutObject->Header();
+    my $Output       = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
 
     # show notifications if any
@@ -791,7 +790,6 @@ sub _GetParams {
     my ( $Self, %Param ) = @_;
 
     my $JSONObject = $Kernel::OM->Get('Kernel::System::JSON');
-
     my $GetParam;
 
     # get parameters from web browser

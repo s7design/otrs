@@ -327,8 +327,7 @@ sub _Overview {
     );
 
     my $SignatureObject = $Kernel::OM->Get('Kernel::System::Signature');
-
-    my %List = $SignatureObject->SignatureList(
+    my %List            = $SignatureObject->SignatureList(
         Valid => 0,
     );
 

@@ -434,8 +434,6 @@ sub _Edit {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $Config       = $ConfigObject->Get("Frontend::Admin::$Self->{Action}");
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -444,6 +442,8 @@ sub _Edit {
 
     $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'ActionOverview' );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # get list type
     my $TreeView = 0;
@@ -719,6 +719,7 @@ sub _Edit {
         }
 
         # use height/width defined for this screen
+        my $Config = $ConfigObject->Get("Frontend::Admin::$Self->{Action}");
         $Param{RichTextHeight} = $Config->{RichTextHeight} || 0;
         $Param{RichTextWidth}  = $Config->{RichTextWidth}  || 0;
 

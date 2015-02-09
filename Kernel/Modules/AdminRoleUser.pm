@@ -191,10 +191,9 @@ sub _Change {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
-    my %Data   = %{ $Param{Data} };
-    my $Type   = $Param{Type} || 'User';
-    my $NeType = $Type eq 'Role' ? 'User' : 'Role';
+    my %Data         = %{ $Param{Data} };
+    my $Type         = $Param{Type} || 'User';
+    my $NeType       = $Type eq 'Role' ? 'User' : 'Role';
 
     my %VisibleType = (
         Role => 'Role',
@@ -251,7 +250,6 @@ sub _Overview {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -259,6 +257,7 @@ sub _Overview {
     );
 
     # get user list
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
     my %UserData = $UserObject->UserList( Valid => 1 );
 
     # get user name
