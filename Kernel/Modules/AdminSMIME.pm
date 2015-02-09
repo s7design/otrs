@@ -27,13 +27,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
-    my $SessionObject      = $Kernel::OM->Get('Kernel::System::AuthSession');
-    my $CryptObject        = Kernel::System::Crypt->new(
-        CryptType => 'SMIME',
-    );
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     $Param{Search} = $ParamObject->GetParam( Param => 'Search' );
     if ( !defined $Param{Search} ) {
@@ -42,10 +36,17 @@ sub Run {
     if ( $Self->{Subaction} eq '' ) {
         $Param{Search} = '';
     }
+
+    my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
     $SessionObject->UpdateSessionID(
         SessionID => $Self->{SessionID},
         Key       => 'SMIMESearch',
         Value     => $Param{Search},
+    );
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $CryptObject  = Kernel::System::Crypt->new(
+        CryptType => 'SMIME',
     );
 
     # ------------------------------------------------------------ #
@@ -88,7 +89,8 @@ sub Run {
 
                 # check if there are customers that have assigned the certificate in their
                 # preferences
-                my %UserList = $CustomerUserObject->SearchPreferences(
+                my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+                my %UserList           = $CustomerUserObject->SearchPreferences(
                     Key   => 'SMIMEFilename',
                     Value => $Filename,
                 );
@@ -554,10 +556,6 @@ sub _Overview {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $CryptObject  = Kernel::System::Crypt->new(
-        CryptType => 'SMIME',
-    );
-
     my $Output;
 
     # check if SMIME is activated in the sysconfig first
@@ -586,6 +584,11 @@ sub _Overview {
             );
         }
     }
+
+    my $CryptObject = Kernel::System::Crypt->new(
+        CryptType => 'SMIME',
+    );
+
     if ( !$CryptObject && $ConfigObject->Get('SMIME') ) {
         $Output .= $LayoutObject->Notify(
             Priority => 'Error',

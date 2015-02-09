@@ -27,13 +27,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $RegistrationObject = $Kernel::OM->Get('Kernel::System::Registration');
-    my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
-    my $OTRSBusinessObject = $Kernel::OM->Get('Kernel::System::OTRSBusiness');
-    my $EnvironmentObject  = $Kernel::OM->Get('Kernel::System::Environment');
-    my $RegistrationState  = $Kernel::OM->Get('Kernel::System::SystemData')->SystemDataGet(
+    my $RegistrationState = $Kernel::OM->Get('Kernel::System::SystemData')->SystemDataGet(
         Key => 'Registration::State',
     ) || '';
 
@@ -47,6 +41,11 @@ sub Run {
             $Self->{Subaction} = 'OTRSIDValidate';
         }
     }
+
+    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $RegistrationObject = $Kernel::OM->Get('Kernel::System::Registration');
+    my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
 
     # ------------------------------------------------------------ #
     # Scheduler not running screen
@@ -163,7 +162,9 @@ sub Run {
             Data => \%Param,
         );
 
-        my $EntitlementStatus = 'forbidden';
+        my $EntitlementStatus  = 'forbidden';
+        my $OTRSBusinessObject = $Kernel::OM->Get('Kernel::System::OTRSBusiness');
+
         if ( $RegistrationState eq 'registered' ) {
 
             # Only call cloud service for a registered system
@@ -248,8 +249,9 @@ sub Run {
             Class         => 'Validate_Required ' . ( $Param{Errors}->{'TypeIDInvalid'} || '' ),
         );
 
-        my %OSInfo = $EnvironmentObject->OSInfoGet();
-        my %DBInfo = $EnvironmentObject->DBInfoGet();
+        my $EnvironmentObject = $Kernel::OM->Get('Kernel::System::Environment');
+        my %OSInfo            = $EnvironmentObject->OSInfoGet();
+        my %DBInfo            = $EnvironmentObject->DBInfoGet();
 
         $LayoutObject->Block(
             Name => 'Registration',
