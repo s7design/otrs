@@ -28,7 +28,7 @@ $Selenium->RunTest(
     sub {
 
         my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+            RestoreSystemConfiguration => 1,
         );
 
         # do not check RichText
@@ -147,13 +147,6 @@ $Selenium->RunTest(
             $Selenium->find_element( '#ValidID', 'css' )->get_value(),
             2,
             "#ValidID updated value",
-        );
-
-        # restore RichText config
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Frontend::RichText',
-            Value => 1
         );
 
         # Since there are no tickets that rely on our test Salutation, we can remove them

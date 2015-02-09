@@ -28,7 +28,7 @@ $Selenium->RunTest(
     sub {
 
         my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+            RestoreSystemConfiguration => 1,
         );
 
         # do not check RichText
@@ -172,13 +172,6 @@ $Selenium->RunTest(
         );
 
         $Selenium->go_back();
-
-        # restore RichText config
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Frontend::RichText',
-            Value => 1
-        );
 
         # get NotificationEventID
         my %NotifEventID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationGet(
