@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminPerformanceLog.pm - provides a log view for admins
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -27,10 +27,8 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
 
     # is performance log disabled?
     if ( !$ConfigObject->Get('PerformanceLog') ) {
@@ -78,6 +76,8 @@ sub Run {
 
         $LayoutObject->Block( Name => 'ActionList' );
         $LayoutObject->Block( Name => 'ActionOverview' );
+
+        my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
         my %Action     = ();
         my $MaxRequest = 0;
@@ -171,6 +171,8 @@ sub Run {
         $Minute = 0;
         $Count  = 1;
         while ( $Count <= $MinuteSlot ) {
+
+            my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
 
             # set output class
             if ( $Action{$Minute} ) {

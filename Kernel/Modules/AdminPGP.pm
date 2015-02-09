@@ -27,13 +27,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
-    my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
-    my $CryptObject   = Kernel::System::Crypt->new(
-        CryptType => 'PGP',
-    );
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # ------------------------------------------------------------ #
     # check if feature is active
@@ -60,10 +56,16 @@ sub Run {
         $Param{Search} = '';
     }
 
+    my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
+
     $SessionObject->UpdateSessionID(
         SessionID => $Self->{SessionID},
         Key       => 'PGPSearch',
         Value     => $Param{Search},
+    );
+
+    my $CryptObject = Kernel::System::Crypt->new(
+        CryptType => 'PGP',
     );
 
     # ------------------------------------------------------------ #
