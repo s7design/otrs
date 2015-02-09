@@ -30,13 +30,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $PackageObject     = $Kernel::OM->Get('Kernel::System::Package');
-    my $LayoutObject      = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject       = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $DBObject          = $Kernel::OM->Get('Kernel::System::DB');
-    my $MainObject        = $Kernel::OM->Get('Kernel::System::Main');
-    my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
-    my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $Source = $Self->{UserRepository} || '';
     my %Errors;
@@ -72,18 +66,24 @@ sub Run {
         }
     }
 
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # secure mode message (don't allow this action until secure mode is enabled)
     if ( !$ConfigObject->Get('SecureMode') ) {
         return $LayoutObject->SecureMode();
     }
 
+    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
+    my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $MainObject    = $Kernel::OM->Get('Kernel::System::Main');
+
     # ------------------------------------------------------------ #
     # view diff file
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'ViewDiff' ) {
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
-        my $Location = $Self->{ParamObject}->GetParam( Param => 'Location' );
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
+        my $Location = $ParamObject->GetParam( Param => 'Location' );
 
         # get package
         my $Package = $PackageObject->RepositoryGet(
@@ -168,13 +168,15 @@ sub Run {
         return $Output;
     }
 
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
     # ------------------------------------------------------------ #
     # view package
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'View' ) {
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
-        my $Location = $Self->{ParamObject}->GetParam( Param => 'Location' );
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
+        my $Location = $ParamObject->GetParam( Param => 'Location' );
         my %Frontend;
 
         # get package
@@ -525,12 +527,14 @@ sub Run {
         return $Output;
     }
 
+    my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
+
     # ------------------------------------------------------------ #
     # view remote package
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'ViewRemote' ) {
-        my $File = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
-        my $Location = $Self->{ParamObject}->GetParam( Param => 'Location' );
+        my $File = $ParamObject->GetParam( Param => 'File' ) || '';
+        my $Location = $ParamObject->GetParam( Param => 'Location' );
         my %Frontend;
 
         # download package
@@ -764,8 +768,8 @@ sub Run {
     # download package
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'Download' ) {
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
 
         # get package
         my $Package = $PackageObject->RepositoryGet(
@@ -787,7 +791,7 @@ sub Run {
     # download remote package
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'DownloadRemote' ) {
-        my $File = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
+        my $File = $ParamObject->GetParam( Param => 'File' ) || '';
 
         # download package
         my $Package = $PackageObject->PackageOnlineGet(
@@ -815,7 +819,7 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $Source = $Self->{ParamObject}->GetParam( Param => 'Source' ) || '';
+        my $Source = $ParamObject->GetParam( Param => 'Source' ) || '';
         $Self->{SessionObject}->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'UserRepository',
@@ -832,8 +836,8 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
 
         # get package
         my $Package = $PackageObject->RepositoryGet(
@@ -853,7 +857,7 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $File = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
+        my $File = $ParamObject->GetParam( Param => 'File' ) || '';
 
         # download package
         my $Package = $PackageObject->PackageOnlineGet(
@@ -876,7 +880,7 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $File = $Self->{ParamObject}->GetParam( Param => 'File' ) || '';
+        my $File = $ParamObject->GetParam( Param => 'File' ) || '';
 
         # download package
         my $Package = $PackageObject->PackageOnlineGet(
@@ -899,9 +903,9 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
-        my $IntroReinstallPre = $Self->{ParamObject}->GetParam( Param => 'IntroReinstallPre' )
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
+        my $IntroReinstallPre = $ParamObject->GetParam( Param => 'IntroReinstallPre' )
             || '';
 
         # get package
@@ -980,9 +984,9 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
-        my $IntroReinstallPost = $Self->{ParamObject}->GetParam( Param => 'IntroReinstallPost' )
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
+        my $IntroReinstallPost = $ParamObject->GetParam( Param => 'IntroReinstallPost' )
             || '';
 
         # get package
@@ -1043,9 +1047,9 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
-        my $IntroUninstallPre = $Self->{ParamObject}->GetParam( Param => 'IntroUninstallPre' )
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
+        my $IntroUninstallPre = $ParamObject->GetParam( Param => 'IntroUninstallPre' )
             || '';
 
         # get package
@@ -1123,9 +1127,9 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
-        my $IntroUninstallPost = $Self->{ParamObject}->GetParam( Param => 'IntroUninstallPost' )
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
+        my $IntroUninstallPost = $ParamObject->GetParam( Param => 'IntroUninstallPost' )
             || '';
 
         # get package
@@ -1189,8 +1193,8 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $FormID = $Self->{ParamObject}->GetParam( Param => 'FormID' ) || '';
-        my %UploadStuff = $Self->{ParamObject}->GetUploadAll(
+        my $FormID = $ParamObject->GetParam( Param => 'FormID' ) || '';
+        my %UploadStuff = $ParamObject->GetUploadAll(
             Param => 'FileUpload',
         );
 
@@ -1244,8 +1248,8 @@ sub Run {
         # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
-        my $Name    = $Self->{ParamObject}->GetParam( Param => 'Name' )    || '';
-        my $Version = $Self->{ParamObject}->GetParam( Param => 'Version' ) || '';
+        my $Name    = $ParamObject->GetParam( Param => 'Name' )    || '';
+        my $Version = $ParamObject->GetParam( Param => 'Version' ) || '';
 
         # get package
         my $Package = $PackageObject->RepositoryGet(
@@ -1392,8 +1396,10 @@ sub Run {
 
     # remove not visible packages
     @RepositoryList = map {
-        ( !defined $_->{PackageIsVisible}
-                || ( $_->{PackageIsVisible}->{Content} && $_->{PackageIsVisible}->{Content} eq '1' ) )
+        (
+            !defined $_->{PackageIsVisible}
+                || ( $_->{PackageIsVisible}->{Content} && $_->{PackageIsVisible}->{Content} eq '1' )
+            )
             ? $_
             : ()
     } @RepositoryList;
@@ -1755,22 +1761,24 @@ sub _DocumentationGet {
 sub _InstallHandling {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # check needed params
     if ( !$Param{Package} ) {
         return $LayoutObject->ErrorScreen( Message => 'No such package!' );
     }
 
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+
     # redirect after finishing installation
-    if ( $Self->{ParamObject}->GetParam( Param => 'IntroInstallPost' ) ) {
+    if ( $ParamObject->GetParam( Param => 'IntroInstallPost' ) ) {
         return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
     }
 
-    my $IntroInstallPre    = $Self->{ParamObject}->GetParam( Param => 'IntroInstallPre' )    || '';
-    my $IntroInstallVendor = $Self->{ParamObject}->GetParam( Param => 'IntroInstallVendor' ) || '';
+    my $IntroInstallPre    = $ParamObject->GetParam( Param => 'IntroInstallPre' )    || '';
+    my $IntroInstallVendor = $ParamObject->GetParam( Param => 'IntroInstallVendor' ) || '';
+
+    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
 
     # parse package
     my %Structure = $PackageObject->PackageParse( String => $Param{Package} );
@@ -1925,21 +1933,23 @@ sub _InstallHandling {
 sub _UpgradeHandling {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject   = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # check needed params
     if ( !$Param{Package} ) {
         return $LayoutObject->ErrorScreen( Message => 'No such package!' );
     }
 
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+
     # redirect after finishing upgrade
-    if ( $Self->{ParamObject}->GetParam( Param => 'IntroUpgradePost' ) ) {
+    if ( $ParamObject->GetParam( Param => 'IntroUpgradePost' ) ) {
         return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
     }
 
-    my $IntroUpgradePre = $Self->{ParamObject}->GetParam( Param => 'IntroUpgradePre' ) || '';
+    my $IntroUpgradePre = $ParamObject->GetParam( Param => 'IntroUpgradePre' ) || '';
+
+    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
 
     # check if we have to show upgrade intro pre
     my %Structure = $PackageObject->PackageParse(
@@ -2020,9 +2030,8 @@ sub _UpgradeHandling {
 sub _GetFeatureAddonData {
     my ( $Self, %Param ) = @_;
 
-    my $Language           = $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{UserLanguage};
-    my $CacheObject        = $Kernel::OM->Get('Kernel::System::Cache');
-    my $CloudServiceObject = $Kernel::OM->Get('Kernel::System::CloudService');
+    my $Language    = $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{UserLanguage};
+    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
     # cleanup main language for languages like es_MX (es in this case)
     $Language = substr $Language, 0, 2;
@@ -2055,8 +2064,10 @@ sub _GetFeatureAddonData {
         },
     );
 
+    my $CloudServiceObject = $Kernel::OM->Get('Kernel::System::CloudService');
+
     # dispatch the cloud service request
-    my $RequestResult = $Kernel::OM->Get('Kernel::System::CloudService')->Request(%RequestParams);
+    my $RequestResult = $CloudServiceObject->Request(%RequestParams);
 
     # as this is the only operation an unsuccessful request means that the operation was also
     # unsuccessful
@@ -2064,7 +2075,7 @@ sub _GetFeatureAddonData {
         return "Can't connect to OTRS Feature Add-on list server!";
     }
 
-    my $OperationResult = $Kernel::OM->Get('Kernel::System::CloudService')->OperationResultGet(
+    my $OperationResult = $CloudServiceObject->OperationResultGet(
         RequestResult => $RequestResult,
         CloudService  => $CloudService,
         Operation     => $Operation,
