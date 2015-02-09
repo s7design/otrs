@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminACL.pm - ACL administration
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -29,10 +29,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $JSONObject   = $Kernel::OM->Get('Kernel::System::JSON');
-    my $ACLObject    = $Kernel::OM->Get('Kernel::System::ACL::DB::ACL');
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     $Self->{Subaction} = $ParamObject->GetParam( Param => 'Subaction' ) || '';
 
@@ -42,6 +39,9 @@ sub Run {
         = 'ACL information from database is not in sync with the system configuration, please deploy all ACLs.';
 
     my $SynchronizedMessageVisible = 0;
+
+    my $ACLObject = $Kernel::OM->Get('Kernel::System::ACL::DB::ACL');
+
     if ( $ACLObject->ACLsNeedSync() ) {
 
         # create a notification if system is not up to date
@@ -52,6 +52,9 @@ sub Run {
         ];
         $SynchronizedMessageVisible = 1;
     }
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $JSONObject   = $Kernel::OM->Get('Kernel::System::JSON');
 
     # ------------------------------------------------------------ #
     # ACLImport

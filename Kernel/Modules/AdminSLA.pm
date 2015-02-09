@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminSLA.pm - admin frontend to manage slas
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -27,10 +27,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
     my $SLAObject    = $Kernel::OM->Get('Kernel::System::SLA');
 
     my %Error = ();
@@ -75,6 +74,8 @@ sub Run {
         if ( !$GetParam{Name} ) {
             $Error{'NameInvalid'} = 'ServerError';
         }
+
+        my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
         # if no errors occurred
         if ( !%Error ) {
@@ -310,9 +311,7 @@ sub Run {
 sub _MaskNew {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     # get params
     my %SLAData;
@@ -330,6 +329,8 @@ sub _MaskNew {
         $SLAData{ServiceID} = $ParamObject->GetParam( Param => 'ServiceID' );
     }
 
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # get list type
     my $ListType = $ConfigObject->Get('Ticket::Frontend::ListType');
 
@@ -339,6 +340,8 @@ sub _MaskNew {
         KeepChildren => 1,
         UserID       => $Self->{UserID},
     );
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # generate ServiceOptionStrg
     $Param{ServiceOptionStrg} = $LayoutObject->BuildSelection(

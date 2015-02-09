@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminSalutation.pm - to add/update/delete system addresses
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -308,8 +308,7 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $SalutationObject = $Kernel::OM->Get('Kernel::System::Salutation');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -327,6 +326,9 @@ sub _Overview {
         Name => 'OverviewResult',
         Data => \%Param,
     );
+
+    my $SalutationObject = $Kernel::OM->Get('Kernel::System::Salutation');
+
     my %List = $SalutationObject->SalutationList(
         Valid => 0,
     );

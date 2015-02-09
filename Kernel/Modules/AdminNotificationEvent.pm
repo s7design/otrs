@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminNotificationEvent.pm - to manage event-based notifications
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -29,13 +29,9 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject             = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject            = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
-    my $BackendObject           = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-    my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
-    my $RichText                = $ConfigObject->Get('Frontend::RichText');
-    my $DynamicField            = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $RichText     = $ConfigObject->Get('Frontend::RichText');
+    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
         Valid      => 1,
         ObjectType => ['Ticket'],
     );
@@ -49,6 +45,11 @@ sub Run {
     if ($RichText) {
         $NotificationType = 'text/html';
     }
+
+    my $ParamObject             = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LayoutObject            = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
+    my $BackendObject           = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
     # ------------------------------------------------------------ #
     # change
@@ -432,12 +433,9 @@ sub Run {
 sub _Edit {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
-    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-    my $TicketObject  = $Kernel::OM->Get('Kernel::System::Ticket');
-    my $GroupObject   = $Kernel::OM->Get('Kernel::System::Group');
-    my $Config        = $ConfigObject->Get("Frontend::Admin::$Self->{Action}");
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $Config       = $ConfigObject->Get("Frontend::Admin::$Self->{Action}");
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -477,6 +475,9 @@ sub _Edit {
         Size       => 4,
         SelectedID => $Param{Data}->{RecipientAgents},
     );
+
+    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+
     $Param{RecipientGroupsStrg} = $LayoutObject->BuildSelection(
         Data       => { $GroupObject->GroupList( Valid => 1 ) },
         Size       => 6,
@@ -667,6 +668,8 @@ sub _Edit {
         ObjectType => ['Ticket'],
     );
 
+    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
     DYNAMICFIELD:
     for my $DynamicFieldConfig ( @{$DynamicField} ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
@@ -735,6 +738,8 @@ sub _Edit {
         }
     }
 
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
     $Param{ArticleTypesStrg} = $LayoutObject->BuildSelection(
         Data        => { $TicketObject->ArticleTypeList( Result => 'HASH' ), },
         Name        => 'ArticleTypeID',
@@ -798,8 +803,7 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject            = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -813,6 +817,9 @@ sub _Overview {
         Name => 'OverviewResult',
         Data => \%Param,
     );
+
+    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
+
     my %List = $NotificationEventObject->NotificationList();
 
     # if there are any notifications, they are shown
