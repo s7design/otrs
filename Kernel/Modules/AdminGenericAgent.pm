@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminGenericAgent.pm - admin generic agent interface
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -43,10 +43,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');
-    my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # create local object
     my $CheckItemObject = Kernel::System::CheckItem->new( %{$Self} );
@@ -56,10 +53,14 @@ sub Run {
         return $LayoutObject->SecureMode();
     }
 
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+
     # get config data
     $Self->{Profile}    = $ParamObject->GetParam( Param => 'Profile' )    || '';
     $Self->{OldProfile} = $ParamObject->GetParam( Param => 'OldProfile' ) || '';
     $Self->{Subaction}  = $ParamObject->GetParam( Param => 'Subaction' )  || '';
+
+    my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');
 
     # ---------------------------------------------------------- #
     # run a generic agent job -> "run now"
@@ -171,6 +172,8 @@ sub Run {
         # get dynamic fields to set from web request
         # to store dynamic fields profile data
         my %DynamicFieldValues;
+
+        my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
         # cycle trough the activated Dynamic Fields for this screen
         DYNAMICFIELD:
@@ -391,16 +394,6 @@ sub Run {
 sub _MaskUpdate {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject    = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $TicketObject   = $Kernel::OM->Get('Kernel::System::Ticket');
-    my $LayoutObject   = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
-    my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
-    my $StateObject    = $Kernel::OM->Get('Kernel::System::State');
-    my $LockObject     = $Kernel::OM->Get('Kernel::System::Lock');
-    my $BackendObject  = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-    my $QueueObject    = $Kernel::OM->Get('Kernel::System::Queue');
-
     my %JobData;
 
     if ( $Self->{Profile} ) {
@@ -409,6 +402,8 @@ sub _MaskUpdate {
         %JobData = $Kernel::OM->Get('Kernel::System::GenericAgent')->JobGet( Name => $Self->{Profile} );
     }
     $JobData{Profile} = $Self->{Profile};
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # get list type
     my $TreeView = 0;
@@ -420,6 +415,9 @@ sub _MaskUpdate {
         Type  => 'Long',
         Valid => 1,
     );
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     $JobData{OwnerStrg} = $LayoutObject->BuildSelection(
         Data        => \%ShownUsers,
         Name        => 'OwnerIDs',
@@ -480,6 +478,8 @@ sub _MaskUpdate {
         SelectedID => $JobData{ScheduleDays},
     );
 
+    my $StateObject = $Kernel::OM->Get('Kernel::System::State');
+
     $JobData{StatesStrg} = $LayoutObject->BuildSelection(
         Data => {
             $StateObject->StateList(
@@ -535,6 +535,9 @@ sub _MaskUpdate {
         Translation => 1,
         Title       => $LayoutObject->{LanguageObject}->Translate('Time unit'),
     );
+
+    my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
+
     $JobData{QueuesStrg} = $LayoutObject->AgentQueueListOption(
         Data               => { $QueueObject->GetAllQueues(), },
         Size               => 5,
@@ -553,6 +556,9 @@ sub _MaskUpdate {
         TreeView       => $TreeView,
         OnChangeSubmit => 0,
     );
+
+    my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
+
     $JobData{PrioritiesStrg} = $LayoutObject->BuildSelection(
         Data => {
             $PriorityObject->PriorityList(
@@ -669,6 +675,9 @@ sub _MaskUpdate {
         Name       => 'Valid',
         SelectedID => defined( $JobData{Valid} ) ? $JobData{Valid} : 1,
     );
+
+    my $LockObject = $Kernel::OM->Get('Kernel::System::Lock');
+
     $JobData{LockOption} = $LayoutObject->BuildSelection(
         Data => {
             $LockObject->LockList(
@@ -901,6 +910,8 @@ sub _MaskUpdate {
     # create dynamic field HTML for set with historical data options
     my $PrintDynamicFieldsSearchHeader = 1;
 
+    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
     for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
@@ -948,6 +959,8 @@ sub _MaskUpdate {
     # create dynamic field HTML for set with historical data options
     my $PrintDynamicFieldsEditHeader = 1;
 
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
     for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
@@ -973,6 +986,8 @@ sub _MaskUpdate {
                 # convert possible values key => value to key => key for ACLs using a Hash slice
                 my %AclData = %{$PossibleValues};
                 @AclData{ keys %AclData } = keys %AclData;
+
+                my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
                 # set possible values filter from ACLs
                 my $ACL = $TicketObject->TicketAcl(
@@ -1109,9 +1124,7 @@ sub _MaskUpdate {
 sub _MaskRun {
     my ( $Self, %Param ) = @_;
 
-    my $TicketObject  = $Kernel::OM->Get('Kernel::System::Ticket');
-    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my %JobData;
 
@@ -1131,6 +1144,8 @@ sub _MaskRun {
 
     # dynamic fields search parameters for ticket search
     my %DynamicFieldSearchParameters;
+
+    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
@@ -1173,6 +1188,8 @@ sub _MaskRun {
             }
         }
     }
+
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
     # perform ticket search
     my $Counter = $TicketObject->TicketSearch(

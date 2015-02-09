@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AgentBook.pm - addressbook module
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -27,9 +27,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     # get params
     for (qw(ToCustomer CcCustomer BccCustomer)) {
@@ -39,6 +37,8 @@ sub Run {
     # get list of users
     my $Search = $ParamObject->GetParam( Param => 'Search' );
     my %CustomerUserList;
+    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+
     if ($Search) {
         %CustomerUserList = $CustomerUserObject->CustomerSearch(
             Search => $Search,
@@ -53,6 +53,8 @@ sub Run {
             $List{ $CustomerUserData{UserEmail} } = $CustomerUserList{$_};
         }
     }
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # build customer search autocomplete field
     $LayoutObject->Block(

@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/AdminUserGroup.pm - to add/update/delete groups <-> users
-# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -204,9 +204,6 @@ sub Run {
 sub _Change {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
     my %Data   = %{ $Param{Data} };
     my $Type   = $Param{Type} || 'User';
     my $NeType = $Type eq 'Group' ? 'User' : 'Group';
@@ -215,6 +212,8 @@ sub _Change {
         Group => 'Group',
         User  => 'Agent',
     );
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block( Name => 'Overview' );
     $LayoutObject->Block( Name => 'ActionList' );
@@ -234,6 +233,8 @@ sub _Change {
     );
 
     $LayoutObject->Block( Name => "ChangeHeader$VisibleType{$NeType}" );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     TYPE:
     for my $Type ( @{ $ConfigObject->Get('System::Permission') } ) {
@@ -291,7 +292,6 @@ sub _Overview {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
 
     $LayoutObject->Block( Name => 'Overview' );
 
@@ -301,6 +301,8 @@ sub _Overview {
     $LayoutObject->Block( Name => 'UserFilter' );
     $LayoutObject->Block( Name => 'GroupFilter' );
     $LayoutObject->Block( Name => 'OverviewResult' );
+
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
 
     # get user list
     my %UserData = $UserObject->UserList( Valid => 1 );

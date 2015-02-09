@@ -477,7 +477,6 @@ sub _Edit {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     $LayoutObject->Block(
         Name => 'Overview',
@@ -536,6 +535,8 @@ sub _Edit {
     else {
         $LayoutObject->Block( Name => 'UserLoginServerError' );
     }
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my @Groups = @{ $ConfigObject->Get('PreferencesView') };
     for my $Column (@Groups) {
@@ -624,8 +625,6 @@ sub _Overview {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
 
     # when there is no data to show, a message is displayed on the table with this colspan
     my $ColSpan = 7;
@@ -648,12 +647,17 @@ sub _Overview {
         Name => 'OverviewResult',
         Data => \%Param,
     );
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     if ( $ConfigObject->Get('SwitchToUser') ) {
         $ColSpan = 8;
         $LayoutObject->Block(
             Name => 'OverviewResultSwitchToUser',
         );
     }
+
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
 
     my %List = $UserObject->UserSearch(
         Search => $Param{Search} . '*',
