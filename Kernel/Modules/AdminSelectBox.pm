@@ -184,8 +184,7 @@ sub Run {
                 my $TimeStamp = $Kernel::OM->Get('Kernel::System::Time')->CurrentTimestamp();
                 $TimeStamp =~ s/[:-]//g;
                 $TimeStamp =~ s/ /-/;
-                my $FileName = 'admin-select-' . $TimeStamp;
-
+                my $FileName  = 'admin-select-' . $TimeStamp;
                 my $CSVObject = $Kernel::OM->Get('Kernel::System::CSV');
 
                 # generate csv output

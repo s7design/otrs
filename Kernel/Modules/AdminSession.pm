@@ -29,7 +29,6 @@ sub Run {
 
     my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
-
     my $WantSessionID = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'WantSessionID' ) || '';
 
     # ------------------------------------------------------------ #

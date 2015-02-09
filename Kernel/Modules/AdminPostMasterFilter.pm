@@ -27,13 +27,13 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
+    my $ParamObject    = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
     my $Name           = $ParamObject->GetParam( Param => 'Name' );
     my $OldName        = $ParamObject->GetParam( Param => 'OldName' );
     my $StopAfterMatch = $ParamObject->GetParam( Param => 'StopAfterMatch' ) || 0;
-    my %GetParam = ();
+    my %GetParam       = ();
+
     for my $Number ( 1 .. $ConfigObject->Get('PostmasterHeaderFieldCount') ) {
         $GetParam{"MatchHeader$Number"} = $ParamObject->GetParam( Param => "MatchHeader$Number" );
         $GetParam{"MatchValue$Number"}  = $ParamObject->GetParam( Param => "MatchValue$Number" );

@@ -257,7 +257,6 @@ sub _MaskNew {
     my ( $Self, %Param ) = @_;
 
     my $ServiceObject = $Kernel::OM->Get('Kernel::System::Service');
-
     my %ServiceData;
 
     # get params

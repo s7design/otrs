@@ -285,9 +285,8 @@ sub _DownloadSupportBundle {
 
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
-    my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
-    my $RandomID = $ParamObject->GetParam( Param => 'RandomID' ) || '';
+    my $Filename     = $ParamObject->GetParam( Param => 'Filename' ) || '';
+    my $RandomID     = $ParamObject->GetParam( Param => 'RandomID' ) || '';
 
     if ( !$Filename ) {
         return $LayoutObject->ErrorScreen(
@@ -299,8 +298,7 @@ sub _DownloadSupportBundle {
     my $Location = $TempDir . '/' . $Filename;
 
     my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
-
-    my $Content = $MainObject->FileRead(
+    my $Content    = $MainObject->FileRead(
         Location => $Location,
         Mode     => 'binmode',
         Type     => 'Local',
@@ -339,11 +337,10 @@ sub _SendSupportBundle {
 
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
-
-    my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
-    my $RandomID = $ParamObject->GetParam( Param => 'RandomID' ) || '';
-
+    my $Filename    = $ParamObject->GetParam( Param => 'Filename' ) || '';
+    my $RandomID    = $ParamObject->GetParam( Param => 'RandomID' ) || '';
     my $Success;
+
     if ($Filename) {
 
         my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
