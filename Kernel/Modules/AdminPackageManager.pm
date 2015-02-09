@@ -2031,7 +2031,6 @@ sub _GetFeatureAddonData {
     my ( $Self, %Param ) = @_;
 
     my $Language    = $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{UserLanguage};
-    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
     # cleanup main language for languages like es_MX (es in this case)
     $Language = substr $Language, 0, 2;
@@ -2040,6 +2039,7 @@ sub _GetFeatureAddonData {
     my $CacheTTL  = 60 * 60 * 24;                    # 1 day
     my $CacheType = 'PackageManager';
 
+    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
     my $CacheResult = $CacheObject->Get(
         Type => $CacheType,
         Key  => $CacheKey,
