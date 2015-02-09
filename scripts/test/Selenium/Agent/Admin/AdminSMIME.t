@@ -29,7 +29,7 @@ $Selenium->RunTest(
     sub {
 
         my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+            RestoreSystemConfiguration => 1,
         );
 
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -105,16 +105,6 @@ $Selenium->RunTest(
             );
             $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;Type=$TestSMIME;Filename=4d400195' )]")
                 ->click();
-        }
-
-        # disable SMIME and restore default values to SMIME paths
-        for my $SysRestore (
-            qw (SMIME SMIME::CertPath SMIME::PrivatePath)
-            )
-        {
-            $SysConfigObject->ConfigItemReset(
-                Name => $SysRestore,
-            );
         }
 
         # delete needed test directories
