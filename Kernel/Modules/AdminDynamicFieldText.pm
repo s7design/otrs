@@ -78,7 +78,6 @@ sub _Add {
 
     # get the object type and field type display name
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
     my $ObjectTypeName
         = $ConfigObject->Get('DynamicFields::ObjectType')->{ $GetParam{ObjectType} }->{DisplayName} || '';
     my $FieldTypeName = $ConfigObject->Get('DynamicFields::Driver')->{ $GetParam{FieldType} }->{DisplayName} || '';
@@ -94,9 +93,9 @@ sub _Add {
 
 sub _AddAction {
     my ( $Self, %Param ) = @_;
+
     my %Errors;
     my %GetParam;
-
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     for my $Needed (qw(Name Label FieldOrder)) {
@@ -225,8 +224,8 @@ sub _Change {
 
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     my %GetParam;
+
     for my $Needed (qw(ObjectType FieldType)) {
         $GetParam{$Needed} = $ParamObject->GetParam( Param => $Needed );
         if ( !$Needed ) {
@@ -238,7 +237,6 @@ sub _Change {
 
     # get the object type and field type display name
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
     my $ObjectTypeName
         = $ConfigObject->Get('DynamicFields::ObjectType')->{ $GetParam{ObjectType} }->{DisplayName} || '';
     my $FieldTypeName = $ConfigObject->Get('DynamicFields::Driver')->{ $GetParam{FieldType} }->{DisplayName} || '';
@@ -284,9 +282,9 @@ sub _Change {
 
 sub _ChangeAction {
     my ( $Self, %Param ) = @_;
+
     my %Errors;
     my %GetParam;
-
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     for my $Needed (qw(Name Label FieldOrder)) {
@@ -298,7 +296,6 @@ sub _ChangeAction {
     }
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     my $FieldID = $ParamObject->GetParam( Param => 'ID' );
     if ( !$FieldID ) {
         return $LayoutObject->ErrorScreen(
@@ -691,10 +688,10 @@ sub GetParamRegexList {
     my $Errors   = $Param{Errors};
     my @RegExList;
 
-    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-
     # Check regex list
     if ( $GetParam->{RegExCounter} && $GetParam->{RegExCounter} =~ m{\A\d+\z}xms ) {
+
+        my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
         REGEXENTRY:
         for my $CurrentRegExEntryID ( 1 .. $GetParam->{RegExCounter} ) {

@@ -32,11 +32,6 @@ sub Run {
     my $ServiceObject      = $Kernel::OM->Get('Kernel::System::Service');
     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
-    my %VisibleType = (
-        CustomerUserLogin => 'Customer',
-        Service           => 'Service',
-    );
-
     # set search limit
     my $SearchLimit = 200;
 

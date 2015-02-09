@@ -27,16 +27,16 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject          = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ParamObject           = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
-    my $ConfigObject          = $Kernel::OM->Get('Kernel::Config');
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my $Nav = $ParamObject->GetParam( Param => 'Nav' ) || 0;
     my $NavigationBarType = $Nav eq 'Agent' ? 'Companies' : 'Admin';
     my $Search = $ParamObject->GetParam( Param => 'Search' );
     $Search
         ||= $ConfigObject->Get('AdminCustomerCompany::RunInitialWildcardSearch') ? '*' : '';
+    my $LayoutObject          = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 
     # ------------------------------------------------------------ #
     # change

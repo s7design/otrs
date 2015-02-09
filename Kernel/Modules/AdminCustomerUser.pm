@@ -29,7 +29,6 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
@@ -42,7 +41,8 @@ sub Run {
     # create local object
     my $CheckItemObject = $Kernel::OM->Get('Kernel::System::CheckItem');
 
-    my $NavBar = '';
+    my $NavBar       = '';
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     if ( $Nav eq 'None' ) {
         $NavBar = $LayoutObject->Header( Type => 'Small' );
     }

@@ -78,7 +78,6 @@ sub _Add {
 
     # get the object type and field type display name
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
     my $ObjectTypeName
         = $ConfigObject->Get('DynamicFields::ObjectType')->{ $GetParam{ObjectType} }->{DisplayName} || '';
     my $FieldTypeName = $ConfigObject->Get('DynamicFields::Driver')->{ $GetParam{FieldType} }->{DisplayName} || '';
@@ -96,7 +95,6 @@ sub _AddAction {
     my ( $Self, %Param ) = @_;
 
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-
     my %Errors;
     my %GetParam;
 
@@ -227,7 +225,6 @@ sub _Change {
 
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my %GetParam;
     for my $Needed (qw(ObjectType FieldType)) {
@@ -240,6 +237,7 @@ sub _Change {
     }
 
     # get the object type and field type display name
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     my $ObjectTypeName
         = $ConfigObject->Get('DynamicFields::ObjectType')->{ $GetParam{ObjectType} }->{DisplayName} || '';
     my $FieldTypeName = $ConfigObject->Get('DynamicFields::Driver')->{ $GetParam{FieldType} }->{DisplayName} || '';
