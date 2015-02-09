@@ -185,8 +185,6 @@ sub Run {
 sub _Change {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     my %Data   = %{ $Param{Data} };
     my $Type   = $Param{Type} || 'Template';
     my $NeType = $Type eq 'Attachment' ? 'Template' : 'Attachment';
@@ -196,6 +194,7 @@ sub _Change {
         Attachment => 'Attachment',
     );
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     $LayoutObject->Block( Name => 'Overview' );
     $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'ActionOverview' );

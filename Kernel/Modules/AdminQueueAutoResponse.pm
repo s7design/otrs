@@ -28,17 +28,17 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $DBObject           = $Kernel::OM->Get('Kernel::System::DB');
-    my $QueueObject        = $Kernel::OM->Get('Kernel::System::Queue');
-    my $AutoResponseObject = $Kernel::OM->Get('Kernel::System::AutoResponse');
-
-    my $Output = '';
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
+    my $Output      = '';
     $Param{ID} = $ParamObject->GetParam( Param => 'ID' ) || '';
     $Param{ID} = $DBObject->Quote( $Param{ID}, 'Integer' ) if ( $Param{ID} );
     $Param{Action} = $ParamObject->GetParam( Param => 'Action' )
         || 'AdminQueueAutoResponse';
+
+    my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $QueueObject        = $Kernel::OM->Get('Kernel::System::Queue');
+    my $AutoResponseObject = $Kernel::OM->Get('Kernel::System::AutoResponse');
 
     if ( $Self->{Subaction} eq 'Change' ) {
         $Output .= $LayoutObject->Header();
