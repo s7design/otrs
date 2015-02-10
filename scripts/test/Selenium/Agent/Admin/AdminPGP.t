@@ -15,11 +15,10 @@ use vars (qw($Self));
 
 use Kernel::System::UnitTest::Helper;
 use Kernel::System::UnitTest::Selenium;
-use Kernel::System::Crypt;
+use File::Path qw(mkpath rmtree);
 
 # get needed objects
 my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
-my $DBObject        = $Kernel::OM->Get('Kernel::System::DB');
 my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
@@ -48,6 +47,16 @@ $Selenium->RunTest(
             Valid => 1,
             Key   => 'PGP',
             Value => 1
+        );
+
+        # create test PGP path and set it in sysConfig
+        my $PGPPath = $ConfigObject->Get('Home') . "/var/tmp/pgp";
+        mkpath( [$PGPPath], 0, 0770 );    ## no critic
+
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'PGP::Options',
+            Value => "--homedir $PGPPath --batch --no-tty --yes",
         );
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
@@ -104,23 +113,31 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Search", 'css' )->clear();
         $Selenium->find_element( "#Search", 'css' )->submit();
 
-        # delete test PGP keys
+        # set test PGP in config so we can delete them
         $ConfigObject->Set(
             Key   => 'PGP',
             Value => 1,
         );
-        my $CryptObject = Kernel::System::Crypt->new(
-            CryptType => 'PGP',
+        $ConfigObject->Set(
+            Key   => 'PGP::Options',
+            Value => "--homedir $PGPPath --batch --no-tty --yes",
         );
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::System::Crypt' => {
+                CryptType => 'PGP',
+            },
+        );
+
+        # delete test PGP keys
         for my $Count ( 1 .. 2 ) {
-            my @Keys = $CryptObject->KeySearch(
+            my @Keys = $Kernel::OM->Get('Kernel::System::Crypt')->KeySearch(
                 Search => $PGPKey{$Count},
             );
 
             for my $Key (@Keys) {
                 if ( $Key->{Type} eq 'sec' ) {
 
-                    # click on delete this key
+                    # click on delete secure key
                     $Selenium->find_element(
                         "//a[contains(\@href, \'Subaction=Delete;Type=sec;Key=$Key->{FingerprintShort}' )]"
                     )->click();
@@ -129,7 +146,7 @@ $Selenium->RunTest(
                         "PGPKey - $Key->{Identifier} deleted",
                     );
 
-                    # click on delete this key
+                    # click on delete public key
                     $Selenium->find_element(
                         "//a[contains(\@href, \'Subaction=Delete;Type=pub;Key=$Key->{FingerprintShort}' )]"
                     )->click();
@@ -140,6 +157,13 @@ $Selenium->RunTest(
                 }
             }
         }
+
+        # remove test PGP path
+        my $Success = rmtree( [$PGPPath] );
+        $Self->True(
+            $Success,
+            "Directory deleted - '$PGPPath'",
+        );
 
         }
 

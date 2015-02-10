@@ -65,9 +65,12 @@ sub Run {
         Value     => $Param{Search},
     );
 
-    my $CryptObject = Kernel::System::Crypt->new(
-        CryptType => 'PGP',
+    $Kernel::OM->ObjectParamAdd(
+        'Kernel::System::Crypt' => {
+            CryptType => 'PGP',
+        },
     );
+    my $CryptObject = $Kernel::OM->Get('Kernel::System::Crypt');
 
     # ------------------------------------------------------------ #
     # delete key
