@@ -146,14 +146,14 @@ sub CustomerPreferencesForm {
     my ( $Self, %Param ) = @_;
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     $LayoutObject->Block(
         Name => 'Body',
         Data => \%Param,
     );
 
-    my @Groups = @{ $ConfigObject->Get('CustomerPreferencesView') };
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my @Groups       = @{ $ConfigObject->Get('CustomerPreferencesView') };
 
     COLUMN:
     for my $Column (@Groups) {

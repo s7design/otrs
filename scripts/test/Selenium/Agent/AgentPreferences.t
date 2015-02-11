@@ -17,7 +17,7 @@ use Kernel::System::UnitTest::Helper;
 use Kernel::System::UnitTest::Selenium;
 
 # get needed objects
-my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
@@ -46,10 +46,10 @@ $Selenium->RunTest(
 
         # check AgentPreferences screen
         for my $ID (
-            qw(CurPw NewPw NewPw1 UserLanguage UserSkin UserSpellDict OutOfOfficeOn OutOfOfficeOff
-                UserSendNewTicketNotification UserSendFollowUpNotification UserSendLockTimeoutNotification
-                UserSendMoveNotification UserSendServiceUpdateNotification UserSendWatcherNotification QueueID
-                ServiceID UserRefreshTime UserCreateNextMask UserCSVSeparator)
+            qw(CurPw NewPw NewPw1 UserLanguage UserSkin OutOfOfficeOn OutOfOfficeOff
+            UserSendNewTicketNotification UserSendFollowUpNotification UserSendLockTimeoutNotification
+            UserSendMoveNotification UserSendServiceUpdateNotification QueueID
+            ServiceID UserRefreshTime UserCreateNextMask)
             )
         {
             my $Element = $Selenium->find_element( "#$ID", 'css' );
@@ -64,9 +64,9 @@ $Selenium->RunTest(
             "#UserLanguage stored value",
         );
         $Self->Is(
-            $Selenium->find_element( '#UserSpellDict', 'css' )->get_value(),
-            "english",
-            "#UserSpellDict stored value",
+            $Selenium->find_element( '#UserSkin', 'css' )->get_value(),
+            "default",
+            "#UserSkin stored value",
         );
         $Self->Is(
             $Selenium->find_element( '#UserSendNewTicketNotification', 'css' )->get_value(),
@@ -83,8 +83,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#UserLanguage option[value='de']", 'css' )->click();
         $Selenium->find_element("//button[\@id='UserLanguageUpdate'][\@type='submit']")->click();
 
-        $Selenium->find_element( "#UserSpellDict option[value='de_DE']", 'css' )->click();
-        $Selenium->find_element("//button[\@id='UserSpellDictUpdate'][\@type='submit']")->click();
+        $Selenium->find_element( "#UserSkin option[value='ivory']", 'css' )->click();
+        $Selenium->find_element("//button[\@id='UserSkinUpdate'][\@type='submit']")->click();
 
         $Selenium->find_element( "#UserSendNewTicketNotification option[value='MyQueues']", 'css' )->click();
         $Selenium->find_element("//button[\@id='UserSendNewTicketNotificationUpdate'][\@type='submit']")->click();
@@ -99,9 +99,9 @@ $Selenium->RunTest(
             "#UserLanguage updated value",
         );
         $Self->Is(
-            $Selenium->find_element( '#UserSpellDict', 'css' )->get_value(),
-            "de_DE",
-            "#UserSpellDict updated value",
+            $Selenium->find_element( '#UserSkin', 'css' )->get_value(),
+            "ivory",
+            "#UserSkin updated value",
         );
         $Self->Is(
             $Selenium->find_element( '#UserSendNewTicketNotification', 'css' )->get_value(),
@@ -132,7 +132,7 @@ $Selenium->RunTest(
             "Test widget 'Other Settings' found on screen"
         );
 
-    }
+        }
 
 );
 

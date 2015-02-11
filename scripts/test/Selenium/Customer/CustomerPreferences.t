@@ -17,7 +17,7 @@ use Kernel::System::UnitTest::Helper;
 use Kernel::System::UnitTest::Selenium;
 
 # get needed objects
-my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
@@ -46,7 +46,7 @@ $Selenium->RunTest(
 
         # check AgentPreferences screen
         for my $ID (
-            qw(UserLanguage UserShowTickets UserSMIMEKey UserRefreshTime CurPw NewPw NewPw1)
+            qw(UserLanguage UserShowTickets UserRefreshTime CurPw NewPw NewPw1)
             )
         {
             my $Element = $Selenium->find_element( "#$ID", 'css' );
@@ -116,7 +116,7 @@ $Selenium->RunTest(
             "Test widget 'Ticket overview' found on screen"
         );
 
-    }
+        }
 
 );
 
