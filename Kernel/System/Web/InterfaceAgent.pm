@@ -87,15 +87,14 @@ sub new {
         },
     );
 
-    $Self->{EncodeObject}   = $Kernel::OM->Get('Kernel::System::Encode');
-    $Self->{GroupObject}    = $Kernel::OM->Get('Kernel::System::Group');
-    $Self->{LogObject}      = $Kernel::OM->Get('Kernel::System::Log');
-    $Self->{MainObject}     = $Kernel::OM->Get('Kernel::System::Main');
-    $Self->{ParamObject}    = $Kernel::OM->Get('Kernel::System::Web::Request');
-    $Self->{SessionObject}  = $Kernel::OM->Get('Kernel::System::AuthSession');
-    $Self->{TimeObject}     = $Kernel::OM->Get('Kernel::System::Time');
-    $Self->{UserObject}     = $Kernel::OM->Get('Kernel::System::User');
-    $Self->{LanguageObject} = $Kernel::OM->Get('Kernel::Language');
+    $Self->{EncodeObject}  = $Kernel::OM->Get('Kernel::System::Encode');
+    $Self->{GroupObject}   = $Kernel::OM->Get('Kernel::System::Group');
+    $Self->{LogObject}     = $Kernel::OM->Get('Kernel::System::Log');
+    $Self->{MainObject}    = $Kernel::OM->Get('Kernel::System::Main');
+    $Self->{ParamObject}   = $Kernel::OM->Get('Kernel::System::Web::Request');
+    $Self->{SessionObject} = $Kernel::OM->Get('Kernel::System::AuthSession');
+    $Self->{TimeObject}    = $Kernel::OM->Get('Kernel::System::Time');
+    $Self->{UserObject}    = $Kernel::OM->Get('Kernel::System::User');
 
     # debug info
     if ( $Self->{Debug} ) {
@@ -286,8 +285,9 @@ sub Run {
                         Type => 'Info',
                         What => 'Message',
                         )
-                        || $Self->{LanguageObject}->Translate( $AuthObject->GetLastErrorMessage() )
-                        || $Self->{LanguageObject}->Translate('Login failed! Your user name or password was entered incorrectly.'),
+                        || $LayoutObject->{LanguageObject}->Translate( $AuthObject->GetLastErrorMessage() )
+                        || $LayoutObject->{LanguageObject}
+                        ->Translate('Login failed! Your user name or password was entered incorrectly.'),
                     LoginFailed => 1,
                     User        => $User,
                     %Param,
@@ -482,7 +482,7 @@ sub Run {
             $LayoutObject->Print(
                 Output => \$LayoutObject->Login(
                     Title   => 'Logout',
-                    Message => $Self->{LanguageObject}->Translate('Session invalid. Please log in again.'),
+                    Message => $LayoutObject->{LanguageObject}->Translate('Session invalid. Please log in again.'),
                     %Param,
                 ),
             );
@@ -510,7 +510,7 @@ sub Run {
                 %UserData,
             },
         );
-        $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout', 'Kernel::Language'] );
+        $Kernel::OM->ObjectsDiscard( Objects => [ 'Kernel::Output::HTML::Layout', 'Kernel::Language' ] );
         $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
         # Prevent CSRF attacks
@@ -534,7 +534,7 @@ sub Run {
         }
 
         # show logout screen
-        my $LogoutMessage = $Self->{LanguageObject}->Translate(
+        my $LogoutMessage = $LayoutObject->{LanguageObject}->Translate(
             'Logout successful. Thank you for using %s!',
             $Self->{ConfigObject}->Get("ProductName"),
         );
@@ -562,7 +562,7 @@ sub Run {
             $LayoutObject->Print(
                 Output => \$LayoutObject->Login(
                     Title   => 'Login',
-                    Message => $Self->{LanguageObject}->Translate('Feature not active!'),
+                    Message => $LayoutObject->{LanguageObject}->Translate('Feature not active!'),
                 ),
             );
             return;
@@ -701,7 +701,7 @@ sub Run {
             );
             return;
         }
-        my $Message = $Self->{LanguageObject}->Translate(
+        my $Message = $LayoutObject->{LanguageObject}->Translate(
             'Sent new password to %s. Please check your email.',
             $UserData{UserEmail},
         );
@@ -775,7 +775,7 @@ sub Run {
                     }
             );
 
-            $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout', 'Kernel::Language'] );
+            $Kernel::OM->ObjectsDiscard( Objects => [ 'Kernel::Output::HTML::Layout', 'Kernel::Language' ] );
             my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
             # create AuthObject
@@ -803,8 +803,9 @@ sub Run {
             # show login
             $LayoutObject->Print(
                 Output => \$LayoutObject->Login(
-                    Title   => 'Login',
-                    Message => $Self->{LanguageObject}->Translate( $Self->{SessionObject}->SessionIDErrorMessage() ),
+                    Title => 'Login',
+                    Message =>
+                        $LayoutObject->{LanguageObject}->Translate( $Self->{SessionObject}->SessionIDErrorMessage() ),
                     %Param,
                 ),
             );
@@ -907,7 +908,7 @@ sub Run {
                 ModuleReg => $ModuleReg,
             },
         );
-        $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::Output::HTML::Layout', 'Kernel::Language'] );
+        $Kernel::OM->ObjectsDiscard( Objects => [ 'Kernel::Output::HTML::Layout', 'Kernel::Language' ] );
 
         # updated last request time
         $Self->{SessionObject}->UpdateSessionID(
