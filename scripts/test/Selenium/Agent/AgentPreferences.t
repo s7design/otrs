@@ -80,9 +80,6 @@ $Selenium->RunTest(
         );
 
         # edit some of checked stored values
-        $Selenium->find_element( "#UserLanguage option[value='de']", 'css' )->click();
-        $Selenium->find_element("//button[\@id='UserLanguageUpdate'][\@type='submit']")->click();
-
         $Selenium->find_element( "#UserSkin option[value='ivory']", 'css' )->click();
         $Selenium->find_element("//button[\@id='UserSkinUpdate'][\@type='submit']")->click();
 
@@ -92,12 +89,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#UserSendFollowUpNotification option[value='MyQueues']", 'css' )->click();
         $Selenium->find_element("//button[\@id='UserSendFollowUpNotificationUpdate'][\@type='submit']")->click();
 
-        # checked edited values
-        $Self->Is(
-            $Selenium->find_element( '#UserLanguage', 'css' )->get_value(),
-            "de",
-            "#UserLanguage updated value",
-        );
+        # check edited values
         $Self->Is(
             $Selenium->find_element( '#UserSkin', 'css' )->get_value(),
             "ivory",
@@ -114,23 +106,41 @@ $Selenium->RunTest(
             "#UserSendFollowUpNotification updated value",
         );
 
-        # check test language translation
-        my $LanguageObject = Kernel::Language->new(
-            UserLanguage => "de",
-        );
+        # test different language scenarios
+        for my $Language (
+            qw(de es ru zh_CN sr_Cyrl en)
+            )
+        {
+            # change AgentPreference language
+            $Selenium->find_element( "#UserLanguage option[value='$Language']", 'css' )->click();
+            $Selenium->find_element("//button[\@id='UserLanguageUpdate'][\@type='submit']")->click();
 
-        $Self->True(
-            index( $Selenium->get_page_source(), $LanguageObject->Get('User Profile') ) > -1,
-            "Test widget 'User Profile' found on screen"
-        );
-        $Self->True(
-            index( $Selenium->get_page_source(), $LanguageObject->Get('Email Settings') ) > -1,
-            "Test widget 'Email Settings' found on screen"
-        );
-        $Self->True(
-            index( $Selenium->get_page_source(), $LanguageObject->Get('Other Settings') ) > -1,
-            "Test widget 'Other Settings' found on screen"
-        );
+            # check edited language value
+            $Self->Is(
+                $Selenium->find_element( '#UserLanguage', 'css' )->get_value(),
+                "$Language",
+                "#UserLanguage updated value",
+            );
+
+            # create language object
+            my $LanguageObject = Kernel::Language->new(
+                UserLanguage => "$Language",
+            );
+
+            # check for correct translation
+            $Self->True(
+                index( $Selenium->get_page_source(), $LanguageObject->Translate('User Profile') ) > -1,
+                "Test widget 'User Profile' found on screen"
+            );
+            $Self->True(
+                index( $Selenium->get_page_source(), $LanguageObject->Translate('Email Settings') ) > -1,
+                "Test widget 'Email Settings' found on screen"
+            );
+            $Self->True(
+                index( $Selenium->get_page_source(), $LanguageObject->Translate('Other Settings') ) > -1,
+                "Test widget 'Other Settings' found on screen"
+            );
+        }
 
         }
 

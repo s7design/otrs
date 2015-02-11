@@ -72,21 +72,13 @@ $Selenium->RunTest(
         );
 
         # edit checked stored values
-        $Selenium->find_element( "#UserLanguage option[value='de']", 'css' )->click();
-        $Selenium->find_element(".//*/div/div[1]/form/fieldset/button")->click();
-
         $Selenium->find_element( "#UserRefreshTime option[value='2']", 'css' )->click();
         $Selenium->find_element(".//*/div/div[2]/form/fieldset/button")->click();
 
         $Selenium->find_element( "#UserShowTickets option[value='20']", 'css' )->click();
         $Selenium->find_element(".//*/div/div[3]/form/fieldset/button")->click();
 
-        # check CustomerPreferences default values
-        $Self->Is(
-            $Selenium->find_element( '#UserLanguage', 'css' )->get_value(),
-            "de",
-            "#UserLanguage updated value",
-        );
+        # check edited values
         $Self->Is(
             $Selenium->find_element( '#UserRefreshTime', 'css' )->get_value(),
             "2",
@@ -98,23 +90,41 @@ $Selenium->RunTest(
             "#UserShowTickets updated value",
         );
 
-        # check test language translation
-        my $LanguageObject = Kernel::Language->new(
-            UserLanguage => "de",
-        );
+        # test different language scenarios
+        for my $Language (
+            qw(de es ru zh_CN sr_Cyrl en)
+            )
+        {
+            # change CustomerPreference language
+            $Selenium->find_element( "#UserLanguage option[value='$Language']", 'css' )->click();
+            $Selenium->find_element(".//*/div/div[1]/form/fieldset/button")->click();
 
-        $Self->True(
-            index( $Selenium->get_page_source(), $LanguageObject->Get('Interface language') ) > -1,
-            "Test widget 'Interface language' found on screen"
-        );
-        $Self->True(
-            index( $Selenium->get_page_source(), $LanguageObject->Get('Number of displayed tickets') ) > -1,
-            "Test widget 'Number of displayed tickets' found on screen"
-        );
-        $Self->True(
-            index( $Selenium->get_page_source(), $LanguageObject->Get('Ticket overview') ) > -1,
-            "Test widget 'Ticket overview' found on screen"
-        );
+            # check edited language value
+            $Self->Is(
+                $Selenium->find_element( '#UserLanguage', 'css' )->get_value(),
+                "$Language",
+                "#UserLanguage updated value",
+            );
+
+            # create language object
+            my $LanguageObject = Kernel::Language->new(
+                UserLanguage => "$Language",
+            );
+
+            # check for correct translation
+            $Self->True(
+                index( $Selenium->get_page_source(), $LanguageObject->Translate('Interface language') ) > -1,
+                "Test widget 'Interface language' found on screen"
+            );
+            $Self->True(
+                index( $Selenium->get_page_source(), $LanguageObject->Translate('Number of displayed tickets') ) > -1,
+                "Test widget 'Number of displayed tickets' found on screen"
+            );
+            $Self->True(
+                index( $Selenium->get_page_source(), $LanguageObject->Translate('Ticket overview') ) > -1,
+                "Test widget 'Ticket overview' found on screen"
+            );
+        }
 
         }
 
