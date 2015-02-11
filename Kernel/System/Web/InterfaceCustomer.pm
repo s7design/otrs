@@ -530,7 +530,7 @@ sub Run {
             Output => \$LayoutObject->CustomerLogin(
                 Title       => 'Logout',
                 Message     => $LogoutMessage,
-                MessageType => 'Logout',
+                MessageType => 'Success',
                 %Param,
             ),
         );
@@ -591,6 +591,7 @@ sub Run {
                     Title   => 'Login',
                     Message => $Self->{LanguageObject}
                         ->Translate('Sent password reset instructions. Please check your email.'),
+                    MessageType => 'Success',
                 ),
             );
             return;
@@ -633,6 +634,7 @@ sub Run {
                     Title   => 'Login',
                     Message => $Self->{LanguageObject}
                         ->Translate('Sent password reset instructions. Please check your email.'),
+                    MessageType => 'Success',
                     %Param,
                 ),
             );
@@ -907,9 +909,10 @@ sub Run {
         # login screen
         $LayoutObject->Print(
             Output => \$LayoutObject->CustomerLogin(
-                Title   => 'Login',
-                Message => $AccountCreatedMessage,
-                User    => $GetParams{UserLogin},
+                Title       => 'Login',
+                Message     => $AccountCreatedMessage,
+                User        => $GetParams{UserLogin},
+                MessageType => 'Success',
             ),
         );
         return 1;
