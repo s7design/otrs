@@ -12,22 +12,14 @@ package Kernel::Modules::AgentInfo;
 use strict;
 use warnings;
 
+our $ObjectManagerDisabled = 1;
+
 sub new {
     my ( $Type, %Param ) = @_;
 
     # allocate new hash for object
     my $Self = {%Param};
     bless( $Self, $Type );
-
-    # check needed objects
-    for (qw(ParamObject DBObject LayoutObject LogObject ConfigObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
-        }
-    }
-
-    $Self->{InfoKey}  = $Self->{ConfigObject}->Get('InfoKey');
-    $Self->{InfoFile} = $Self->{ConfigObject}->Get('InfoFile');
 
     return $Self;
 }
@@ -41,15 +33,15 @@ sub PreRun {
     }
 
     # redirect if no primary group is selected
-    if ( !$Self->{ $Self->{InfoKey} } && $Self->{Action} ne 'AgentInfo' ) {
+    if ( !$Self->{ $Kernel::OM->Get('Kernel::Config')->Get('InfoKey') } && $Self->{Action} ne 'AgentInfo' ) {
 
         # remove requested url from session storage
-        $Self->{SessionObject}->UpdateSessionID(
+        $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'UserRequestedURL',
             Value     => $Self->{RequestedURL},
         );
-        return $Self->{LayoutObject}->Redirect( OP => "Action=AgentInfo" );
+        return $Kernel::OM->Get('Kernel::Output::HTML::Layout')->Redirect( OP => "Action=AgentInfo" );
     }
     else {
         return;
@@ -63,55 +55,61 @@ sub Run {
     if ( !$Self->{RequestedURL} ) {
         $Self->{RequestedURL} = 'Action=';
     }
-    my $Accept = $Self->{ParamObject}->GetParam( Param => 'Accept' ) || '';
-    if ( $Self->{ $Self->{InfoKey} } ) {
+
+    my $Accept        = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'Accept' ) || '';
+    my $Config        = $Kernel::OM->Get('Kernel::Config');
+    my $InfoKey       = $Config->Get('CustomerPanel::InfoKey');
+    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
+
+    if ( $Self->{$InfoKey} ) {
 
         # remove requested url from session storage
-        $Self->{SessionObject}->UpdateSessionID(
+        $SessionObject->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'UserRequestedURL',
             Value     => '',
         );
 
         # redirect
-        return $Self->{LayoutObject}->Redirect( OP => "$Self->{UserRequestedURL}" );
+        return $LayoutObject->Redirect( OP => "$Self->{UserRequestedURL}" );
     }
     elsif ($Accept) {
 
         # set session
-        $Self->{SessionObject}->UpdateSessionID(
+        $SessionObject->UpdateSessionID(
             SessionID => $Self->{SessionID},
-            Key       => $Self->{InfoKey},
+            Key       => $InfoKey,
             Value     => 1,
         );
 
         # set preferences
-        $Self->{UserObject}->SetPreferences(
+        $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
             UserID => $Self->{UserID},
-            Key    => $Self->{InfoKey},
+            Key    => $InfoKey,
             Value  => 1,
         );
 
         # remove requested url from session storage
-        $Self->{SessionObject}->UpdateSessionID(
+        $SessionObject->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'UserRequestedURL',
             Value     => '',
         );
 
         # redirect
-        return $Self->{LayoutObject}->Redirect( OP => "$Self->{UserRequestedURL}" );
+        return $LayoutObject->Redirect( OP => "$Self->{UserRequestedURL}" );
     }
     else {
 
         # show info
-        $Output = $Self->{LayoutObject}->Header();
+        $Output = $LayoutObject->Header();
         $Output
-            .= $Self->{LayoutObject}->Output(
-            TemplateFile => $Self->{InfoFile},
+            .= $LayoutObject->Output(
+            TemplateFile => $Config->Get('CustomerPanel::InfoFile'),
             Data         => \%Param
             );
-        $Output .= $Self->{LayoutObject}->Footer();
+        $Output .= $LayoutObject->Footer();
         return $Output;
     }
 }
