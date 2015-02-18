@@ -23,6 +23,7 @@ use strict;
 use warnings;
 
 use File::Basename;
+use Encode;
 use FindBin qw($RealBin);
 use lib dirname($RealBin);
 use lib dirname($RealBin) . '/Kernel/cpan-lib';
@@ -73,6 +74,7 @@ if ( $Opts{p} ) {
 }
 
 $ServiceName .= $Opts{n};
+$ServiceName = decode_utf8($ServiceName);
 
 # check if service already exists
 my %ServiceList = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
