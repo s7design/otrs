@@ -156,15 +156,21 @@ Core.Form = (function (TargetNS) {
                 $SelectAllCheckbox.prop('checked', true);
             }
 
-            // Remove checkbox selection, if filter is used/changed
+            // Adjust checkbox selection, if filter is used/changed
             Core.App.Subscribe('Event.UI.Table.InitTableFilter.Change', function ($FilterInput, $Container, ColumnNumber) {
                 // Only continue, if the filter event is associated with the container we are working in
                 if (!$.contains($Container[0], $SelectAllCheckbox[0])) {
                     return false;
                 }
 
-                $Checkboxes.prop('checked', false);
-                $SelectAllCheckbox.prop('checked', false);
+                var CountCheckboxesVisible = $Checkboxes.filter('[id!=' + $SelectAllCheckbox.attr('id') + ']:visible');
+
+                if ( CountCheckboxesVisible.length && (CountCheckboxesVisible.filter(':checked').length === CountCheckboxesVisible.length)) {
+                    $SelectAllCheckbox.prop('checked', true);
+                }
+                else {
+                    $SelectAllCheckbox.prop('checked', false);
+                }
             });
         }
     };
