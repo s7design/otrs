@@ -152,7 +152,7 @@ Core.Form = (function (TargetNS) {
     TargetNS.InitSelectAllCheckboxes = function ($Checkboxes, $SelectAllCheckbox) {
         if (isJQueryObject($Checkboxes, $SelectAllCheckbox)) {
             // Mark SelectAll checkbox if all depending checkboxes are already marked on initialization
-            if ($Checkboxes.filter('[id!=' + $SelectAllCheckbox.attr('id') + ']').length === $Checkboxes.filter(':checked').length) {
+            if ($Checkboxes.filter(':checked').length && ($Checkboxes.filter('[id!=' + $SelectAllCheckbox.attr('id') + ']').length === $Checkboxes.filter(':checked').length)) {
                 $SelectAllCheckbox.prop('checked', true);
             }
 
