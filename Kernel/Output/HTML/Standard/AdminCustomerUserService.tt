@@ -104,6 +104,9 @@
                     <ul class="Tablelike" id="Service">
                         <li class="Header">[% Translate("Services") | html %]
                         </li>
+[% RenderBlockStart("NoServiceFoundMsg") %]
+                        <li>[% Translate("No data found.") | html %]</li>
+[% RenderBlockEnd("NoServiceFoundMsg") %]
 [% RenderBlockStart("ResultServiceRow") %]
                         <li class="OneRow"><a title="[% Data.Name | html %]" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=AllocateService;ServiceID=[% Data.ID | uri %];CustomerUserSearch=[% Data.CustomerUserSearch | uri %]" class="AsBlock">[% Data.Name | html %]</a></li>
 [% RenderBlockEnd("ResultServiceRow") %]
