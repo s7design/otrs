@@ -87,25 +87,77 @@ Core.Agent.TicketAction = (function (TargetNS) {
      * @private
      * @param {Object} $Link Element link type that will receive the new email adrress in his value attribute
      * @return nothing
-     * @description Open the spellchecker screen
+     * @description fill in To, CC and Bcc fields in AdressBook screen
      */
     function AddMailAddress($Link) {
-        var $Element = $('#' + $Link.attr('rel')),
-            NewValue = $Element.val(),
-            NewData;
+       var $Element = $('#' + $Link.attr('rel')),
+        NewValue = $Element.val(),NewData,NewDataItem;
+
+
         if (NewValue.length) {
-            NewValue = NewValue + ', ';
+        NewValue = NewValue + ', ';
         }
         NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email');
         $Element.val(NewValue);
-        if (typeof $Element.attr("data-customerkey") !== 'undefined' ){
-            NewData = $Element.attr("data-customerkey");
+        
+        if (typeof $Link.attr('data-customerdata') !== 'undefined' ){
+
+            NewData = $Element.attr("data-customerdata");
+            console.log(NewData);
+            
+            if($Element.attr("data-customerdata")){
+                NewData = Core.JSON.Parse($Element.attr("data-customerdata"));
+                NewDataItem = Core.JSON.Parse($Link.attr("data-customerdata"));
+
+                $.each(NewDataItem, function(CustomerMail, CustomerKey) {
+                       
+                        NewData[CustomerMail] = CustomerKey;
+                });
+               
+                $Element.attr("data-customerdata",Core.JSON.Stringify(NewData));
+            }
+            else
+            {
+                $Element.attr("data-customerdata",$Link.attr('data-customerdata') );
+            }
+           
+            
+
+        }
+
+
+       /* 
+
+           if (typeof $Link.attr('data-customerdata') !== 'undefined' ){
+            CustomerDataJSON = $Link.attr('data-customerdata');
+            $Element.val(CustomerDataJSON);
+        }
+        
+
+       if (CustomerDataJSON) {
+            CustomerData = Core.JSON.Parse(CustomerDataJSON);
+
+            $.each(CustomerData, function(CustomerMail, CustomerKey) {
+
+                NewValue = NewValue + "," +CustomerMail;
+                NewCustomerKey = CustomerKey;
+
+            });
+        }
+
+        $Element.val(NewValue);
+        
+        if (typeof $Link.attr('data-customerdata') !== 'undefined' ){
+            NewData = $Element.attr('data-customerdata');
             if(NewData.length){
                 NewData = NewData + ', ';
             }
-            NewData = NewData + Core.Data.Get($Link, 'customerkey');
-            $Element.attr("data-customerkey",NewData);
+            NewData = NewData + NewCustomerKey;
+            $Element.attr("data-customerdata",NewData);
         }
+        */
+
+
     }
 
     /**
@@ -255,7 +307,7 @@ Core.Agent.TicketAction = (function (TargetNS) {
         // Register Apply button event
         $('#Apply').bind('click', function (Event) {
             // Update ticket action popup fields
-            var $To, $Cc, $Bcc;
+            var $To, $Cc, $Bcc , CustomerData;
 
             // Because we are in an iframe, we need to call the parent frames javascript function
             // with a jQuery object which is in the parent frames context
@@ -277,11 +329,22 @@ Core.Agent.TicketAction = (function (TargetNS) {
                 $Cc = $('#CcCustomer', parent.document);
                 $Bcc = $('#BccCustomer', parent.document);
 
-                $.each($('#ToCustomer').val().split(/, ?/), function(Index, Value){
+                if ($('#ToCustomer').val()) {
+                    CustomerData = Core.JSON.Parse($('#ToCustomer').attr('data-customerdata'));
+
+                    $.each(CustomerData, function(CustomerMail, CustomerKey) {
+                        $To.val(CustomerMail);
+                        parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer',CustomerMail , CustomerKey );
+
+                    });
+                }
+
+                /*$.each($('#ToCustomer').val().split(/, ?/), function(Index, Value){
                     $To.val(Value);
-                    var CustomerKey = Core.Data.Get($('#ToCustomer'), "customerkey").split(/, ?/);
+                    var CustomerKey = Core.Data.Get($('#ToCustomer'), "customerdata").split(/, ?/);
                     parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer',Value , CustomerKey[Index] );
                 });
+*/
 
                 $.each($('#CcCustomer').val().split(/, ?/), function(Index, Value){
                     $Cc.val(Value);

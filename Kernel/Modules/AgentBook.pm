@@ -51,6 +51,8 @@ sub Run {
         );
     }
     my %List;
+    my %CustomerData;
+     my $JSONObject   = $Kernel::OM->Get('Kernel::System::JSON');
     for ( sort keys %CustomerUserList ) {
         my %CustomerUserData = $Self->{CustomerUserObject}->CustomerUserDataGet(
             User => $_,
@@ -62,8 +64,12 @@ sub Run {
                 CustomerKey => $_
             };
 
+            $CustomerData{$CustomerUserList{$_}} = $_;
+
         }
     }
+
+
 
     # build customer search autocomplete field
     $Self->{LayoutObject}->Block(
@@ -76,6 +82,7 @@ sub Run {
         );
 
         my $Count = 1;
+
         for ( reverse sort { $List{$b}->{Email} cmp $List{$a}->{Email} } keys %List ) {
             $Self->{LayoutObject}->Block(
                 Name => 'Row',
@@ -84,6 +91,7 @@ sub Run {
                     Email       => $_,
                     CustomerKey => $List{$_}->{CustomerKey},
                     Count       => $Count,
+                    CustomerData => $JSONObject->Encode( Data => { $_ => $List{$_}->{CustomerKey}  } ),
                 },
             );
             $Count++;
