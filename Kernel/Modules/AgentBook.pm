@@ -56,7 +56,10 @@ sub Run {
             User => $_,
         );
         if ( $CustomerUserData{UserEmail} ) {
-            $List{ $CustomerUserData{UserEmail} } = $CustomerUserList{$_};
+            $List{ $CustomerUserData{UserEmail} } = {
+                Email       => $CustomerUserList{$_},
+                CustomerKey => $_
+            };
         }
     }
 
@@ -71,13 +74,14 @@ sub Run {
         );
 
         my $Count = 1;
-        for ( reverse sort { $List{$b} cmp $List{$a} } keys %List ) {
+        for ( reverse sort { $List{$b}->{Email} cmp $List{$a}->{Email} } keys %List ) {
             $Self->{LayoutObject}->Block(
                 Name => 'Row',
                 Data => {
-                    Name  => $List{$_},
-                    Email => $_,
-                    Count => $Count,
+                    Name        => $List{$_}->{Email},
+                    Email       => $_,
+                    Count       => $Count,
+                    CustomerData => $Kernel::OM->Get('Kernel::System::JSON')->Encode( Data => { $_ => $List{$_}->{CustomerKey}  } ),
                 },
             );
             $Count++;
