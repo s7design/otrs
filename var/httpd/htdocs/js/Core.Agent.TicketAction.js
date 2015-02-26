@@ -93,38 +93,31 @@ Core.Agent.TicketAction = (function (TargetNS) {
         var $Element = $('#' + $Link.attr('rel')),
         NewValue = $Element.val(),NewData,NewDataItem;
 
-
         if (NewValue.length) {
         NewValue = NewValue + ', ';
         }
         NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email');
         $Element.val(NewValue);
-        console.log(Core.Data.Get($Link.closest('a'), 'customerdata'));
-        
-        if (typeof $Link.attr('data-customerdata') !== 'undefined' ){
 
-            NewData = $Element.attr("data-customerdata");
-            console.log(Core.Data.Get($Element, 'customerdata'));
-            console.log($Element.attr("data-customerdata"));
+        // set customer data for customer info sidebar
+        if ( $Link.attr('rel') === 'ToCustomer' && Core.Config.Get('CustomerInfoSet') ){
 
-            if($Element.attr("data-customerdata")){
-                NewData = Core.JSON.Parse($Element.attr("data-customerdata"));
-                NewDataItem = Core.JSON.Parse( $Link.attr('data-customerdata'));
+            NewData = $('#CustomerData').val();
+            NewDataItem = Core.Data.Get($Link.closest('a'), 'customerdata');
 
-                 console.log(NewData);
-                 console.log(NewDataItem);
-
-                $.each(NewDataItem, function(CustomerMail, CustomerKey) {   
+            if(NewData){
+                NewData = Core.JSON.Parse(NewData);
+                $.each(NewDataItem, function(CustomerMail, CustomerKey) {
                     NewData[CustomerMail] = CustomerKey;
                 });
-               
-                $Element.attr("data-customerdata",Core.JSON.Stringify(NewData));
+                $('#CustomerData').val(Core.JSON.Stringify(NewData));
             }
             else
             {
-                $Element.attr("data-customerdata",$Link.attr('data-customerdata') );
+                $('#CustomerData').val(Core.JSON.Stringify(NewDataItem));
             }
         }
+
 
     }
 
@@ -297,16 +290,21 @@ Core.Agent.TicketAction = (function (TargetNS) {
                 $Cc = $('#CcCustomer', parent.document);
                 $Bcc = $('#BccCustomer', parent.document);
 
-                if ($('#ToCustomer').val()) {
-                    CustomerData = Core.JSON.Parse($('#ToCustomer').attr('data-customerdata'));
-
+                // if it is used CustomerAutoComplete customer data is not set
+                if ($('#CustomerData').val()) {
+                    CustomerData =Core.JSON.Parse($('#CustomerData').val());
                     $.each(CustomerData, function(CustomerMail, CustomerKey) {
                         $To.val(CustomerMail);
                         parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer',CustomerMail , CustomerKey );
 
                     });
                 }
-
+                else{
+                    $.each($('#ToCustomer').val().split(/, ?/), function(Index, Value){
+                        $To.val(Value);
+                        parent.Core.Agent.CustomerSearch.AddTicketCustomer( 'ToCustomer', Value );
+                    });
+                }
 
                 $.each($('#CcCustomer').val().split(/, ?/), function(Index, Value){
                     $Cc.val(Value);

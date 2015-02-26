@@ -48,17 +48,18 @@
             <fieldset class="TableLike FixedLabel SpacingTop">
                 <label for="To">[% Translate("To") | html %]:</label>
                 <div class="Field">
-                    <input type="text" data-customerdata="" name="ToCustomer" id="ToCustomer" value="[% Data.ToCustomer | html %]" class="W75pc" />
+                    <input type="hidden" name="CustomerData" id="CustomerData" value="[% Data.CustomerData | html %]" />
+                    <input type="text" data-customerdata="" name="ToCustomer" id="ToCustomer" value="[% Data.ToCustomer | html %]" class="W75pc CustomerAutoComplete" />
                 </div>
                 <div class="Clear"></div>
                 <label for="Cc">[% Translate("Cc") | html %]:</label>
                 <div class="Field">
-                    <input type="text" name="CcCustomer" id="CcCustomer" value="[% Data.CcCustomer | html %]" class="W75pc" />
+                    <input type="text" name="CcCustomer" id="CcCustomer" value="[% Data.CcCustomer | html %]" class="W75pc CustomerAutoComplete" />
                 </div>
                 <div class="Clear"></div>
                 <label for="Bcc">[% Translate("Bcc") | html %]:</label>
                 <div class="Field">
-                    <input type="text" name="BccCustomer" id="BccCustomer" value="[% Data.BccCustomer | html %]" class="W75pc" />
+                    <input type="text" name="BccCustomer" id="BccCustomer" value="[% Data.BccCustomer | html %]" class="W75pc CustomerAutoComplete" />
                 </div>
             </fieldset>
         </form>

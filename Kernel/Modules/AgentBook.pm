@@ -13,6 +13,7 @@ use strict;
 use warnings;
 
 use Kernel::System::CustomerUser;
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -38,7 +39,7 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     # get params
-    for (qw(ToCustomer CcCustomer BccCustomer)) {
+    for (qw(ToCustomer CcCustomer BccCustomer CustomerData)) {
         $Param{$_} = $Self->{ParamObject}->GetParam( Param => $_ );
     }
 
@@ -78,10 +79,11 @@ sub Run {
             $Self->{LayoutObject}->Block(
                 Name => 'Row',
                 Data => {
-                    Name        => $List{$_}->{Email},
-                    Email       => $_,
-                    Count       => $Count,
-                    CustomerData => $Kernel::OM->Get('Kernel::System::JSON')->Encode( Data => { $_ => $List{$_}->{CustomerKey}  } ),
+                    Name  => $List{$_}->{Email},
+                    Email => $_,
+                    Count => $Count,
+                    CustomerData =>
+                        $Kernel::OM->Get('Kernel::System::JSON')->Encode( Data => { $_ => $List{$_}->{CustomerKey} } ),
                 },
             );
             $Count++;
