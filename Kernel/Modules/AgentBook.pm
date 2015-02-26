@@ -82,7 +82,7 @@ sub Run {
                     Name  => $List{$_}->{Email},
                     Email => $_,
                     Count => $Count,
-                    CustomerData =>
+                    CustomerDataJSON =>
                         $Kernel::OM->Get('Kernel::System::JSON')->Encode( Data => { $_ => $List{$_}->{CustomerKey} } ),
                 },
             );

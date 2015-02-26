@@ -99,11 +99,11 @@ Core.Agent.TicketAction = (function (TargetNS) {
         NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email');
         $Element.val(NewValue);
 
-        // set customer data for customer info sidebar
+        // set customer data for customer user information (AgentTicketEmail) in the compose screen
         if ( $Link.attr('rel') === 'ToCustomer' && Core.Config.Get('CustomerInfoSet') ){
 
             NewData = $('#CustomerData').val();
-            NewDataItem = Core.Data.Get($Link.closest('a'), 'customerdata');
+            NewDataItem = Core.Data.Get($Link.closest('a'), 'customerdatajson');
 
             if(NewData){
                 NewData = Core.JSON.Parse(NewData);
@@ -117,8 +117,6 @@ Core.Agent.TicketAction = (function (TargetNS) {
                 $('#CustomerData').val(Core.JSON.Stringify(NewDataItem));
             }
         }
-
-
     }
 
     /**
@@ -290,7 +288,8 @@ Core.Agent.TicketAction = (function (TargetNS) {
                 $Cc = $('#CcCustomer', parent.document);
                 $Bcc = $('#BccCustomer', parent.document);
 
-                // if it is used CustomerAutoComplete customer data is not set
+                // check is set customer data for customer user information
+                // it will not be set if it is used CustomerAutoComplete ( e.g for forwrad, reply ticket )
                 if ($('#CustomerData').val()) {
                     CustomerData =Core.JSON.Parse($('#CustomerData').val());
                     $.each(CustomerData, function(CustomerMail, CustomerKey) {
