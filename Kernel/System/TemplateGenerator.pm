@@ -583,7 +583,7 @@ sub AutoResponse {
 
     # get recipient
     my %User = $Kernel::OM->Get('Kernel::System::CustomerUser')->GetPreferences(
-        UserID => '',
+        UserID => $Ticket{CustomerUserID},
     );
 
     # get user language
