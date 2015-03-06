@@ -886,6 +886,11 @@ Core.Agent.Admin.GenericAgent.Init({
                     [% Translate("Warning: You used the DELETE option. All deleted tickets will be lost!") | html %]
                 </p>
 [% RenderBlockEnd("DeleteWarning") %]
+[% RenderBlockStart("RunLimit") %]
+                <p class="Error">
+                        [% Translate("Warning: Affected more tickets then how many will be executed on run job!") | html %]
+                </p>
+[% RenderBlockEnd("RunLimit") %]
 
                 <div class="SpacingTop">
                     <a class="CallForAction" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Update;Profile=[% Data.Name | uri %]">
