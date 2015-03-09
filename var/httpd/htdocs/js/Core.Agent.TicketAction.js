@@ -97,7 +97,11 @@ Core.Agent.TicketAction = (function (TargetNS) {
         NewValue = NewValue + ', ';
         }
         NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email');
-        $Element.val(NewValue);
+        NewValue = NewValue
+            .replace(/&quot;/g, '"')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>');
+        $Element.val( NewValue );
 
         // set customer data for customer user information (AgentTicketEmail) in the compose screen
         if ( $Link.attr('rel') === 'ToCustomer' && Core.Config.Get('CustomerInfoSet') ){

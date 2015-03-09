@@ -79,11 +79,11 @@ sub Run {
             $Self->{LayoutObject}->Block(
                 Name => 'Row',
                 Data => {
-                    Name  => $List{$_}->{Email},
-                    Email => $_,
+                    Email => $List{$_}->{Email},
                     Count => $Count,
                     CustomerDataJSON =>
-                        $Kernel::OM->Get('Kernel::System::JSON')->Encode( Data => { $_ => $List{$_}->{CustomerKey} } ),
+                        $Kernel::OM->Get('Kernel::System::JSON')
+                        ->Encode( Data => { $List{$_}->{Email} => $List{$_}->{CustomerKey} } ),
                 },
             );
             $Count++;
