@@ -827,7 +827,7 @@ sub _Element {
     }
 
     if ( $Config{CacheTTL} ) {
-        my $Content = $Self->{CacheObject}->Get(
+        $Content = $Self->{CacheObject}->Get(
             Type => 'Dashboard',
             Key  => $CacheKey,
         );
