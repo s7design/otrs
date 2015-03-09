@@ -825,7 +825,6 @@ sub _Element {
             . ( $Self->{CustomerID} || '' ) . '-'
             . $Self->{LayoutObject}->{UserLanguage};
     }
-
     if ( $Config{CacheTTL} ) {
         $Content = $Self->{CacheObject}->Get(
             Type => 'Dashboard',
