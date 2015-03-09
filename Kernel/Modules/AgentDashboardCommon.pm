@@ -827,16 +827,10 @@ sub _Element {
     }
 
     if ( $Config{CacheTTL} ) {
-        my $PreviewContent = $Self->{CacheObject}->Get(
+        my $Content = $Self->{CacheObject}->Get(
             Type => 'Dashboard',
             Key  => $CacheKey,
         );
-
-        if ( $Self->{'HttpType'} eq 'https' && $PreviewContent =~ /$Self->{SessionName}/ ) {
-            if ( $PreviewContent =~ /$Self->{SessionName}.'='.$Self->{SessionID}/i ) {
-                $Content = $PreviewContent;
-            }
-        }
     }
 
     # execute backends
@@ -853,7 +847,7 @@ sub _Element {
     return if !$Content;
 
     # set cache (html page cache)
-    if ( !$CacheUsed && $Config{CacheTTL} ) {
+    if ( !$CacheUsed && $Config{CacheTTL} && $CacheKey !~ /(FAQ-LastChange|FAQ-LastCreate)/i ) {
         $Self->{CacheObject}->Set(
             Type  => 'Dashboard',
             Key   => $CacheKey,
