@@ -91,17 +91,21 @@ Core.Agent.TicketAction = (function (TargetNS) {
      */
     function AddMailAddress($Link) {
         var $Element = $('#' + $Link.attr('rel')),
-        NewValue = $Element.val(),NewData,NewDataItem;
+        NewValue = $Element.val(),NewData,NewDataItem,Length;
 
         if (NewValue.length) {
         NewValue = NewValue + ', ';
         }
-        NewValue = NewValue + Core.Data.Get($Link.closest('tr'), 'Email');
-        NewValue = NewValue
+        NewValue = NewValue +
+            Core.Data.Get($Link.closest('tr'), 'Email')
             .replace(/&quot;/g, '"')
             .replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>');
         $Element.val( NewValue );
+
+        Length= $Element.val().length;
+        $Element.focus();
+        $Element[0].setSelectionRange(Length, Length);
 
         // set customer data for customer user information (AgentTicketEmail) in the compose screen
         if ( $Link.attr('rel') === 'ToCustomer' && Core.Config.Get('CustomerInfoSet') ){
