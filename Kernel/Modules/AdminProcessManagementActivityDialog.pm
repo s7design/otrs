@@ -23,54 +23,6 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # create available Fields list
-    $Self->{AvailableFields} = {
-        Article     => 'Article',
-        State       => 'StateID',
-        Priority    => 'PriorityID',
-        Lock        => 'LockID',
-        Queue       => 'QueueID',
-        CustomerID  => 'CustomerID',
-        Owner       => 'OwnerID',
-        PendingTime => 'PendingTime',
-        Title       => 'Title',
-    };
-
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    # add service and SLA fields, if option is activated in sysconfig.
-    if ( $ConfigObject->Get('Ticket::Service') ) {
-        $Self->{AvailableFields}->{Service} = 'ServiceID';
-        $Self->{AvailableFields}->{SLA}     = 'SLAID';
-    }
-
-    # add ticket type field, if option is activated in sysconfig.
-    if ( $ConfigObject->Get('Ticket::Type') ) {
-        $Self->{AvailableFields}->{Type} = 'TypeID';
-    }
-
-    # add responsible field, if option is activated in sysconfig.
-    if ( $ConfigObject->Get('Ticket::Responsible') ) {
-        $Self->{AvailableFields}->{Responsible} = 'ResponsibleID';
-    }
-
-    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldList(
-        ObjectType => [ 'Ticket', 'Article' ],
-        ResultType => 'HASH',
-    );
-
-    DYNAMICFIELD:
-    for my $DynamicFieldName ( values %{$DynamicFieldList} ) {
-
-        next DYNAMICFIELD if !$DynamicFieldName;
-
-        # do not show internal fields for process management
-        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementProcessID';
-        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementActivityID';
-
-        $Self->{AvailableFields}->{"DynamicField_$DynamicFieldName"} = $DynamicFieldName;
-    }
-
     return $Self;
 }
 
@@ -98,6 +50,52 @@ sub Run {
     my $EntityObject         = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
     my $ActivityDialogObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::ActivityDialog');
     my $LayoutObject         = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    # create available Fields list
+    my $AvailableFieldsList = {
+        Article     => 'Article',
+        State       => 'StateID',
+        Priority    => 'PriorityID',
+        Lock        => 'LockID',
+        Queue       => 'QueueID',
+        CustomerID  => 'CustomerID',
+        Owner       => 'OwnerID',
+        PendingTime => 'PendingTime',
+        Title       => 'Title',
+    };
+
+    # add service and SLA fields, if option is activated in sysconfig.
+    if ( $ConfigObject->Get('Ticket::Service') ) {
+        $AvailableFieldsList->{Service} = 'ServiceID';
+        $AvailableFieldsList->{SLA}     = 'SLAID';
+    }
+
+    # add ticket type field, if option is activated in sysconfig.
+    if ( $ConfigObject->Get('Ticket::Type') ) {
+        $AvailableFieldsList->{Type} = 'TypeID';
+    }
+
+    # add responsible field, if option is activated in sysconfig.
+    if ( $ConfigObject->Get('Ticket::Responsible') ) {
+        $AvailableFieldsList->{Responsible} = 'ResponsibleID';
+    }
+
+    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldList(
+        ObjectType => [ 'Ticket', 'Article' ],
+        ResultType => 'HASH',
+    );
+
+    DYNAMICFIELD:
+    for my $DynamicFieldName ( values %{$DynamicFieldList} ) {
+
+        next DYNAMICFIELD if !$DynamicFieldName;
+
+        # do not show internal fields for process management
+        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementProcessID';
+        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementActivityID';
+
+        $AvailableFieldsList->{"DynamicField_$DynamicFieldName"} = $DynamicFieldName;
+    }
 
     # ------------------------------------------------------------ #
     # ActivityDialogNew
@@ -142,7 +140,7 @@ sub Run {
             FIELD:
             for my $FieldName ( @{ $GetParam->{Fields} } ) {
                 next FIELD if !$FieldName;
-                next FIELD if !$Self->{AvailableFields}->{$FieldName};
+                next FIELD if !$AvailableFieldsList->{$FieldName};
 
                 # set fields hash
                 $ActivityDialogData->{Config}->{Fields}->{$FieldName} = {};
@@ -394,7 +392,7 @@ sub Run {
             FIELD:
             for my $FieldName ( @{ $GetParam->{Fields} } ) {
                 next FIELD if !$FieldName;
-                next FIELD if !$Self->{AvailableFields}->{$FieldName};
+                next FIELD if !$AvailableFieldsList->{$FieldName};
 
                 # set fields hash
                 $ActivityDialogData->{Config}->{Fields}->{$FieldName} = {};
@@ -643,8 +641,56 @@ sub _ShowEdit {
         );
     }
 
+    # create available Fields list
+    my $AvailableFieldsList = {
+        Article     => 'Article',
+        State       => 'StateID',
+        Priority    => 'PriorityID',
+        Lock        => 'LockID',
+        Queue       => 'QueueID',
+        CustomerID  => 'CustomerID',
+        Owner       => 'OwnerID',
+        PendingTime => 'PendingTime',
+        Title       => 'Title',
+    };
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    # add service and SLA fields, if option is activated in sysconfig.
+    if ( $ConfigObject->Get('Ticket::Service') ) {
+        $AvailableFieldsList->{Service} = 'ServiceID';
+        $AvailableFieldsList->{SLA}     = 'SLAID';
+    }
+
+    # add ticket type field, if option is activated in sysconfig.
+    if ( $ConfigObject->Get('Ticket::Type') ) {
+        $AvailableFieldsList->{Type} = 'TypeID';
+    }
+
+    # add responsible field, if option is activated in sysconfig.
+    if ( $ConfigObject->Get('Ticket::Responsible') ) {
+        $AvailableFieldsList->{Responsible} = 'ResponsibleID';
+    }
+
+    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldList(
+        ObjectType => [ 'Ticket', 'Article' ],
+        ResultType => 'HASH',
+    );
+
+    DYNAMICFIELD:
+    for my $DynamicFieldName ( values %{$DynamicFieldList} ) {
+
+        next DYNAMICFIELD if !$DynamicFieldName;
+
+        # do not show internal fields for process management
+        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementProcessID';
+        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementActivityID';
+
+        $AvailableFieldsList->{"DynamicField_$DynamicFieldName"} = $DynamicFieldName;
+    }
+
     # localize available fields
-    my %AvailableFields = %{ $Self->{AvailableFields} };
+    my %AvailableFields = %{$AvailableFieldsList};
 
     if ( defined $Param{Action} && $Param{Action} eq 'Edit' ) {
 
