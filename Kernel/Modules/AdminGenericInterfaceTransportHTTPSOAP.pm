@@ -13,11 +13,8 @@ use strict;
 use warnings;
 
 use Kernel::System::VariableCheck qw(:all);
-use Kernel::System::GenericInterface::Webservice;
-use Kernel::System::Valid;
-use Kernel::System::JSON;
 
-use Kernel::System::VariableCheck qw(:all);
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -25,28 +22,21 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    for (qw(ParamObject LayoutObject LogObject ConfigObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
-        }
-    }
-
-    # create additional objects
-    $Self->{ValidObject} = Kernel::System::Valid->new( %{$Self} );
-    $Self->{JSONObject}  = Kernel::System::JSON->new( %{$Self} );
-    $Self->{WebserviceObject} =
-        Kernel::System::GenericInterface::Webservice->new( %{$Self} );
-
     return $Self;
 }
 
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $WebserviceID = $Self->{ParamObject}->GetParam( Param => 'WebserviceID' )
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+
+    my $WebserviceID = $ParamObject->GetParam( Param => 'WebserviceID' )
         || '';
-    my $CommunicationType = $Self->{ParamObject}->GetParam( Param => 'CommunicationType' )
+    my $CommunicationType = $ParamObject->GetParam( Param => 'CommunicationType' )
         || '';
+
+    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
 
     # ------------------------------------------------------------ #
     # subaction Change: load webservice and show edit screen
@@ -55,18 +45,18 @@ sub Run {
 
         # check for WebserviceID
         if ( !$WebserviceID ) {
-            return $Self->{LayoutObject}->ErrorScreen(
+            return $LayoutObject->ErrorScreen(
                 Message => "Need WebserviceID!",
             );
         }
 
         # get webservice configuration
         my $WebserviceData =
-            $Self->{WebserviceObject}->WebserviceGet( ID => $WebserviceID );
+            $WebserviceObject->WebserviceGet( ID => $WebserviceID );
 
         # check for valid webservice configuration
         if ( !IsHashRefWithData($WebserviceData) ) {
-            return $Self->{LayoutObject}->ErrorScreen(
+            return $LayoutObject->ErrorScreen(
                 Message => "Could not get data for WebserviceID $WebserviceID",
             );
         }
@@ -86,22 +76,22 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'ChangeAction' ) {
 
         # challenge token check for write action
-        $Self->{LayoutObject}->ChallengeTokenCheck();
+        $LayoutObject->ChallengeTokenCheck();
 
         # check for WebserviceID
         if ( !$WebserviceID ) {
-            return $Self->{LayoutObject}->ErrorScreen(
+            return $LayoutObject->ErrorScreen(
                 Message => "Need WebserviceID!",
             );
         }
 
         # get webservice configuration
         my $WebserviceData =
-            $Self->{WebserviceObject}->WebserviceGet( ID => $WebserviceID );
+            $WebserviceObject->WebserviceGet( ID => $WebserviceID );
 
         # check for valid webservice configuration
         if ( !IsHashRefWithData($WebserviceData) ) {
-            return $Self->{LayoutObject}->ErrorScreen(
+            return $LayoutObject->ErrorScreen(
                 Message => "Could not get data for WebserviceID $WebserviceID",
             );
         }
@@ -228,7 +218,7 @@ sub Run {
         }
 
         # otherwise save configuration and return to overview screen
-        my $Success = $Self->{WebserviceObject}->WebserviceUpdate(
+        my $Success = $WebserviceObject->WebserviceUpdate(
             ID      => $WebserviceID,
             Name    => $WebserviceData->{Name},
             Config  => $WebserviceData->{Config},
@@ -241,17 +231,17 @@ sub Run {
             = "Action=AdminGenericInterfaceTransportHTTPSOAP;Subaction=Change;WebserviceID=$WebserviceID;CommunicationType=$CommunicationType;";
 
         # Save and finish button: go to Webservice.
-        if ( $Self->{ParamObject}->GetParam( Param => 'ReturnToWebservice' ) ) {
+        if ( $ParamObject->GetParam( Param => 'ReturnToWebservice' ) ) {
             $RedirectURL = "Action=AdminGenericInterfaceWebservice;Subaction=Change;WebserviceID=$WebserviceID;";
 
         }
 
-        return $Self->{LayoutObject}->Redirect(
+        return $LayoutObject->Redirect(
             OP => $RedirectURL,
         );
     }
 
-    return $Self->{LayoutObject}->ErrorScreen(
+    return $LayoutObject->ErrorScreen(
         Message => "Need Subaction!",
     );
 }
@@ -259,8 +249,10 @@ sub Run {
 sub _ShowEdit {
     my ( $Self, %Param ) = @_;
 
-    my $Output = $Self->{LayoutObject}->Header();
-    $Output .= $Self->{LayoutObject}->NavigationBar();
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    my $Output = $LayoutObject->Header();
+    $Output .= $LayoutObject->NavigationBar();
 
     # configuration
     $Param{Type}           = 'HTTP::SOAP';
@@ -287,7 +279,7 @@ sub _ShowEdit {
     $Param{SSLProxyPassword}    = $TransportConfig->{SSL}->{SSLProxyPassword};
 
     # call bread crumbs blocks
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'WebservicePathElement',
         Data => {
             Name => 'Web Services',
@@ -295,7 +287,7 @@ sub _ShowEdit {
             Nav  => '',
         },
     );
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'WebservicePathElement',
         Data => {
             Name => $Param{WebserviceName},
@@ -305,7 +297,7 @@ sub _ShowEdit {
         },
     );
 
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'WebservicePathElement',
         Data => {
             Name => $Param{CommunicationType} . ' Transport ' . $Param{Type},
@@ -320,7 +312,7 @@ sub _ShowEdit {
     if ( $Param{CommunicationType} ne 'Provider' ) {
 
         # create SOAPAction select
-        $Param{SOAPActionStrg} = $Self->{LayoutObject}->BuildSelection(
+        $Param{SOAPActionStrg} = $LayoutObject->BuildSelection(
             Data => [ 'No', 'Yes' ],
             Name => 'SOAPAction',
             SelectedValue => $Param{SOAPAction} || 'Yes',
@@ -334,7 +326,7 @@ sub _ShowEdit {
         }
 
         # create SOAPActionSeparator select
-        $Param{SOAPActionSeparatorStrg} = $Self->{LayoutObject}->BuildSelection(
+        $Param{SOAPActionSeparatorStrg} = $LayoutObject->BuildSelection(
             Data          => [ '#', '/' ],
             Name          => 'SOAPActionSeparator',
             SelectedValue => $SelectedSeparator,
@@ -347,7 +339,7 @@ sub _ShowEdit {
         }
 
         # create Authentication types select
-        $Param{AuthenticationStrg} = $Self->{LayoutObject}->BuildSelection(
+        $Param{AuthenticationStrg} = $LayoutObject->BuildSelection(
             Data          => ['BasicAuth'],
             Name          => 'Authentication',
             SelectedValue => $Param{Authentication} || '-',
@@ -364,7 +356,7 @@ sub _ShowEdit {
         }
 
         # create use SSL select
-        $Param{UseSSLStrg} = $Self->{LayoutObject}->BuildSelection(
+        $Param{UseSSLStrg} = $LayoutObject->BuildSelection(
             Data => [ 'No', 'Yes' ],
             Name => 'UseSSL',
             SelectedValue => $Param{UseSSL} || 'No',
@@ -382,32 +374,32 @@ sub _ShowEdit {
         }
 
         # call Endpoint block
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'Endpoint',
             Data => \%Param,
         );
     }
 
     # call provider or requester specific bocks
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'Transport' . $Param{CommunicationType},
         Data => \%Param,
     );
 
     # call save and finish block
     if ( $Param{NameSpace} ) {
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'SaveAndFinishButton',
             Data => \%Param
         );
     }
 
-    $Output .= $Self->{LayoutObject}->Output(
+    $Output .= $LayoutObject->Output(
         TemplateFile => 'AdminGenericInterfaceTransportHTTPSOAP',
         Data         => { %Param, },
     );
 
-    $Output .= $Self->{LayoutObject}->Footer();
+    $Output .= $LayoutObject->Footer();
     return $Output;
 }
 
@@ -426,7 +418,7 @@ sub _GetParams {
         )
     {
         $GetParam->{$ParamName} =
-            $Self->{ParamObject}->GetParam( Param => $ParamName ) || '';
+            $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => $ParamName ) || '';
     }
     return $GetParam;
 }
