@@ -62,64 +62,80 @@ $Selenium->RunTest(
             $Element->is_enabled();
             $Element->is_displayed();
         }
+        $Selenium->find_element( 'Cancel', 'link_text' )->click();
 
-        # import web service
-        $Selenium->find_element( "#ImportButton", 'css' )->click();
-
-        my $File = 'webserviceconfig_1.yml';
-        my $Location = $ConfigObject->Get('Home') . "/scripts/test/sample/GenericInterface/Webservice/$File";
-
-        $Selenium->find_element( "#ConfigFile",         'css' )->send_keys($Location);
-        $Selenium->find_element( "#ImportButtonAction", 'css' )->click();
-
-        # GenericInterface Web Service Management - Change screen
-        $Selenium->find_element('webserviceconfig_1', 'link_text' )->click();
-        $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
-        $Selenium->find_element( "#RemoteSystem",                      'css' )->send_keys('Test remote system');
-
-        # save edited value
-        $Selenium->find_element("//button[\@value='Save and continue'][\@type='submit']")->click();
-
-        # check web service values
-        $Self->Is(
-            $Selenium->find_element( '#Name', 'css' )->get_value(),
-            'webserviceconfig_1',
-            "#Name stored value",
-        );
-        $Self->Is(
-            $Selenium->find_element( '#Description', 'css' )->get_value(),
-            'Connector to send and receive date from Nagios.',
-            '#Description stored value',
+        # set test values
+        my %Description = (
+            webserviceconfig_1 => 'Connector to send and receive date from Nagios.',
+            webserviceconfig_2 => 'Connector to send and receive date from Nagios 2.',
         );
 
-        $Self->Is(
-            $Selenium->find_element( '#RemoteSystem', 'css' )->get_value(),
-            'Test remote system',
-            '#RemoteSystem updated value',
-        );
+        for my $Webservice (
+            qw(webserviceconfig_1 webserviceconfig_2)
+            )
+        {
 
-        $Self->Is(
-            $Selenium->find_element( '#ValidID', 'css' )->get_value(),
-            2,
-            "#ValidID updated value",
-        );
+            # click 'Add web service' button
+            $Selenium->find_element("//button[\@type='submit']")->click();
 
-        # delete web service
-        $Selenium->find_element( "#DeleteButton", 'css' )->click();
-        $Selenium->find_element( "#DialogButton2", 'css' )->click();
-        sleep 1;
+            # import web service
+            $Selenium->find_element( "#ImportButton", 'css' )->click();
 
-        my $Success;
-        eval{
-          $Success = $Selenium->find_element('webserviceconfig_1', 'link_text' )->is_displayed();
-        };
+            my $File     = $Webservice . '.yml';
+            my $Location = $ConfigObject->Get('Home') . "/scripts/test/sample/GenericInterface/Webservice/$File";
 
-        $Self->False(
+            $Selenium->find_element( "#ConfigFile",         'css' )->send_keys($Location);
+            $Selenium->find_element( "#ImportButtonAction", 'css' )->click();
+
+            # GenericInterface Web Service Management - Change screen
+            $Selenium->find_element( $Webservice,                  'link_text' )->click();
+            $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
+            $Selenium->find_element( "#RemoteSystem",              'css' )->send_keys('Test remote system');
+
+            # save edited value
+            $Selenium->find_element("//button[\@value='Save and continue'][\@type='submit']")->click();
+
+            # check web service values
+            $Self->Is(
+                $Selenium->find_element( '#Name', 'css' )->get_value(),
+                $Webservice,
+                "#Name stored value",
+            );
+
+            $Self->Is(
+                $Selenium->find_element( '#Description', 'css' )->get_value(),
+                $Description{$Webservice},
+                '#Description stored value',
+            );
+
+            $Self->Is(
+                $Selenium->find_element( '#RemoteSystem', 'css' )->get_value(),
+                'Test remote system',
+                '#RemoteSystem updated value',
+            );
+
+            $Self->Is(
+                $Selenium->find_element( '#ValidID', 'css' )->get_value(),
+                2,
+                "#ValidID updated value",
+            );
+
+            # delete web service
+            $Selenium->find_element( "#DeleteButton",  'css' )->click();
+            $Selenium->find_element( "#DialogButton2", 'css' )->click();
+
+            my $Success;
+            eval {
+                $Success = $Selenium->find_element( $Webservice, 'link_text' )->is_displayed();
+            };
+
+            $Self->False(
                 $Success,
-                "webserviceconfig_1 is deleted",
-        );
+                "$Webservice is deleted",
+            );
+        }
 
-    }
+        }
 );
 
 1;
