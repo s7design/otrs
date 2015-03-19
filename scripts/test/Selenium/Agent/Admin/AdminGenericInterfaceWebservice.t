@@ -83,7 +83,6 @@ $Selenium->RunTest(
 
             my $File     = $Webservice . '.yml';
             my $Location = $ConfigObject->Get('Home') . "/scripts/test/sample/GenericInterface/Webservice/$File";
-
             $Selenium->find_element( "#ConfigFile",         'css' )->send_keys($Location);
             $Selenium->find_element( "#ImportButtonAction", 'css' )->click();
 
