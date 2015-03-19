@@ -37,9 +37,6 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # Accept confirmation
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentInfo;Accept=1' )]")->click();
-
         # get test user ID
         my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
             UserLogin => $TestUserLogin,

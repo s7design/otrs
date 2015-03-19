@@ -37,9 +37,6 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # accept confirmation
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentInfo;Accept=1' )]")->click();
-
         # get test user ID
         my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
             UserLogin => $TestUserLogin,
@@ -98,7 +95,7 @@ $Selenium->RunTest(
 
         # check for created test activity using filter on AdminProcessManagement screen
         $Selenium->find_element( "#ActivityFilter", 'css' )->send_keys($ActivityRandom);
-        sleep 2;
+        sleep 3;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityRandom\"]")->is_displayed(),
@@ -139,7 +136,7 @@ $Selenium->RunTest(
         # check for edited test Activity using filter on AdminProcessManagement screen
         my $ActivityRandomEdit = $ActivityRandom . "edit";
         $Selenium->find_element( "#ActivityFilter", 'css' )->send_keys($ActivityRandomEdit);
-        sleep 2;
+        sleep 3;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityRandomEdit\"]")->is_displayed(),
