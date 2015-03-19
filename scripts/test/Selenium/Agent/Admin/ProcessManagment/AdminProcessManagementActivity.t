@@ -89,13 +89,11 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name", 'css' )->submit();
 
         # switch back to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
 
         # check for created test activity using filter on AdminProcessManagement screen
         $Selenium->find_element( "#ActivityFilter", 'css' )->send_keys($ActivityRandom);
-        sleep 3;
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityRandom\"]")->is_displayed(),
@@ -129,14 +127,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name", 'css' )->submit();
 
         # return to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
 
         # check for edited test Activity using filter on AdminProcessManagement screen
         my $ActivityRandomEdit = $ActivityRandom . "edit";
         $Selenium->find_element( "#ActivityFilter", 'css' )->send_keys($ActivityRandomEdit);
-        sleep 3;
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityRandomEdit\"]")->is_displayed(),

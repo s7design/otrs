@@ -1,5 +1,5 @@
 # --
-# AdminProcessManagementTransitionAction.t - frontend tests for AdminProcessManagementTransistionAction
+# AdminProcessManagementTransitionAction.t - frontend tests for AdminProcessManagementTransitionAction
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -58,7 +58,7 @@ $Selenium->RunTest(
 
         # click on Transition Actions dropdown and "Create New Transition Action"
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
-        sleep 2;
+        sleep 1;
         $Selenium->find_element("//a[contains(\@href, \'Subaction=TransitionActionNew' )]")->click();
 
         # switch to pop up window
@@ -98,15 +98,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name", 'css' )->submit();
 
         # switch back to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
 
         # check for created test TransitionAction using filter on AdminProcessManagement screen
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
-        sleep 2;
+        sleep 1;
         $Selenium->find_element( "#TransitionActionFilter", 'css' )->send_keys($TransitionActionRandom);
-        sleep 2;
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionActionRandom\"]")->is_displayed(),
@@ -164,16 +162,14 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name", 'css' )->submit();
 
         # return to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
 
         # check for edited test TransitionAction using filter on AdminProcessManagement screen
         my $TransitionActionRandomEdit = $TransitionActionRandom . "edit";
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
-        sleep 2;
+        sleep 1;
         $Selenium->find_element( "#TransitionActionFilter", 'css' )->send_keys($TransitionActionRandomEdit);
-        sleep 2;
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionActionRandomEdit\"]")->is_displayed(),
@@ -204,9 +200,7 @@ $Selenium->RunTest(
         );
 
         # return to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
 
         # delete test TransitionAction
         my $Success = $DBObject->Do(

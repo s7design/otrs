@@ -1,5 +1,5 @@
 # --
-# AdminProcessManagementTransition.t - frontend tests for AdminProcessManagementTransistion
+# AdminProcessManagementTransition.t - frontend tests for AdminProcessManagementTransition
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -58,7 +58,7 @@ $Selenium->RunTest(
 
         # click on Transitions dropdown and "Create New Transition"
         $Selenium->find_element( "Transitions", 'link_text' )->click();
-        sleep 2;
+        sleep 1;
         $Selenium->find_element("//a[contains(\@href, \'Subaction=TransitionNew' )]")->click();
 
         # switch to pop up window
@@ -108,15 +108,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name", 'css' )->submit();
 
         # switch back to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
 
         # check for created test Transition using filter on AdminProcessManagement screen
         $Selenium->find_element( "Transitions", 'link_text' )->click();
-        sleep 2;
+        sleep 1;
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandom);
-        sleep 2;
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionRandom\"]")->is_displayed(),
@@ -187,16 +185,14 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name", 'css' )->submit();
 
         # return to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
 
         # check for edited test Transition using filter on AdminProcessManagement screen
         my $TransitionRandomEdit = $TransitionRandom . "edit";
         $Selenium->find_element( "Transitions", 'link_text' )->click();
-        sleep 2;
+        sleep 1;
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandomEdit);
-        sleep 2;
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionRandomEdit\"]")->is_displayed(),
