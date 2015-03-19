@@ -47,7 +47,7 @@ $Selenium->RunTest(
 
         # define needed variables
         my $ProcessRandom        = 'Process' . $Helper->GetRandomID();
-        my $ActivityDialogRandom = 'XActivityDialog' . $Helper->GetRandomID();
+        my $ActivityDialogRandom = 'ActivityDialog' . $Helper->GetRandomID();
         my $ScriptAlias          = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
         my $DescriptionShort     = "Selenium ActivityDialog Test";
 

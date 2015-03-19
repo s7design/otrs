@@ -199,7 +199,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "Transitions", 'link_text' )->click();
         sleep 2;
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandomEdit);
-        sleep 3;
+        sleep 2;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionRandomEdit\"]")->is_displayed(),
