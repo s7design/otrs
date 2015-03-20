@@ -80,17 +80,32 @@ $Selenium->RunTest(
         my @User = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerIDs(
             User => $TestUserLogin,
         );
+        my $UserID    = $User[0];
         my %TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
             Result         => 'HASH',
             Limit          => 1,
-            CustomerUserID => $User[0],
+            CustomerUserID => $UserID,
         );
         my $TicketNumber = (%TicketIDs)[1];
 
         $Self->True(
             index( $Selenium->get_page_source(), $TicketNumber ) > -1,
-            "Test with ticket number $TicketNumber is created"
+            "Ticket with ticket number $TicketNumber is created"
         );
+
+        # clean up test data from the DB
+        my $TicketID = (%TicketIDs)[0];
+        my $Success  = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
+            TicketID => $TicketID,
+            UserID   => $UserID,
+        );
+        $Self->True(
+            $Success,
+            "Ticket with ticket number $TicketNumber is deleted"
+        );
+
+        # make sure the cache is correct.
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         }
 );
 
