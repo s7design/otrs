@@ -79,10 +79,11 @@ $Selenium->RunTest(
         my @User = $CustomerUserObject->CustomerIDs(
             User => $TestUserLogin,
         );
+        my $UserID    = $User[0];
         my %TicketIDs = $TicketObject->TicketSearch(
             Result         => 'HASH',
             Limit          => 1,
-            CustomerUserID => $User[0],
+            CustomerUserID => $UserID,
         );
         my $TicketNumber = (%TicketIDs)[1];
 
@@ -107,6 +108,20 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $ExpectedAttachmentContent ) > -1,
             "$AttachmentName opened successfully",
         );
+
+        # clean up test data from the DB
+        my $TicketID = (%TicketIDs)[0];
+        my $Success  = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
+            TicketID => $TicketID,
+            UserID   => $UserID,
+        );
+        $Self->True(
+            $Success,
+            "Ticket with ticket number $TicketNumber is deleted"
+        );
+
+        # make sure the cache is correct.
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
 
         }
 );
