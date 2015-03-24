@@ -45,13 +45,13 @@ sub new {
     $Self->{Debug} = $Param{Debug} || 0;
 
     # check if module is enabled
-    return if !$Kernel::OM->Get('Kernel::Config')->Get('SMIME');
+    return 0 if !$Kernel::OM->Get('Kernel::Config')->Get('SMIME');
 
     # call init()
     $Self->_Init();
 
     # check working ENV
-    return if $Self->Check();
+    return 0 if $Self->Check();
 
     return $Self;
 }
