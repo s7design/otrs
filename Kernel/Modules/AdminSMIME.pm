@@ -35,20 +35,10 @@ sub Run {
     # ------------------------------------------------------------ #
     # check if feature is active
     # ------------------------------------------------------------ #
-    if ( !$Kernel::OM->Get('Kernel::Config')->Get('SMIME') ) {
-
-        my $Output .= $LayoutObject->Header();
-        $Output .= $LayoutObject->NavigationBar();
-
-        $LayoutObject->Block( Name => 'Overview' );
-        $LayoutObject->Block( Name => 'Disabled' );
-
-        $Output .= $LayoutObject->Output( TemplateFile => 'AdminSMIME' );
-        $Output .= $LayoutObject->Footer();
-
+    if ( !$ConfigObject->Get('SMIME') ) {
+        my $Output .= $LayoutObject->FatalError( Message => "S/MIME support is disabled in Kernel::Config::SMIME." );
         return $Output;
     }
-
 
     $Param{Search} = $ParamObject->GetParam( Param => 'Search' );
     if ( !defined $Param{Search} ) {
@@ -69,6 +59,11 @@ sub Run {
 
     # get SMIME objects
     my $SMIMEObject = $Kernel::OM->Get('Kernel::System::Crypt::SMIME');
+
+    if ( !$SMIMEObject ) {
+        my $Output .= $LayoutObject->FatalError( Message => "S/MIME environment is not working. Please check log for more info!" );
+        return $Output;
+    }
 
     # ------------------------------------------------------------ #
     # delete cert
