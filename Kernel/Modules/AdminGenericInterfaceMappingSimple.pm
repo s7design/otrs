@@ -1,5 +1,5 @@
 # --
-# Kernel/Modules/AdminGenericInterfaceMappingSimple.pm - provides a TransportHTTPSOAP view for admins
+# Kernel/Modules/AdminGenericInterfaceMappingSimple.pm - provides a TransportHTTPSOAP view for administrators
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -30,6 +30,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # get param object
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     my $WebserviceID = $ParamObject->GetParam( Param => 'WebserviceID' )
@@ -53,6 +54,7 @@ sub Run {
     # get configured Actions
     my $ActionsConfig = $Kernel::OM->Get('Kernel::Config')->Get( 'GenericInterface::' . $ActionType . '::Module' );
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # check for valid action backend
@@ -69,12 +71,12 @@ sub Run {
         );
     }
 
-    # get webservice configuration
+    # get web service configuration
     my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
     my $WebserviceData =
         $WebserviceObject->WebserviceGet( ID => $WebserviceID );
 
-    # check for valid webservice configuration
+    # check for valid web service configuration
     if ( !IsHashRefWithData($WebserviceData) ) {
         return $LayoutObject->ErrorScreen(
             Message => "Could not get data for WebserviceID $WebserviceID",
@@ -97,7 +99,7 @@ sub Run {
     my $WebserviceName = $WebserviceData->{Name};
 
     # ------------------------------------------------------------ #
-    # subaction Change: load webservice and show edit screen
+    # subaction Change: load web service and show edit screen
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'Add' || $Self->{Subaction} eq 'Change' ) {
 
@@ -170,7 +172,7 @@ sub Run {
     # ------------------------------------------------------------ #
     else {
 
-        #    challenge token check for write action
+        # challenge token check for write action
         $LayoutObject->ChallengeTokenCheck();
 
         # get parameter from web browser
@@ -238,7 +240,7 @@ sub Run {
             );
         }
 
-        # save and finish button: go to Webservice.
+        # save and finish button: go to web service.
         if ( $ParamObject->GetParam( Param => 'ReturnToAction' ) ) {
             my $RedirectURL = "Action=$ActionFrontendModule;Subaction=Change;$ActionType=$Action;"
                 . "WebserviceID=$WebserviceID;";
@@ -320,6 +322,7 @@ sub _ShowEdit {
     # set action for go back button
     $Param{LowerCaseActionType} = lc $Param{ActionType};
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $Output = $LayoutObject->Header();
@@ -554,6 +557,8 @@ sub _GetParams {
     my ( $Self, %Param ) = @_;
 
     my $GetParam;
+
+    # get param object
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     # get parameters from web browser

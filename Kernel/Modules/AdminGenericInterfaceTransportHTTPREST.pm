@@ -1,5 +1,5 @@
 # --
-# Kernel/Modules/AdminGenericInterfaceTransportHTTPREST.pm - provides a TransportHTTPSOAP view for admins
+# Kernel/Modules/AdminGenericInterfaceTransportHTTPREST.pm - provides a TransportHTTPSOAP view for administrators
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -28,18 +28,18 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+    # get needed objects
+    my $ParamObject      = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
 
     my $WebserviceID = $ParamObject->GetParam( Param => 'WebserviceID' )
         || '';
     my $CommunicationType = $ParamObject->GetParam( Param => 'CommunicationType' )
         || '';
 
-    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
-
     # ------------------------------------------------------------ #
-    # subaction Change: load webservice and show edit screen
+    # subaction Change: load web service and show edit screen
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'Add' || $Self->{Subaction} eq 'Change' ) {
 
@@ -313,6 +313,7 @@ sub Run {
 sub _ShowEdit {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $Output = $LayoutObject->Header();

@@ -1,5 +1,5 @@
 # --
-# Kernel/Modules/AdminGenericInterfaceTransportHTTPSOAP.pm - provides a TransportHTTPSOAP view for admins
+# Kernel/Modules/AdminGenericInterfaceTransportHTTPSOAP.pm - provides a TransportHTTPSOAP view for administrators
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -28,18 +28,19 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+    # get needed objects
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $WebserviceID = $ParamObject->GetParam( Param => 'WebserviceID' )
         || '';
     my $CommunicationType = $ParamObject->GetParam( Param => 'CommunicationType' )
         || '';
 
-    my $LayoutObject     = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
 
     # ------------------------------------------------------------ #
-    # subaction Change: load webservice and show edit screen
+    # subaction Change: load web service and show edit screen
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'Add' || $Self->{Subaction} eq 'Change' ) {
 
@@ -50,11 +51,11 @@ sub Run {
             );
         }
 
-        # get webservice configuration
+        # get web service configuration
         my $WebserviceData =
             $WebserviceObject->WebserviceGet( ID => $WebserviceID );
 
-        # check for valid webservice configuration
+        # check for valid web service configuration
         if ( !IsHashRefWithData($WebserviceData) ) {
             return $LayoutObject->ErrorScreen(
                 Message => "Could not get data for WebserviceID $WebserviceID",
@@ -85,11 +86,11 @@ sub Run {
             );
         }
 
-        # get webservice configuration
+        # get web service configuration
         my $WebserviceData =
             $WebserviceObject->WebserviceGet( ID => $WebserviceID );
 
-        # check for valid webservice configuration
+        # check for valid web service configuration
         if ( !IsHashRefWithData($WebserviceData) ) {
             return $LayoutObject->ErrorScreen(
                 Message => "Could not get data for WebserviceID $WebserviceID",
@@ -230,7 +231,7 @@ sub Run {
         my $RedirectURL
             = "Action=AdminGenericInterfaceTransportHTTPSOAP;Subaction=Change;WebserviceID=$WebserviceID;CommunicationType=$CommunicationType;";
 
-        # Save and finish button: go to Webservice.
+        # Save and finish button: go to web service.
         if ( $ParamObject->GetParam( Param => 'ReturnToWebservice' ) ) {
             $RedirectURL = "Action=AdminGenericInterfaceWebservice;Subaction=Change;WebserviceID=$WebserviceID;";
 
@@ -249,6 +250,7 @@ sub Run {
 sub _ShowEdit {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $Output = $LayoutObject->Header();

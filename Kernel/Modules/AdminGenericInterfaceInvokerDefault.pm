@@ -1,5 +1,5 @@
 # --
-# Kernel/Modules/AdminGenericInterfaceInvokerDefault.pm - provides a log view for admins
+# Kernel/Modules/AdminGenericInterfaceInvokerDefault.pm - provides a log view for administrators
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -28,6 +28,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $WebserviceID
@@ -126,6 +127,8 @@ sub _Add {
     my $WebserviceData = $Param{WebserviceData};
 
     my $InvokerType = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'InvokerType' );
+
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     if ( !$InvokerType ) {
@@ -158,6 +161,7 @@ sub _AddAction {
     my %Errors;
     my %GetParam;
 
+    # get param object
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     for my $Needed (qw(Invoker InvokerType)) {
@@ -172,6 +176,7 @@ sub _AddAction {
         $Errors{InvokerServerError} = 'ServerError';
     }
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # uncorrectable errors
@@ -256,6 +261,8 @@ sub _Change {
     my $WebserviceData = $Param{WebserviceData};
 
     my $Invoker = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'Invoker' );
+
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     if ( !$Invoker ) {
@@ -300,6 +307,7 @@ sub _ChangeAction {
     my $WebserviceID   = $Param{WebserviceID};
     my $WebserviceData = $Param{WebserviceData};
 
+    # get needed objects
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
@@ -413,7 +421,7 @@ sub _ChangeAction {
     my $RedirectURL = "Action=AdminGenericInterfaceInvokerDefault;Subaction=Change;WebserviceID=$WebserviceID;"
         . "Invoker=$GetParam{Invoker};EventType=$SelectedEventType";
 
-    # Save and finish button: go to Webservice.
+    # Save and finish button: go to web service.
     if ( $ParamObject->GetParam( Param => 'ReturnToWebservice' ) ) {
         $RedirectURL = "Action=AdminGenericInterfaceWebservice;Subaction=Change;WebserviceID=$WebserviceID;";
 
@@ -471,6 +479,7 @@ sub _DeleteAction {
 sub _ShowScreen {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $Output = $LayoutObject->Header();
@@ -691,6 +700,7 @@ sub _AddEvent {
     my $WebserviceID   = $Param{WebserviceID};
     my $WebserviceData = $Param{WebserviceData};
 
+    # get needed objects
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
@@ -768,6 +778,7 @@ sub _DeleteEvent {
     my $WebserviceID   = $Param{WebserviceID};
     my $WebserviceData = $Param{WebserviceData};
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     for my $Needed (qw(Invoker EventName)) {
