@@ -22,6 +22,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
+    $Self->{DeletedString} = '_GenericInterface_Mapping_Simple_DeletedString_Dont_Use_It_String_Please';
+
     return $Self;
 }
 
@@ -328,7 +330,7 @@ sub _ShowEdit {
     if ( defined $Param{WebserviceData}->{Error} ) {
         %Error = %{ $Param{WebserviceData}->{Error} };
     }
-    $Param{DeletedString} = '_GenericInterface_Mapping_Simple_DeletedString_Dont_Use_It_String_Please';
+    $Param{DeletedString} = $Self->{DeletedString};
 
     $Param{DefaultKeyMapTo} = $MappingConfig->{DefaultKeyMapTo};
 
@@ -604,7 +606,7 @@ sub _GetParams {
             my $Suffix = $KeyCounter . '_' . $ValueCounter;
             if (
                 $ParamObject->GetParam( Param => 'ValueName' . $Suffix ) eq
-                '_GenericInterface_Mapping_Simple_DeletedString_Dont_Use_It_String_Please'
+                $Self->{DeletedString}
                 )
             {
                 next COUNTER;
