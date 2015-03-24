@@ -1,5 +1,5 @@
 # --
-# CustomerTiketSearch.t - frontend tests for CustomerTiketSearch
+# CustomerTicketSearch.t - frontend tests for CustomerTicketSearch
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -35,12 +35,12 @@ $Selenium->RunTest(
 
         # create and login test customer
         my $TestCustomerUserLogin = $Helper->TestCustomerUserCreate(
-        Groups => ['admin'],
-             ) || die "Did not get test user";
+            Groups => ['admin'],
+        ) || die "Did not get test user";
 
         $Selenium->Login(
-            Type => 'Customer',
-            User => $TestCustomerUserLogin,
+            Type     => 'Customer',
+            User     => $TestCustomerUserLogin,
             Password => $TestCustomerUserLogin,
         );
 
@@ -54,10 +54,10 @@ $Selenium->RunTest(
         # check overview screen
         for my $ID (
             qw(Profile TicketNumber CustomerID From To Cc Subject Body ServiceIDs TypeIDs PriorityIDs StateIDs
-                NoTimeSet Date DateRange TicketCreateTimePointStart TicketCreateTimePoint TicketCreateTimePointFormat
-                TicketCreateTimeStartMonth TicketCreateTimeStartDay TicketCreateTimeStartYear TicketCreateTimeStartDayDatepickerIcon
-                TicketCreateTimeStopMonth TicketCreateTimeStopDay TicketCreateTimeStopYear TicketCreateTimeStopDayDatepickerIcon
-                SaveProfile Submit ResultForm)
+            NoTimeSet Date DateRange TicketCreateTimePointStart TicketCreateTimePoint TicketCreateTimePointFormat
+            TicketCreateTimeStartMonth TicketCreateTimeStartDay TicketCreateTimeStartYear TicketCreateTimeStartDayDatepickerIcon
+            TicketCreateTimeStopMonth TicketCreateTimeStopDay TicketCreateTimeStopYear TicketCreateTimeStopDayDatepickerIcon
+            SaveProfile Submit ResultForm)
             )
         {
             my $Element = $Selenium->find_element( "#$ID", 'css' );
@@ -67,7 +67,7 @@ $Selenium->RunTest(
 
         # create ticket for test scenario
         my $TitleRandom = 'Title' . $Helper->GetRandomID();
-        my $TicketID = $TicketObject->TicketCreate(
+        my $TicketID    = $TicketObject->TicketCreate(
             Title        => $TitleRandom,
             Queue        => 'Raw',
             Lock         => 'unlock',
@@ -97,7 +97,7 @@ $Selenium->RunTest(
             "Ticket $TitleRandom found on page",
         );
 
-    }
+        }
 );
 
 1;
