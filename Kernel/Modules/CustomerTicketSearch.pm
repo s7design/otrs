@@ -12,18 +12,9 @@ package Kernel::Modules::CustomerTicketSearch;
 use strict;
 use warnings;
 
-use Kernel::System::CustomerUser;
-use Kernel::System::User;
-use Kernel::System::Priority;
-use Kernel::System::State;
-use Kernel::System::Queue;
-use Kernel::System::Service;
-use Kernel::System::Type;
-use Kernel::System::SearchProfile;
-use Kernel::System::CSV;
-use Kernel::System::DynamicField;
-use Kernel::System::DynamicField::Backend;
 use Kernel::System::VariableCheck qw(:all);
+
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -31,98 +22,6 @@ sub new {
     # allocate new hash for object
     my $Self = {%Param};
     bless( $Self, $Type );
-
-    # check needed objects
-    for my $Needed (qw(ParamObject DBObject TicketObject LayoutObject LogObject ConfigObject)) {
-        if ( !$Self->{$Needed} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $Needed!" );
-        }
-    }
-    $Self->{UserObject}          = Kernel::System::User->new(%Param);
-    $Self->{CustomerUserObject}  = Kernel::System::CustomerUser->new(%Param);
-    $Self->{PriorityObject}      = Kernel::System::Priority->new(%Param);
-    $Self->{StateObject}         = Kernel::System::State->new(%Param);
-    $Self->{QueueObject}         = Kernel::System::Queue->new(%Param);
-    $Self->{ServiceObject}       = Kernel::System::Service->new(%Param);
-    $Self->{TypeObject}          = Kernel::System::Type->new(%Param);
-    $Self->{SearchProfileObject} = Kernel::System::SearchProfile->new(%Param);
-    $Self->{CSVObject}           = Kernel::System::CSV->new(%Param);
-    $Self->{DynamicFieldObject}  = Kernel::System::DynamicField->new(%Param);
-    $Self->{BackendObject}       = Kernel::System::DynamicField::Backend->new(%Param);
-
-    $Self->{Config} = $Self->{ConfigObject}->Get("Ticket::Frontend::$Self->{Action}");
-
-    # get dynamic field config for frontend module
-    $Self->{DynamicFieldFilter} = $Self->{Config}->{DynamicField};
-
-    # get the dynamic fields for ticket object
-    $Self->{DynamicField} = $Self->{DynamicFieldObject}->DynamicFieldListGet(
-        Valid       => 1,
-        ObjectType  => ['Ticket'],
-        FieldFilter => $Self->{DynamicFieldFilter} || {},
-    );
-
-    # reduce the dynamic fields to only the ones that are desinged for customer interface
-    my @CustomerDynamicFields;
-    DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
-        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-
-        my $IsCustomerInterfaceCapable = $Self->{BackendObject}->HasBehavior(
-            DynamicFieldConfig => $DynamicFieldConfig,
-            Behavior           => 'IsCustomerInterfaceCapable',
-        );
-        next DYNAMICFIELD if !$IsCustomerInterfaceCapable;
-
-        push @CustomerDynamicFields, $DynamicFieldConfig;
-    }
-    $Self->{DynamicField} = \@CustomerDynamicFields;
-
-    # get the ticket dynamic fields for overview display
-    $Self->{OverviewDynamicField} = $Self->{DynamicFieldObject}->DynamicFieldListGet(
-        Valid       => 1,
-        ObjectType  => ['Ticket'],
-        FieldFilter => $Self->{Config}->{SearchOverviewDynamicField} || {},
-    );
-
-    # reduce the dynamic fields to only the ones that are desinged for customer interface
-    my @OverviewCustomerDynamicFields;
-    DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{ $Self->{OverviewDynamicField} } ) {
-        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-
-        my $IsCustomerInterfaceCapable = $Self->{BackendObject}->HasBehavior(
-            DynamicFieldConfig => $DynamicFieldConfig,
-            Behavior           => 'IsCustomerInterfaceCapable',
-        );
-        next DYNAMICFIELD if !$IsCustomerInterfaceCapable;
-
-        push @OverviewCustomerDynamicFields, $DynamicFieldConfig;
-    }
-    $Self->{OverviewDynamicField} = \@OverviewCustomerDynamicFields;
-
-    # get the ticket dynamic fields for CSV display
-    $Self->{CSVDynamicField} = $Self->{DynamicFieldObject}->DynamicFieldListGet(
-        Valid       => 1,
-        ObjectType  => ['Ticket'],
-        FieldFilter => $Self->{Config}->{SearchCSVDynamicField} || {},
-    );
-
-    # reduce the dynamic fields to only the ones that are desinged for customer interface
-    my @CSVCustomerDynamicFields;
-    DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{ $Self->{CSVDynamicField} } ) {
-        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-
-        my $IsCustomerInterfaceCapable = $Self->{BackendObject}->HasBehavior(
-            DynamicFieldConfig => $DynamicFieldConfig,
-            Behavior           => 'IsCustomerInterfaceCapable',
-        );
-        next DYNAMICFIELD if !$IsCustomerInterfaceCapable;
-
-        push @CSVCustomerDynamicFields, $DynamicFieldConfig;
-    }
-    $Self->{CSVDynamicField} = \@CSVCustomerDynamicFields;
 
     return $Self;
 }
@@ -132,44 +31,88 @@ sub Run {
 
     my $Output;
 
+    # get needed objects
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # get config data
-    $Self->{StartHit} = int( $Self->{ParamObject}->GetParam( Param => 'StartHit' ) || 1 );
-    $Self->{SearchLimit} = $Self->{ConfigObject}->Get('Ticket::CustomerTicketSearch::SearchLimit')
+    $Self->{StartHit} = int( $ParamObject->GetParam( Param => 'StartHit' ) || 1 );
+    $Self->{SearchLimit} = $ConfigObject->Get('Ticket::CustomerTicketSearch::SearchLimit')
         || 200;
-    $Self->{SearchPageShown} = $Self->{ConfigObject}->Get('Ticket::CustomerTicketSearch::SearchPageShown') || 40;
-    $Self->{SortBy} = $Self->{ParamObject}->GetParam( Param => 'SortBy' )
-        || $Self->{ConfigObject}->Get('Ticket::CustomerTicketSearch::SortBy::Default')
+    $Self->{SearchPageShown} = $ConfigObject->Get('Ticket::CustomerTicketSearch::SearchPageShown') || 40;
+    $Self->{SortBy} = $ParamObject->GetParam( Param => 'SortBy' )
+        || $ConfigObject->Get('Ticket::CustomerTicketSearch::SortBy::Default')
         || 'Age';
-    $Self->{Order} = $Self->{ParamObject}->GetParam( Param => 'Order' )
-        || $Self->{ConfigObject}->Get('Ticket::CustomerTicketSearch::Order::Default')
+    $Self->{Order} = $ParamObject->GetParam( Param => 'Order' )
+        || $ConfigObject->Get('Ticket::CustomerTicketSearch::Order::Default')
         || 'Down';
 
     # disable output of customer company tickets
-    $Self->{DisableCompanyTickets} = $Self->{ConfigObject}->Get('Ticket::Frontend::CustomerDisableCompanyTicketAccess');
+    $Self->{DisableCompanyTickets} = $ConfigObject->Get('Ticket::Frontend::CustomerDisableCompanyTicketAccess');
 
-    $Self->{Profile}        = $Self->{ParamObject}->GetParam( Param => 'Profile' )        || '';
-    $Self->{SaveProfile}    = $Self->{ParamObject}->GetParam( Param => 'SaveProfile' )    || '';
-    $Self->{TakeLastSearch} = $Self->{ParamObject}->GetParam( Param => 'TakeLastSearch' ) || '';
-    $Self->{SelectTemplate} = $Self->{ParamObject}->GetParam( Param => 'SelectTemplate' ) || '';
-    $Self->{EraseTemplate}  = $Self->{ParamObject}->GetParam( Param => 'EraseTemplate' )  || '';
+    $Self->{Profile}        = $ParamObject->GetParam( Param => 'Profile' )        || '';
+    $Self->{SaveProfile}    = $ParamObject->GetParam( Param => 'SaveProfile' )    || '';
+    $Self->{TakeLastSearch} = $ParamObject->GetParam( Param => 'TakeLastSearch' ) || '';
+    $Self->{SelectTemplate} = $ParamObject->GetParam( Param => 'SelectTemplate' ) || '';
+    $Self->{EraseTemplate}  = $ParamObject->GetParam( Param => 'EraseTemplate' )  || '';
+
+    # get layout object
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    my $Config = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
+
+    # get dynamic field config for frontend module
+    my $DynamicFieldFilter = $Config->{DynamicField};
+
+    # get dynamic field object
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+    # get the dynamic fields for ticket object
+    my $DynamicField = $DynamicFieldObject->DynamicFieldListGet(
+        Valid       => 1,
+        ObjectType  => ['Ticket'],
+        FieldFilter => $DynamicFieldFilter || {},
+    );
+
+    # get backend object
+    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
+    # reduce the dynamic fields to only the ones that are desinged for customer interface
+    my @CustomerDynamicFields;
+    DYNAMICFIELD:
+    for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
+
+        my $IsCustomerInterfaceCapable = $BackendObject->HasBehavior(
+            DynamicFieldConfig => $DynamicFieldConfig,
+            Behavior           => 'IsCustomerInterfaceCapable',
+        );
+        next DYNAMICFIELD if !$IsCustomerInterfaceCapable;
+
+        push @CustomerDynamicFields, $DynamicFieldConfig;
+    }
+    $DynamicField = \@CustomerDynamicFields;
 
     # check request
-    if ( $Self->{ParamObject}->GetParam( Param => 'SearchTemplate' ) && $Self->{Profile} ) {
-        return $Self->{LayoutObject}->Redirect(
+    if ( $ParamObject->GetParam( Param => 'SearchTemplate' ) && $Self->{Profile} ) {
+        return $LayoutObject->Redirect(
             OP =>
                 "Action=CustomerTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=$Self->{Profile}",
         );
     }
 
     # remember exclude attributes
-    my @Excludes = $Self->{ParamObject}->GetArray( Param => 'Exclude' );
+    my @Excludes = $ParamObject->GetArray( Param => 'Exclude' );
 
     # get single params
     my %GetParam;
 
+    # get search profile object
+    my $SearchProfileObject = $Kernel::OM->Get('Kernel::System::SearchProfile');
+
     # load profiles string params (press load profile)
     if ( ( $Self->{Subaction} eq 'LoadProfile' && $Self->{Profile} ) || $Self->{TakeLastSearch} ) {
-        %GetParam = $Self->{SearchProfileObject}->SearchProfileGet(
+        %GetParam = $SearchProfileObject->SearchProfileGet(
             Base      => 'CustomerTicketSearch',
             Name      => $Self->{Profile},
             UserLogin => $Self->{UserLogin},
@@ -192,7 +135,7 @@ sub Run {
         {
 
             # get search string params (get submitted params)
-            $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
+            $GetParam{$Key} = $ParamObject->GetParam( Param => $Key );
 
             # remove white space on the start and end
             if ( $GetParam{$Key} ) {
@@ -208,7 +151,7 @@ sub Run {
         {
 
             # get search array params (get submitted params)
-            my @Array = $Self->{ParamObject}->GetArray( Param => $Key );
+            my @Array = $ParamObject->GetArray( Param => $Key );
             if (@Array) {
                 $GetParam{$Key} = \@Array;
             }
@@ -217,11 +160,11 @@ sub Run {
         # get Dynamic fields form param object
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+        for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             # get search field preferences
-            my $SearchFieldPreferences = $Self->{BackendObject}->SearchFieldPreferences(
+            my $SearchFieldPreferences = $BackendObject->SearchFieldPreferences(
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
@@ -231,11 +174,11 @@ sub Run {
             for my $Preference ( @{$SearchFieldPreferences} ) {
 
                 # extract the dynamic field value from the web request
-                my $DynamicFieldValue = $Self->{BackendObject}->SearchFieldValueGet(
+                my $DynamicFieldValue = $BackendObject->SearchFieldValueGet(
                     DynamicFieldConfig     => $DynamicFieldConfig,
-                    ParamObject            => $Self->{ParamObject},
+                    ParamObject            => $ParamObject,
                     ReturnProfileStructure => 1,
-                    LayoutObject           => $Self->{LayoutObject},
+                    LayoutObject           => $LayoutObject,
                     Type                   => $Preference->{Type},
                 );
 
@@ -276,17 +219,20 @@ sub Run {
 
     # check request
     if ( $Self->{Subaction} eq 'OpenSearchDescription' ) {
-        my $Output = $Self->{LayoutObject}->Output(
+        my $Output = $LayoutObject->Output(
             TemplateFile => 'CustomerTicketSearchOpenSearchDescription',
             Data         => {%Param},
         );
-        return $Self->{LayoutObject}->Attachment(
+        return $LayoutObject->Attachment(
             Filename    => 'OpenSearchDescription.xml',
             ContentType => 'text/xml',
             Content     => $Output,
             Type        => 'inline',
         );
     }
+
+    # get ticket object
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
     # show result page
     if ( $Self->{Subaction} eq 'Search' && !$Self->{EraseTemplate} ) {
@@ -301,7 +247,7 @@ sub Run {
         my $URL = "Action=CustomerTicketSearch;Subaction=Search;Profile=$Self->{Profile};"
             . "SortBy=$Self->{SortBy};Order=$Self->{Order};TakeLastSearch=1;"
             . "StartHit=$Self->{StartHit}";
-        $Self->{SessionObject}->UpdateSessionID(
+        $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'LastScreenOverview',
             Value     => $URL,
@@ -314,7 +260,7 @@ sub Run {
         if ( $Self->{SaveProfile} && $Self->{Profile} ) {
 
             # remove old profile stuff
-            $Self->{SearchProfileObject}->SearchProfileDelete(
+            $SearchProfileObject->SearchProfileDelete(
                 Base      => 'CustomerTicketSearch',
                 Name      => $Self->{Profile},
                 UserLogin => $Self->{UserLogin},
@@ -323,7 +269,7 @@ sub Run {
             # insert new profile params
             for my $Key ( sort keys %GetParam ) {
                 if ( $GetParam{$Key} ) {
-                    $Self->{SearchProfileObject}->SearchProfileAdd(
+                    $SearchProfileObject->SearchProfileAdd(
                         Base      => 'CustomerTicketSearch',
                         Name      => $Self->{Profile},
                         Key       => $Key,
@@ -424,9 +370,9 @@ sub Run {
 
         # prepare archive flag
         if (
-            $Self->{ConfigObject}->Get('Ticket::ArchiveSystem')
-            && $Self->{ConfigObject}->Get('Ticket::CustomerArchiveSystem')
-            && $Self->{ConfigObject}->Get('Ticket::CustomerArchiveSystem') eq 1
+            $ConfigObject->Get('Ticket::ArchiveSystem')
+            && $ConfigObject->Get('Ticket::CustomerArchiveSystem')
+            && $ConfigObject->Get('Ticket::CustomerArchiveSystem') eq 1
             )
         {
 
@@ -442,9 +388,9 @@ sub Run {
             }
         }
         elsif (
-            $Self->{ConfigObject}->Get('Ticket::ArchiveSystem')
-            && $Self->{ConfigObject}->Get('Ticket::CustomerArchiveSystem')
-            && $Self->{ConfigObject}->Get('Ticket::CustomerArchiveSystem') eq 2
+            $ConfigObject->Get('Ticket::ArchiveSystem')
+            && $ConfigObject->Get('Ticket::CustomerArchiveSystem')
+            && $ConfigObject->Get('Ticket::CustomerArchiveSystem') eq 2
             )
         {
             $GetParam{ArchiveFlags} = ['n'];
@@ -459,11 +405,11 @@ sub Run {
 
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+        for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             # get search field preferences
-            my $SearchFieldPreferences = $Self->{BackendObject}->SearchFieldPreferences(
+            my $SearchFieldPreferences = $BackendObject->SearchFieldPreferences(
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
@@ -472,9 +418,9 @@ sub Run {
             PREFERENCE:
             for my $Preference ( @{$SearchFieldPreferences} ) {
 
-                my $DynamicFieldValue = $Self->{BackendObject}->SearchFieldValueGet(
+                my $DynamicFieldValue = $BackendObject->SearchFieldValueGet(
                     DynamicFieldConfig     => $DynamicFieldConfig,
-                    ParamObject            => $Self->{ParamObject},
+                    ParamObject            => $ParamObject,
                     Type                   => $Preference->{Type},
                     ReturnProfileStructure => 1,
                 );
@@ -484,10 +430,10 @@ sub Run {
                 next PREFERENCE if !IsHashRefWithData($DynamicFieldValue);
 
                 # extract the dynamic field value from the profile
-                my $SearchParameter = $Self->{BackendObject}->SearchFieldParameterBuild(
+                my $SearchParameter = $BackendObject->SearchFieldParameterBuild(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     Profile            => \%GetParam,
-                    LayoutObject       => $Self->{LayoutObject},
+                    LayoutObject       => $LayoutObject,
                     Type               => $Preference->{Type},
                 );
 
@@ -509,19 +455,23 @@ sub Run {
         }
 
         # perform ticket search
-        my @ViewableTicketIDs = $Self->{TicketObject}->TicketSearch(
+        my @ViewableTicketIDs = $TicketObject->TicketSearch(
             Result              => 'ARRAY',
             SortBy              => $Self->{SortBy},
             OrderBy             => $Self->{Order},
             Limit               => $Self->{SearchLimit},
             CustomerUserID      => $Self->{UserID},
-            ConditionInline     => $Self->{Config}->{ExtendedSearchCondition},
+            ConditionInline     => $Config->{ExtendedSearchCondition},
             ContentSearchPrefix => '*',
             ContentSearchSuffix => '*',
             FullTextIndex       => 1,
             %GetParam,
             %DynamicFieldSearchParameters,
         );
+
+        # get needed objects
+        my $UserObject         = $Kernel::OM->Get('Kernel::System::User');
+        my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
 
         # CSV and Excel output
         if (
@@ -531,12 +481,35 @@ sub Run {
         {
 
             # create head (actual head and head for data fill)
-            my @TmpCSVHead = @{ $Self->{Config}->{SearchCSVData} };
-            my @CSVHead    = @{ $Self->{Config}->{SearchCSVData} };
+            my @TmpCSVHead = @{ $Config->{SearchCSVData} };
+            my @CSVHead    = @{ $Config->{SearchCSVData} };
+
+            # get the ticket dynamic fields for CSV display
+            my $CSVDynamicField = $DynamicFieldObject->DynamicFieldListGet(
+                Valid       => 1,
+                ObjectType  => ['Ticket'],
+                FieldFilter => $Config->{SearchCSVDynamicField} || {},
+            );
+
+            # reduce the dynamic fields to only the ones that are desinged for customer interface
+            my @CSVCustomerDynamicFields;
+            DYNAMICFIELD:
+            for my $DynamicFieldConfig ( @{$CSVDynamicField} ) {
+                next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
+
+                my $IsCustomerInterfaceCapable = $BackendObject->HasBehavior(
+                    DynamicFieldConfig => $DynamicFieldConfig,
+                    Behavior           => 'IsCustomerInterfaceCapable',
+                );
+                next DYNAMICFIELD if !$IsCustomerInterfaceCapable;
+
+                push @CSVCustomerDynamicFields, $DynamicFieldConfig;
+            }
+            $CSVDynamicField = \@CSVCustomerDynamicFields;
 
             # include the selected dynamic fields in CVS results
             DYNAMICFIELD:
-            for my $DynamicFieldConfig ( @{ $Self->{CSVDynamicField} } ) {
+            for my $DynamicFieldConfig ( @{$CSVDynamicField} ) {
                 next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
                 next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
                 next DYNAMICFIELD if $DynamicFieldConfig->{Name} eq '';
@@ -549,7 +522,7 @@ sub Run {
             for my $TicketID (@ViewableTicketIDs) {
 
                 # get first article data
-                my %Data = $Self->{TicketObject}->ArticleFirstArticle(
+                my %Data = $TicketObject->ArticleFirstArticle(
                     TicketID      => $TicketID,
                     Extended      => 1,
                     DynamicFields => 1,
@@ -557,31 +530,31 @@ sub Run {
 
                 # if no article found, use ticket information
                 if ( !%Data ) {
-                    my %Ticket = $Self->{TicketObject}->TicketGet(
+                    my %Ticket = $TicketObject->TicketGet(
                         TicketID      => $TicketID,
                         DynamicFields => 0,
                         UserID        => $Self->{UserID},
                     );
                     %Data = %Ticket;
                     $Data{Subject} = $Ticket{Title} || 'Untitled';
-                    $Data{Body} = $Self->{LayoutObject}->{LanguageObject}->Translate(
+                    $Data{Body} = $LayoutObject->{LanguageObject}->Translate(
                         'This item has no articles yet.'
                     );
                     $Data{From} = '--';
                 }
 
                 for my $Key (qw(State Lock)) {
-                    $Data{$Key} = $Self->{LayoutObject}->{LanguageObject}->Translate( $Data{$Key} );
+                    $Data{$Key} = $LayoutObject->{LanguageObject}->Translate( $Data{$Key} );
                 }
 
-                $Data{Age} = $Self->{LayoutObject}->CustomerAge(
+                $Data{Age} = $LayoutObject->CustomerAge(
                     Age   => $Data{Age},
                     Space => ' '
                 );
 
                 # get whole article (if configured!)
-                if ( $Self->{Config}->{SearchArticleCSVTree} && $GetParam{ResultForm} eq 'CSV' ) {
-                    my @Article = $Self->{TicketObject}->ArticleGet(
+                if ( $Config->{SearchArticleCSVTree} && $GetParam{ResultForm} eq 'CSV' ) {
+                    my @Article = $TicketObject->ArticleGet(
                         TicketID      => $TicketID,
                         DynamicFields => 0,
                     );
@@ -605,13 +578,13 @@ sub Run {
 
                 # customer info (customer name)
                 if ( $Data{CustomerUserID} ) {
-                    $Data{CustomerName} = $Self->{CustomerUserObject}->CustomerName(
+                    $Data{CustomerName} = $CustomerUserObject->CustomerName(
                         UserLogin => $Data{CustomerUserID},
                     );
                 }
 
                 # user info
-                my %UserInfo = $Self->{UserObject}->GetUserData(
+                my %UserInfo = $UserObject->GetUserData(
                     User => $Data{Owner},
                 );
 
@@ -620,7 +593,7 @@ sub Run {
                     %Data,
                     %UserInfo,
                     AccountedTime =>
-                        $Self->{TicketObject}->TicketAccountedTimeGet( TicketID => $TicketID ),
+                        $TicketObject->TicketAccountedTimeGet( TicketID => $TicketID ),
                 );
 
                 my @Data;
@@ -632,7 +605,7 @@ sub Run {
 
                         # loop over the dynamic fields configured for CSV output
                         DYNAMICFIELD:
-                        for my $DynamicFieldConfig ( @{ $Self->{CSVDynamicField} } ) {
+                        for my $DynamicFieldConfig ( @{$CSVDynamicField} ) {
                             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
                             next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
 
@@ -641,11 +614,11 @@ sub Run {
                             next DYNAMICFIELD if $DynamicFieldConfig->{Name} ne $1;
 
                             # get the value for print
-                            my $ValueStrg = $Self->{BackendObject}->DisplayValueRender(
+                            my $ValueStrg = $BackendObject->DisplayValueRender(
                                 DynamicFieldConfig => $DynamicFieldConfig,
                                 Value              => $Info{$Header},
                                 HTMLOutput         => 0,
-                                LayoutObject       => $Self->{LayoutObject},
+                                LayoutObject       => $LayoutObject,
                             );
                             push @Data, $ValueStrg->{Value};
 
@@ -663,10 +636,10 @@ sub Run {
             }
 
             # get Separator from language file
-            my $UserCSVSeparator = $Self->{LayoutObject}->{LanguageObject}->{Separator};
+            my $UserCSVSeparator = $LayoutObject->{LanguageObject}->{Separator};
 
-            if ( $Self->{ConfigObject}->Get('PreferencesGroups')->{CSVSeparator}->{Active} ) {
-                my %UserData = $Self->{UserObject}->GetUserData( UserID => $Self->{UserID} );
+            if ( $ConfigObject->Get('PreferencesGroups')->{CSVSeparator}->{Active} ) {
+                my %UserData = $UserObject->GetUserData( UserID => $Self->{UserID} );
                 $UserCSVSeparator = $UserData{UserCSVSeparator} if $UserData{UserCSVSeparator};
             }
 
@@ -675,28 +648,34 @@ sub Run {
                 CustomerName => 'Customer Realname',
             );
 
-            my @CSVHeadTranslated = map { $Self->{LayoutObject}->{LanguageObject}->Translate( $HeaderMap{$_} || $_ ); }
+            my @CSVHeadTranslated = map { $LayoutObject->{LanguageObject}->Translate( $HeaderMap{$_} || $_ ); }
                 @CSVHead;
+
+            # get time object
+            my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
 
             # return csv to download
             my $FileName = 'ticket_search';
-            my ( $s, $m, $h, $D, $M, $Y ) = $Self->{TimeObject}->SystemTime2Date(
-                SystemTime => $Self->{TimeObject}->SystemTime(),
+            my ( $s, $m, $h, $D, $M, $Y ) = $TimeObject->SystemTime2Date(
+                SystemTime => $TimeObject->SystemTime(),
             );
             $M = sprintf( "%02d", $M );
             $D = sprintf( "%02d", $D );
             $h = sprintf( "%02d", $h );
             $m = sprintf( "%02d", $m );
 
+            # get CSV object
+            my $CSVObject = $Kernel::OM->Get('Kernel::System::CSV');
+
             if ( $GetParam{ResultForm} eq 'CSV' ) {
 
-                my $CSV = $Self->{CSVObject}->Array2CSV(
+                my $CSV = $CSVObject->Array2CSV(
                     Head => \@CSVHeadTranslated,
                     Data => \@CSVData,
                 );
-                return $Self->{LayoutObject}->Attachment(
+                return $LayoutObject->Attachment(
                     Filename    => $FileName . "_" . "$Y-$M-$D" . "_" . "$h-$m.csv",
-                    ContentType => "text/csv; charset=" . $Self->{LayoutObject}->{UserCharset},
+                    ContentType => "text/csv; charset=" . $LayoutObject->{UserCharset},
                     Content     => $CSV,
                 );
 
@@ -704,13 +683,13 @@ sub Run {
 
             # return Excel to download
             elsif ( $GetParam{ResultForm} eq 'Excel' ) {
-                my $Excel = $Self->{CSVObject}->Array2CSV(
+                my $Excel = $CSVObject->Array2CSV(
                     Head   => \@CSVHeadTranslated,
                     Data   => \@CSVData,
                     Format => "Excel",
                 );
 
-                return $Self->{LayoutObject}->Attachment(
+                return $LayoutObject->Attachment(
                     Filename => $FileName . "_" . "$Y-$M-$D" . "_" . "$h-$m.xlsx",
                     ContentType =>
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -723,7 +702,7 @@ sub Run {
             for my $TicketID (@ViewableTicketIDs) {
 
                 # get first article data
-                my %Article = $Self->{TicketObject}->ArticleLastCustomerArticle(
+                my %Article = $TicketObject->ArticleLastCustomerArticle(
                     TicketID      => $TicketID,
                     Extended      => 1,
                     DynamicFields => 0,
@@ -731,14 +710,14 @@ sub Run {
 
                 # if no article found, use ticket information
                 if ( !%Article ) {
-                    my %Ticket = $Self->{TicketObject}->TicketGet(
+                    my %Ticket = $TicketObject->TicketGet(
                         TicketID      => $TicketID,
                         DynamicFields => 0,
                         UserID        => $Self->{UserID},
                     );
                     %Article = %Ticket;
                     $Article{Subject} = $Ticket{Title} || 'Untitled';
-                    $Article{Body} = $Self->{LayoutObject}->{LanguageObject}->Translate(
+                    $Article{Body} = $LayoutObject->{LanguageObject}->Translate(
                         'This item has no articles yet.'
                     );
                     $Article{From} = '--';
@@ -747,34 +726,34 @@ sub Run {
                 # customer info
                 my %CustomerData;
                 if ( $Article{CustomerUserID} ) {
-                    %CustomerData = $Self->{CustomerUserObject}->CustomerUserDataGet(
+                    %CustomerData = $CustomerUserObject->CustomerUserDataGet(
                         User => $Article{CustomerUserID},
                     );
                 }
                 elsif ( $Article{CustomerID} ) {
-                    %CustomerData = $Self->{CustomerUserObject}->CustomerUserDataGet(
+                    %CustomerData = $CustomerUserObject->CustomerUserDataGet(
                         CustomerID => $Article{CustomerID},
                     );
                 }
 
                 # customer info (customer name)
                 if ( $CustomerData{UserLogin} ) {
-                    $Article{CustomerName} = $Self->{CustomerUserObject}->CustomerName(
+                    $Article{CustomerName} = $CustomerUserObject->CustomerName(
                         UserLogin => $CustomerData{UserLogin},
                     );
                 }
 
                 # user info
-                my %Owner = $Self->{UserObject}->GetUserData(
+                my %Owner = $UserObject->GetUserData(
                     User => $Article{Owner},
                 );
 
                 # Condense down the subject
-                my $Subject = $Self->{TicketObject}->TicketSubjectClean(
+                my $Subject = $TicketObject->TicketSubjectClean(
                     TicketNumber => $Article{TicketNumber},
                     Subject      => $Article{Subject} || '',
                 );
-                $Article{Age} = $Self->{LayoutObject}->CustomerAge(
+                $Article{Age} = $LayoutObject->CustomerAge(
                     Age   => $Article{Age},
                     Space => ' '
                 );
@@ -785,7 +764,7 @@ sub Run {
                 }
 
                 # add blocks to template
-                $Self->{LayoutObject}->Block(
+                $LayoutObject->Block(
                     Name => 'Record',
                     Data => {
                         %Article,
@@ -794,20 +773,20 @@ sub Run {
                     },
                 );
             }
-            my $Output = $Self->{LayoutObject}->PrintHeader( Width => 800 );
+            my $Output = $LayoutObject->PrintHeader( Width => 800 );
             if ( @ViewableTicketIDs == $Self->{SearchLimit} ) {
-                $Param{Warning} = $Self->{LayoutObject}->{LanguageObject}->Translate(
+                $Param{Warning} = $LayoutObject->{LanguageObject}->Translate(
                     "Reached max. count of %s search hits!",
                     $Self->{SearchLimit},
                 );
             }
-            $Output .= $Self->{LayoutObject}->Output(
+            $Output .= $LayoutObject->Output(
                 TemplateFile => 'CustomerTicketSearchResultPrint',
                 Data         => \%Param,
             );
 
             # add footer
-            $Output .= $Self->{LayoutObject}->PrintFooter();
+            $Output .= $LayoutObject->PrintFooter();
 
             # return output
             return $Output;
@@ -816,19 +795,42 @@ sub Run {
 
         my $Counter = 0;
 
+        # get the ticket dynamic fields for overview display
+        my $OverviewDynamicField = $DynamicFieldObject->DynamicFieldListGet(
+            Valid       => 1,
+            ObjectType  => ['Ticket'],
+            FieldFilter => $Config->{SearchOverviewDynamicField} || {},
+        );
+
+        # reduce the dynamic fields to only the ones that are desinged for customer interface
+        my @OverviewCustomerDynamicFields;
+        DYNAMICFIELD:
+        for my $DynamicFieldConfig ( @{$OverviewDynamicField} ) {
+            next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
+
+            my $IsCustomerInterfaceCapable = $BackendObject->HasBehavior(
+                DynamicFieldConfig => $DynamicFieldConfig,
+                Behavior           => 'IsCustomerInterfaceCapable',
+            );
+            next DYNAMICFIELD if !$IsCustomerInterfaceCapable;
+
+            push @OverviewCustomerDynamicFields, $DynamicFieldConfig;
+        }
+        $OverviewDynamicField = \@OverviewCustomerDynamicFields;
+
         # if there are results to show
         if (@ViewableTicketIDs) {
 
             # Dynamic fields table headers
             # cycle through the activated Dynamic Fields for this screen
             DYNAMICFIELD:
-            for my $DynamicFieldConfig ( @{ $Self->{OverviewDynamicField} } ) {
+            for my $DynamicFieldConfig ( @{$OverviewDynamicField} ) {
                 next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
                 my $Label = $DynamicFieldConfig->{Label};
 
                 # get field sortable condition
-                my $IsSortable = $Self->{BackendObject}->HasBehavior(
+                my $IsSortable = $BackendObject->HasBehavior(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     Behavior           => 'IsSortable',
                 );
@@ -854,7 +856,7 @@ sub Run {
                         }
                     }
 
-                    $Self->{LayoutObject}->Block(
+                    $LayoutObject->Block(
                         Name => 'HeaderDynamicField',
                         Data => {
                             %Param,
@@ -862,7 +864,7 @@ sub Run {
                         },
                     );
 
-                    $Self->{LayoutObject}->Block(
+                    $LayoutObject->Block(
                         Name => 'HeaderDynamicFieldSortable',
                         Data => {
                             %Param,
@@ -874,14 +876,14 @@ sub Run {
                 }
                 else {
 
-                    $Self->{LayoutObject}->Block(
+                    $LayoutObject->Block(
                         Name => 'HeaderDynamicField',
                         Data => {
                             %Param,
                         },
                     );
 
-                    $Self->{LayoutObject}->Block(
+                    $LayoutObject->Block(
                         Name => 'HeaderDynamicFieldNotSortable',
                         Data => {
                             %Param,
@@ -902,13 +904,13 @@ sub Run {
                 {
 
                     # get first article data
-                    my %Article = $Self->{TicketObject}->ArticleLastCustomerArticle(
+                    my %Article = $TicketObject->ArticleLastCustomerArticle(
                         TicketID      => $TicketID,
                         Extended      => 1,
                         DynamicFields => 1,
                     );
 
-                    my %Ticket = $Self->{TicketObject}->TicketGet(
+                    my %Ticket = $TicketObject->TicketGet(
                         TicketID      => $TicketID,
                         DynamicFields => 0,
                         UserID        => $Self->{UserID},
@@ -918,7 +920,7 @@ sub Run {
                     if ( !%Article ) {
                         %Article = %Ticket;
                         $Article{Subject} = $Ticket{Title} || 'Untitled';
-                        $Article{Body} = $Self->{LayoutObject}->{LanguageObject}->Translate(
+                        $Article{Body} = $LayoutObject->{LanguageObject}->Translate(
                             'This item has no articles yet.'
                         );
                     }
@@ -926,34 +928,34 @@ sub Run {
                     # customer info
                     my %CustomerData;
                     if ( $Article{CustomerUserID} ) {
-                        %CustomerData = $Self->{CustomerUserObject}->CustomerUserDataGet(
+                        %CustomerData = $CustomerUserObject->CustomerUserDataGet(
                             User => $Article{CustomerUserID},
                         );
                     }
                     elsif ( $Article{CustomerID} ) {
-                        %CustomerData = $Self->{CustomerUserObject}->CustomerUserDataGet(
+                        %CustomerData = $CustomerUserObject->CustomerUserDataGet(
                             User => $Article{CustomerID},
                         );
                     }
 
                     # customer info (customer name)
                     if ( $CustomerData{UserLogin} ) {
-                        $Article{CustomerName} = $Self->{CustomerUserObject}->CustomerName(
+                        $Article{CustomerName} = $CustomerUserObject->CustomerName(
                             UserLogin => $CustomerData{UserLogin},
                         );
                     }
 
                     # user info
-                    my %Owner = $Self->{UserObject}->GetUserData(
+                    my %Owner = $UserObject->GetUserData(
                         User => $Article{Owner},
                     );
 
                     # Condense down the subject
-                    my $Subject = $Self->{TicketObject}->TicketSubjectClean(
+                    my $Subject = $TicketObject->TicketSubjectClean(
                         TicketNumber => $Article{TicketNumber},
                         Subject      => $Article{Subject} || '',
                     );
-                    $Article{CustomerAge} = $Self->{LayoutObject}->CustomerAge(
+                    $Article{CustomerAge} = $LayoutObject->CustomerAge(
                         Age   => $Article{Age},
                         Space => ' '
                     );
@@ -964,7 +966,7 @@ sub Run {
                     }
 
                     # add blocks to template
-                    $Self->{LayoutObject}->Block(
+                    $LayoutObject->Block(
                         Name => 'Record',
                         Data => {
                             %Article,
@@ -977,18 +979,18 @@ sub Run {
                     # Dynamic fields
                     # cycle through the activated Dynamic Fields for this screen
                     DYNAMICFIELD:
-                    for my $DynamicFieldConfig ( @{ $Self->{OverviewDynamicField} } ) {
+                    for my $DynamicFieldConfig ( @{$OverviewDynamicField} ) {
                         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
                         # get field value
-                        my $ValueStrg = $Self->{BackendObject}->DisplayValueRender(
+                        my $ValueStrg = $BackendObject->DisplayValueRender(
                             DynamicFieldConfig => $DynamicFieldConfig,
                             Value              => $Article{ 'DynamicField_' . $DynamicFieldConfig->{Name} },
                             ValueMaxChars      => 20,
-                            LayoutObject       => $Self->{LayoutObject},
+                            LayoutObject       => $LayoutObject,
                         );
 
-                        $Self->{LayoutObject}->Block(
+                        $LayoutObject->Block(
                             Name => 'RecordDynamicField',
                             Data => {
                                 Value => $ValueStrg->{Value},
@@ -1002,7 +1004,7 @@ sub Run {
 
         # otherwise show a no data found msg
         else {
-            $Self->{LayoutObject}->Block( Name => 'NoDataFoundMsg' );
+            $LayoutObject->Block( Name => 'NoDataFoundMsg' );
         }
 
         # show attributes used for search
@@ -1075,7 +1077,7 @@ sub Run {
                     if ( $Self->{$Object} ) {
                         $Item = $Self->{$Object}->$Method( $MethodKey => $Item );
                         if ($Translation) {
-                            $Item = $Self->{LayoutObject}->{LanguageObject}->Translate($Item);
+                            $Item = $LayoutObject->{LanguageObject}->Translate($Item);
                         }
                     }
                     $Value .= $Item;
@@ -1086,7 +1088,7 @@ sub Run {
                 if ( $Self->{$Object} ) {
                     $Item = $Self->{$Object}->$Method( $MethodKey => $Item );
                     if ($Translation) {
-                        $Item = $Self->{LayoutObject}->{LanguageObject}->Translate($Item);
+                        $Item = $LayoutObject->{LanguageObject}->Translate($Item);
                     }
                 }
                 $Value = $Item;
@@ -1095,14 +1097,14 @@ sub Run {
 
                 if ( $GetParam{TimeSearchType} eq 'TimeSlot' ) {
 
-                    my $StartDate = $Self->{LayoutObject}->{LanguageObject}->FormatTimeString(
+                    my $StartDate = $LayoutObject->{LanguageObject}->FormatTimeString(
                         $GetParam{TicketCreateTimeStartYear}
                             . '-' . $GetParam{TicketCreateTimeStartMonth}
                             . '-' . $GetParam{TicketCreateTimeStartDay}
                             . ' 00:00:00', 'DateFormatShort'
                     );
 
-                    my $StopDate = $Self->{LayoutObject}->{LanguageObject}->FormatTimeString(
+                    my $StopDate = $LayoutObject->{LanguageObject}->FormatTimeString(
                         $GetParam{TicketCreateTimeStopYear}
                             . '-' . $GetParam{TicketCreateTimeStopMonth}
                             . '-' . $GetParam{TicketCreateTimeStopDay}
@@ -1111,7 +1113,7 @@ sub Run {
 
                     $Attribute = 'Created between';
                     $Value     = $StartDate . ' '
-                        . $Self->{LayoutObject}->{LanguageObject}->Translate('and') . ' '
+                        . $LayoutObject->{LanguageObject}->Translate('and') . ' '
                         . $StopDate;
                 }
                 else {
@@ -1123,12 +1125,11 @@ sub Run {
 
                     $Attribute = $Mapping->{ $GetParam{TicketCreateTimePointStart} };
                     $Value     = $GetParam{TicketCreateTimePoint} . ' '
-                        . $Self->{LayoutObject}->{LanguageObject}
-                        ->Get( $GetParam{TicketCreateTimePointFormat} . '(s)' );
+                        . $LayoutObject->{LanguageObject}->Get( $GetParam{TicketCreateTimePointFormat} . '(s)' );
                 }
             }
 
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'SearchTerms',
                 Data => {
                     %Param,
@@ -1141,12 +1142,12 @@ sub Run {
 
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+        for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
             next DYNAMICFIELD
                 if !$DynamicFieldSearchDisplay{ 'DynamicField_' . $DynamicFieldConfig->{Name} };
 
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'SearchTerms',
                 Data => {
                     Attribute => $DynamicFieldConfig->{Label},
@@ -1156,13 +1157,13 @@ sub Run {
             );
         }
 
-        my $Link = 'Profile=' . $Self->{LayoutObject}->LinkEncode( $Self->{Profile} ) . ';';
-        $Link .= 'SortBy=' . $Self->{LayoutObject}->LinkEncode( $Self->{SortBy} ) . ';';
-        $Link .= 'Order=' . $Self->{LayoutObject}->LinkEncode( $Self->{Order} ) . ';';
+        my $Link = 'Profile=' . $LayoutObject->LinkEncode( $Self->{Profile} ) . ';';
+        $Link .= 'SortBy=' . $LayoutObject->LinkEncode( $Self->{SortBy} ) . ';';
+        $Link .= 'Order=' . $LayoutObject->LinkEncode( $Self->{Order} ) . ';';
         $Link .= 'TakeLastSearch=1;';
 
         # build search navigation bar
-        my %PageNav = $Self->{LayoutObject}->PageNavBar(
+        my %PageNav = $LayoutObject->PageNavBar(
             Limit     => $Self->{SearchLimit},
             StartHit  => $Self->{StartHit},
             PageShown => $Self->{SearchPageShown},
@@ -1174,7 +1175,7 @@ sub Run {
 
         # show footer filter - show only if more the one page is available
         if ( $PageNav{TotalHits} && ( $PageNav{TotalHits} > $Self->{SearchPageShown} ) ) {
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'Pagination',
                 Data => {
                     %Param,
@@ -1211,9 +1212,9 @@ sub Run {
         }
 
         # start html page
-        my $Output = $Self->{LayoutObject}->CustomerHeader();
-        $Output .= $Self->{LayoutObject}->CustomerNavigationBar();
-        $Output .= $Self->{LayoutObject}->Output(
+        my $Output = $LayoutObject->CustomerHeader();
+        $Output .= $LayoutObject->CustomerNavigationBar();
+        $Output .= $LayoutObject->Output(
             TemplateFile => 'CustomerTicketSearchResultShort',
             Data         => {
                 %Param,
@@ -1227,7 +1228,7 @@ sub Run {
         );
 
         # build footer
-        $Output .= $Self->{LayoutObject}->CustomerFooter();
+        $Output .= $LayoutObject->CustomerFooter();
         return $Output;
     }
 
@@ -1238,7 +1239,7 @@ sub Run {
         if ( $Self->{EraseTemplate} && $Self->{Profile} ) {
 
             # remove old profile stuff
-            $Self->{SearchProfileObject}->SearchProfileDelete(
+            $SearchProfileObject->SearchProfileDelete(
                 Base      => 'CustomerTicketSearch',
                 Name      => $Self->{Profile},
                 UserLogin => $Self->{UserLogin},
@@ -1252,12 +1253,12 @@ sub Run {
 
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+        for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             my $PossibleValuesFilter;
 
-            my $IsACLReducible = $Self->{BackendObject}->HasBehavior(
+            my $IsACLReducible = $BackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsACLReducible',
             );
@@ -1265,7 +1266,7 @@ sub Run {
             if ($IsACLReducible) {
 
                 # get PossibleValues
-                my $PossibleValues = $Self->{BackendObject}->PossibleValuesGet(
+                my $PossibleValues = $BackendObject->PossibleValuesGet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                 );
 
@@ -1273,7 +1274,7 @@ sub Run {
                 if ( IsHashRefWithData($PossibleValues) ) {
 
                     # get historical values from database
-                    my $HistoricalValues = $Self->{BackendObject}->HistoricalValuesGet(
+                    my $HistoricalValues = $BackendObject->HistoricalValuesGet(
                         DynamicFieldConfig => $DynamicFieldConfig,
                     );
 
@@ -1293,7 +1294,7 @@ sub Run {
                     @AclData{ keys %AclData } = keys %AclData;
 
                     # set possible values filter from ACLs
-                    my $ACL = $Self->{TicketObject}->TicketAcl(
+                    my $ACL = $TicketObject->TicketAcl(
                         Action         => $Self->{Action},
                         ReturnType     => 'Ticket',
                         ReturnSubType  => 'DynamicField_' . $DynamicFieldConfig->{Name},
@@ -1301,7 +1302,7 @@ sub Run {
                         CustomerUserID => $Self->{UserID},
                     );
                     if ($ACL) {
-                        my %Filter = $Self->{TicketObject}->TicketAclData();
+                        my %Filter = $TicketObject->TicketAclData();
 
                         # convert Filer key => key back to key => value using map
                         %{$PossibleValuesFilter} = map { $_ => $Data->{$_} } keys %Filter;
@@ -1310,7 +1311,7 @@ sub Run {
             }
 
             # get search field preferences
-            my $SearchFieldPreferences = $Self->{BackendObject}->SearchFieldPreferences(
+            my $SearchFieldPreferences = $BackendObject->SearchFieldPreferences(
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
@@ -1321,14 +1322,14 @@ sub Run {
 
                 # get field html
                 $DynamicFieldHTML{ $DynamicFieldConfig->{Name} . $Preference->{Type} }
-                    = $Self->{BackendObject}->SearchFieldRender(
+                    = $BackendObject->SearchFieldRender(
                     DynamicFieldConfig   => $DynamicFieldConfig,
                     Profile              => \%GetParam,
                     PossibleValuesFilter => $PossibleValuesFilter,
                     DefaultValue =>
-                        $Self->{Config}->{Defaults}->{DynamicField}
+                        $Config->{Defaults}->{DynamicField}
                         ->{ $DynamicFieldConfig->{Name} },
-                    LayoutObject           => $Self->{LayoutObject},
+                    LayoutObject           => $LayoutObject,
                     ConfirmationCheckboxes => 1,
                     Type                   => $Preference->{Type},
                     );
@@ -1336,15 +1337,15 @@ sub Run {
         }
 
         # generate search mask
-        my $Output = $Self->{LayoutObject}->CustomerHeader();
-        $Output .= $Self->{LayoutObject}->CustomerNavigationBar();
+        my $Output = $LayoutObject->CustomerHeader();
+        $Output .= $LayoutObject->CustomerNavigationBar();
         $Output .= $Self->MaskForm(
             %GetParam,
             Profile          => $Self->{Profile},
             Area             => 'Customer',
             DynamicFieldHTML => \%DynamicFieldHTML
         );
-        $Output .= $Self->{LayoutObject}->CustomerFooter();
+        $Output .= $LayoutObject->CustomerFooter();
         return $Output;
     }
 }
@@ -1352,13 +1353,19 @@ sub Run {
 sub MaskForm {
     my ( $Self, %Param ) = @_;
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # get list type
     my $TreeView = 0;
-    if ( $Self->{ConfigObject}->Get('Ticket::Frontend::ListType') eq 'tree' ) {
+    if ( $ConfigObject->Get('Ticket::Frontend::ListType') eq 'tree' ) {
         $TreeView = 1;
     }
 
-    $Param{ResultFormStrg} = $Self->{LayoutObject}->BuildSelection(
+    # get layout object
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    $Param{ResultFormStrg} = $LayoutObject->BuildSelection(
         Data => {
             Normal => 'Normal',
             Print  => 'Print',
@@ -1368,10 +1375,10 @@ sub MaskForm {
         Name       => 'ResultForm',
         SelectedID => $Param{ResultForm} || 'Normal',
     );
-    $Param{ProfilesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $Param{ProfilesStrg} = $LayoutObject->BuildSelection(
         Data => {
             '', '-',
-            $Self->{SearchProfileObject}->SearchProfileList(
+            $Kernel::OM->Get('Kernel::System::SearchProfile')->SearchProfileList(
                 Base      => 'CustomerTicketSearch',
                 UserLogin => $Self->{UserLogin},
             ),
@@ -1381,20 +1388,23 @@ sub MaskForm {
         SelectedID  => $Param{Profile},
     );
 
+    # get service object
+    my $ServiceObject = $Kernel::OM->Get('Kernel::System::Service');
+
     my %ServiceList;
-    if ( $Self->{ConfigObject}->Get('Customer::TicketSearch::AllServices') ) {
-        %ServiceList = $Self->{ServiceObject}->ServiceList(
+    if ( $ConfigObject->Get('Customer::TicketSearch::AllServices') ) {
+        %ServiceList = $ServiceObject->ServiceList(
             UserID => $Self->{UserID},
             ),
     }
     else {
-        %ServiceList = $Self->{ServiceObject}->CustomerUserServiceMemberList(
+        %ServiceList = $ServiceObject->CustomerUserServiceMemberList(
             CustomerUserLogin => $Self->{UserID},
             Result            => 'HASH',
             ),
     }
 
-    $Param{ServicesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $Param{ServicesStrg} = $LayoutObject->BuildSelection(
         Data       => \%ServiceList,
         Name       => 'ServiceIDs',
         Multiple   => 1,
@@ -1402,9 +1412,9 @@ sub MaskForm {
         SelectedID => $Param{ServiceIDs},
         TreeView   => $TreeView,
     );
-    $Param{TypesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $Param{TypesStrg} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{TypeObject}->TypeList(
+            $Kernel::OM->Get('Kernel::System::Type')->TypeList(
                 UserID => $Self->{UserID},
             ),
         },
@@ -1414,9 +1424,9 @@ sub MaskForm {
         Size       => 5,
         SelectedID => $Param{TypeIDs},
     );
-    $Param{StatesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $Param{StatesStrg} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{StateObject}->StateList(
+            $Kernel::OM->Get('Kernel::System::State')->StateList(
                 UserID => $Self->{UserID},
                 Action => $Self->{Action},
             ),
@@ -1426,7 +1436,7 @@ sub MaskForm {
         Size       => 5,
         SelectedID => $Param{StateIDs},
     );
-    $Param{StateTypeStrg} = $Self->{LayoutObject}->BuildSelection(
+    $Param{StateTypeStrg} = $LayoutObject->BuildSelection(
         Data => {
             Open   => 'open',
             Closed => 'closed',
@@ -1435,9 +1445,9 @@ sub MaskForm {
         Size       => 5,
         SelectedID => $Param{StateType},
     );
-    $Param{PrioritiesStrg} = $Self->{LayoutObject}->BuildSelection(
+    $Param{PrioritiesStrg} = $LayoutObject->BuildSelection(
         Data => {
-            $Self->{PriorityObject}->PriorityList(
+            $Kernel::OM->Get('Kernel::System::Priority')->PriorityList(
                 UserID => $Self->{UserID},
                 Action => $Self->{Action},
             ),
@@ -1447,7 +1457,7 @@ sub MaskForm {
         Size       => 5,
         SelectedID => $Param{PriorityIDs},
     );
-    $Param{TicketCreateTimePoint} = $Self->{LayoutObject}->BuildSelection(
+    $Param{TicketCreateTimePoint} = $LayoutObject->BuildSelection(
         Data => {
             1  => ' 1',
             2  => ' 2',
@@ -1513,7 +1523,7 @@ sub MaskForm {
         Name        => 'TicketCreateTimePoint',
         SelectedID  => $Param{TicketCreateTimePoint},
     );
-    $Param{TicketCreateTimePointStart} = $Self->{LayoutObject}->BuildSelection(
+    $Param{TicketCreateTimePointStart} = $LayoutObject->BuildSelection(
         Data => {
             Last   => 'within the last ...',
             Before => 'more than ... ago',
@@ -1522,7 +1532,7 @@ sub MaskForm {
         Name        => 'TicketCreateTimePointStart',
         SelectedID  => $Param{TicketCreateTimePointStart} || 'Last',
     );
-    $Param{TicketCreateTimePointFormat} = $Self->{LayoutObject}->BuildSelection(
+    $Param{TicketCreateTimePointFormat} = $LayoutObject->BuildSelection(
         Data => {
             minute => 'minute(s)',
             hour   => 'hour(s)',
@@ -1535,14 +1545,14 @@ sub MaskForm {
         Name        => 'TicketCreateTimePointFormat',
         SelectedID  => $Param{TicketCreateTimePointFormat},
     );
-    $Param{TicketCreateTimeStart} = $Self->{LayoutObject}->BuildDateSelection(
+    $Param{TicketCreateTimeStart} = $LayoutObject->BuildDateSelection(
         %Param,
         Prefix                     => 'TicketCreateTimeStart',
         TicketCreateTimeStartClass => 'DateSelection',
         Format                     => 'DateInputFormat',
         DiffTime                   => -( ( 60 * 60 * 24 ) * 30 ),
     );
-    $Param{TicketCreateTimeStop} = $Self->{LayoutObject}->BuildDateSelection(
+    $Param{TicketCreateTimeStop} = $LayoutObject->BuildDateSelection(
         %Param,
         Prefix                    => 'TicketCreateTimeStop',
         TicketCreateTimeStopClass => 'DateSelection',
@@ -1550,20 +1560,20 @@ sub MaskForm {
     );
 
     # html search mask output
-    $Self->{LayoutObject}->Block(
+    $LayoutObject->Block(
         Name => 'Search',
         Data => { %Param, },
     );
 
     # enable archive search
     if (
-        $Self->{ConfigObject}->Get('Ticket::ArchiveSystem')
-        && $Self->{ConfigObject}->Get('Ticket::CustomerArchiveSystem')
-        && $Self->{ConfigObject}->Get('Ticket::CustomerArchiveSystem') eq 1
+        $ConfigObject->Get('Ticket::ArchiveSystem')
+        && $ConfigObject->Get('Ticket::CustomerArchiveSystem')
+        && $ConfigObject->Get('Ticket::CustomerArchiveSystem') eq 1
         )
     {
 
-        $Param{SearchInArchiveStrg} = $Self->{LayoutObject}->BuildSelection(
+        $Param{SearchInArchiveStrg} = $LayoutObject->BuildSelection(
             Data => {
                 ArchivedTickets    => 'Archived tickets',
                 NotArchivedTickets => 'Unarchived tickets',
@@ -1573,7 +1583,7 @@ sub MaskForm {
             SelectedID => $Param{SearchInArchive} || 'NotArchivedTickets',
         );
 
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'SearchInArchive',
             Data => {
                 SearchInArchiveStrg => $Param{SearchInArchiveStrg},
@@ -1581,14 +1591,45 @@ sub MaskForm {
         );
     }
 
+    my $Config = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
+
+    # get dynamic field config for frontend module
+    my $DynamicFieldFilter = $Config->{DynamicField};
+
+    # get the dynamic fields for ticket object
+    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+        Valid       => 1,
+        ObjectType  => ['Ticket'],
+        FieldFilter => $DynamicFieldFilter || {},
+    );
+
+    # get backend object
+    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
+    # reduce the dynamic fields to only the ones that are desinged for customer interface
+    my @CustomerDynamicFields;
+    DYNAMICFIELD:
+    for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
+
+        my $IsCustomerInterfaceCapable = $BackendObject->HasBehavior(
+            DynamicFieldConfig => $DynamicFieldConfig,
+            Behavior           => 'IsCustomerInterfaceCapable',
+        );
+        next DYNAMICFIELD if !$IsCustomerInterfaceCapable;
+
+        push @CustomerDynamicFields, $DynamicFieldConfig;
+    }
+    $DynamicField = \@CustomerDynamicFields;
+
     # output Dynamic fields blocks
     # cycle through the activated Dynamic Fields for this screen
     DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+    for my $DynamicFieldConfig ( @{$DynamicField} ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         # get search field preferences
-        my $SearchFieldPreferences = $Self->{BackendObject}->SearchFieldPreferences(
+        my $SearchFieldPreferences = $BackendObject->SearchFieldPreferences(
             DynamicFieldConfig => $DynamicFieldConfig,
         );
 
@@ -1602,7 +1643,7 @@ sub MaskForm {
                 $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} . $Preference->{Type} }
             );
 
-            $Self->{LayoutObject}->Block(
+            $LayoutObject->Block(
                 Name => 'DynamicField',
                 Data => {
                     Label => $Param{DynamicFieldHTML}
@@ -1615,18 +1656,18 @@ sub MaskForm {
     }
 
     if (
-        $Self->{ConfigObject}->Get('Ticket::StorageModule') eq
+        $ConfigObject->Get('Ticket::StorageModule') eq
         'Kernel::System::Ticket::ArticleStorageDB'
         )
     {
-        $Self->{LayoutObject}->Block(
+        $LayoutObject->Block(
             Name => 'Attachment',
             Data => \%Param
         );
     }
 
     # html search mask output
-    return $Self->{LayoutObject}->Output(
+    return $LayoutObject->Output(
         TemplateFile => 'CustomerTicketSearch',
         Data         => \%Param,
     );
