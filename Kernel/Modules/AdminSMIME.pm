@@ -12,7 +12,8 @@ package Kernel::Modules::AdminSMIME;
 use strict;
 use warnings;
 
-our $ObjectManagerDisabled = 1;
+use Kernel::System::Crypt;
+use Kernel::System::CustomerUser;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -21,32 +22,36 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
+    # check all needed objects
+    for my $Needed (
+        qw(ParamObject DBObject LayoutObject ConfigObject LogObject MainObject EncodeObject)
+        )
+    {
+        if ( !$Self->{$Needed} ) {
+            $Self->{LayoutObject}->FatalError( Message => "Got no $Needed!" );
+        }
+    }
+
+    $Self->{CryptObject} = Kernel::System::Crypt->new( %Param, CryptType => 'SMIME' );
+    $Self->{CustomerUserObject} = Kernel::System::CustomerUser->new(%Param);
+
     return $Self;
 }
 
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-
-    $Param{Search} = $ParamObject->GetParam( Param => 'Search' );
+    $Param{Search} = $Self->{ParamObject}->GetParam( Param => 'Search' );
     if ( !defined $Param{Search} ) {
         $Param{Search} = $Self->{SMIMESearch} || '';
     }
     if ( $Self->{Subaction} eq '' ) {
         $Param{Search} = '';
     }
-
-    my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
-    $SessionObject->UpdateSessionID(
+    $Self->{SessionObject}->UpdateSessionID(
         SessionID => $Self->{SessionID},
         Key       => 'SMIMESearch',
         Value     => $Param{Search},
-    );
-
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $CryptObject  = Kernel::System::Crypt->new(
-        CryptType => 'SMIME',
     );
 
     # ------------------------------------------------------------ #
@@ -55,12 +60,12 @@ sub Run {
     if ( $Self->{Subaction} eq 'Delete' ) {
 
         # challenge token check for write action
-        $LayoutObject->ChallengeTokenCheck();
+        $Self->{LayoutObject}->ChallengeTokenCheck();
 
-        my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
-        my $Type     = $ParamObject->GetParam( Param => 'Type' )     || '';
+        my $Filename = $Self->{ParamObject}->GetParam( Param => 'Filename' ) || '';
+        my $Type     = $Self->{ParamObject}->GetParam( Param => 'Type' )     || '';
         if ( !$Filename ) {
-            return $LayoutObject->ErrorScreen(
+            return $Self->{LayoutObject}->ErrorScreen(
                 Message => 'Need param Filename to delete!',
             );
         }
@@ -70,18 +75,18 @@ sub Run {
 
         # remove private key
         if ( $Type eq 'key' ) {
-            %Result = $CryptObject->PrivateRemove( Filename => $Filename );
+            %Result = $Self->{CryptObject}->PrivateRemove( Filename => $Filename );
             push @Result, \%Result if %Result;
         }
 
         # remove certificate and private key if exists
         else {
-            my $Certificate = $CryptObject->CertificateGet( Filename => $Filename );
-            my %Attributes = $CryptObject->CertificateAttributes(
+            my $Certificate = $Self->{CryptObject}->CertificateGet( Filename => $Filename );
+            my %Attributes = $Self->{CryptObject}->CertificateAttributes(
                 Certificate => $Certificate,
             );
 
-            %Result = $CryptObject->CertificateRemove( Filename => $Filename );
+            %Result = $Self->{CryptObject}->CertificateRemove( Filename => $Filename );
             push @Result, \%Result if %Result;
 
             # delete certificate from customer preferences
@@ -89,8 +94,7 @@ sub Run {
 
                 # check if there are customers that have assigned the certificate in their
                 # preferences
-                my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
-                my %UserList           = $CustomerUserObject->SearchPreferences(
+                my %UserList = $Self->{CustomerUserObject}->SearchPreferences(
                     Key   => 'SMIMEFilename',
                     Value => $Filename,
                 );
@@ -100,13 +104,13 @@ sub Run {
 
                     # reset all SMIME preferences for the customer
                     for my $PreferenceKey (qw(SMIMEHash SMIMEFingerprint SMIMEFilename)) {
-                        my $Success = $CustomerUserObject->SetPreferences(
+                        my $Success = $Self->{CustomerUserObject}->SetPreferences(
                             Key    => $PreferenceKey,
                             Value  => '',
                             UserID => $UserID,
                         );
                         if ( !$Success ) {
-                            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                            $Self->{LogObject}->Log(
                                 Priority => 'error',
                                 Message =>
                                     "Could not reset preference $PreferenceKey for customer $UserID",
@@ -117,21 +121,21 @@ sub Run {
             }
 
             if ( defined $Attributes{Private} && $Attributes{Private} eq 'Yes' ) {
-                %Result = $CryptObject->PrivateRemove( Filename => $Filename );
+                %Result = $Self->{CryptObject}->PrivateRemove( Filename => $Filename );
                 push @Result, \%Result if %Result;
             }
         }
 
-        my $Output = $LayoutObject->Header();
-        $Output .= $LayoutObject->NavigationBar();
+        my $Output = $Self->{LayoutObject}->Header();
+        $Output .= $Self->{LayoutObject}->NavigationBar();
 
         $Output .= $Self->_Overview( Result => \@Result );
 
-        $Output .= $LayoutObject->Output(
+        $Output .= $Self->{LayoutObject}->Output(
             TemplateFile => 'AdminSMIME',
             Data         => \%Param,
         );
-        $Output .= $LayoutObject->Footer();
+        $Output .= $Self->{LayoutObject}->Footer();
         return $Output;
     }
 
@@ -151,15 +155,15 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'AddCertificate' ) {
 
         # challenge token check for write action
-        $LayoutObject->ChallengeTokenCheck();
+        $Self->{LayoutObject}->ChallengeTokenCheck();
 
-        $SessionObject->UpdateSessionID(
+        $Self->{SessionObject}->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'SMIMESearch',
             Value     => '',
         );
 
-        my %UploadStuff = $ParamObject->GetUploadAll(
+        my %UploadStuff = $Self->{ParamObject}->GetUploadAll(
             Param => 'FileUpload',
         );
 
@@ -174,22 +178,22 @@ sub Run {
         if ( !%Errors ) {
 
             # add certificate
-            my %Result = $CryptObject->CertificateAdd( Certificate => $UploadStuff{Content} );
+            my %Result = $Self->{CryptObject}->CertificateAdd( Certificate => $UploadStuff{Content} );
             my @Result;
             push @Result, \%Result if %Result;
 
-            my $Output = $LayoutObject->Header();
-            $Output .= $LayoutObject->NavigationBar();
+            my $Output = $Self->{LayoutObject}->Header();
+            $Output .= $Self->{LayoutObject}->NavigationBar();
 
             $Output .= $Self->_Overview(
                 Result => \@Result,
             );
 
-            $Output .= $LayoutObject->Output(
+            $Output .= $Self->{LayoutObject}->Output(
                 TemplateFile => 'AdminSMIME',
                 Data         => \%Param,
             );
-            $Output .= $LayoutObject->Footer();
+            $Output .= $Self->{LayoutObject}->Footer();
             return $Output;
         }
 
@@ -217,18 +221,18 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'AddPrivate' ) {
 
         # challenge token check for write action
-        $LayoutObject->ChallengeTokenCheck();
+        $Self->{LayoutObject}->ChallengeTokenCheck();
 
         my ( %GetParam, %Errors );
 
-        $GetParam{Secret} = $ParamObject->GetParam( Param => 'Secret' ) || '';
+        $GetParam{Secret} = $Self->{ParamObject}->GetParam( Param => 'Secret' ) || '';
 
-        $SessionObject->UpdateSessionID(
+        $Self->{SessionObject}->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'SMIMESearch',
             Value     => '',
         );
-        my %UploadStuff = $ParamObject->GetUploadAll(
+        my %UploadStuff = $Self->{ParamObject}->GetUploadAll(
             Param => 'FileUpload',
         );
 
@@ -241,7 +245,7 @@ sub Run {
         if ( !%Errors ) {
 
             # add private key
-            my %Result = $CryptObject->PrivateAdd(
+            my %Result = $Self->{CryptObject}->PrivateAdd(
                 Private => $UploadStuff{Content},
                 Secret  => $GetParam{Secret},
             );
@@ -249,18 +253,18 @@ sub Run {
             my @Result;
             push @Result, \%Result if %Result;
 
-            my $Output = $LayoutObject->Header();
-            $Output .= $LayoutObject->NavigationBar();
+            my $Output = $Self->{LayoutObject}->Header();
+            $Output .= $Self->{LayoutObject}->NavigationBar();
 
             $Output .= $Self->_Overview(
                 Result => \@Result,
             );
 
-            $Output .= $LayoutObject->Output(
+            $Output .= $Self->{LayoutObject}->Output(
                 TemplateFile => 'AdminSMIME',
                 Data         => \%Param,
             );
-            $Output .= $LayoutObject->Footer();
+            $Output .= $Self->{LayoutObject}->Footer();
             return $Output;
         }
 
@@ -276,9 +280,9 @@ sub Run {
     # download fingerprint
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'DownloadFingerprint' ) {
-        my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
+        my $Filename = $Self->{ParamObject}->GetParam( Param => 'Filename' ) || '';
         if ( !$Filename ) {
-            return $LayoutObject->ErrorScreen(
+            return $Self->{LayoutObject}->ErrorScreen(
                 Message => 'Need param Filename to download!',
             );
         }
@@ -286,9 +290,9 @@ sub Run {
         my $Hash = $Filename;
         $Hash =~ s{(.+)\.\d}{$1}xms;
 
-        my $Certificate = $CryptObject->CertificateGet( Filename => $Filename );
-        my %Attributes = $CryptObject->CertificateAttributes( Certificate => $Certificate );
-        return $LayoutObject->Attachment(
+        my $Certificate = $Self->{CryptObject}->CertificateGet( Filename => $Filename );
+        my %Attributes = $Self->{CryptObject}->CertificateAttributes( Certificate => $Certificate );
+        return $Self->{LayoutObject}->Attachment(
             ContentType => 'text/plain',
             Content     => $Attributes{Fingerprint},
             Filename    => "$Hash.txt",
@@ -300,11 +304,11 @@ sub Run {
     # download key
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'Download' ) {
-        my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
+        my $Filename = $Self->{ParamObject}->GetParam( Param => 'Filename' ) || '';
 
-        my $Type = $ParamObject->GetParam( Param => 'Type' ) || '';
+        my $Type = $Self->{ParamObject}->GetParam( Param => 'Type' ) || '';
         if ( !$Filename ) {
-            return $LayoutObject->ErrorScreen(
+            return $Self->{LayoutObject}->ErrorScreen(
                 Message => 'Need param Filename to download!',
             );
         }
@@ -317,14 +321,14 @@ sub Run {
         # download key
         if ( $Type eq 'key' ) {
             my $Secret;
-            ( $Download, $Secret ) = $CryptObject->PrivateGet( Filename => $Filename );
+            ( $Download, $Secret ) = $Self->{CryptObject}->PrivateGet( Filename => $Filename );
         }
 
         # download certificate
         else {
-            $Download = $CryptObject->CertificateGet( Filename => $Filename );
+            $Download = $Self->{CryptObject}->CertificateGet( Filename => $Filename );
         }
-        return $LayoutObject->Attachment(
+        return $Self->{LayoutObject}->Attachment(
             ContentType => 'text/plain',
             Content     => $Download,
             Filename    => "$Hash.pem",
@@ -338,7 +342,7 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'SignerRelations' ) {
 
         # look for needed parameters
-        my $CertFingerprint = $ParamObject->GetParam( Param => 'Fingerprint' ) || '';
+        my $CertFingerprint = $Self->{ParamObject}->GetParam( Param => 'Fingerprint' ) || '';
         my $Output = $Self->_SignerCertificateOverview( CertFingerprint => $CertFingerprint );
 
         return $Output;
@@ -350,20 +354,20 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'SignerRelationAdd' ) {
 
         # challenge token check for write action
-        $LayoutObject->ChallengeTokenCheck();
+        $Self->{LayoutObject}->ChallengeTokenCheck();
 
         # look for needed parameters
-        my $CertFingerprint = $ParamObject->GetParam( Param => 'CertFingerprint' ) || '';
-        my $CAFingerprint   = $ParamObject->GetParam( Param => 'CAFingerprint' )   || '';
+        my $CertFingerprint = $Self->{ParamObject}->GetParam( Param => 'CertFingerprint' ) || '';
+        my $CAFingerprint   = $Self->{ParamObject}->GetParam( Param => 'CAFingerprint' )   || '';
 
         if ( !$CertFingerprint || !$CAFingerprint ) {
-            return $LayoutObject->ErrorScreen(
+            return $Self->{LayoutObject}->ErrorScreen(
                 Message => 'Needed CertFingerprint and CAFingerprint',
             );
         }
 
         # relation already exists?
-        my $Exists = $CryptObject->SignerCertRelationExists(
+        my $Exists = $Self->{CryptObject}->SignerCertRelationExists(
             CertFingerprint => $CertFingerprint,
             CAFingerprint   => $CAFingerprint,
         );
@@ -389,7 +393,7 @@ sub Run {
             );
         }
         else {
-            my $Result = $CryptObject->SignerCertRelationAdd(
+            my $Result = $Self->{CryptObject}->SignerCertRelationAdd(
                 CertFingerprint => $CertFingerprint,
                 CAFingerprint   => $CAFingerprint,
                 UserID          => $Self->{UserID},
@@ -419,20 +423,20 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'SignerRelationDelete' ) {
 
         # challenge token check for write action
-        $LayoutObject->ChallengeTokenCheck();
+        $Self->{LayoutObject}->ChallengeTokenCheck();
 
         # look for needed parameters
-        my $CertFingerprint = $ParamObject->GetParam( Param => 'CertFingerprint' ) || '';
-        my $CAFingerprint   = $ParamObject->GetParam( Param => 'CAFingerprint' )   || '';
+        my $CertFingerprint = $Self->{ParamObject}->GetParam( Param => 'CertFingerprint' ) || '';
+        my $CAFingerprint   = $Self->{ParamObject}->GetParam( Param => 'CAFingerprint' )   || '';
 
         if ( !$CertFingerprint && !$CAFingerprint ) {
-            return $LayoutObject->ErrorScreen(
+            return $Self->{LayoutObject}->ErrorScreen(
                 Message => 'Needed CertFingerprint and CAFingerprint!',
             );
         }
 
         # relation exists?
-        my $Exists = $CryptObject->SignerCertRelationExists(
+        my $Exists = $Self->{CryptObject}->SignerCertRelationExists(
             CertFingerprint => $CertFingerprint,
             CAFingerprint   => $CAFingerprint,
         );
@@ -453,7 +457,7 @@ sub Run {
             );
         }
         else {
-            my $Success = $CryptObject->SignerCertRelationDelete(
+            my $Success = $Self->{CryptObject}->SignerCertRelationDelete(
                 CertFingerprint => $CertFingerprint,
                 CAFingerprint   => $CAFingerprint,
                 UserID          => $Self->{UserID},
@@ -481,9 +485,9 @@ sub Run {
     # read certificate
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'Read' ) {
-        my $Filename = $ParamObject->GetParam( Param => 'Filename' ) || '';
+        my $Filename = $Self->{ParamObject}->GetParam( Param => 'Filename' ) || '';
         if ( !$Filename ) {
-            return $LayoutObject->ErrorScreen(
+            return $Self->{LayoutObject}->ErrorScreen(
                 Message => 'Need param Filename to download!'
             );
         }
@@ -491,7 +495,7 @@ sub Run {
         my $Output = $Self->_CertificateRead( Filename => $Filename );
 
         if ( !$Output ) {
-            return $LayoutObject->ErrorScreen(
+            return $Self->{LayoutObject}->ErrorScreen(
                 Message => "Certificate $Filename could not be read!"
             );
         }
@@ -503,16 +507,16 @@ sub Run {
     # overview
     # ------------------------------------------------------------ #
     else {
-        my $Output = $LayoutObject->Header();
-        $Output .= $LayoutObject->NavigationBar();
+        my $Output = $Self->{LayoutObject}->Header();
+        $Output .= $Self->{LayoutObject}->NavigationBar();
 
         $Output .= $Self->_Overview() || '';
 
-        $Output .= $LayoutObject->Output(
+        $Output .= $Self->{LayoutObject}->Output(
             TemplateFile => 'AdminSMIME',
             Data         => \%Param,
         );
-        $Output .= $LayoutObject->Footer();
+        $Output .= $Self->{LayoutObject}->Footer();
         return $Output;
     }
 }
@@ -520,104 +524,95 @@ sub Run {
 sub _MaskAdd {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'ActionList',
     );
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'ActionOverview',
     );
 
     # show the right dtl block
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'OverviewAdd' . $Param{Type},
         Data => \%Param,
     );
 
-    my $Output = $LayoutObject->Header();
+    my $Output = $Self->{LayoutObject}->Header();
     $Output .= $Param{Message}
-        ? $LayoutObject->Notify(
+        ? $Self->{LayoutObject}->Notify(
         Priority => 'Error',
         Info     => $Param{Message},
         )
         : '';
-    $Output .= $LayoutObject->NavigationBar();
-    $LayoutObject->Block( Name => 'Hint' );
-    $Output .= $LayoutObject->Output(
+    $Output .= $Self->{LayoutObject}->NavigationBar();
+    $Self->{LayoutObject}->Block( Name => 'Hint' );
+    $Output .= $Self->{LayoutObject}->Output(
         TemplateFile => 'AdminSMIME',
     );
-    $Output .= $LayoutObject->Footer();
+    $Output .= $Self->{LayoutObject}->Footer();
     return $Output;
 }
 
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     my $Output;
 
     # check if SMIME is activated in the sysconfig first
-    if ( !$ConfigObject->Get('SMIME') ) {
-        $Output .= $LayoutObject->Notify(
+    if ( !$Self->{ConfigObject}->Get('SMIME') ) {
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => 'Error',
-            Data     => $LayoutObject->{LanguageObject}->Translate( "Please activate %s first!", "SMIME" ),
+            Data     => $Self->{LayoutObject}->{LanguageObject}->Translate( "Please activate %s first!", "SMIME" ),
             Link =>
-                $LayoutObject->{Baselink}
+                $Self->{LayoutObject}->{Baselink}
                 . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Framework;SysConfigSubGroup=Crypt::SMIME',
         );
     }
 
     # check if SMIME Paths are writable
     for my $PathKey (qw(SMIME::CertPath SMIME::PrivatePath)) {
-        if ( !-w $ConfigObject->Get($PathKey) ) {
-            $Output .= $LayoutObject->Notify(
+        if ( !-w $Self->{ConfigObject}->Get($PathKey) ) {
+            $Output .= $Self->{LayoutObject}->Notify(
                 Priority => 'Error',
-                Data     => $LayoutObject->{LanguageObject}->Translate(
+                Data     => $Self->{LayoutObject}->{LanguageObject}->Translate(
                     "%s is not writable!",
-                    "$PathKey " . $ConfigObject->Get($PathKey),
+                    "$PathKey " . $Self->{ConfigObject}->Get($PathKey),
                 ),
                 Link =>
-                    $LayoutObject->{Baselink}
+                    $Self->{LayoutObject}->{Baselink}
                     . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Framework;SysConfigSubGroup=Crypt::SMIME',
             );
         }
     }
-
-    my $CryptObject = Kernel::System::Crypt->new(
-        CryptType => 'SMIME',
-    );
-
-    if ( !$CryptObject && $ConfigObject->Get('SMIME') ) {
-        $Output .= $LayoutObject->Notify(
+    if ( !$Self->{CryptObject} && $Self->{ConfigObject}->Get('SMIME') ) {
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => 'Error',
-            Data     => $LayoutObject->{LanguageObject}->Translate( "Cannot create %s!", "CryptObject" ),
+            Data     => $Self->{LayoutObject}->{LanguageObject}->Translate( "Cannot create %s!", "CryptObject" ),
             Link =>
-                $LayoutObject->{Baselink}
+                $Self->{LayoutObject}->{Baselink}
                 . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Framework;SysConfigSubGroup=Crypt::SMIME',
         );
     }
-    if ( $CryptObject && $CryptObject->Check() ) {
-        $Output .= $LayoutObject->Notify(
+    if ( $Self->{CryptObject} && $Self->{CryptObject}->Check() ) {
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => 'Error',
-            Data     => $LayoutObject->{LanguageObject}->Translate("' . $CryptObject->Check() . '"),
+            Data     => $Self->{LayoutObject}->{LanguageObject}->Translate("' . $Self->{CryptObject}->Check() . '"),
         );
     }
 
     for my $Message ( @{ $Param{Result} } ) {
         my $Priority = ( $Message->{Successful} ? 'Notice' : 'Error' );
-        $Output .= $LayoutObject->Notify(
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => $Priority,
             Data     => $Message->{Message},
         );
     }
 
     my @List = ();
-    if ($CryptObject) {
-        @List = $CryptObject->Search();
+    if ( $Self->{CryptObject} ) {
+        @List = $Self->{CryptObject}->Search();
     }
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'OverviewResult',
     );
     if (@List) {
@@ -629,18 +624,18 @@ sub _Overview {
                 $Attributes->{Type}    = 'Invalid';
                 $Attributes->{Subject} = "The file: '$Attributes->{Filename}' is invalid";
             }
-            $LayoutObject->Block(
+            $Self->{LayoutObject}->Block(
                 Name => 'Row',
                 Data => $Attributes,
             );
             if ( defined $Attributes->{Type} && $Attributes->{Type} eq 'key' ) {
-                $LayoutObject->Block(
+                $Self->{LayoutObject}->Block(
                     Name => 'CertificateRelationAdd',
                     Data => $Attributes,
                 );
             }
             elsif ( defined $Attributes->{Type} && $Attributes->{Type} eq 'cert' ) {
-                $LayoutObject->Block(
+                $Self->{LayoutObject}->Block(
                     Name => 'CertificateRead',
                     Data => $Attributes,
                 );
@@ -648,21 +643,21 @@ sub _Overview {
         }
     }
     else {
-        $LayoutObject->Block(
+        $Self->{LayoutObject}->Block(
             Name => 'NoDataFoundMsg',
             Data => {},
         );
     }
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'ActionList',
     );
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'ActionAdd',
     );
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'SMIMEFilter',
     );
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'OverviewHint',
     );
 
@@ -672,36 +667,30 @@ sub _Overview {
 sub _SignerCertificateOverview {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $CryptObject  = Kernel::System::Crypt->new(
-        CryptType => 'SMIME',
-    );
-
     if ( !$Param{CertFingerprint} ) {
-        return $LayoutObject->ErrorScreen(
+        return $Self->{LayoutObject}->ErrorScreen(
             Message => 'Needed Fingerprint',
         );
     }
 
-    my @SignerCertResults = $CryptObject->PrivateSearch(
+    my @SignerCertResults = $Self->{CryptObject}->PrivateSearch(
         Search => $Param{CertFingerprint},
     );
     my %SignerCert;
     %SignerCert = %{ $SignerCertResults[0] } if @SignerCertResults;
 
     # get all certificates
-    my @AvailableCerts = $CryptObject->CertificateSearch();
+    my @AvailableCerts = $Self->{CryptObject}->CertificateSearch();
 
     # get all relations for that certificate @ActualRelations
-    my @ActualRelations = $CryptObject->SignerCertRelationGet(
+    my @ActualRelations = $Self->{CryptObject}->SignerCertRelationGet(
         CertFingerprint => $Param{CertFingerprint},
     );
 
     # get needed data from actual relations
     my @RelatedCerts;
     for my $RelatedCert (@ActualRelations) {
-        my @Certificate = $CryptObject->CertificateSearch(
+        my @Certificate = $Self->{CryptObject}->CertificateSearch(
             Search => $RelatedCert->{CAFingerprint},
         );
         push @RelatedCerts, $Certificate[0] if $Certificate[0];
@@ -714,17 +703,17 @@ sub _SignerCertificateOverview {
     @ShowCertList = grep ( !defined $RelatedCerts{ $_->{Fingerprint} }
             && $_->{Fingerprint} ne $Param{CertFingerprint}, @AvailableCerts );
 
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'ActionList',
     );
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'ActionOverview',
     );
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'SignerCertHint',
     );
 
-    $LayoutObject->Block(
+    $Self->{LayoutObject}->Block(
         Name => 'SignerCertificates',
         Data => {
             CertFingerprint => $SignerCert{Subject},
@@ -733,7 +722,7 @@ sub _SignerCertificateOverview {
 
     if (@RelatedCerts) {
         for my $ActualRelation (@RelatedCerts) {
-            $LayoutObject->Block(
+            $Self->{LayoutObject}->Block(
                 Name => 'RelatedCertsRow',
                 Data => {
                     %{$ActualRelation},
@@ -743,14 +732,14 @@ sub _SignerCertificateOverview {
         }
     }
     else {
-        $LayoutObject->Block(
+        $Self->{LayoutObject}->Block(
             Name => 'RelatedCertsNoDataFoundMsg',
         );
     }
 
     if (@ShowCertList) {
         for my $AvailableCert (@ShowCertList) {
-            $LayoutObject->Block(
+            $Self->{LayoutObject}->Block(
                 Name => 'AvailableCertsRow',
                 Data => {
                     %{$AvailableCert},
@@ -760,73 +749,73 @@ sub _SignerCertificateOverview {
         }
     }
     else {
-        $LayoutObject->Block(
+        $Self->{LayoutObject}->Block(
             Name => 'AvailableCertsNoDataFoundMsg',
         );
     }
 
-    my $Output = $LayoutObject->Header();
-    $Output .= $LayoutObject->NavigationBar();
+    my $Output = $Self->{LayoutObject}->Header();
+    $Output .= $Self->{LayoutObject}->NavigationBar();
 
     if ( $Param{Message} ) {
         my %Message = %{ $Param{Message} };
-        $Output .= $LayoutObject->Notify(
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => $Message{Type},
             Info     => $Message{Message},
         );
     }
 
     # check if SMIME is activated in the sysconfig first
-    if ( !$ConfigObject->Get('SMIME') ) {
-        $Output .= $LayoutObject->Notify(
+    if ( !$Self->{ConfigObject}->Get('SMIME') ) {
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => 'Error',
-            Data     => $LayoutObject->{LanguageObject}->Translate( "Please activate %s first!", "SMIME" ),
+            Data     => $Self->{LayoutObject}->{LanguageObject}->Translate( "Please activate %s first!", "SMIME" ),
             Link =>
-                $LayoutObject->{Baselink}
+                $Self->{LayoutObject}->{Baselink}
                 . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Framework;SysConfigSubGroup=Crypt::SMIME',
         );
     }
 
     # check if SMIME Paths are writable
     for my $PathKey (qw(SMIME::CertPath SMIME::PrivatePath)) {
-        if ( !-w $ConfigObject->Get($PathKey) ) {
-            $Output .= $LayoutObject->Notify(
+        if ( !-w $Self->{ConfigObject}->Get($PathKey) ) {
+            $Output .= $Self->{LayoutObject}->Notify(
                 Priority => 'Error',
-                Data     => $LayoutObject->{LanguageObject}->Translate(
+                Data     => $Self->{LayoutObject}->{LanguageObject}->Translate(
                     "%s is not writable!",
-                    "$PathKey " . $ConfigObject->Get($PathKey)
+                    "$PathKey " . $Self->{ConfigObject}->Get($PathKey)
                 ),
                 ,
                 Link =>
-                    $LayoutObject->{Baselink}
+                    $Self->{LayoutObject}->{Baselink}
                     . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Framework;SysConfigSubGroup=Crypt::SMIME',
             );
         }
     }
-    if ( !$CryptObject && $ConfigObject->Get('SMIME') ) {
-        $Output .= $LayoutObject->Notify(
+    if ( !$Self->{CryptObject} && $Self->{ConfigObject}->Get('SMIME') ) {
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => 'Error',
-            Data     => $LayoutObject->{LanguageObject}->Translate( "Cannot create %s!", "CryptObject" ),
+            Data     => $Self->{LayoutObject}->{LanguageObject}->Translate( "Cannot create %s!", "CryptObject" ),
             Link =>
-                $LayoutObject->{Baselink}
+                $Self->{LayoutObject}->{Baselink}
                 . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Framework;SysConfigSubGroup=Crypt::SMIME',
         );
     }
-    if ( $CryptObject && $CryptObject->Check() ) {
-        $Output .= $LayoutObject->Notify(
+    if ( $Self->{CryptObject} && $Self->{CryptObject}->Check() ) {
+        $Output .= $Self->{LayoutObject}->Notify(
             Priority => 'Error',
-            Data     => $LayoutObject->{LanguageObject}->Translate("' . $CryptObject->Check() . '"),
+            Data     => $Self->{LayoutObject}->{LanguageObject}->Translate("' . $Self->{CryptObject}->Check() . '"),
         );
     }
 
-    $Output .= $LayoutObject->Output(
+    $Output .= $Self->{LayoutObject}->Output(
         TemplateFile => 'AdminSMIME',
         Data         => {
             %Param,
             Subtitle => 'Handle Private Certificate Relations',
         },
     );
-    $Output .= $LayoutObject->Footer();
+    $Output .= $Self->{LayoutObject}->Footer();
 
     return $Output;
 }
@@ -834,34 +823,29 @@ sub _SignerCertificateOverview {
 sub _CertificateRead {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $CryptObject  = Kernel::System::Crypt->new(
-        CryptType => 'SMIME',
-    );
-
-    my $Output = $LayoutObject->Header(
+    my $Output = $Self->{LayoutObject}->Header(
         Value => $Param{Filename},
         Type  => 'Small',
     );
 
     # get the certificate content as plain text
-    my $CertificateText = $CryptObject->CertificateRead(%Param);
+    my $CertificateText = $Self->{CryptObject}->CertificateRead(%Param);
 
     return if !$CertificateText;
 
     # convert content to html string
-    $Param{CertificateText} = $LayoutObject->Ascii2Html(
+    $Param{CertificateText} = $Self->{LayoutObject}->Ascii2Html(
         Text           => $CertificateText,
         HTMLResultMode => 1,
     );
 
     $Output
-        .= $LayoutObject->Output(
+        .= $Self->{LayoutObject}->Output(
         TemplateFile => 'AdminSMIMECertRead',
         Data         => \%Param
         );
 
-    $Output .= $LayoutObject->Footer(
+    $Output .= $Self->{LayoutObject}->Footer(
         Type => 'Small',
     );
     return $Output;
