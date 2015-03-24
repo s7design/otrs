@@ -1,5 +1,5 @@
 # --
-# CustomerTiketProcess.t - frontend tests for CustomerTiketProcess
+# CustomerTicketProcess.t - frontend tests for CustomerTicketProcess
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -19,12 +19,12 @@ use Kernel::System::UnitTest::Helper;
 use Kernel::System::UnitTest::Selenium;
 
 # get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $ProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
-my $TransitionObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Transition');
-my $ActivityObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Activity');
+my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
+my $ProcessObject           = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
+my $TransitionObject        = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Transition');
+my $ActivityObject          = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Activity');
 my $TransitionActionsObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::TransitionAction');
-my $ActivityDialogObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::ActivityDialog');
+my $ActivityDialogObject    = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::ActivityDialog');
 
 my $Selenium = Kernel::System::UnitTest::Selenium->new(
     Verbose => 1,
@@ -59,8 +59,8 @@ $Selenium->RunTest(
 
         # import test selenium scenario
         my $Location = $ConfigObject->Get('Home')
-        . "/development/samples/process/TestProcess.yml";
-        $Selenium->find_element( "#FileUpload", 'css' )->send_keys($Location);
+            . "/development/samples/process/TestProcess.yml";
+        $Selenium->find_element( "#FileUpload",                'css' )->send_keys($Location);
         $Selenium->find_element( "#OverwriteExistingEntities", 'css' )->click();
         $Selenium->find_element("//button[\@value='Upload process configuration'][\@type='submit']")->click();
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
@@ -72,7 +72,7 @@ $Selenium->RunTest(
 
         # get process list
         my $List = $ProcessObject->ProcessList(
-            UseEntities     => 1,
+            UseEntities => 1,
             UserID      => $TestUserID,
         );
 
@@ -81,18 +81,18 @@ $Selenium->RunTest(
         my $ProcessName = "TestProcess";
 
         my $Process = $ProcessObject->ProcessGet(
-            EntityID        => $ListReverse{$ProcessName},
-            UserID          => $TestUserID,
+            EntityID => $ListReverse{$ProcessName},
+            UserID   => $TestUserID,
         );
 
         # create and login test customer
         my $TestCustomerUserLogin = $Helper->TestCustomerUserCreate(
-        Groups => ['admin'],
-             ) || die "Did not get test user";
+            Groups => ['admin'],
+        ) || die "Did not get test user";
 
         $Selenium->Login(
-            Type => 'Customer',
-            User => $TestCustomerUserLogin,
+            Type     => 'Customer',
+            User     => $TestCustomerUserLogin,
             Password => $TestCustomerUserLogin,
         );
 
@@ -108,9 +108,10 @@ $Selenium->RunTest(
 
         my $SubjectRandom = 'Subject' . $Helper->GetRandomID();
         my $ContentRandom = 'Content' . $Helper->GetRandomID();
-        $Selenium->find_element( "#Subject", 'css' )->send_keys($SubjectRandom);
-        $Selenium->find_element( "#RichText", 'css' )->send_keys($ContentRandom);
-        $Selenium->find_element( "#Subject", 'css' )->submit();
+        $Selenium->find_element( "#Subject",                   'css' )->send_keys($SubjectRandom);
+        $Selenium->find_element( "#RichText",                  'css' )->send_keys($ContentRandom);
+        $Selenium->find_element( "#QueueID option[value='2']", 'css' )->click();
+        $Selenium->find_element( "#Subject",                   'css' )->submit();
 
         # check for inputed values for first step in test process ticket
         $Self->True(
@@ -133,7 +134,7 @@ $Selenium->RunTest(
 
         # for test scenario to complete, in next step we set ticket priority to 5 very high
         $Selenium->find_element( "#PriorityID option[value='5']", 'css' )->click();
-        $Selenium->find_element( "#Subject", 'css' )->submit();
+        $Selenium->find_element( "#Subject",                      'css' )->submit();
         $Selenium->switch_to_window( $Handles->[0] );
         $Selenium->refresh();
         sleep 1;
@@ -161,7 +162,7 @@ $Selenium->RunTest(
 
         # in this scenarion we just set ticket queue to junk to finish test
         $Selenium->find_element( "#QueueID option[value='3']", 'css' )->click();
-        $Selenium->find_element( "#Subject", 'css' )->submit();
+        $Selenium->find_element( "#Subject",                   'css' )->submit();
 
         # check if we are at the end of test process ticket
         $Self->True(
@@ -173,25 +174,39 @@ $Selenium->RunTest(
             "$EndProcessMessage message found on page",
         );
 
-        # clean up test
-        my $Success;
-        for my $Item ( @{$Process->{Activities}}) {
+        # clean up test data
+        my $TicketID = split( 'TicketID=', $Selenium->get_current_url() );
+
+        # delete test process ticket
+        my $Success = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
+            TicketID => $TicketID,
+            UserID   => $TestUserID,
+        );
+
+        $Self->True(
+            $Success,
+            "Process ticket is deleted - $TicketID",
+        );
+
+        # clean up activities
+        for my $Item ( @{ $Process->{Activities} } ) {
             my $Activity = $ActivityObject->ActivityGet(
-                EntityID      => $Item,
-                UserID        => $TestUserID,
+                EntityID            => $Item,
+                UserID              => $TestUserID,
                 ActivityDialogNames => 0,
             );
 
-            for my $ActivityDialogItem ( @{$Activity->{ActivityDialogs}}) {
+            # clean up activity dialogs
+            for my $ActivityDialogItem ( @{ $Activity->{ActivityDialogs} } ) {
                 my $ActivityDialog = $ActivityDialogObject->ActivityDialogGet(
-                    EntityID      => $ActivityDialogItem,
-                    UserID        => $TestUserID,
+                    EntityID => $ActivityDialogItem,
+                    UserID   => $TestUserID,
                 );
 
                 # delete test activity dialog
                 $Success = $ActivityDialogObject->ActivityDialogDelete(
-                    ID      => $ActivityDialog->{ID},
-                    UserID  => $TestUserID,
+                    ID     => $ActivityDialog->{ID},
+                    UserID => $TestUserID,
                 );
                 $Self->True(
                     $Success,
@@ -201,8 +216,8 @@ $Selenium->RunTest(
 
             # delete test activity
             $Success = $ActivityObject->ActivityDelete(
-                ID      => $Activity->{ID},
-                UserID  => $TestUserID,
+                ID     => $Activity->{ID},
+                UserID => $TestUserID,
             );
 
             $Self->True(
@@ -211,16 +226,17 @@ $Selenium->RunTest(
             );
         }
 
-        for my $Item ( @{$Process->{TransitionActions}}) {
+        # clean up transition actions
+        for my $Item ( @{ $Process->{TransitionActions} } ) {
             my $TransitionAction = $TransitionActionsObject->TransitionActionGet(
-                EntityID      => $Item,
-                UserID        => $TestUserID,
+                EntityID => $Item,
+                UserID   => $TestUserID,
             );
 
             # delete test transition action
             $Success = $TransitionActionsObject->TransitionActionDelete(
-                ID      => $TransitionAction->{ID},
-                UserID  => $TestUserID,
+                ID     => $TransitionAction->{ID},
+                UserID => $TestUserID,
             );
 
             $Self->True(
@@ -229,16 +245,17 @@ $Selenium->RunTest(
             );
         }
 
-        for my $Item ( @{$Process->{Transitions}}) {
+        # clean up transition
+        for my $Item ( @{ $Process->{Transitions} } ) {
             my $Transition = $TransitionObject->TransitionGet(
-                EntityID      => $Item,
-                UserID        => $TestUserID,
+                EntityID => $Item,
+                UserID   => $TestUserID,
             );
 
             # delete test transition
             $Success = $TransitionObject->TransitionDelete(
-                ID      => $Transition->{ID},
-                UserID  => $TestUserID,
+                ID     => $Transition->{ID},
+                UserID => $TestUserID,
             );
 
             $Self->True(
@@ -249,8 +266,8 @@ $Selenium->RunTest(
 
         # delete test process
         $Success = $ProcessObject->ProcessDelete(
-            ID      => $Process->{ID},
-            UserID  => $TestUserID,
+            ID     => $Process->{ID},
+            UserID => $TestUserID,
         );
 
         $Self->True(
@@ -258,9 +275,17 @@ $Selenium->RunTest(
             "Process deleted - $Process->{Name},",
         );
 
+        # synchronize process after deleting test process
+        $Selenium->Login(
+            Type     => 'Agent',
+            User     => $TestUserLogin,
+            Password => $TestUserLogin,
+        );
+        $ScriptAlias = $ConfigObject->Get('ScriptAlias');
+        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
 
-
-    }
+        }
 );
 
 1;
