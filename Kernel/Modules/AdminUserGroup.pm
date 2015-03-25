@@ -295,8 +295,8 @@ sub _Overview {
 
     $LayoutObject->Block( Name => 'Overview' );
 
-    $Self->{LayoutObject}->Block( Name => 'ActionList' );
-    $Self->{LayoutObject}->Block( Name => 'NewActions' );
+    $LayoutObject->Block( Name => 'ActionList' );
+    $LayoutObject->Block( Name => 'NewActions' );
 
     $LayoutObject->Block( Name => 'UserFilter' );
     $LayoutObject->Block( Name => 'GroupFilter' );
