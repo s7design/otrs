@@ -34,29 +34,6 @@ sub Run {
     # get needed objects
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    # get config data
-    $Self->{StartHit} = int( $ParamObject->GetParam( Param => 'StartHit' ) || 1 );
-    $Self->{SearchLimit} = $ConfigObject->Get('Ticket::CustomerTicketSearch::SearchLimit')
-        || 200;
-    $Self->{SearchPageShown} = $ConfigObject->Get('Ticket::CustomerTicketSearch::SearchPageShown') || 40;
-    $Self->{SortBy} = $ParamObject->GetParam( Param => 'SortBy' )
-        || $ConfigObject->Get('Ticket::CustomerTicketSearch::SortBy::Default')
-        || 'Age';
-    $Self->{Order} = $ParamObject->GetParam( Param => 'Order' )
-        || $ConfigObject->Get('Ticket::CustomerTicketSearch::Order::Default')
-        || 'Down';
-
-    # disable output of customer company tickets
-    $Self->{DisableCompanyTickets} = $ConfigObject->Get('Ticket::Frontend::CustomerDisableCompanyTicketAccess');
-
-    $Self->{Profile}        = $ParamObject->GetParam( Param => 'Profile' )        || '';
-    $Self->{SaveProfile}    = $ParamObject->GetParam( Param => 'SaveProfile' )    || '';
-    $Self->{TakeLastSearch} = $ParamObject->GetParam( Param => 'TakeLastSearch' ) || '';
-    $Self->{SelectTemplate} = $ParamObject->GetParam( Param => 'SelectTemplate' ) || '';
-    $Self->{EraseTemplate}  = $ParamObject->GetParam( Param => 'EraseTemplate' )  || '';
-
-    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $Config = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
@@ -93,11 +70,13 @@ sub Run {
     }
     $DynamicField = \@CustomerDynamicFields;
 
+    my $Profile        = $ParamObject->GetParam( Param => 'Profile' )        || '';
+
     # check request
-    if ( $ParamObject->GetParam( Param => 'SearchTemplate' ) && $Self->{Profile} ) {
+    if ( $ParamObject->GetParam( Param => 'SearchTemplate' ) && $Profile ) {
         return $LayoutObject->Redirect(
             OP =>
-                "Action=CustomerTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=$Self->{Profile}",
+                "Action=CustomerTicketSearch;Subaction=Search;TakeLastSearch=1;SaveProfile=1;Profile=$Profile",
         );
     }
 
@@ -107,14 +86,27 @@ sub Run {
     # get single params
     my %GetParam;
 
+    # get config data
+    my $StartHit = int( $ParamObject->GetParam( Param => 'StartHit' ) || 1 );
+    my $SearchLimit = $ConfigObject->Get('Ticket::CustomerTicketSearch::SearchLimit')
+        || 200;
+    my $SearchPageShown = $ConfigObject->Get('Ticket::CustomerTicketSearch::SearchPageShown') || 40;
+    my $SortBy = $ParamObject->GetParam( Param => 'SortBy' )
+        || $ConfigObject->Get('Ticket::CustomerTicketSearch::SortBy::Default')
+        || 'Age';
+    my $CurrentOrder = $ParamObject->GetParam( Param => 'Order' )
+        || $ConfigObject->Get('Ticket::CustomerTicketSearch::Order::Default')
+        || 'Down';
+
     # get search profile object
     my $SearchProfileObject = $Kernel::OM->Get('Kernel::System::SearchProfile');
+    my $TakeLastSearch = $ParamObject->GetParam( Param => 'TakeLastSearch' ) || '';
 
     # load profiles string params (press load profile)
-    if ( ( $Self->{Subaction} eq 'LoadProfile' && $Self->{Profile} ) || $Self->{TakeLastSearch} ) {
+    if ( ( $Self->{Subaction} eq 'LoadProfile' && $Profile ) || $TakeLastSearch ) {
         %GetParam = $SearchProfileObject->SearchProfileGet(
             Base      => 'CustomerTicketSearch',
-            Name      => $Self->{Profile},
+            Name      => $Profile,
             UserLogin => $Self->{UserLogin},
         );
     }
@@ -214,7 +206,7 @@ sub Run {
         $GetParam{ResultForm} = '';
     }
     if ( $GetParam{ResultForm} eq 'Print' ) {
-        $Self->{SearchPageShown} = $Self->{SearchLimit};
+        $SearchPageShown = $SearchLimit;
     }
 
     # check request
@@ -234,19 +226,24 @@ sub Run {
     # get ticket object
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
+    # get profil search and template data
+    my $SaveProfile    = $ParamObject->GetParam( Param => 'SaveProfile' )    || '';
+    my $SelectTemplate = $ParamObject->GetParam( Param => 'SelectTemplate' ) || '';
+    my $EraseTemplate  = $ParamObject->GetParam( Param => 'EraseTemplate' )  || '';
+
     # show result page
-    if ( $Self->{Subaction} eq 'Search' && !$Self->{EraseTemplate} ) {
+    if ( $Self->{Subaction} eq 'Search' && !$EraseTemplate ) {
 
         # fill up profile name (e.g. with last-search)
-        if ( !$Self->{Profile} || !$Self->{SaveProfile} ) {
-            $Self->{Profile} = 'last-search';
+        if ( !$Profile || !$SaveProfile ) {
+            $Profile = 'last-search';
         }
 
         # store search URL in LastScreenOverview to make sure the
         # customer can use the "back" link as expected
-        my $URL = "Action=CustomerTicketSearch;Subaction=Search;Profile=$Self->{Profile};"
-            . "SortBy=$Self->{SortBy};Order=$Self->{Order};TakeLastSearch=1;"
-            . "StartHit=$Self->{StartHit}";
+        my $URL = "Action=CustomerTicketSearch;Subaction=Search;Profile=$Profile;"
+            . "SortBy=$SortBy;Order=$CurrentOrder;TakeLastSearch=1;"
+            . "StartHit=$StartHit";
         $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'LastScreenOverview',
@@ -254,15 +251,15 @@ sub Run {
         );
 
         # save search profile (under last-search or real profile name)
-        $Self->{SaveProfile} = 1;
+        $SaveProfile = 1;
 
         # remember last search values
-        if ( $Self->{SaveProfile} && $Self->{Profile} ) {
+        if ( $SaveProfile && $Profile ) {
 
             # remove old profile stuff
             $SearchProfileObject->SearchProfileDelete(
                 Base      => 'CustomerTicketSearch',
-                Name      => $Self->{Profile},
+                Name      => $Profile,
                 UserLogin => $Self->{UserLogin},
             );
 
@@ -271,7 +268,7 @@ sub Run {
                 if ( $GetParam{$Key} ) {
                     $SearchProfileObject->SearchProfileAdd(
                         Base      => 'CustomerTicketSearch',
-                        Name      => $Self->{Profile},
+                        Name      => $Profile,
                         Key       => $Key,
                         Value     => $GetParam{$Key},
                         UserLogin => $Self->{UserLogin},
@@ -449,17 +446,19 @@ sub Run {
             }
         }
 
-        # disable output of company tickets if configured
-        if ( $Self->{DisableCompanyTickets} ) {
+        # disable output of customer company tickets
+        my $DisableCompanyTickets = $ConfigObject->Get('Ticket::Frontend::CustomerDisableCompanyTicketAccess');
+
+        if ( $DisableCompanyTickets ) {
             $GetParam{CustomerUserLogin} = $Self->{UserID};
         }
 
         # perform ticket search
         my @ViewableTicketIDs = $TicketObject->TicketSearch(
             Result              => 'ARRAY',
-            SortBy              => $Self->{SortBy},
-            OrderBy             => $Self->{Order},
-            Limit               => $Self->{SearchLimit},
+            SortBy              => $SortBy,
+            OrderBy             => $CurrentOrder,
+            Limit               => $SearchLimit,
             CustomerUserID      => $Self->{UserID},
             ConditionInline     => $Config->{ExtendedSearchCondition},
             ContentSearchPrefix => '*',
@@ -774,10 +773,10 @@ sub Run {
                 );
             }
             my $Output = $LayoutObject->PrintHeader( Width => 800 );
-            if ( @ViewableTicketIDs == $Self->{SearchLimit} ) {
+            if ( @ViewableTicketIDs == $SearchLimit ) {
                 $Param{Warning} = $LayoutObject->{LanguageObject}->Translate(
                     "Reached max. count of %s search hits!",
-                    $Self->{SearchLimit},
+                    $SearchLimit,
                 );
             }
             $Output .= $LayoutObject->Output(
@@ -839,14 +838,14 @@ sub Run {
                     my $CSS   = '';
                     my $Order = 'Down';
                     if (
-                        $Self->{SortBy}
+                        $SortBy
                         && (
-                            $Self->{SortBy} eq
+                            $SortBy eq
                             ( 'DynamicField_' . $DynamicFieldConfig->{Name} )
                         )
                         )
                     {
-                        if ( $Self->{Order} && ( $Self->{Order} eq 'Up' ) ) {
+                        if ( $CurrentOrder && ( $CurrentOrder eq 'Up' ) ) {
                             $Order = 'Down';
                             $CSS .= ' SortAscending';
                         }
@@ -898,8 +897,8 @@ sub Run {
 
                 # build search result
                 if (
-                    $Counter >= $Self->{StartHit}
-                    && $Counter < ( $Self->{SearchPageShown} + $Self->{StartHit} )
+                    $Counter >= $StartHit
+                    && $Counter < ( $SearchPageShown + $StartHit )
                     )
                 {
 
@@ -1011,42 +1010,50 @@ sub Run {
         my %IDMap = (
             StateIDs => {
                 Name        => 'State',
-                Object      => 'StateObject',
+                Object      => 'State',
                 Method      => 'StateLookup',
                 Key         => 'StateID',
                 Translation => 1,
             },
             StateTypeIDs => {
                 Name        => 'StateType',
-                Object      => 'StateObject',
+                Object      => 'State',
                 Method      => 'StateTypeLookup',
                 Key         => 'StateTypeID',
                 Translation => 1,
             },
             PriorityIDs => {
                 Name        => 'Priority',
-                Object      => 'PriorityObject',
+                Object      => 'Priority',
                 Method      => 'PriorityLookup',
                 Key         => 'PriorityID',
                 Translation => 1,
             },
             QueueIDs => {
                 Name        => 'Queue',
-                Object      => 'QueueObject',
+                Object      => 'Queue',
                 Method      => 'QueueLookup',
                 Key         => 'QueueID',
                 Translation => 0,
             },
             OwnerIDs => {
                 Name        => 'Owner',
-                Object      => 'UserObject',
+                Object      => 'User',
                 Method      => 'UserLookup',
                 Key         => 'UserID',
                 Translation => 0,
             },
             ResponsibleIDs => {
                 Name        => 'Responsible',
-                Object      => 'UserObject',
+                Object      => 'User',
+                Method      => 'UserLookup',
+                Key         => 'UserID',
+                Translation => 0,
+            },
+
+            ResponsibleIDs => {
+                Name        => 'Responsible',
+                Object      => 'User',
                 Method      => 'UserLookup',
                 Key         => 'UserID',
                 Translation => 0,
@@ -1068,14 +1075,20 @@ sub Run {
             my $Translation = $IDMap{$Key}->{Translation};
             my $Value;
 
+            # get appropriate object
+            my $LookupObject;
+            if ($IDMap{$Key}->{Name}) {
+                $LookupObject = $Kernel::OM->Get('Kernel::System::'.$Object);
+            }
+
             if ( ref $GetParam{$Key} eq 'ARRAY' ) {
                 for my $ItemRaw ( @{ $GetParam{$Key} } ) {
                     my $Item = $ItemRaw;
                     if ($Value) {
                         $Value .= '+';
                     }
-                    if ( $Self->{$Object} ) {
-                        $Item = $Self->{$Object}->$Method( $MethodKey => $Item );
+                    if ( $LookupObject ) {
+                        $Item = $LookupObject->$Method( $MethodKey => $Item );
                         if ($Translation) {
                             $Item = $LayoutObject->{LanguageObject}->Translate($Item);
                         }
@@ -1085,14 +1098,15 @@ sub Run {
             }
             else {
                 my $Item = $GetParam{$Key};
-                if ( $Self->{$Object} ) {
-                    $Item = $Self->{$Object}->$Method( $MethodKey => $Item );
+                if ( $LookupObject ) {
+                    $Item = $LookupObject->$Method( $MethodKey => $Item );
                     if ($Translation) {
                         $Item = $LayoutObject->{LanguageObject}->Translate($Item);
                     }
                 }
                 $Value = $Item;
             }
+
             if ( $Key eq 'TimeSearchType' ) {
 
                 if ( $GetParam{TimeSearchType} eq 'TimeSlot' ) {
@@ -1157,16 +1171,16 @@ sub Run {
             );
         }
 
-        my $Link = 'Profile=' . $LayoutObject->LinkEncode( $Self->{Profile} ) . ';';
-        $Link .= 'SortBy=' . $LayoutObject->LinkEncode( $Self->{SortBy} ) . ';';
-        $Link .= 'Order=' . $LayoutObject->LinkEncode( $Self->{Order} ) . ';';
+        my $Link = 'Profile=' . $LayoutObject->LinkEncode( $Profile ) . ';';
+        $Link .= 'SortBy=' . $LayoutObject->LinkEncode( $SortBy ) . ';';
+        $Link .= 'Order=' . $LayoutObject->LinkEncode( $CurrentOrder ) . ';';
         $Link .= 'TakeLastSearch=1;';
 
         # build search navigation bar
         my %PageNav = $LayoutObject->PageNavBar(
-            Limit     => $Self->{SearchLimit},
-            StartHit  => $Self->{StartHit},
-            PageShown => $Self->{SearchPageShown},
+            Limit     => $SearchLimit,
+            StartHit  => $StartHit,
+            PageShown => $SearchPageShown,
             AllHits   => $Counter,
             Action    => "Action=CustomerTicketSearch;Subaction=Search",
             Link      => $Link,
@@ -1174,7 +1188,7 @@ sub Run {
         );
 
         # show footer filter - show only if more the one page is available
-        if ( $PageNav{TotalHits} && ( $PageNav{TotalHits} > $Self->{SearchPageShown} ) ) {
+        if ( $PageNav{TotalHits} && ( $PageNav{TotalHits} > $SearchPageShown ) ) {
             $LayoutObject->Block(
                 Name => 'Pagination',
                 Data => {
@@ -1185,7 +1199,7 @@ sub Run {
         }
 
         my $Order = 'Down';
-        if ( $Self->{Order} eq 'Down' ) {
+        if ( $CurrentOrder eq 'Down' ) {
             $Order = 'Up';
         }
         my $Sort       = '';
@@ -1201,13 +1215,13 @@ sub Run {
             $Sort = 'SortDescending';
         }
 
-        if ( $Self->{SortBy} eq 'State' ) {
+        if ( $SortBy eq 'State' ) {
             $StateSort = $Sort;
         }
-        if ( $Self->{SortBy} eq 'Ticket' ) {
+        if ( $SortBy eq 'Ticket' ) {
             $TicketSort = $Sort;
         }
-        if ( $Self->{SortBy} eq 'Age' ) {
+        if ( $SortBy eq 'Age' ) {
             $AgeSort = $Sort;
         }
 
@@ -1223,7 +1237,7 @@ sub Run {
                 StateSort  => $StateSort,
                 TicketSort => $TicketSort,
                 AgeSort    => $AgeSort,
-                Profile    => $Self->{Profile},
+                Profile    => $Profile,
             },
         );
 
@@ -1236,16 +1250,16 @@ sub Run {
     else {
 
         # delete profile
-        if ( $Self->{EraseTemplate} && $Self->{Profile} ) {
+        if ( $EraseTemplate && $Profile ) {
 
             # remove old profile stuff
             $SearchProfileObject->SearchProfileDelete(
                 Base      => 'CustomerTicketSearch',
-                Name      => $Self->{Profile},
+                Name      => $Profile,
                 UserLogin => $Self->{UserLogin},
             );
             %GetParam = ();
-            $Self->{Profile} = '';
+            $Profile = '';
         }
 
         # create HTML strings for all dynamic fields
@@ -1341,7 +1355,7 @@ sub Run {
         $Output .= $LayoutObject->CustomerNavigationBar();
         $Output .= $Self->MaskForm(
             %GetParam,
-            Profile          => $Self->{Profile},
+            Profile          => $Profile,
             Area             => 'Customer',
             DynamicFieldHTML => \%DynamicFieldHTML
         );
