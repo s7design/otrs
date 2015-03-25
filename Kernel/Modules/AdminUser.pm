@@ -12,8 +12,6 @@ package Kernel::Modules::AdminUser;
 use strict;
 use warnings;
 
-use Kernel::System::CheckItem;
-
 our $ObjectManagerDisabled = 1;
 
 sub new {
@@ -29,14 +27,16 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # get needed objects
     my $ParamObject     = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject    = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
     my $UserObject      = $Kernel::OM->Get('Kernel::System::User');
     my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
-    my $Search          = $ParamObject->GetParam( Param => 'Search' ) || '';
     my $CheckItemObject = $Kernel::OM->Get('Kernel::System::CheckItem');
+
+    my $Search = $ParamObject->GetParam( Param => 'Search' ) || '';
 
     # ------------------------------------------------------------ #
     #  switch to user
@@ -476,6 +476,7 @@ sub Run {
 sub _Edit {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block(
@@ -624,6 +625,7 @@ sub _Edit {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # when there is no data to show, a message is displayed on the table with this colspan
@@ -648,6 +650,7 @@ sub _Overview {
         Data => \%Param,
     );
 
+    # get config object
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     if ( $ConfigObject->Get('SwitchToUser') ) {
@@ -657,6 +660,7 @@ sub _Overview {
         );
     }
 
+    # get user object
     my $UserObject = $Kernel::OM->Get('Kernel::System::User');
 
     my %List = $UserObject->UserSearch(
