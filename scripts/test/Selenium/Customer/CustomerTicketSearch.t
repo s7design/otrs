@@ -97,6 +97,43 @@ $Selenium->RunTest(
             "Ticket $TitleRandom found on page",
         );
 
+        $Selenium->find_element( "← Change search options", 'link_text' )->click();
+
+        # input more search filters, result should be 'No data found'
+        $Selenium->find_element( "#TicketNumber", 'css' )->send_keys( "123456789012345" );
+        $Selenium->find_element( "#StateIDs option[value='1']",    'css' )->click();
+        $Selenium->find_element( "#StateIDs option[value='4']",    'css' )->click();
+        $Selenium->find_element( "#PriorityIDs option[value='2']",    'css' )->click();
+        $Selenium->find_element( "#PriorityIDs option[value='3']",    'css' )->click();
+        $Selenium->find_element( "#TicketNumber", 'css' )->submit();
+
+        # check for expected result
+        $Self->True(
+            index( $Selenium->get_page_source(), "No data found." ) > -1,
+            "Ticket is not found on page",
+        );
+
+        # check search filter data
+        $Self->True(
+            index( $Selenium->get_page_source(), "Search Results for:" ) > -1,
+            "Filter data is found - Search Results for:",
+        );
+
+        $Self->True(
+            index( $Selenium->get_page_source(), "TicketNumber: 123456789012345" ) > -1,
+            "Filter data is found - TicketNumber: 123456789012345",
+        );
+
+        $Self->True(
+            index( $Selenium->get_page_source(), "State: new+open" ) > -1,
+            "Filter data is found - State: new+open",
+        );
+
+        $Self->True(
+            index( $Selenium->get_page_source(), "Priority: 2 low+3 normal" ) > -1,
+            "Filter data is found - Priority: 2 low+3 normal",
+        );
+
         }
 );
 
