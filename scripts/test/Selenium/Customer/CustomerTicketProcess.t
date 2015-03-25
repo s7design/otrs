@@ -175,17 +175,17 @@ $Selenium->RunTest(
         );
 
         # clean up test data
-        my $TicketID = split( 'TicketID=', $Selenium->get_current_url() );
+        my @TicketID = split( 'TicketID=', $Selenium->get_current_url() );
 
         # delete test process ticket
         my $Success = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
-            TicketID => $TicketID,
+            TicketID => $TicketID[1],
             UserID   => $TestUserID,
         );
 
         $Self->True(
             $Success,
-            "Process ticket is deleted - $TicketID",
+            "Process ticket is deleted - $TicketID[1]",
         );
 
         # clean up activities

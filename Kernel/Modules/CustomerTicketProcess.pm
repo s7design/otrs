@@ -13,21 +13,6 @@ package Kernel::Modules::CustomerTicketProcess;
 use strict;
 use warnings;
 
-use Kernel::System::ProcessManagement::Activity;
-use Kernel::System::ProcessManagement::ActivityDialog;
-use Kernel::System::ProcessManagement::TransitionAction;
-use Kernel::System::ProcessManagement::Transition;
-use Kernel::System::ProcessManagement::Process;
-use Kernel::System::DynamicField;
-use Kernel::System::DynamicField::Backend;
-use Kernel::System::State;
-use Kernel::System::Service;
-use Kernel::System::SLA;
-use Kernel::System::Group;
-use Kernel::System::Lock;
-use Kernel::System::Priority;
-use Kernel::System::CustomerUser;
-use Kernel::System::Type;
 use Kernel::System::VariableCheck qw(:all);
 
 our $ObjectManagerDisabled = 1;
@@ -38,28 +23,6 @@ sub new {
     # allocate new hash for object
     my $Self = {%Param};
     bless $Self, $Type;
-
-    $Self->{StateObject}            = Kernel::System::State->new(%Param);
-    $Self->{LockObject}             = Kernel::System::Lock->new(%Param);
-    $Self->{PriorityObject}         = Kernel::System::Priority->new(%Param);
-    $Self->{ServiceObject}          = Kernel::System::Service->new(%Param);
-    $Self->{SLAObject}              = Kernel::System::SLA->new(%Param);
-    $Self->{GroupObject}            = Kernel::System::Group->new(%Param);
-    $Self->{ActivityObject}         = Kernel::System::ProcessManagement::Activity->new(%Param);
-    $Self->{ActivityDialogObject}   = Kernel::System::ProcessManagement::ActivityDialog->new(%Param);
-    $Self->{TransitionActionObject} = Kernel::System::ProcessManagement::TransitionAction->new(%Param);
-    $Self->{TransitionObject}       = Kernel::System::ProcessManagement::Transition->new(%Param);
-    $Self->{DynamicFieldObject}     = Kernel::System::DynamicField->new(%Param);
-    $Self->{BackendObject}          = Kernel::System::DynamicField::Backend->new(%Param);
-    $Self->{ProcessObject}          = Kernel::System::ProcessManagement::Process->new(
-        ActivityObject         => $Self->{ActivityObject},
-        ActivityDialogObject   => $Self->{ActivityDialogObject},
-        TransitionObject       => $Self->{TransitionObject},
-        TransitionActionObject => $Self->{TransitionActionObject},
-        %Param,
-    );
-    $Self->{CustomerUserObject} = Kernel::System::CustomerUser->new(%Param);
-    $Self->{TypeObject}         = Kernel::System::Type->new(%Param);
 
     # global config hash for id dissolution
     $Self->{NameToID} = {
@@ -4197,16 +4160,17 @@ sub _LookupValue {
     }
 
     my $Value;
+    my $Object->{$ObjectName}  = $Kernel::OM->Get('Kernel::System::'.$FieldWithoutID);
 
     # check if the backend module has the needed *Lookup sub
     if (
-        $Self->{$ObjectName}
-        && $Self->{$ObjectName}->can($FunctionName)
+        $Object->{$ObjectName}
+        && $Object->{$ObjectName}->can($FunctionName)
         )
     {
 
         # call the *Lookup sub and get the value
-        $Value = $Self->{$ObjectName}->$FunctionName(
+        $Value = $Object->{$ObjectName}->$FunctionName(
             $LookupFieldName => $Param{Value},
         );
     }
