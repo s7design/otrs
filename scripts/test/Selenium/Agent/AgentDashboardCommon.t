@@ -17,7 +17,7 @@ use vars (qw($Self));
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Selenium' => {
         Verbose => 1,
-    }
+        }
 );
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
@@ -28,7 +28,7 @@ $Selenium->RunTest(
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
                 RestoreSystemConfiguration => 0,
-            }
+                }
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
@@ -76,7 +76,7 @@ $Selenium->RunTest(
             "Setting for toggle widgets found on page",
         );
 
-    }
+        }
 );
 
 1;

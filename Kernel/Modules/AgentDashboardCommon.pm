@@ -41,7 +41,6 @@ sub new {
     # create extra needed objects
     $Self->{DynamicFieldObject} = Kernel::System::DynamicField->new(%Param);
     $Self->{BackendObject}      = Kernel::System::DynamicField::Backend->new(%Param);
-    $Self->{StatsObject}        = Kernel::System::Stats->new(%Param);
 
     return $Self;
 }
@@ -81,7 +80,16 @@ sub Run {
     # Get all configured statistics from the system that should be shown as a dashboard widget
     #   and register them dynamically in the configuration. This does not work in IE8.
     if ( $Self->{Action} eq 'AgentDashboard' && !$IsIE8 ) {
-        my $StatsHash = $Self->{StatsObject}->StatsListGet();
+
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::System::Stats' => {
+                UserID => $Self->{UserID},
+                }
+        );
+
+        my $StatsObject = $Kernel::OM->Get('Kernel::System::Stats');
+
+        my $StatsHash = $StatsObject->StatsListGet();
 
         if ( IsHashRefWithData($StatsHash) ) {
             STATID:
