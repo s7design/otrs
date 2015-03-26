@@ -27,6 +27,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # get needed objects
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
@@ -291,6 +292,7 @@ sub _Change {
 sub _Overview {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     $LayoutObject->Block( Name => 'Overview' );

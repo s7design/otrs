@@ -13,23 +13,25 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::System::UnitTest::Helper;
-use Kernel::System::UnitTest::Selenium;
+our $ObjectManagerDisabled = 1;
 
 # get needed objects
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-my $Selenium = Kernel::System::UnitTest::Selenium->new(
+$Kernel::OM->ObjectParamAdd(
     Verbose => 1,
 );
+my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
-        my $Helper = Kernel::System::UnitTest::Helper->new(
+        $Kernel::OM->ObjectParamAdd(
             RestoreSystemConfiguration => 0,
         );
+
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
@@ -88,7 +90,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "table tbody tr td", 'css' );
 
         # check add job page
-        $Selenium->find_element( "a.Create", 'css' )->click();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=Update' )]")->click();
 
         my $Element = $Selenium->find_element( "#Profile", 'css' );
         $Element->is_displayed();

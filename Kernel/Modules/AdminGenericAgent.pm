@@ -12,8 +12,6 @@ package Kernel::Modules::AdminGenericAgent;
 use strict;
 use warnings;
 
-use Kernel::System::Event;
-use Kernel::System::DynamicField;
 use Kernel::System::VariableCheck qw(:all);
 
 our $ObjectManagerDisabled = 1;
@@ -25,35 +23,21 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    $Self->{DynamicFieldObject} = Kernel::System::DynamicField->new(%Param);
-    $Self->{EventObject}        = Kernel::System::Event->new(
-        %Param,
-        DynamicFieldObject => $Self->{DynamicFieldObject},
-    );
-
-    # get the dynamic fields for ticket object
-    $Self->{DynamicField} = $Self->{DynamicFieldObject}->DynamicFieldListGet(
-        Valid      => 1,
-        ObjectType => ['Ticket'],
-    );
-
     return $Self;
 }
 
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
-    # create local object
-    my $CheckItemObject = Kernel::System::CheckItem->new( %{$Self} );
+    # create needed objects
+    my $LayoutObject    = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $CheckItemObject = $Kernel::OM->Get('Kernel::System::CheckItem');
+    my $ParamObject     = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     # secure mode message (don't allow this action till secure mode is enabled)
     if ( !$Kernel::OM->Get('Kernel::Config')->Get('SecureMode') ) {
         return $LayoutObject->SecureMode();
     }
-
-    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     # get config data
     $Self->{Profile}    = $ParamObject->GetParam( Param => 'Profile' )    || '';
@@ -173,11 +157,19 @@ sub Run {
         # to store dynamic fields profile data
         my %DynamicFieldValues;
 
+        my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+        # get the dynamic fields for ticket object
+        my $DynamicField = $DynamicFieldObject->DynamicFieldListGet(
+            Valid      => 1,
+            ObjectType => ['Ticket'],
+        );
+
         my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
         # cycle trough the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+        for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             # extract the dynamic field value form the web request
@@ -213,7 +205,7 @@ sub Run {
         # get Dynamic fields for search from web request
         # cycle trough the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+        for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             # get search field preferences
@@ -912,9 +904,17 @@ sub _MaskUpdate {
 
     my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+    # get the dynamic fields for ticket object
+    my $DynamicField = $DynamicFieldObject->DynamicFieldListGet(
+        Valid      => 1,
+        ObjectType => ['Ticket'],
+    );
+
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+    for my $DynamicFieldConfig ( @{$DynamicField} ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         # get search field preferences
@@ -963,7 +963,7 @@ sub _MaskUpdate {
 
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+    for my $DynamicFieldConfig ( @{$DynamicField} ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         my $PossibleValuesFilter;
@@ -1038,8 +1038,13 @@ sub _MaskUpdate {
         );
     }
 
+    $Kernel::OM->ObjectParamAdd(
+        DynamicFieldObject => $Self->{DynamicFieldObject},
+    );
+    my $EventObject = $Kernel::OM->Get('Kernel::System::Event');
+
     # get registered event triggers from the config
-    my %RegisteredEvents = $Self->{EventObject}->EventList(
+    my %RegisteredEvents = $EventObject->EventList(
         ObjectTypes => [ 'Ticket', 'Article' ],
     );
 
@@ -1146,9 +1151,17 @@ sub _MaskRun {
 
     my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+    # get the dynamic fields for ticket object
+    my $DynamicField = $DynamicFieldObject->DynamicFieldListGet(
+        Valid      => 1,
+        ObjectType => ['Ticket'],
+    );
+
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
+    for my $DynamicFieldConfig ( @{$DynamicField} ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         # get search field preferences

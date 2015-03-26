@@ -11,24 +11,26 @@ use strict;
 use warnings;
 use utf8;
 
+our $ObjectManagerDisabled = 1;
+
 use vars (qw($Self));
 
-use Kernel::System::UnitTest::Helper;
-use Kernel::System::UnitTest::Selenium;
-
-# get needed objects
+# get config object
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
-my $Selenium = Kernel::System::UnitTest::Selenium->new(
+# get selenium object
+$Kernel::OM->ObjectParamAdd(
     Verbose => 1,
 );
+my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
-        my $Helper = Kernel::System::UnitTest::Helper->new(
+        $Kernel::OM->ObjectParamAdd(
             RestoreSystemConfiguration => 0,
         );
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
