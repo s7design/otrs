@@ -179,11 +179,13 @@ sub CustomerSearch {
     my $Valid = defined $Param{Valid} ? $Param{Valid} : 1;
 
     # check needed stuff
-    if (   !$Param{Search}
+    if (
+        !$Param{Search}
         && !$Param{UserLogin}
         && !$Param{PostMasterSearch}
         && !$Param{CustomerID}
-        && !$Param{CustomerIDRaw} )
+        && !$Param{CustomerIDRaw}
+        )
     {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -310,10 +312,10 @@ sub CustomerSearch {
         push @Bind, \$CustomerIDRaw;
 
         if ( $Self->{CaseSensitive} ) {
-            $SQL .= "$Self->{CustomerID} = ? $LikeEscapeString";
+            $SQL .= "$Self->{CustomerID} = ? ";
         }
         else {
-            $SQL .= "LOWER($Self->{CustomerID}) = LOWER(?) $LikeEscapeString";
+            $SQL .= "LOWER($Self->{CustomerID}) = LOWER(?) ";
         }
     }
 
