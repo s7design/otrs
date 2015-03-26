@@ -12,8 +12,6 @@ package Kernel::Modules::AgentCustomerSearch;
 use strict;
 use warnings;
 
-use Kernel::System::VariableCheck qw(:all);
-
 our $ObjectManagerDisabled = 1;
 
 sub new {
@@ -38,6 +36,7 @@ sub Run {
     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
     my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
 
+    # get config for frontend
     $Self->{Config} = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
 
     # search customers
