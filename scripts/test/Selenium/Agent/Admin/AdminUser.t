@@ -20,15 +20,20 @@ my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
 # get selenium object
 $Kernel::OM->ObjectParamAdd(
-    Verbose => 1,
+    'Kernel::System::UnitTest::Selenium' => {
+        Verbose => 1,
+        }
 );
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
+        # get helper object
         $Kernel::OM->ObjectParamAdd(
-            RestoreSystemConfiguration => 0,
+            'Kernel::System::UnitTest::Helper' => {
+                RestoreSystemConfiguration => 0,
+                }
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
