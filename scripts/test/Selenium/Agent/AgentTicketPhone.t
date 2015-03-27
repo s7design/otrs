@@ -17,7 +17,7 @@ use vars (qw($Self));
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Selenium' => {
         Verbose => 1,
-    }
+        }
 );
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
@@ -28,7 +28,7 @@ $Selenium->RunTest(
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
                 RestoreSystemConfiguration => 1,
-            }
+                }
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
@@ -41,7 +41,7 @@ $Selenium->RunTest(
 
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => ['admin', 'users'],
+            Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -84,7 +84,7 @@ $Selenium->RunTest(
 
         # add test customer for testing
         my $TestCustomer = 'Customer' . $Helper->GetRandomID();
-        my $UserLogin = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+        my $UserLogin    = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
             Source         => 'CustomerUser',
             UserFirstname  => $TestCustomer,
             UserLastname   => $TestCustomer,
@@ -97,15 +97,15 @@ $Selenium->RunTest(
 
         # create test phone ticket
         my $AutoCompleteString = "\"$TestCustomer $TestCustomer\" <$TestCustomer\@localhost.com> ($TestCustomer)";
-        my $TicketSubject = "Selenium Ticket";
-        my $TicketBody = "Selenium body test";
+        my $TicketSubject      = "Selenium Ticket";
+        my $TicketBody         = "Selenium body test";
         $Selenium->find_element( "#FromCustomer", 'css' )->send_keys($TestCustomer);
         sleep 0.5;
         $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
         $Selenium->find_element( "#Dest option[value='2||Raw']", 'css' )->click();
-        $Selenium->find_element( "#Subject", 'css' )->send_keys($TicketSubject);
-        $Selenium->find_element( "#RichText", 'css' )->send_keys($TicketBody);
-        $Selenium->find_element( "#Subject", 'css' )->submit();
+        $Selenium->find_element( "#Subject",                     'css' )->send_keys($TicketSubject);
+        $Selenium->find_element( "#RichText",                    'css' )->send_keys($TicketBody);
+        $Selenium->find_element( "#Subject",                     'css' )->submit();
 
         # go to ticket zoom page of created test ticket
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom' )]")->click();
@@ -127,16 +127,16 @@ $Selenium->RunTest(
         # delete created test customer user
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
         $TestCustomer = $DBObject->Quote($TestCustomer);
-            my $Success  = $DBObject->Do(
-                SQL  => "DELETE FROM customer_user WHERE login = ?",
-                Bind => [ \$TestCustomer ],
-            );
-            $Self->True(
-                $Success,
-                "Delete customer user - $TestCustomer",
-            );
+        my $Success = $DBObject->Do(
+            SQL  => "DELETE FROM customer_user WHERE login = ?",
+            Bind => [ \$TestCustomer ],
+        );
+        $Self->True(
+            $Success,
+            "Delete customer user - $TestCustomer",
+        );
 
-    }
+        }
 );
 
 1;
