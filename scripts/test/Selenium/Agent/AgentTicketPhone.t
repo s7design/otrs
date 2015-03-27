@@ -32,10 +32,25 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # get sysconfig object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
         # do not check RichText
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'Frontend::RichText',
+            Value => 0
+        );
+
+        # do not check service and type
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Service',
+            Value => 0
+        );
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Type',
             Value => 0
         );
 
@@ -55,8 +70,8 @@ $Selenium->RunTest(
 
         # check page
         for my $ID (
-            qw(FromCustomer CustomerID Dest ServiceID SLAID NewUserID Subject OptionCustomer RichText FileUpload
-            NextStateID Month Day Year DayDatepickerIcon Hour Minute PriorityID TimeUnits submitRichText)
+            qw(FromCustomer CustomerID Dest Subject RichText FileUpload
+            NextStateID PriorityID submitRichText)
             )
         {
             my $Element = $Selenium->find_element( "#$ID", 'css' );
@@ -107,6 +122,20 @@ $Selenium->RunTest(
         $Selenium->find_element( "#RichText",                    'css' )->send_keys($TicketBody);
         $Selenium->find_element( "#Subject",                     'css' )->submit();
 
+        # search for new created ticket on AgentTicketZoom screen
+        my %TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
+            Result         => 'HASH',
+            Limit          => 1,
+            CustomerUserID => $TestCustomer,
+        );
+        my $TicketNumber = (%TicketIDs)[1];
+        my $TicketID     = (%TicketIDs)[0];
+
+        $Self->True(
+            index( $Selenium->get_page_source(), $TicketNumber ) > -1,
+            "Ticket with ticket id $TicketID is created"
+        );
+
         # go to ticket zoom page of created test ticket
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom' )]")->click();
 
@@ -124,10 +153,20 @@ $Selenium->RunTest(
             "$TestCustomer found on page",
         );
 
+        # delete created test ticket
+        my $Success = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
+            TicketID => $TicketID,
+            UserID   => 1,
+        );
+        $Self->True(
+            $Success,
+            "Ticket with ticket id $TicketID is deleted"
+        );
+
         # delete created test customer user
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
         $TestCustomer = $DBObject->Quote($TestCustomer);
-        my $Success = $DBObject->Do(
+        $Success      = $DBObject->Do(
             SQL  => "DELETE FROM customer_user WHERE login = ?",
             Bind => [ \$TestCustomer ],
         );
@@ -135,6 +174,10 @@ $Selenium->RunTest(
             $Success,
             "Delete customer user - $TestCustomer",
         );
+
+        # make sure the cache is correct.
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
 
         }
 );

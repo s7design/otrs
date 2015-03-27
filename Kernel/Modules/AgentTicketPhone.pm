@@ -26,6 +26,16 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
+    #get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    # get the dynamic fields for this screen
+    $Self->{DynamicField} = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+        Valid       => 1,
+        ObjectType  => [ 'Ticket', 'Article' ],
+        FieldFilter => $ConfigObject->Get("Ticket::Frontend::$Self->{Action}")->{DynamicField} || {},
+    );
+
     return $Self;
 }
 
@@ -126,26 +136,17 @@ sub Run {
     my %DynamicFieldValues;
 
     # get needed objects
-    my $LayoutObject  = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-    my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
-
-    my $Config = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
-
-    # get the dynamic fields for this screen
-    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
-        Valid       => 1,
-        ObjectType  => [ 'Ticket', 'Article' ],
-        FieldFilter => $Config->{DynamicField} || {},
-    );
+    my $LayoutObject              = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $ConfigObject              = $Kernel::OM->Get('Kernel::Config');
 
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{$DynamicField} ) {
+    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         # extract the dynamic field value form the web request
-        $DynamicFieldValues{ $DynamicFieldConfig->{Name} } = $BackendObject->EditFieldValueGet(
+        $DynamicFieldValues{ $DynamicFieldConfig->{Name} } = $DynamicFieldBackendObject->EditFieldValueGet(
             DynamicFieldConfig => $DynamicFieldConfig,
             ParamObject        => $ParamObject,
             LayoutObject       => $LayoutObject,
@@ -212,6 +213,8 @@ sub Run {
     if ( !$FormID ) {
         $FormID = $UploadCacheObject->FormIDCreate();
     }
+
+    my $Config = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
 
     if ( !$Self->{Subaction} || $Self->{Subaction} eq 'Created' ) {
 
@@ -414,7 +417,7 @@ sub Run {
 
         # cycle trough the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
             next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldConfig->{Config} );
             next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
@@ -488,12 +491,12 @@ sub Run {
 
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             my $PossibleValuesFilter;
 
-            my $IsACLReducible = $BackendObject->HasBehavior(
+            my $IsACLReducible = $DynamicFieldBackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsACLReducible',
             );
@@ -501,7 +504,7 @@ sub Run {
             if ($IsACLReducible) {
 
                 # get PossibleValues
-                my $PossibleValues = $BackendObject->PossibleValuesGet(
+                my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                 );
 
@@ -546,7 +549,7 @@ sub Run {
                     : $Article{ArticleID};
 
                 # get value stored on the database (split)
-                $Value = $BackendObject->ValueGet(
+                $Value = $DynamicFieldBackendObject->ValueGet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     ObjectID           => $ObjectID,
                 );
@@ -563,7 +566,7 @@ sub Run {
             }
 
             # get field html
-            $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } = $BackendObject->EditFieldRender(
+            $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } = $DynamicFieldBackendObject->EditFieldRender(
                 DynamicFieldConfig   => $DynamicFieldConfig,
                 PossibleValuesFilter => $PossibleValuesFilter,
                 Value                => $Value,
@@ -835,12 +838,12 @@ sub Run {
 
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
             my $PossibleValuesFilter;
 
-            my $IsACLReducible = $BackendObject->HasBehavior(
+            my $IsACLReducible = $DynamicFieldBackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsACLReducible',
             );
@@ -848,7 +851,7 @@ sub Run {
             if ($IsACLReducible) {
 
                 # get PossibleValues
-                my $PossibleValues = $BackendObject->PossibleValuesGet(
+                my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                 );
 
@@ -884,7 +887,7 @@ sub Run {
             # do not validate on attachment upload
             if ( !$IsUpload && !$ExpandCustomerName ) {
 
-                $ValidationResult = $BackendObject->EditFieldValueValidate(
+                $ValidationResult = $DynamicFieldBackendObject->EditFieldValueValidate(
                     DynamicFieldConfig   => $DynamicFieldConfig,
                     PossibleValuesFilter => $PossibleValuesFilter,
                     ParamObject          => $ParamObject,
@@ -907,7 +910,7 @@ sub Run {
             }
 
             # get field html
-            $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } = $BackendObject->EditFieldRender(
+            $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } = $DynamicFieldBackendObject->EditFieldRender(
                 DynamicFieldConfig   => $DynamicFieldConfig,
                 PossibleValuesFilter => $PossibleValuesFilter,
                 ServerError          => $ValidationResult->{ServerError} || '',
@@ -1233,12 +1236,12 @@ sub Run {
         # set ticket dynamic fields
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
             next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
             # set the value
-            my $Success = $BackendObject->ValueSet(
+            my $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 ObjectID           => $TicketID,
                 Value              => $DynamicFieldValues{ $DynamicFieldConfig->{Name} },
@@ -1342,12 +1345,12 @@ sub Run {
         # set article dynamic fields
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
             next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Article';
 
             # set the value
-            my $Success = $BackendObject->ValueSet(
+            my $Success = $DynamicFieldBackendObject->ValueSet(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 ObjectID           => $ArticleID,
                 Value              => $DynamicFieldValues{ $DynamicFieldConfig->{Name} },
@@ -1618,17 +1621,17 @@ sub Run {
 
         # cycle through the activated Dynamic Fields for this screen
         DYNAMICFIELD:
-        for my $DynamicFieldConfig ( @{$DynamicField} ) {
+        for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
             next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
-            my $IsACLReducible = $BackendObject->HasBehavior(
+            my $IsACLReducible = $DynamicFieldBackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsACLReducible',
             );
             next DYNAMICFIELD if !$IsACLReducible;
 
-            my $PossibleValues = $BackendObject->PossibleValuesGet(
+            my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
@@ -1655,7 +1658,7 @@ sub Run {
                 %{$PossibleValues} = map { $_ => $PossibleValues->{$_} } keys %Filter;
             }
 
-            my $DataValues = $BackendObject->BuildSelectionDataGet(
+            my $DataValues = $DynamicFieldBackendObject->BuildSelectionDataGet(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 PossibleValues     => $PossibleValues,
                 Value              => $DynamicFieldValues{ $DynamicFieldConfig->{Name} },
@@ -1694,7 +1697,7 @@ sub Run {
 
             # get the template text and set new attachments if a template is selected
             if ( IsPositiveInteger( $GetParam{StandardTemplateID} ) ) {
-                my $TemplateGenerator = Kernel::System::TemplateGenerator->new( %{$Self} );
+                my $TemplateGenerator = $Kernel::OM->Get('Kernel::System::TemplateGenerator');
 
                 # set template text, replace smart tags (limited as ticket is not created)
                 $TemplateText = $TemplateGenerator->Template(
@@ -1703,7 +1706,7 @@ sub Run {
                 );
 
                 # create StdAttachmentObject
-                my $StdAttachmentObject = Kernel::System::StdAttachment->new( %{$Self} );
+                my $StdAttachmentObject = $Kernel::OM->Get('Kernel::System::StdAttachment');
 
                 # add std. attachments to ticket
                 my %AllStdAttachments = $StdAttachmentObject->StdAttachmentStandardTemplateMemberList(
@@ -2483,17 +2486,10 @@ sub _MaskPhoneNew {
         );
     }
 
-    # get the dynamic fields for this screen
-    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
-        Valid       => 1,
-        ObjectType  => [ 'Ticket', 'Article' ],
-        FieldFilter => $Config->{DynamicField} || {},
-    );
-
     # Dynamic fields
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{$DynamicField} ) {
+    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         # skip fields that HTML could not be retrieved
@@ -2663,18 +2659,9 @@ sub _GetFieldsToUpdate {
         );
     }
 
-    my $Config = $Kernel::OM->Get('Kernel::Config')->Get("Ticket::Frontend::$Self->{Action}");
-
-    # get the dynamic fields for this screen
-    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
-        Valid       => 1,
-        ObjectType  => [ 'Ticket', 'Article' ],
-        FieldFilter => $Config->{DynamicField} || {},
-    );
-
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{$DynamicField} ) {
+    for my $DynamicFieldConfig ( @{ $Self->{DynamicField} } ) {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
         my $IsACLReducible = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->HasBehavior(
