@@ -30,33 +30,13 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     # get needed objects
-    my $SlaveDBObject     = $Kernel::OM->Get('Kernel::System::DB');
-    my $SlaveTicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-    my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
-
-    # use a slave db to search dashboard data
-    if ( $ConfigObject->Get('Core::MirrorDB::DSN') ) {
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::DB' => {
-                LogObject    => $Param{LogObject},
-                ConfigObject => $Param{ConfigObject},
-                MainObject   => $Param{MainObject},
-                EncodeObject => $Param{EncodeObject},
-                DatabaseDSN  => $ConfigObject->Get('Core::MirrorDB::DSN'),
-                DatabaseUser => $ConfigObject->Get('Core::MirrorDB::User'),
-                DatabasePw   => $ConfigObject->Get('Core::MirrorDB::Password'),
-            },
-        );
-    }
-
-    my $AutoCompleteConfig = $ConfigObject->Get('AutoComplete::Agent###CustomerSearch');
-
-    my $MaxResults = $AutoCompleteConfig->{MaxResultsDisplayed} || 20;
-
-    # get needed objects
     my $ParamObject        = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+    my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
+
+    my $AutoCompleteConfig = $ConfigObject->Get('AutoComplete::Agent###CustomerSearch');
+    my $MaxResults = $AutoCompleteConfig->{MaxResultsDisplayed} || 20;
 
     if ( $Self->{Subaction} eq 'SearchCustomerID' ) {
 
