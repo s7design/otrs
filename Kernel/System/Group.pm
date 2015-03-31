@@ -293,6 +293,9 @@ sub GroupUpdate {
         Type => 'Group',
         Key  => 'GroupList::1',
     );
+    $CacheObject->CleanUp(
+        Type => 'CustomerGroup',
+    );
 
     return 1 if $GroupData{ValidID} eq $Param{ValidID};
 
