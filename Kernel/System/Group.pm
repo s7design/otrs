@@ -309,7 +309,6 @@ sub GroupUpdate {
         ],
     );
 
-
     # reset cache
     my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
