@@ -764,7 +764,7 @@ sub _Element {
     # use a slave db to search dashboard date
     if ( $ConfigObject->Get('Core::MirrorDB::DSN') ) {
 
-        $SlaveDBObject = Kernel::System::DB->new(
+        $SlaveDBObject = $Kernel::OM->Get('Kernel::System::DB')->new(
             DatabaseDSN  => $ConfigObject->Get('Core::MirrorDB::DSN'),
             DatabaseUser => $ConfigObject->Get('Core::MirrorDB::User'),
             DatabasePw   => $ConfigObject->Get('Core::MirrorDB::Password'),
@@ -772,7 +772,7 @@ sub _Element {
 
         if ($SlaveDBObject) {
 
-            $SlaveTicketObject = Kernel::System::Ticket->new(
+            $SlaveTicketObject = $Kernel::OM->Get('Kernel::System::Ticket')->new(
                 %Param,
                 DBObject => $SlaveDBObject,
             );
