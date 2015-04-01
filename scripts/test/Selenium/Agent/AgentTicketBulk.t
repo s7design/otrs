@@ -46,51 +46,38 @@ $Selenium->RunTest(
         # get ticket object
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-        # create first ticket
-        my $TitleRandomOne = "Title" . $Helper->GetRandomID();
-        my $TicketIDOne    = $TicketObject->TicketCreate(
-            Title      => $TitleRandomOne,
-            Queue      => 'Raw',
-            Lock       => 'unlock',
-            Priority   => '3 normal',
-            State      => 'open',
-            CustomerID => 'TestCustomer',
-            OwnerID    => 1,
-            UserID     => 1,
-        );
+        # create two test tickets
+        my @Tickets;
+        for my $TicketCreate (qw(One Two)) {
+            my $TicketTitle = "TestTicket" . $TicketCreate;
+            my $TicketID    = $TicketObject->TicketCreate(
+                Title      => $TicketTitle,
+                Queue      => 'Raw',
+                Lock       => 'unlock',
+                Priority   => '3 normal',
+                State      => 'open',
+                CustomerID => 'TestCustomer',
+                OwnerID    => 1,
+                UserID     => 1,
+            );
 
-        $Self->True(
-            $TicketIDOne,
-            "Created $TitleRandomOne ticket",
-        );
+            # get tickets number
+            my %TicketData = $TicketObject->TicketGet(
+                TicketID => $TicketID,
+            );
 
-        # get first ticket number
-        my %TicketOne = $TicketObject->TicketGet(
-            TicketID => $TicketIDOne
-        );
+            $Self->True(
+                $TicketID,
+                "Ticket created -  $TicketTitle, $TicketData{TicketNumber} ",
+            );
 
-        # create second ticket
-        my $TitleRandomTwo = "Title" . $Helper->GetRandomID();
-        my $TicketIDTwo    = $TicketObject->TicketCreate(
-            Title      => $TitleRandomTwo,
-            Queue      => 'Raw',
-            Lock       => 'unlock',
-            Priority   => '3 normal',
-            State      => 'open',
-            CustomerID => 'TestCustomer',
-            OwnerID    => 1,
-            UserID     => 1,
-        );
+            my %Ticket = (
+                TicketID     => $TicketID,
+                TicketNumber => $TicketData{TicketNumber},
+            );
 
-        $Self->True(
-            $TicketIDTwo,
-            "Created $TitleRandomTwo ticket",
-        );
-
-        # get second ticket number
-        my %TicketTwo = $TicketObject->TicketGet(
-            TicketID => $TicketIDTwo
-        );
+            push @Tickets, \%Ticket;
+        }
 
         # navigate to AgentTicketStatusView
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
@@ -98,17 +85,17 @@ $Selenium->RunTest(
 
         # verify that both tickets are in open state
         $Self->True(
-            index( $Selenium->get_page_source(), $TicketOne{TicketNumber} ) > -1,
-            "Open $TitleRandomOne found on page",
+            index( $Selenium->get_page_source(), $Tickets[0]->{TicketNumber} ) > -1,
+            "Open ticket $Tickets[0]->{TicketNumber} found on page",
         );
         $Self->True(
-            index( $Selenium->get_page_source(), $TicketTwo{TicketNumber}) > -1,
-            "Open $TitleRandomTwo found on page",
+            index( $Selenium->get_page_source(), $Tickets[1]->{TicketNumber} ) > -1,
+            "Open ticket $Tickets[1]->{TicketNumber} found on page",
         );
 
         # select both tickets and click on "bulk"
-        $Selenium->find_element("//input[\@value='$TicketIDOne']")->click();
-        $Selenium->find_element("//input[\@value='$TicketIDTwo']")->click();
+        $Selenium->find_element("//input[\@value='$Tickets[0]->{TicketID}']")->click();
+        $Selenium->find_element("//input[\@value='$Tickets[1]->{TicketID}']")->click();
         $Selenium->find_element( "Bulk", 'link_text' )->click();
 
         # switch to bulk window
@@ -118,7 +105,7 @@ $Selenium->RunTest(
         # check ticket bulk page
         for my $ID (
             qw(StateID OwnerID QueueID PriorityID OptionMergeTo MergeTo
-             OptionMergeToOldest LinkTogether LinkTogetherParent Unlock submitRichText)
+            OptionMergeToOldest LinkTogether LinkTogetherParent Unlock submitRichText)
             )
         {
             my $Element = $Selenium->find_element( "#$ID", 'css' );
@@ -128,50 +115,42 @@ $Selenium->RunTest(
 
         # close state and change priority in bulk action for test tickets
         $Selenium->find_element( "#PriorityID option[value='4']", 'css' )->click();
-        $Selenium->find_element( "#StateID option[value='2']", 'css' )->click();
-        $Selenium->find_element( "#submitRichText", 'css' )->click();
+        $Selenium->find_element( "#StateID option[value='2']",    'css' )->click();
+        $Selenium->find_element( "#submitRichText",               'css' )->click();
 
         # return to status view
         $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->refresh();
-        sleep 1;
 
         # select closed view to verify ticket bulk functionality
         $Selenium->find_element("//a[contains(\@href, \'Filter=Closed' )]")->click();
 
         # verify that both tickets are shown in ticket closed view
         $Self->True(
-            index( $Selenium->get_page_source(), $TicketOne{TicketNumber} ) > -1,
-            "Closed $TitleRandomOne found on page",
+            index( $Selenium->get_page_source(), $Tickets[0]->{TicketNumber} ) > -1,
+            "Closed ticket $Tickets[0]->{TicketNumber} found on page",
         );
         $Self->True(
-            index( $Selenium->get_page_source(), $TicketTwo{TicketNumber}) > -1,
-            "Closed $TitleRandomTwo found on page",
+            index( $Selenium->get_page_source(), $Tickets[1]->{TicketNumber} ) > -1,
+            "Closed ticket $Tickets[1]->{TicketNumber} found on page",
         );
 
         # clean up test data from the DB
-        my $Success = $TicketObject->TicketDelete(
-            TicketID => $TicketIDOne,
-            UserID   => 1,
-        );
-        $Self->True(
-            $Success,
-            "Ticket with ticket number $TicketOne{TicketNumber} is deleted"
-        );
+        for my $Ticket (@Tickets) {
+            my $Success = $TicketObject->TicketDelete(
+                TicketID => $Ticket->{TicketID},
+                UserID   => 1,
+            );
+            $Self->True(
+                $Success,
+                "Ticket is deleted - $Ticket->{TicketNumber} "
+            );
 
-        my $Success = $TicketObject->TicketDelete(
-            TicketID => $TicketIDOne,
-            UserID   => 1,
-        );
-        $Self->True(
-            $Success,
-            "Ticket with ticket number $TicketTwo{TicketNumber} is deleted"
-        );
+        }
 
         # make sure the cache is correct.
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
 
-    }
+        }
 );
 
 1;
