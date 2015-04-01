@@ -21,12 +21,12 @@ $Kernel::OM->ObjectParamAdd(
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 # get needed objects
-my $TicketObject       = $Kernel::OM->Get('Kernel::System::Ticket');
-my $SysConfigObject    = $Kernel::OM->Get('Kernel::System::SysConfig');
+my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
+my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
 $Selenium->RunTest(
     sub {
-          # get helper object
+        # get helper object
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
                 RestoreSystemConfiguration => 1,
@@ -77,7 +77,6 @@ $Selenium->RunTest(
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketPhone");
 
-
         # get test user ID
         my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
             UserLogin => $TestUserLogin,
@@ -100,8 +99,8 @@ $Selenium->RunTest(
         my $AutoCompleteString = "\"$TestCustomer $TestCustomer\" <$TestCustomer\@localhost.com> ($TestCustomer)";
         my $TicketSubject      = "Selenium Ticket";
         my $TicketBody         = "Selenium body test";
-        my $AttachmentName = "StdAttachment-Test1.txt";
-        my $Location       = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+        my $AttachmentName     = "StdAttachment-Test1.txt";
+        my $Location           = $Kernel::OM->Get('Kernel::Config')->Get('Home')
             . "/scripts/test/sample/StdAttachment/$AttachmentName";
         $Selenium->find_element( "#FromCustomer", 'css' )->send_keys($TestCustomer);
 
@@ -115,12 +114,12 @@ $Selenium->RunTest(
         ACTIVESLEEP:
         for my $Second ( 1 .. 20 ) {
             sleep 1;
-            if (  index( $Selenium->get_page_source(), 'Subject' ) > -1, ) {
+            if ( index( $Selenium->get_page_source(), 'Subject' ) > -1, ) {
                 last ACTIVESLEEP;
             }
             print "Waiting to upload attachment  $Second second(s)...\n\n";
         }
-        $Selenium->find_element( "#Subject",                     'css' )->submit();
+        $Selenium->find_element( "#Subject", 'css' )->submit();
 
         # search for new created ticket on AgentTicketZoom screen
         my %TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
@@ -186,7 +185,7 @@ $Selenium->RunTest(
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
 
-    }
+        }
 );
 
 1;

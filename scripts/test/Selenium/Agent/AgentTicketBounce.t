@@ -24,7 +24,7 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-     # get helper object
+        # get helper object
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
                 RestoreSystemConfiguration => 1,
@@ -67,7 +67,6 @@ $Selenium->RunTest(
 
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketEmail");
-
 
         # get test user ID
         my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
@@ -126,16 +125,16 @@ $Selenium->RunTest(
             $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom' )]")->click();
 
             # click to bounce ticket
-            $Selenium->find_element( "//a[contains(\@href, 'Action=AgentTicketBounce') ]")->click();
+            $Selenium->find_element("//a[contains(\@href, 'Action=AgentTicketBounce') ]")->click();
 
-             # switch to bounce window
+            # switch to bounce window
             my $Handles = $Selenium->get_window_handles();
             $Selenium->switch_to_window( $Handles->[1] );
 
             # check agent ticket bounce screen
             for my $ID (
-            qw(BounceTo BounceStateID To Subject RichText submitRichText)
-            )
+                qw(BounceTo BounceStateID To Subject RichText submitRichText)
+                )
             {
                 my $Element = $Selenium->find_element( "#$ID", 'css' );
                 $Element->is_enabled();
@@ -143,9 +142,9 @@ $Selenium->RunTest(
             }
 
             # bounce ticket to another test email
-            $Selenium->find_element( "#BounceTo", 'css' )->send_keys("test\@localhost.com");
+            $Selenium->find_element( "#BounceTo",                        'css' )->send_keys("test\@localhost.com");
             $Selenium->find_element( "#BounceStateID option[value='4']", 'css' )->click();
-            $Selenium->find_element( "#submitRichText", 'css' )->click();
+            $Selenium->find_element( "#submitRichText",                  'css' )->click();
 
             # return back to zoom view
             $Selenium->switch_to_window( $Handles->[0] );
@@ -190,7 +189,7 @@ $Selenium->RunTest(
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
 
-    }
+        }
 );
 
 1;
