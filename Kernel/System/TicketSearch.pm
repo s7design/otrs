@@ -1890,11 +1890,36 @@ sub _InConditionGet {
     my @SortedIDs = sort { $a <=> $b } @{ $Param{IDRef} };
 
     # quote values
+    SORTEDID:
     for my $Value (@SortedIDs) {
-        return if !defined $Self->{DBObject}->Quote( $Value, 'Integer' );
+        next SORTEDID if !defined $Self->{DBObject}->Quote( $Value, 'Integer' );
     }
 
-    return " AND $Param{TableColumn} IN (" . ( join ',', @SortedIDs ) . ")";
+    # split IN statement with more than 900 elements in more statements combined with OR
+    # because Oracle doesn't support more than 1000 elements for one IN statement.
+    my @SQLStrings;
+    while ( scalar @SortedIDs ) {
+
+        # remove section in the array
+        my @SortedIDsPart = splice @SortedIDs, 0, 900;
+
+        # link together IDs
+        my $IDString = join ', ', @SortedIDsPart;
+
+        # add new statement
+        push @SQLStrings, " $Param{TableColumn} IN ($IDString) ";
+    }
+
+    my $SQL = '';
+    if (@SQLStrings) {
+
+        # combine statements
+        $SQL = join ' OR ', @SQLStrings;
+
+        # encapsulate conditions
+        $SQL = ' AND ( ' . $SQL . ' ) ';
+    }
+    return $SQL;
 }
 
 1;
