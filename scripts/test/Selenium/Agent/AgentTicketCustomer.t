@@ -75,7 +75,7 @@ $Selenium->RunTest(
 
         # add test customers for testing
         my @TestCustomers;
-        for (1..2)
+        for ( 1 .. 2 )
         {
             my $TestCustomer = 'Customer' . $Helper->GetRandomID();
             my $UserLogin    = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
@@ -94,17 +94,18 @@ $Selenium->RunTest(
         }
 
         # create test phone ticket
-        my $AutoCompleteString = "\"$TestCustomers[0] $TestCustomers[0]\" <$TestCustomers[0]\@localhost.com> ($TestCustomers[0])";
-        my $TicketSubject      = "Selenium Ticket";
-        my $TicketBody         = "Selenium body test";
-        $Selenium->find_element( "#FromCustomer", 'css' )->send_keys($TestCustomers[0]);
+        my $AutoCompleteString
+            = "\"$TestCustomers[0] $TestCustomers[0]\" <$TestCustomers[0]\@localhost.com> ($TestCustomers[0])";
+        my $TicketSubject = "Selenium Ticket";
+        my $TicketBody    = "Selenium body test";
+        $Selenium->find_element( "#FromCustomer", 'css' )->send_keys( $TestCustomers[0] );
         sleep 1;
         $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
         $Selenium->find_element( "#Dest option[value='2||Raw']", 'css' )->click();
         $Selenium->find_element( "#Subject",                     'css' )->send_keys($TicketSubject);
         $Selenium->find_element( "#RichText",                    'css' )->send_keys($TicketBody);
 
-        $Selenium->find_element( "#Subject",                     'css' )->submit();
+        $Selenium->find_element( "#Subject", 'css' )->submit();
 
         # search for new created ticket on AgentTicketZoom screen
         my %TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
@@ -123,12 +124,6 @@ $Selenium->RunTest(
         # go to ticket zoom page of created test ticket
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom' )]")->click();
 
-        # check customer ticket
-        $Self->True(
-            index( $Selenium->get_page_source(), $TestCustomers[0] ) > -1,
-            "$TestCustomers[0] found on page",
-        );
-
         # go to AgentTicketCustomer
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketCustomer' )]")->click();
 
@@ -146,15 +141,28 @@ $Selenium->RunTest(
             $Element->is_displayed();
         }
 
-        $AutoCompleteString = "\"$TestCustomers[1] $TestCustomers[1]\" <$TestCustomers[1]\@localhost.com> ($TestCustomers[1])";
+        $AutoCompleteString
+            = "\"$TestCustomers[1] $TestCustomers[1]\" <$TestCustomers[1]\@localhost.com> ($TestCustomers[1])";
         $Selenium->find_element( "#CustomerAutoComplete", 'css' )->clear();
-        $Selenium->find_element( "#CustomerID", 'css' )->clear();
-        $Selenium->find_element( "#CustomerAutoComplete", 'css' )->send_keys($TestCustomers[1]);
+        $Selenium->find_element( "#CustomerID",           'css' )->clear();
+        $Selenium->find_element( "#CustomerAutoComplete", 'css' )->send_keys( $TestCustomers[1] );
         $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
-        sleep 1;
+
+        # wait until customer data is loading
+        ACTIVESLEEP:
+        for my $Second ( 1 .. 20 ) {
+            sleep 1;
+
+            # check if customer data is loaded
+            if ( $Selenium->execute_script("return \$('#CustomerAutoComplete').length") ) {
+                last ACTIVESLEEP;
+            }
+            print "Waiting to load customer user data  $Second  second(s)...\n\n";
+        }
         $Selenium->find_element( "#CustomerAutoComplete", 'css' )->submit();
 
         $Selenium->switch_to_window( $Handles->[0] );
+
         # click on history link and switch window
         $Selenium->find_element("//*[text()='History']")->click();
         $Handles = $Selenium->get_window_handles();
@@ -194,7 +202,6 @@ $Selenium->RunTest(
                 "Delete customer user - $TestCustomer",
             );
         }
-
 
         # make sure the cache is correct.
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
