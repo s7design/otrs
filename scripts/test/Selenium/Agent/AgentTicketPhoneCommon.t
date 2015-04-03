@@ -111,10 +111,11 @@ $Selenium->RunTest(
         # navigate to created test ticket in AgentTicketZoom page
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
-        #
+        # do tests for Outbound and Inbound
         for my $Action (
             qw(AgentTicketPhoneOutbound AgentTicketPhoneInbound)
-            ) {
+            )
+        {
 
             # click on action
             $Selenium->find_element("//a[contains(\@href, \'Action=$Action;TicketID=$TicketID')]")->click();
@@ -135,9 +136,9 @@ $Selenium->RunTest(
 
             # add body text and submit
             my $ActionText = $Action . " Selenium Test";
-            $Selenium->find_element( "#RichText", 'css' )->send_keys($ActionText);
+            $Selenium->find_element( "#RichText",                      'css' )->send_keys($ActionText);
             $Selenium->find_element( "#NextStateID option[value='4']", 'css' )->click();
-            $Selenium->find_element( "#submitRichText", 'css' )->click();
+            $Selenium->find_element( "#submitRichText",                'css' )->click();
 
             # return back to AgentTicketZoom
             $Selenium->switch_to_window( $Handles->[0] );
@@ -187,8 +188,7 @@ $Selenium->RunTest(
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
 
-
-     }
+        }
 );
 
 1;
