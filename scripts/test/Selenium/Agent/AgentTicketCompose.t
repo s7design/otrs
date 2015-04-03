@@ -97,6 +97,43 @@ $Selenium->RunTest(
         $Selenium->find_element( "#RichText",                    'css' )->send_keys($TicketBody);
         $Selenium->find_element( "#Subject",                     'css' )->submit();
 
+        # get ticket object
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
+        # get ticket ID
+        my %TicketIDs = $TicketObject->TicketSearch(
+            Result         => 'HASH',
+            Limit          => 1,
+            CustomerUserID => $TestCustomer,
+        );
+        my $TicketID = (%TicketIDs)[0];
+
+        # navigate to created test ticket in AgentTicketZoom page
+        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
+
+        # click on reply
+        $Selenium->find_element( "#ResponseID option[value='1']", 'css' )->click();
+
+        # switch to compose window
+        my $Handles = $Selenium->get_window_handles();
+        $Selenium->switch_to_window( $Handles->[1] );
+
+        # check AgentTicketCompose page
+        for my $ID (
+            qw(ToCustomer CcCustomer BccCustomer Subject RichText
+            FileUpload StateID ArticleTypeID submitRichText)
+            )
+        {
+            my $Element = $Selenium->find_element( "#$ID", 'css' );
+            $Element->is_enabled();
+            $Element->is_displayed();
+        }
+
+        # add test text to body
+        my $ComposeText = "Selenium Compose Text";
+        $Selenium->find_element( "#RichText",       'css' )->send_keys($ComposeText);
+        $Selenium->find_element( "#submitRichText", 'css' )->click();
+
         # if Core::Sendmail setting aren't set up for sending mail, check for error message and exit test
         my $Success;
         eval {
@@ -108,43 +145,6 @@ $Selenium->RunTest(
         }
         else {
 
-            # get ticket object
-            my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-
-            # get ticket ID
-            my %TicketIDs = $TicketObject->TicketSearch(
-                Result         => 'HASH',
-                Limit          => 1,
-                CustomerUserID => $TestCustomer,
-            );
-            my $TicketID     = (%TicketIDs)[0];
-
-            # navigate to created test ticket in AgentTicketZoom page
-            $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
-
-            # click on reply
-            $Selenium->find_element( "#ResponseID option[value='1']", 'css' )->click();
-
-            # switch to compose window
-            my $Handles = $Selenium->get_window_handles();
-            $Selenium->switch_to_window( $Handles->[1] );
-
-            # check AgentTicketCompose page
-            for my $ID (
-                qw(ToCustomer CcCustomer BccCustomer Subject RichText
-                    FileUpload StateID ArticleTypeID submitRichText)
-                )
-            {
-                my $Element = $Selenium->find_element( "#$ID", 'css' );
-                $Element->is_enabled();
-                $Element->is_displayed();
-            }
-
-            # add test text to body
-            my $ComposeText = "Selenium Compose Text";
-            $Selenium->find_element( "#RichText", 'css' )->send_keys($ComposeText);
-            $Selenium->find_element( "#submitRichText", 'css' )->click();
-
             # return back to AgentTicketZoom
             $Selenium->switch_to_window( $Handles->[0] );
 
@@ -155,7 +155,7 @@ $Selenium->RunTest(
 
             # verify that compose worked as expected
             my $CustomerEmail = "\"$TestCustomer\@localhost.com\"";
-            my $HistoryText = "Email sent to $CustomerEmail.";
+            my $HistoryText   = "Email sent to $CustomerEmail.";
 
             $Self->True(
                 index( $Selenium->get_page_source(), $HistoryText ) > -1,
@@ -165,7 +165,7 @@ $Selenium->RunTest(
             # delete created test ticket
             my $Success = $TicketObject->TicketDelete(
                 TicketID => $TicketID,
-                UserID => 1,
+                UserID   => 1,
             );
             $Self->True(
                 $Success,
@@ -189,7 +189,7 @@ $Selenium->RunTest(
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
 
-    }
+        }
 );
 
 1;
