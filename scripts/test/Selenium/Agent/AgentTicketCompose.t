@@ -141,7 +141,7 @@ $Selenium->RunTest(
         };
 
         if ( $Success > -1 ) {
-            print "Selenium Test Completed. Please configure Core::Sendmail to send email from system \n";
+            $Kernel::OM->Get('Kernel::System::Console::BaseCommand')->Print("<yellow>WARNING:Selenium Test prematurely Completed. Please configure Core::Sendmail to send email from system!</yellow>\n");
         }
         else {
 
@@ -162,16 +162,17 @@ $Selenium->RunTest(
                 "Compose executed correctly",
             );
 
-            # delete created test ticket
-            my $Success = $TicketObject->TicketDelete(
-                TicketID => $TicketID,
-                UserID   => 1,
-            );
-            $Self->True(
-                $Success,
-                "Ticket with ticket id $TicketID is deleted"
-            );
         }
+
+        # delete created test ticket
+        my $Success = $TicketObject->TicketDelete(
+            TicketID => $TicketID,
+            UserID   => 1,
+        );
+        $Self->True(
+            $Success,
+            "Ticket with ticket id $TicketID is deleted"
+        );
 
         # delete created test customer user
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
