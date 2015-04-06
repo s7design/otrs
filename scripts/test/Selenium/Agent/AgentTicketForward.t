@@ -133,12 +133,15 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ToCustomer", 'css' )->send_keys($TestCustomer);
         $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
         $Selenium->find_element( "#ComposeStateID option[value='4']", 'css' )->click();
-        $Selenium->find_element( "#ToCustomer",                       'css' )->submit();
+
+        $Selenium->find_element( "#ToCustomer", 'css' )->submit();
 
         # if Core::Sendmail setting aren't set up for sending mail, check for error message and exit test
         my $Success;
         eval {
-            $Success = index( $Selenium->get_page_source(), 'Impossible to send message to:' ),
+            $Success = -1;
+            $Selenium->switch_to_window( $Handles->[1] );
+            $Success = index( $Selenium->get_page_source(), 'Impossible to send message to:' );
         };
 
         if ( $Success > -1 ) {
