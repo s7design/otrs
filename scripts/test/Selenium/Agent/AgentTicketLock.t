@@ -113,7 +113,8 @@ $Selenium->RunTest(
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
         # click on lock
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketLock;Subaction=Lock;TicketID=$TicketID;' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketLock;Subaction=Lock;TicketID=$TicketID;' )]")
+            ->click();
 
         # verify that ticket is locked, navigate to AgentTicketLockedView
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketLockedView");
@@ -127,7 +128,8 @@ $Selenium->RunTest(
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
         # unlock ticket
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketLock;Subaction=Unlock;TicketID=$TicketID;' )]")->click();
+        $Selenium->find_element(
+            "//a[contains(\@href, \'Action=AgentTicketLock;Subaction=Unlock;TicketID=$TicketID;' )]")->click();
 
         # go to history view to verifty results
         $Selenium->find_element("//*[text()='History']")->click();
@@ -143,7 +145,7 @@ $Selenium->RunTest(
             "Ticket with ticket id $TicketID was successfully unlocked",
         );
 
-         # delete created test ticket
+        # delete created test ticket
         my $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
             UserID   => 1,
@@ -168,9 +170,6 @@ $Selenium->RunTest(
         # make sure the cache is correct.
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
-
-
-
 
         }
 );
