@@ -114,7 +114,7 @@ $Selenium->RunTest(
         # click on forward
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketForward;TicketID=$TicketID;' )]")->click();
 
-        # switch to compose window
+        # switch to forward window
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
 
@@ -129,44 +129,49 @@ $Selenium->RunTest(
             $Element->is_displayed();
         }
 
-        # check client side validation
-        $Selenium->find_element( "#ToCustomer", 'css' )->clear();
-        $Selenium->find_element( "#ToCustomer", 'css' )->submit();
-        $Self->Is(
-            $Selenium->execute_script(
-                "return \$('#ToCustomer').hasClass('Error')"
-            ),
-            '1',
-            'Client side validation correctly detected missing input value',
-        );
-
         # input fields and send forward
         $Selenium->find_element( "#ToCustomer", 'css' )->send_keys($TestCustomer);
         $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
-        $Selenium->find_element( "#ToCustomer", 'css' )->submit();
+        $Selenium->find_element( "#ComposeStateID option[value='4']", 'css' )->click();
+        $Selenium->find_element( "#ToCustomer",                       'css' )->submit();
 
-        # return back to AgentTicketZoom
-        $Selenium->switch_to_window( $Handles->[0] );
+        # if Core::Sendmail setting aren't set up for sending mail, check for error message and exit test
+        my $Success;
+        eval {
+            $Success = index( $Selenium->get_page_source(), 'Impossible to send message to:' ),
+        };
 
-        # click on history link and switch window
-        $Selenium->find_element("//*[text()='History']")->click();
-        $Handles = $Selenium->get_window_handles();
-        $Selenium->switch_to_window( $Handles->[1] );
+        if ( $Success > -1 ) {
+            $Kernel::OM->Get('Kernel::System::Console::BaseCommand')->Print(
+                "<yellow>WARNING:Selenium Test prematurely Completed. Please configure Core::Sendmail to send email from system!</yellow>\n"
+            );
+        }
+        else {
 
-        # verify for expected action
-        my $HistoryText = "Forwarded to \"\"$TestCustomer $TestCustomer\" <$TestCustomer\@localhost.com>\".";
+            # return back to AgentTicketZoom
+            $Selenium->switch_to_window( $Handles->[0] );
 
-        $Self->True(
-            index( $Selenium->get_page_source(), $HistoryText ) > -1,
-            "Action Forward executed correctly",
-        );
+            # click on history link and switch window
+            $Selenium->find_element("//*[text()='History']")->click();
+            $Handles = $Selenium->get_window_handles();
+            $Selenium->switch_to_window( $Handles->[1] );
 
-        # close history and return to AgentTicketZoom for created test ticket
-        $Selenium->find_element( ".CancelClosePopup", 'css' )->click();
-        $Selenium->switch_to_window( $Handles->[0] );
+            # verify for expected action
+            my $HistoryText = "Forwarded to \"\"$TestCustomer $TestCustomer\" &lt;$TestCustomer\@localhost.com&gt;\".";
+
+            $Self->True(
+                index( $Selenium->get_page_source(), $HistoryText ) > -1,
+                "Action Forward executed correctly",
+            );
+
+            # close history and return to AgentTicketZoom for created test ticket
+            $Selenium->find_element( ".CancelClosePopup", 'css' )->click();
+            $Selenium->switch_to_window( $Handles->[0] );
+
+        }
 
         # delete created test ticket
-        my $Success = $TicketObject->TicketDelete(
+        $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
             UserID   => 1,
         );
