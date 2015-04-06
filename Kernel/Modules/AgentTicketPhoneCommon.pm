@@ -13,7 +13,6 @@ use strict;
 use warnings;
 
 use Mail::Address;
-
 use Kernel::System::VariableCheck qw(:all);
 
 our $ObjectManagerDisabled = 1;
@@ -185,7 +184,7 @@ sub Run {
     );
 
     # get backend object
-    my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
     # cycle through the activated Dynamic Fields for this screen
     DYNAMICFIELD:
@@ -194,7 +193,7 @@ sub Run {
 
         # extract the dynamic field value form the web request
         $DynamicFieldValues{ $DynamicFieldConfig->{Name} } =
-            $BackendObject->EditFieldValueGet(
+            $DynamicFieldBackendObject->EditFieldValueGet(
             DynamicFieldConfig => $DynamicFieldConfig,
             ParamObject        => $ParamObject,
             LayoutObject       => $LayoutObject,
@@ -265,7 +264,7 @@ sub Run {
 
             my $PossibleValuesFilter;
 
-            my $IsACLReducible = $BackendObject->HasBehavior(
+            my $IsACLReducible = $DynamicFieldBackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsACLReducible',
             );
@@ -273,7 +272,7 @@ sub Run {
             if ($IsACLReducible) {
 
                 # get PossibleValues
-                my $PossibleValues = $BackendObject->PossibleValuesGet(
+                my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                 );
 
@@ -317,7 +316,7 @@ sub Run {
 
             # get field html
             $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } =
-                $BackendObject->EditFieldRender(
+                $DynamicFieldBackendObject->EditFieldRender(
                 DynamicFieldConfig   => $DynamicFieldConfig,
                 PossibleValuesFilter => $PossibleValuesFilter,
                 Value                => $Value,
@@ -475,7 +474,7 @@ sub Run {
 
             my $PossibleValuesFilter;
 
-            my $IsACLReducible = $BackendObject->HasBehavior(
+            my $IsACLReducible = $DynamicFieldBackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsACLReducible',
             );
@@ -483,7 +482,7 @@ sub Run {
             if ($IsACLReducible) {
 
                 # get PossibleValues
-                my $PossibleValues = $BackendObject->PossibleValuesGet(
+                my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                 );
 
@@ -519,7 +518,7 @@ sub Run {
             # do not validate on attachment upload
             if ( !$IsUpload ) {
 
-                $ValidationResult = $BackendObject->EditFieldValueValidate(
+                $ValidationResult = $DynamicFieldBackendObject->EditFieldValueValidate(
                     DynamicFieldConfig   => $DynamicFieldConfig,
                     PossibleValuesFilter => $PossibleValuesFilter,
                     ParamObject          => $ParamObject,
@@ -543,7 +542,7 @@ sub Run {
 
             # get field html
             $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } =
-                $BackendObject->EditFieldRender(
+                $DynamicFieldBackendObject->EditFieldRender(
                 DynamicFieldConfig   => $DynamicFieldConfig,
                 PossibleValuesFilter => $PossibleValuesFilter,
                 Mandatory =>
@@ -764,7 +763,7 @@ sub Run {
                     : $Self->{TicketID};
 
                 # set the value
-                my $Success = $BackendObject->ValueSet(
+                my $Success = $DynamicFieldBackendObject->ValueSet(
                     DynamicFieldConfig => $DynamicFieldConfig,
                     ObjectID           => $ObjectID,
                     Value              => $DynamicFieldValues{ $DynamicFieldConfig->{Name} },
@@ -832,13 +831,13 @@ sub Run {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
             next DYNAMICFIELD if $DynamicFieldConfig->{ObjectType} ne 'Ticket';
 
-            my $IsACLReducible = $BackendObject->HasBehavior(
+            my $IsACLReducible = $DynamicFieldBackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsACLReducible',
             );
             next DYNAMICFIELD if !$IsACLReducible;
 
-            my $PossibleValues = $BackendObject->PossibleValuesGet(
+            my $PossibleValues = $DynamicFieldBackendObject->PossibleValuesGet(
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
@@ -863,7 +862,7 @@ sub Run {
                 %{$PossibleValues} = map { $_ => $PossibleValues->{$_} } keys %Filter;
             }
 
-            my $DataValues = $BackendObject->BuildSelectionDataGet(
+            my $DataValues = $DynamicFieldBackendObject->BuildSelectionDataGet(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 PossibleValues     => $PossibleValues,
                 Value              => $DynamicFieldValues{ $DynamicFieldConfig->{Name} },
