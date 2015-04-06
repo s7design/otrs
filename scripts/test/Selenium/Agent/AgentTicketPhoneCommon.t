@@ -111,14 +111,23 @@ $Selenium->RunTest(
         # navigate to created test ticket in AgentTicketZoom page
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
+        my @Test = (
+            {
+                Name        => 'AgentTicketPhoneOutbound',
+                HistoryText => 'Customer called us',
+            },
+            {
+                Name        => 'AgentTicketPhoneInbound',
+                HistoryText => 'Agent called customer.',
+            },
+        );
+
         # do tests for Outbound and Inbound
-        for my $Action (
-            qw(AgentTicketPhoneOutbound AgentTicketPhoneInbound)
-            )
+        for my $Action (@Test)
         {
 
             # click on action
-            $Selenium->find_element("//a[contains(\@href, \'Action=$Action;TicketID=$TicketID')]")->click();
+            $Selenium->find_element("//a[contains(\@href, \'Action=$Action->{Name};TicketID=$TicketID')]")->click();
 
             # switch to AgentPhoneCallOutbound window
             my $Handles = $Selenium->get_window_handles();
@@ -148,12 +157,10 @@ $Selenium->RunTest(
             $Handles = $Selenium->get_window_handles();
             $Selenium->switch_to_window( $Handles->[1] );
 
-            # verify that action worked as expected
-            my $HistoryText = "Customer called us.";
-
+            # verify for expected action
             $Self->True(
-                index( $Selenium->get_page_source(), $HistoryText ) > -1,
-                "Action $Action executed correctly",
+                index( $Selenium->get_page_source(), $Action->{HistoryText} ) > -1,
+                "Action $Action->{Name} executed correctly",
             );
 
             # close history and return to AgentTicketZoom for created test ticket
