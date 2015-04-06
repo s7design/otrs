@@ -137,7 +137,7 @@ $Selenium->RunTest(
         # if Core::Sendmail setting aren't set up for sending mail, check for error message and exit test
         my $Success;
         eval {
-            $Success = index( $Selenium->get_page_source(), 'Impossible to send message to:' ),
+            $Success = index( $Selenium->get_page_source(), 'Impossible to send message to:' );
         };
 
         if ( $Success > -1 ) {
