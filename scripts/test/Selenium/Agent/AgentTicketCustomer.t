@@ -131,6 +131,9 @@ $Selenium->RunTest(
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
 
+        # set size for small screens, because of sidebar with customer info overflow form for customer data
+        $Selenium->set_window_size(1000, 700);
+
         # check AgentTicketCustomer screen
         for my $ID (
             qw(CustomerAutoComplete CustomerID Submit CustomerInfo CustomerTickets)
