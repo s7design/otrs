@@ -72,46 +72,46 @@ $Selenium->RunTest(
             # default callendar is used for test
             # create queue that will escalate tickets in 1 working hour
             {
-                Name                => 'Today',
-                Queue               => "Queue" . $Helper->GetRandomID(),
-                SolutionTime        => 60,
+                Name         => 'Today',
+                Queue        => "Queue" . $Helper->GetRandomID(),
+                SolutionTime => 60,
             },
 
             # create queue that will escalate tickets in 12 working hours
             {
-                Name                => 'Tomorrow',
-                Queue               => "Queue" . $Helper->GetRandomID(),
-                SolutionTime        => 720,
+                Name         => 'Tomorrow',
+                Queue        => "Queue" . $Helper->GetRandomID(),
+                SolutionTime => 720,
             },
 
             # create queue that will escalate tickets in 1 working week
             {
-                Name                => 'NextWeek',
-                Queue               => "Queue" . $Helper->GetRandomID(),
-                SolutionTime        => 3600,
+                Name         => 'NextWeek',
+                Queue        => "Queue" . $Helper->GetRandomID(),
+                SolutionTime => 3600,
             },
 
             # create queue that will escalate tickets in 2 working weeks
             {
-                Name                => 'AfterNextWeek',
-                Queue               => "Queue" . $Helper->GetRandomID(),
-                SolutionTime        => 7200,
+                Name         => 'AfterNextWeek',
+                Queue        => "Queue" . $Helper->GetRandomID(),
+                SolutionTime => 7200,
             },
         );
 
         # add test queue with escalation timers
         my @QueueIDs;
-        for my $QueueCreate ( @Tests ) {
+        for my $QueueCreate (@Tests) {
             my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-                Name                => $QueueCreate->{Queue},
-                ValidID             => 1,
-                GroupID             => 1,
-                SolutionTime        => $QueueCreate->{SolutionTime},
-                SystemAddressID     => 1,
-                SalutationID        => 1,
-                SignatureID         => 1,
-                Comment             => 'Selenium Queue',
-                UserID              => $TestUserID,
+                Name            => $QueueCreate->{Queue},
+                ValidID         => 1,
+                GroupID         => 1,
+                SolutionTime    => $QueueCreate->{SolutionTime},
+                SystemAddressID => 1,
+                SalutationID    => 1,
+                SignatureID     => 1,
+                Comment         => 'Selenium Queue',
+                UserID          => $TestUserID,
             );
 
             $Self->True(
@@ -128,8 +128,8 @@ $Selenium->RunTest(
         # create test tickets
         my @TicketIDs;
         my $Tickets;
-        for my $TicketCreate ( @Tests ) {
-            my $TicketID    = $TicketObject->TicketCreate(
+        for my $TicketCreate (@Tests) {
+            my $TicketID = $TicketObject->TicketCreate(
                 Title        => 'Selenium Test Ticket',
                 Queue        => $TicketCreate->{Queue},
                 Lock         => 'unlock',
@@ -149,7 +149,7 @@ $Selenium->RunTest(
             push @TicketIDs, $TicketID;
 
             # set helper parameter for verifying on what view certain tickets are expected
-            $Tickets->{ $TicketID } = $TicketCreate->{Name};
+            $Tickets->{$TicketID} = $TicketCreate->{Name};
 
         }
 
@@ -161,10 +161,10 @@ $Selenium->RunTest(
 
             # for ticket in queue that escalate in more then 1 week we want filter to be NextWeek
             my $Filter;
-            if ( $Test->{Name} eq 'AfterNextWeek' ){
+            if ( $Test->{Name} eq 'AfterNextWeek' ) {
                 $Filter = 'NextWeek';
             }
-            else{
+            else {
                 $Filter = $Test->{Name}
             }
 
@@ -191,22 +191,23 @@ $Selenium->RunTest(
                 # verify that all tickets there are present
                 for my $TicketID (@TicketIDs) {
 
-                    if ( ($Tickets->{$TicketID } eq $Test->{Name}) ) {
+                    if ( ( $Tickets->{$TicketID} eq $Test->{Name} ) ) {
 
                         my $TicketNumber = $TicketObject->TicketNumberLookup(
-                        TicketID => $TicketID,
-                        UserID   => $TestUserID,
+                            TicketID => $TicketID,
+                            UserID   => $TestUserID,
                         );
 
-                        if ( $Test->{Name} ne 'AfterNextWeek') {
-                             $Self->True(
+                        if ( $Test->{Name} ne 'AfterNextWeek' ) {
+                            $Self->True(
                                 index( $Selenium->get_page_source(), $TicketNumber ) > -1,
                                 "Ticket is found on page - $TicketNumber ",
                             );
-                        } else {
+                        }
+                        else {
 
-                           # test created ticket that escalate in more then 1 week and therefore shouldn't be visible on screen
-                           $Self->True(
+                    # test created ticket that escalate in more then 1 week and therefore shouldn't be visible on screen
+                            $Self->True(
                                 index( $Selenium->get_page_source(), $TicketNumber ) == -1,
                                 "Ticket is not found on page - $TicketNumber ",
                             );
@@ -223,7 +224,7 @@ $Selenium->RunTest(
 
         # delete created test tickets
         my $Success;
-        for my $TicketID ( @TicketIDs ) {
+        for my $TicketID (@TicketIDs) {
             $Success = $TicketObject->TicketDelete(
                 TicketID => $TicketID,
                 UserID   => $TestUserID,
@@ -238,7 +239,7 @@ $Selenium->RunTest(
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # delete created test queue
-        for my $QueueID ( @QueueIDs) {
+        for my $QueueID (@QueueIDs) {
             $Success = $DBObject->Do(
                 SQL => "DELETE FROM queue WHERE id = $QueueID",
             );
@@ -269,7 +270,7 @@ $Selenium->RunTest(
             );
         }
 
-    }
+        }
 );
 
 1;

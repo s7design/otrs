@@ -73,7 +73,7 @@ $Selenium->RunTest(
 
         # create test tickets
         my @TicketIDs;
-        for ( 1..3 ) {
+        for ( 1 .. 3 ) {
             my $TicketID = $TicketObject->TicketCreate(
                 Title         => 'Selenium Test Ticket',
                 Queue         => 'Raw',
@@ -101,10 +101,14 @@ $Selenium->RunTest(
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketResponsibleView");
 
         # test if tickets show with appropriate filters
+        FILTER:
         for my $Filter (qw(All New Reminder ReminderReached)) {
 
             # check for control button (All / New Arcticle / Pending / Reminder Reached)
-            my $Element = $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketResponsibleView;SortBy=Age;OrderBy=Up;View=;Filter=$Filter\' )]");
+            my $Element
+                = $Selenium->find_element(
+                "//a[contains(\@href, \'Action=AgentTicketResponsibleView;SortBy=Age;OrderBy=Up;View=;Filter=$Filter\' )]"
+                );
             $Element->is_enabled();
             $Element->is_displayed();
             $Element->click();
@@ -112,24 +116,26 @@ $Selenium->RunTest(
             # expect to find no tickets for Reminder Reached filter
             if ( $Filter eq 'ReminderReached' ) {
                 $Self->True(
-                        index( $Selenium->get_page_source(), 'No ticket data found.' ) > -1,
-                            "No tickets found with Reminder Reached filter ",
-                    );
-                last;
+                    index( $Selenium->get_page_source(), 'No ticket data found.' ) > -1,
+                    "No tickets found with Reminder Reached filter ",
+                );
+                last FILTER;
             }
 
             # check different views for filters
             for my $View (qw(Small Medium Preview)) {
 
                 # click on viewer controler
-                $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketResponsibleView;Filter=$Filter;View=$View;\' )]")->click();
+                $Selenium->find_element(
+                    "//a[contains(\@href, \'Action=AgentTicketResponsibleView;Filter=$Filter;View=$View;\' )]")
+                    ->click();
 
                 # check screen output
                 $Selenium->find_element( "table",             'css' );
                 $Selenium->find_element( "table tbody tr td", 'css' );
 
                 # verify that all tickets are present
-                for my $TicketID ( @TicketIDs) {
+                for my $TicketID (@TicketIDs) {
 
                     my $TicketNumber = $TicketObject->TicketNumberLookup(
                         TicketID => $TicketID,
@@ -138,17 +144,17 @@ $Selenium->RunTest(
 
                     $Self->True(
                         index( $Selenium->get_page_source(), $TicketNumber ) > -1,
-                            "Ticket found on page - $TicketNumber ",
+                        "Ticket found on page - $TicketNumber ",
                     );
                 }
             }
 
             # change status for test tickets with bulk action
             if ( $Filter eq 'New' ) {
-                for my $TicketID ( @TicketIDs ) {
+                for my $TicketID (@TicketIDs) {
 
-                # select all created test tickets
-                $Selenium->find_element("//input[\@type='checkbox'][\@value='$TicketID']")->click();
+                    # select all created test tickets
+                    $Selenium->find_element("//input[\@type='checkbox'][\@value='$TicketID']")->click();
                 }
 
                 # click on bulk action and switch window
@@ -158,7 +164,7 @@ $Selenium->RunTest(
 
                 # change state to 'pending reminder'
                 $Selenium->find_element( "#StateID option[value='6']", 'css' )->click();
-                $Selenium->find_element( "#submitRichText", 'css' )->click();
+                $Selenium->find_element( "#submitRichText",            'css' )->click();
 
                 # switch back to AgentTicketResponsibleView
                 $Selenium->switch_to_window( $Handles->[0] );
@@ -172,7 +178,7 @@ $Selenium->RunTest(
 
         # delete created test tickets
         my $Success;
-        for my $TicketID ( @TicketIDs ) {
+        for my $TicketID (@TicketIDs) {
             $Success = $TicketObject->TicketDelete(
                 TicketID => $TicketID,
                 UserID   => $TestUserID,

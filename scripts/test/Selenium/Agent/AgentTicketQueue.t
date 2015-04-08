@@ -63,15 +63,15 @@ $Selenium->RunTest(
 
         # create test queue
         my $QueueName = 'Queue' . $Helper->GetRandomID();
-        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-            Name                => $QueueName,
-            ValidID             => 1,
-            GroupID             => 1,
-            SystemAddressID     => 1,
-            SalutationID        => 1,
-            SignatureID         => 1,
-            Comment             => 'Selenium Queue',
-            UserID              => $TestUserID,
+        my $QueueID   = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
+            Name            => $QueueName,
+            ValidID         => 1,
+            GroupID         => 1,
+            SystemAddressID => 1,
+            SalutationID    => 1,
+            SignatureID     => 1,
+            Comment         => 'Selenium Queue',
+            UserID          => $TestUserID,
         );
         $Self->True(
             $QueueID,
@@ -86,12 +86,12 @@ $Selenium->RunTest(
                 Lock    => 'unlock',
             },
             {
-                Queue => 'Raw',
+                Queue   => 'Raw',
                 QueueID => 2,
                 Lock    => 'unlock',
             },
             {
-                Queue => 'Junk',
+                Queue   => 'Junk',
                 QueueID => 3,
                 Lock    => 'lock',
             },
@@ -112,7 +112,7 @@ $Selenium->RunTest(
 
         # create test tickets
         my @TicketIDs;
-        for my $TicketCreate ( @Tests ) {
+        for my $TicketCreate (@Tests) {
             my $TicketID = $TicketObject->TicketCreate(
                 Title         => 'Selenium Test Ticket',
                 Queue         => $TicketCreate->{Queue},
@@ -143,17 +143,19 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketQueue;QueueID=0;\' )]")->click();
         $Self->True(
             index( $Selenium->get_page_source(), 'No ticket data found.' ) > -1,
-                "No tickets found with My Queue filters",
+            "No tickets found with My Queue filters",
         );
 
         # return to default queue view
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketQueue;View=Small");
 
         # test if tickets show with appropriate filters
-        for my $Test ( @Tests ) {
+        for my $Test (@Tests) {
 
             # check for Queue filter buttons (Postmaster / Raw / Junk / Misc / QueueTest)
-            my $Element = $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketQueue;QueueID=$Test->{QueueID};\' )]");
+            my $Element = $Selenium->find_element(
+                "//a[contains(\@href, \'Action=AgentTicketQueue;QueueID=$Test->{QueueID};\' )]"
+            );
             $Element->is_enabled();
             $Element->is_displayed();
             $Element->click();
@@ -165,25 +167,28 @@ $Selenium->RunTest(
                 $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketQueue;QueueID=$Test->{QueueID};View=Small");
 
                 # click on viewer controler
-                $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketQueue;Filter=Unlocked;View=$View;QueueID=$Test->{QueueID};SortBy=Age;OrderBy=Up;View=Small;\' )]")->click();
+                $Selenium->find_element(
+                    "//a[contains(\@href, \'Action=AgentTicketQueue;Filter=Unlocked;View=$View;QueueID=$Test->{QueueID};SortBy=Age;OrderBy=Up;View=Small;\' )]"
+                )->click();
 
                 # check for locked and unlocked tickets
-                if ($Test->{Lock} eq 'lock') {
+                if ( $Test->{Lock} eq 'lock' ) {
 
                     # for locked tickets we expect no data to be found with 'Available tickets' filter on
                     $Self->True(
-                         index( $Selenium->get_page_source(), 'No ticket data found.' ) > -1,
-                             "No tickets found with $Test->{Queue} filter",
+                        index( $Selenium->get_page_source(), 'No ticket data found.' ) > -1,
+                        "No tickets found with $Test->{Queue} filter",
                     );
 
-                } else {
+                }
+                else {
 
                     # check screen output
                     $Selenium->find_element( "table",             'css' );
                     $Selenium->find_element( "table tbody tr td", 'css' );
 
                     # verify that all expected tickets are present
-                    for my $TicketID ( @TicketIDs) {
+                    for my $TicketID (@TicketIDs) {
 
                         my %TicketData = $TicketObject->TicketGet(
                             TicketID => $TicketID,
@@ -191,9 +196,9 @@ $Selenium->RunTest(
                         );
 
                         # check for tickets with 'Available tickets' filter on
-                        if ( ($TicketData{Lock} eq 'unlock') && ( $TicketData{QueueID} eq $Test->{QueueID} ) ) {
+                        if ( ( $TicketData{Lock} eq 'unlock' ) && ( $TicketData{QueueID} eq $Test->{QueueID} ) ) {
                             $Self->True(
-                            index( $Selenium->get_page_source(), $TicketData{TicketNumber} ) > -1,
+                                index( $Selenium->get_page_source(), $TicketData{TicketNumber} ) > -1,
                                 "Ticket found on page - $TicketData{TicketNumber} ",
                             );
                         }
@@ -204,7 +209,7 @@ $Selenium->RunTest(
 
         # delete created test tickets
         my $Success;
-        for my $TicketID ( @TicketIDs ) {
+        for my $TicketID (@TicketIDs) {
             $Success = $TicketObject->TicketDelete(
                 TicketID => $TicketID,
                 UserID   => $TestUserID,
