@@ -1,5 +1,5 @@
 # --
-# AgentTicketStatusView.t - frontend tests for AgentTicketStatusView
+# AgentTicketResponsibleView.t - frontend tests for AgentTicketResponsibleView
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -27,10 +27,17 @@ $Selenium->RunTest(
         # get helper object
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 0,
+                RestoreSystemConfiguration => 1,
                 }
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
+        # enables ticket responsible feature
+        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Responsible',
+            Value => 1
+        );
 
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -66,17 +73,18 @@ $Selenium->RunTest(
 
         # create test tickets
         my @TicketIDs;
-        for ( 1 .. 3 ) {
+        for ( 1..3 ) {
             my $TicketID = $TicketObject->TicketCreate(
-                Title        => 'Selenium Test Ticket',
-                Queue        => 'Raw',
-                Lock         => 'unlock',
-                Priority     => '3 normal',
-                State        => 'open',
-                CustomerID   => $TestCustomer,
-                CustomerUser => "$TestCustomer\@localhost.com",
-                OwnerID      => $TestUserID,
-                UserID       => $TestUserID,
+                Title         => 'Selenium Test Ticket',
+                Queue         => 'Raw',
+                Lock          => 'unlock',
+                Priority      => '3 normal',
+                State         => 'open',
+                CustomerID    => $TestCustomer,
+                CustomerUser  => "$TestCustomer\@localhost.com",
+                OwnerID       => $TestUserID,
+                UserID        => $TestUserID,
+                ResponsibleID => $TestUserID,
             );
 
             $Self->True(
@@ -88,35 +96,40 @@ $Selenium->RunTest(
 
         }
 
-        # go to AgentTicketStatusView
+        # go to AgentTicketResponsibleView
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketStatusView");
+        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketResponsibleView");
 
         # test if tickets show with appropriate filters
-        for my $Filter (qw(Open Closed)) {
+        for my $Filter (qw(All New Reminder ReminderReached)) {
 
-            # check for control button (Open / Close)
-            my $Element = $Selenium->find_element(
-                "//a[contains(\@href, \'Action=AgentTicketStatusView;SortBy=Age;OrderBy=Down;View=;Filter=$Filter\' )]"
-            );
+            # check for control button (All / New Arcticle / Pending / Reminder Reached)
+            my $Element = $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketResponsibleView;SortBy=Age;OrderBy=Up;View=;Filter=$Filter\' )]");
             $Element->is_enabled();
             $Element->is_displayed();
             $Element->click();
+
+            # expect to find no tickets for Reminder Reached filter
+            if ( $Filter eq 'ReminderReached' ) {
+                $Self->True(
+                        index( $Selenium->get_page_source(), 'No ticket data found.' ) > -1,
+                            "No tickets found with Reminder Reached filter ",
+                    );
+                last;
+            }
 
             # check different views for filters
             for my $View (qw(Small Medium Preview)) {
 
                 # click on viewer controler
-                $Selenium->find_element(
-                    "//a[contains(\@href, \'Action=AgentTicketStatusView;Filter=$Filter;View=$View;\' )]"
-                )->click();
+                $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketResponsibleView;Filter=$Filter;View=$View;\' )]")->click();
 
                 # check screen output
                 $Selenium->find_element( "table",             'css' );
                 $Selenium->find_element( "table tbody tr td", 'css' );
 
-                # verify that all expected tickets are present
-                for my $TicketID (@TicketIDs) {
+                # verify that all tickets are present
+                for my $TicketID ( @TicketIDs) {
 
                     my $TicketNumber = $TicketObject->TicketNumberLookup(
                         TicketID => $TicketID,
@@ -125,18 +138,17 @@ $Selenium->RunTest(
 
                     $Self->True(
                         index( $Selenium->get_page_source(), $TicketNumber ) > -1,
-                        "Ticket found on page - $TicketNumber ",
+                            "Ticket found on page - $TicketNumber ",
                     );
-
                 }
             }
 
-            # close all ticket with bulk action
-            if ( $Filter eq 'Open' ) {
-                for my $TicketID (@TicketIDs) {
+            # change status for test tickets with bulk action
+            if ( $Filter eq 'New' ) {
+                for my $TicketID ( @TicketIDs ) {
 
-                    # select all created test tickets
-                    $Selenium->find_element("//input[\@type='checkbox'][\@value='$TicketID']")->click();
+                # select all created test tickets
+                $Selenium->find_element("//input[\@type='checkbox'][\@value='$TicketID']")->click();
                 }
 
                 # click on bulk action and switch window
@@ -144,21 +156,23 @@ $Selenium->RunTest(
                 my $Handles = $Selenium->get_window_handles();
                 $Selenium->switch_to_window( $Handles->[1] );
 
-                # change state to 'closed successful'
-                $Selenium->find_element( "#StateID option[value='2']", 'css' )->click();
-                $Selenium->find_element( "#submitRichText",            'css' )->click();
+                # change state to 'pending reminder'
+                $Selenium->find_element( "#StateID option[value='6']", 'css' )->click();
+                $Selenium->find_element( "#submitRichText", 'css' )->click();
 
-                # switch back to AgentTicketStatusView
+                # switch back to AgentTicketResponsibleView
                 $Selenium->switch_to_window( $Handles->[0] );
-                $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketStatusView");
 
             }
+
+            # switch back to AgentTicketResponsibleView
+            $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketResponsibleView");
 
         }
 
         # delete created test tickets
         my $Success;
-        for my $TicketID (@TicketIDs) {
+        for my $TicketID ( @TicketIDs ) {
             $Success = $TicketObject->TicketDelete(
                 TicketID => $TicketID,
                 UserID   => $TestUserID,
