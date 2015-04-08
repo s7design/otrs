@@ -171,37 +171,34 @@ $Selenium->RunTest(
                     "//a[contains(\@href, \'Action=AgentTicketQueue;Filter=Unlocked;View=$View;QueueID=$Test->{QueueID};SortBy=Age;OrderBy=Up;View=Small;\' )]"
                 )->click();
 
-                # check for locked and unlocked tickets
-                if ( $Test->{Lock} eq 'lock' ) {
 
-                    # for locked tickets we expect no data to be found with 'Available tickets' filter on
-                    $Self->True(
-                        index( $Selenium->get_page_source(), 'No ticket data found.' ) > -1,
-                        "No tickets found with $Test->{Queue} filter",
+
+                # verify that all expected tickets are present
+                for my $TicketID (@TicketIDs) {
+
+                    my %TicketData = $TicketObject->TicketGet(
+                        TicketID => $TicketID,
+                        UserID   => $TestUserID,
                     );
 
-                }
-                else {
+                    # check for locked and unlocked tickets
+                    if ( $Test->{Lock} eq 'lock' ) {
 
-                    # check screen output
-                    $Selenium->find_element( "table",             'css' );
-                    $Selenium->find_element( "table tbody tr td", 'css' );
-
-                    # verify that all expected tickets are present
-                    for my $TicketID (@TicketIDs) {
-
-                        my %TicketData = $TicketObject->TicketGet(
-                            TicketID => $TicketID,
-                            UserID   => $TestUserID,
+                        # for locked tickets we expect no data to be found with 'Available tickets' filter on
+                        $Self->True(
+                            index( $Selenium->get_page_source(), $TicketData{TicketNumber} ) == -1,
+                            "Ticket is not found on page - $TicketData{TicketNumber}",
                         );
 
+                    }
+
+                    elsif ( ( $TicketData{Lock} eq 'unlock' ) && ( $TicketData{QueueID} eq $Test->{QueueID} ) ) {
+
                         # check for tickets with 'Available tickets' filter on
-                        if ( ( $TicketData{Lock} eq 'unlock' ) && ( $TicketData{QueueID} eq $Test->{QueueID} ) ) {
-                            $Self->True(
-                                index( $Selenium->get_page_source(), $TicketData{TicketNumber} ) > -1,
-                                "Ticket found on page - $TicketData{TicketNumber} ",
-                            );
-                        }
+                        $Self->True(
+                            index( $Selenium->get_page_source(), $TicketData{TicketNumber} ) > -1,
+                            "Ticket is found on page - $TicketData{TicketNumber} ",
+                        );
                     }
                 }
             }
