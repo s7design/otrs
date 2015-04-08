@@ -13,8 +13,9 @@ use strict;
 use warnings;
 
 use Kernel::System::JSON;
-use Kernel::System::DynamicField;
 use Kernel::System::VariableCheck qw(:all);
+
+our $ObjectManagerDisabled = 1;
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -23,8 +24,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # create additional objects
-    $Self->{JSONObject}         = Kernel::System::JSON->new( %{$Self} );
+    # create JSON object
+    $Self->{JSONObject} = Kernel::System::JSON->new( %{$Self} );
 
     return $Self;
 }
@@ -33,7 +34,7 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     # get param object
-    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # get config
@@ -189,7 +190,7 @@ sub Run {
     my $Filter = $ParamObject->GetParam( Param => 'Filter' ) || 'Open';
 
     # check if filter is valid
-    if ( !$Filters{ $Filter } ) {
+    if ( !$Filters{$Filter} ) {
         $LayoutObject->FatalError( Message => "Invalid Filter: $Filter!" );
     }
 
@@ -220,20 +221,20 @@ sub Run {
         )
     {
         @OriginalViewableTickets = $TicketObject->TicketSearch(
-            %{ $Filters{ $Filter }->{Search} },
+            %{ $Filters{$Filter}->{Search} },
             Limit  => $Limit,
             Result => 'ARRAY',
         );
 
         @ViewableTickets = $TicketObject->TicketSearch(
-            %{ $Filters{ $Filter }->{Search} },
+            %{ $Filters{$Filter}->{Search} },
             %ColumnFilter,
             Limit  => $Limit,
             Result => 'ARRAY',
         );
 
         $ViewableTicketCount = $TicketObject->TicketSearch(
-            %{ $Filters{ $Filter }->{Search} },
+            %{ $Filters{$Filter}->{Search} },
             %ColumnFilter,
             Result => 'COUNT',
         );
@@ -357,7 +358,7 @@ sub Run {
         Bulk       => 1,
         Limit      => $Limit,
         TitleName  => 'Status View',
-        TitleValue => $Filters{ $Filter }->{Name},
+        TitleValue => $Filters{$Filter}->{Name},
 
         Filter     => $Filter,
         Filters    => \%NavBarFilter,
