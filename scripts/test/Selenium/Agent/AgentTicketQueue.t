@@ -245,7 +245,7 @@ $Selenium->RunTest(
 
         # make sure the cache is correct.
         for my $Cache (
-            qw (Ticket CustomerUser)
+            qw (Ticket CustomerUser Queue)
             )
         {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(

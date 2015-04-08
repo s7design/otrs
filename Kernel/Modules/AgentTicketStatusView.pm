@@ -32,7 +32,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    # get param object
+    # get needed objects
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 

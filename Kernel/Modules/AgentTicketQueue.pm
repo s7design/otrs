@@ -26,7 +26,7 @@ sub new {
     # set debug
     $Self->{Debug} = 0;
 
-    # some JSON object
+    # get JSON object
     $Self->{JSONObject} = $Kernel::OM->Get('Kernel::System::JSON');
 
     return $Self;

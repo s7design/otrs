@@ -242,7 +242,7 @@ sub Run {
     my @ViewableTickets;
     my $ViewableTicketCount = 0;
 
-    # get ticke object
+    # get ticket object
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
     # get ticket values

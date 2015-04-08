@@ -32,7 +32,7 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enables ticket responsible feature
+        # enable ticket responsible feature
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
             Key   => 'Ticket::Responsible',
@@ -105,10 +105,9 @@ $Selenium->RunTest(
         for my $Filter (qw(All New Reminder ReminderReached)) {
 
             # check for control button (All / New Arcticle / Pending / Reminder Reached)
-            my $Element
-                = $Selenium->find_element(
+            my $Element = $Selenium->find_element(
                 "//a[contains(\@href, \'Action=AgentTicketResponsibleView;SortBy=Age;OrderBy=Up;View=;Filter=$Filter\' )]"
-                );
+            );
             $Element->is_enabled();
             $Element->is_displayed();
             $Element->click();
@@ -127,8 +126,8 @@ $Selenium->RunTest(
 
                 # click on viewer controler
                 $Selenium->find_element(
-                    "//a[contains(\@href, \'Action=AgentTicketResponsibleView;Filter=$Filter;View=$View;\' )]")
-                    ->click();
+                    "//a[contains(\@href, \'Action=AgentTicketResponsibleView;Filter=$Filter;View=$View;\' )]"
+                )->click();
 
                 # check screen output
                 $Selenium->find_element( "table",             'css' );
