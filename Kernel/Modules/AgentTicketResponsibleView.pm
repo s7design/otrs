@@ -12,7 +12,6 @@ package Kernel::Modules::AgentTicketResponsibleView;
 use strict;
 use warnings;
 
-use Kernel::System::JSON;
 use Kernel::System::VariableCheck qw(:all);
 
 our $ObjectManagerDisabled = 1;
@@ -25,7 +24,7 @@ sub new {
     bless( $Self, $Type );
 
     # get JSON object
-    $Self->{JSONObject} = Kernel::System::JSON->new( %{$Self} );
+    $Self->{JSONObject} = $Kernel::OM->Get('Kernel::System::JSON');
 
     return $Self;
 }

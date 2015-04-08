@@ -12,7 +12,6 @@ package Kernel::Modules::AgentTicketQueue;
 use strict;
 use warnings;
 
-use Kernel::System::JSON;
 use Kernel::System::VariableCheck qw(:all);
 
 our $ObjectManagerDisabled = 1;
@@ -28,7 +27,7 @@ sub new {
     $Self->{Debug} = 0;
 
     # some JSON object
-    $Self->{JSONObject} = Kernel::System::JSON->new( %{$Self} );
+    $Self->{JSONObject} = $Kernel::OM->Get('Kernel::System::JSON');
 
     return $Self;
 }
