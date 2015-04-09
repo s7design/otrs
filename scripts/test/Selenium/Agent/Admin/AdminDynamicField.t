@@ -150,16 +150,10 @@ JAVASCRIPT
                 );
 
                 $Selenium->refresh();
-                my $Success;
-                eval {
-                    $Success = $Selenium->find_element( $RandomID, 'link_text' )->is_displayed();
-                };
-
-                $Self->False(
-                    $Success,
-                    "$RandomID dynamic filed is deleted!",
+                $Self->True(
+                    index( $Selenium->get_page_source(), $RandomID ) == -1,
+                        "$RandomID dynamic filed is deleted!",
                 );
-
             }
 
             # Make sure the cache is correct.
