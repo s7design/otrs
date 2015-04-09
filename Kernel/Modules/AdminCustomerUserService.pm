@@ -399,7 +399,7 @@ sub _Change {
             );
 
             $LayoutObject->Block(
-                Name => 'NoDataFoundMsg',
+                Name => 'NoDataFoundMsgList',
                 Data => {
                     ColSpan => $ColSpan,
                 },
@@ -431,7 +431,7 @@ sub _Change {
 
         if ( !%ServiceData ) {
             $LayoutObject->Block(
-                Name => 'NoDataFoundMsg',
+                Name => 'NoDataFoundMsgList',
                 Data => {
                     ColSpan => $ColSpan,
                 },
@@ -521,7 +521,7 @@ sub _Overview {
         );
 
         $LayoutObject->Block(
-            Name => 'NoDataFoundMsgList',
+            Name => 'NoDataFoundMsg',
         );
     }
     elsif ( @CustomerUserKeyList > $SearchLimit ) {
