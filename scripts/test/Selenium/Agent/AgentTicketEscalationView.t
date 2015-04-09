@@ -143,7 +143,7 @@ $Selenium->RunTest(
 
             $Self->True(
                 $TicketID,
-                "Ticket is create - $TicketID",
+                "Ticket is created - $TicketID",
             );
 
             push @TicketIDs, $TicketID;
