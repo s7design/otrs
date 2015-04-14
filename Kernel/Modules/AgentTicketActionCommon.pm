@@ -63,7 +63,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    # get needed object
+    # get needed objects
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
@@ -829,7 +829,7 @@ sub Run {
             my @UserListWithoutSelection
                 = split( ',', $ParamObject->GetParam( Param => 'UserListWithoutSelection' ) || "" );
 
-            # Wget inform user list
+            # get inform user list
             my @InformUserID = $ParamObject->GetArray( Param => 'InformUserID' );
 
             # get involved user list
@@ -1463,7 +1463,7 @@ sub _Mask {
     # get config of frontend module
     my $Config = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
 
-    # get needed object
+    # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # Widget Ticket Actions
@@ -2127,7 +2127,7 @@ sub _Mask {
         # agent list
         if ( $Config->{InformAgent} ) {
 
-            # Wget inform user list
+            # get inform user list
             my @InformUserID = $ParamObject->GetArray( Param => 'InformUserID' );
 
             if ( $Self->{ReplyToArticle} ) {
@@ -2626,7 +2626,7 @@ sub _GetFieldsToUpdate {
 sub _GetQuotedReplyBody {
     my ( $Self, %Param ) = @_;
 
-    # get needed object
+    # get needed objects
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 

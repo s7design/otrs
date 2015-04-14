@@ -115,29 +115,6 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[1] );
 
         # confirm note action
-
-        my $Data = $Selenium->screenshot();
-        if ($Data) {
-            $Data = MIME::Base64::decode_base64($Data);
-
-            # This file should survive unit test scenario runs, so save it in a global directory.
-            my ( $FH, $Filename ) = File::Temp::tempfile(
-                DIR    => '/tmp/',
-                SUFFIX => '.png',
-                UNLINK => 0,
-            );
-            close $FH;
-            $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
-                Location => $Filename,
-                Content  => \$Data,
-            );
-
-            $Self->True(
-                1,
-                "Saved screenshot in file://$Filename",
-            );
-        }
-
         my $NoteMsg = "Added note (Note)";
         $Self->True(
             index( $Selenium->get_page_source(), $NoteMsg ) > -1,

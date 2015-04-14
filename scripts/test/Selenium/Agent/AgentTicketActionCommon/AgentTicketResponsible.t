@@ -33,17 +33,17 @@ $Selenium->RunTest(
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # get sysconfig object
-        my $SysConfig = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
         # enable change owner to everyone feature
-        $SysConfig->ConfigItemUpdate(
+        $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'Ticket::ChangeOwnerToEveryone',
             Value => 1
         );
 
         # enable ticket responsible feature
-        $SysConfig->ConfigItemUpdate(
+        $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'Ticket::Responsible',
             Value => 1

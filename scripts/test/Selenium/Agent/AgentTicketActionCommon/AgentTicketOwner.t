@@ -32,6 +32,16 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # get sysconfig object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        # enable change owner to everyone feature
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::ChangeOwnerToEveryone',
+            Value => 1
+        );
+
         # create test users and login first
         my @TestUser;
         for my $User ( 1 .. 2 ) {
@@ -58,7 +68,7 @@ $Selenium->RunTest(
             push @UserID, $TestUserID;
         }
 
-        # get needed objects
+        # get ticket object
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # create test ticcket
@@ -115,7 +125,6 @@ $Selenium->RunTest(
 
         # change ticket user owner
         $Selenium->find_element( "#NewOwnerID option[value='$UserID[1]']", 'css' )->click();
-        $Selenium->find_element( "#OldOwnerID option[value='$UserID[0]']", 'css' )->click();
         $Selenium->find_element( "#RichText",                              'css' )->send_keys('Test');
         $Selenium->find_element( "#submitRichText",                        'css' )->click();
 
