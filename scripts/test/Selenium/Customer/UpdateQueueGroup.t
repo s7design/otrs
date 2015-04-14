@@ -43,9 +43,19 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
+        # get sysconfig object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        # meke sure that CustomerGroupSupport is disabled
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'CustomerGroupSupport',
+            Value => 0
+        );
+
         # add test queue in group users
         my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
-        my $QueueName   = "Q" . $Helper->GetRandomID();
+        my $QueueName   = "Queue" . $Helper->GetRandomID();
         my $QueueID     = $QueueObject->QueueAdd(
             Name            => $QueueName,
             ValidID         => 1,
@@ -55,6 +65,11 @@ $Selenium->RunTest(
             SignatureID     => 1,
             UserID          => 1,
             Comment         => 'Selenium test queue',
+        );
+
+        $Self->True(
+            $QueueID,
+            "Queue is created - $QueueName"
         );
 
         # get test queue ID
@@ -72,7 +87,7 @@ $Selenium->RunTest(
         );
 
         # create test group
-        my $GroupName   = "G" . $Helper->GetRandomID();
+        my $GroupName   = "Group" . $Helper->GetRandomID();
         my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
         my $GroupID     = $GroupObject->GroupAdd(
             Name    => $GroupName,
@@ -93,42 +108,16 @@ $Selenium->RunTest(
             ValidID         => 1,
         );
 
-        # get cache object
-        my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
-
         # refresh page
         $Selenium->refresh();
 
         # check if test queue is available to select
-        my $Success;
-        eval {
-            $Success = index( $Selenium->get_page_source(), $QueueName ),
-        };
-
-        if ( $Success > -1 ) {
-            print "\nPatch is success $QueueName is available to select with new group $GroupName\n\n";
-        }
-        else {
-            print "\n$Queue{Name} is no longer available to select with new group $GroupName\n\n";
-
-            # clear cache
-            print "\nClearing cache\n\n";
-            $CacheObject->CleanUp(
-                Type => 'CustomerGroup',
-            );
-
-            # refresh page
-            $Selenium->refresh();
-
-            # verify that test queue is now available for test group after clearing cache
-            $Self->True(
-                $Selenium->find_element( "#Dest option[value='$QueueID||$QueueName']", 'css' ),
-                "$Queue{Name} is available to select after clearing cache"
-            );
-        }
+        $Self->True(
+            index( $Selenium->get_page_source(), $QueueName ) > -1,
+            "$QueueName is available to select with new group $GroupName",
+        );
 
         # update group
-        print "\nUpdating group to invalid status\n\n";
         my $GroupUpdate = $GroupObject->GroupUpdate(
             ID      => $GroupID,
             Name    => $GroupName,
@@ -136,35 +125,55 @@ $Selenium->RunTest(
             UserID  => 1,
         );
 
+        $Self->True(
+            $GroupUpdate,
+            "$GroupName is updated to invalid status",
+        );
+
         # refresh page
         $Selenium->refresh();
 
-        # check if test queue is available to select
-        eval {
-            $Success = index( $Selenium->get_page_source(), $QueueName ),
-        };
+        # check test queue with invalid test group
+        $Self->False(
+            index( $Selenium->get_page_source(), $QueueName ) > -1,
+            "$QueueName is not available to select with invalid group $GroupName",
+        );
 
-        if ( $Success > -1 ) {
-            print "\n$QueueName is available to select with invalid group $GroupName\n\n";
+        # get database object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+        my $Success;
 
-            # clear cache
-            print "Clearing cache\n\n";
-            $CacheObject->CleanUp(
-                Type => 'CustomerGroup',
+        # clean up test data
+        if ($QueueID) {
+            $Success = $DBObject->Do(
+                SQL => "DELETE FROM queue WHERE id = $QueueID",
             );
-
-            # refresh page
-            $Selenium->refresh();
-
-            # check after clearing cache for test queue with invalid test group
-            $Self->False(
-                index( $Selenium->get_page_source(), $QueueName ) > -1,
-                "$QueueName is not available to select with invalid group $GroupName after clearing cache",
+            $Self->True(
+                $Success,
+                "Queue is deleted - $QueueName",
             );
         }
-        else {
-            print "\nPatch is success, $QueueName is not available to select with invalid group $GroupName\n\n";
+
+        if ($GroupID) {
+            $Success = $DBObject->Do(
+                SQL => "DELETE FROM groups WHERE id = $GroupID",
+            );
+            $Self->True(
+                $Success,
+                "Group is deleted - $GroupName",
+            );
         }
+
+        # make sure the cache is correct.
+        for my $Cache (
+            qw (Queue Group)
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
+
         }
 );
 
