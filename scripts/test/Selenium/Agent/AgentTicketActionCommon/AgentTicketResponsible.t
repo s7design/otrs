@@ -49,6 +49,13 @@ $Selenium->RunTest(
             Value => 1
         );
 
+        # do not check RichText
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Frontend::RichText',
+            Value => 0
+        );
+
         # create test users and login first
         my @TestUser;
         for my $User ( 1 .. 2 ) {
