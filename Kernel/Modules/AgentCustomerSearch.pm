@@ -49,6 +49,7 @@ sub Run {
         # get needed params
         my $Search = $Self->{ParamObject}->GetParam( Param => 'Term' ) || '';
         my $MaxResults = int( $Self->{ParamObject}->GetParam( Param => 'MaxResults' ) || 20 );
+        my $IncludeUnknownTicketCustomers = int( $Self->{ParamObject}->GetParam( Param => 'IncludeUnknownTicketCustomers' ) || 0 );
         my $LikeEscapeString = $Self->{DBObject}->GetDatabaseFunction('LikeEscapeString');
 
         # workaround, all auto completion requests get posted by utf8 anyway
@@ -66,53 +67,43 @@ sub Run {
             Search => $Search,
         );
 
+        # add customers that are not saved in any backend
+        if ($IncludeUnknownTicketCustomers) {
+            my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $Search, 'Like' ) . '%';
+            my $SQL = "SELECT DISTINCT customer_user_id FROM ticket WHERE customer_user_id LIKE ? $LikeEscapeString";
+            
+            $Self->{DBObject}->Prepare(
+                SQL  => $SQL,
+                Bind => [ \$QuotedSearch ],
+            );
+
+            # fetch the result
+            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+                $CustomerUserList{$Row[0]}=$Row[0];
+            }   
+        } 
+
         # build data
         my @Data;
-        my $MaxResultCount = $MaxResults;
         CUSTOMERUSERID:
-        for my $CustomerUserID (
-            sort { $CustomerUserList{$a} cmp $CustomerUserList{$b} }
-            keys %CustomerUserList
-            )
+        for my $CustomerUserID (sort keys %CustomerUserList)
         {
-
+         
             my $CustomerValue = $CustomerUserList{$CustomerUserID};
 
             # replace new lines with one space (see bug#11133)
             $CustomerValue =~ s/\n/ /gs;
             $CustomerValue =~ s/\r/ /gs;
 
-            push @Data, {
-                CustomerKey   => $CustomerUserID,
-                CustomerValue => $CustomerValue,
-            };
-
-            $MaxResultCount--;
-            last CUSTOMERUSERID if $MaxResultCount <= 0;
-        }
-
-        # add customers that are not saved in any backend
-        my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $Search, 'Like' ) . '%';
-        my $SQL = "SELECT DISTINCT customer_user_id FROM ticket WHERE customer_user_id LIKE ? $LikeEscapeString";
-        $Self->{DBObject}->Prepare(
-            SQL  => $SQL,
-            Bind => [ \$QuotedSearch ],
-        );
-
-        # fetch the result
-        if ( scalar @Data < $MaxResults ) {
-            TICKETCUSTOMERID:
-            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
-                if ( $Row[0] && !( grep { $_->{CustomerKey} eq $Row[0] } @Data ) ) {
-                    push @Data,
-                        {
-                        CustomerKey   => $Row[0],
-                        CustomerValue => $Row[0]
-                        };
-                    last TICKETCUSTOMERID if scalar @Data >= $MaxResults;
-                }
+            if (  !( grep { $_->{Value} eq $CustomerValue } @Data ) ) {
+                push @Data, {
+                    CustomerKey   => $CustomerUserID,
+                    CustomerValue => $CustomerValue,
+                };
             }
+            last CUSTOMERUSERID if scalar @Data >= $MaxResults;
         }
+
 
         # build JSON output
         $JSON = $Self->{LayoutObject}->JSONEncode(
