@@ -69,16 +69,32 @@ sub Run {
     my $LikeEscapeString   = $Self->{DBObject}->GetDatabaseFunction('LikeEscapeString');
 
     my $MaxResults = $AutoCompleteConfig->{MaxResultsDisplayed} || 20;
+    my $IncludeUnknownTicketCustomers = int( $Self->{ParamObject}->GetParam( Param => 'IncludeUnknownTicketCustomers' ) || 0 );
     my $SearchTerm = $Self->{ParamObject}->GetParam( Param => 'Term' ) || '';
 
     if ( $Self->{Subaction} eq 'SearchCustomerID' ) {
+        my %CustomerCompanyList = $Self->{CustomerCompanyObject}->CustomerCompanyList(
+            Search => $SearchTerm,
+        );
+
+        # build result list
+        my @Result;
+        # add customers that are not saved in any backend
+        if ($IncludeUnknownTicketCustomers) {
+            my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $SearchTerm, 'Like' ) . '%';
+            my $SQL = "SELECT DISTINCT customer_id FROM ticket WHERE customer_id LIKE ? $LikeEscapeString";
+            
+            $Self->{DBObject}->Prepare(
+                SQL  => $SQL,
+                Bind => [ \$QuotedSearch ],
+            );
+            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+                $CustomerCompanyList{$Row[0]}=$Row[0];
+            }
+        }
 
         my @CustomerIDs = $Self->{CustomerUserObject}->CustomerIDList(
             SearchTerm => $SearchTerm,
-        );
-
-        my %CustomerCompanyList = $Self->{CustomerCompanyObject}->CustomerCompanyList(
-            Search => $SearchTerm,
         );
 
         # add CustomerIDs for which no CustomerCompany are registered
@@ -96,40 +112,17 @@ sub Run {
 
         }
 
-        # build result list
-        my @Result;
         CUSTOMERID:
         for my $CustomerID ( sort keys %CustomerCompanyList ) {
-            push @Result,
+            if ( !( grep { $_->{Value} eq $CustomerID } @Result ) ) {
+                push @Result,
                 {
                 Label => $CustomerCompanyList{$CustomerID},
                 Value => $CustomerID
                 };
+            }        
             last CUSTOMERID if scalar @Result >= $MaxResults;
-        }
-
-        # add customers that are not saved in any backend
-        my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $SearchTerm, 'Like' ) . '%';
-        my $SQL = "SELECT DISTINCT customer_id FROM ticket WHERE customer_id LIKE ? $LikeEscapeString";
-        $Self->{DBObject}->Prepare(
-            SQL  => $SQL,
-            Bind => [ \$QuotedSearch ],
-        );
-
-        # fetch the result
-        if ( scalar @Result < $MaxResults ) {
-            TICKETCUSTOMERID:
-            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
-                if ( $Row[0] && !( grep { $_->{Value} eq $Row[0] } @Result ) ) {
-
-                    push @Result,
-                        {
-                        Label => $Row[0],
-                        Value => $Row[0]
-                        };
-                    last TICKETCUSTOMERID if scalar @Result >= $MaxResults;
-                }
-            }
+                
         }
 
         my $JSON = $Self->{LayoutObject}->JSONEncode(
@@ -149,49 +142,40 @@ sub Run {
             Search => $SearchTerm,
         );
 
-        my @Result;
+        # add customers that are not saved in any backend
+        if ($IncludeUnknownTicketCustomers) { 
+            my $LikeEscapeString = $Self->{DBObject}->GetDatabaseFunction('LikeEscapeString');
+            my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $SearchTerm, 'Like' ) . '%';
+            my $SQL
+                = "SELECT DISTINCT customer_user_id,customer_id FROM ticket WHERE customer_user_id LIKE ? $LikeEscapeString";
 
-        my $Count = 1;
+            $Self->{DBObject}->Prepare(
+                SQL  => $SQL,
+                Bind => [ \$QuotedSearch ],
+            );
+
+            # fetch the result
+            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+                $CustomerList{$Row[0]}=$Row[1];
+            }   
+        }
+
+        my @Result;
 
         CUSTOMERLOGIN:
         for my $CustomerLogin ( sort keys %CustomerList ) {
             my %CustomerData = $Self->{CustomerUserObject}->CustomerUserDataGet(
                 User => $CustomerLogin,
             );
-            push @Result,
+            if ( !( grep { $_->{Value} eq $CustomerData{UserCustomerID} } @Result ) ) {
+                push @Result,
                 {
                 Label => $CustomerList{$CustomerLogin},
                 Value => $CustomerData{UserCustomerID}
                 };
-
-            last CUSTOMERLOGIN if $Count++ >= $MaxResults;
-        }
-
-        # add customers that are not saved in any backend
-        my $LikeEscapeString = $Self->{DBObject}->GetDatabaseFunction('LikeEscapeString');
-        my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $SearchTerm, 'Like' ) . '%';
-        my $SQL
-            = "SELECT DISTINCT customer_user_id,customer_id FROM ticket WHERE customer_user_id LIKE ? $LikeEscapeString";
-        $Self->{DBObject}->Prepare(
-            SQL  => $SQL,
-            Bind => [ \$QuotedSearch ],
-        );
-
-        # fetch the result
-        if ( scalar @Result < $MaxResults ) {
-            TICKETCUSTOMERLOGIN:
-            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
-                my @CustomerIDs = $Self->{CustomerUserObject}->CustomerIDs( $Row[0] );
-                if ( $Row[0] && !( grep { $_->{Value} eq $Row[1] } @Result ) ) {
-
-                    push @Result,
-                        {
-                        Label => $Row[0],
-                        Value => $Row[1]
-                        };
-                    last TICKETCUSTOMERLOGIN if scalar @Result >= $MaxResults;
-                }
-            }
+            }        
+            last CUSTOMERLOGIN if scalar @Result >= $MaxResults;
+            
         }
 
         my $JSON = $Self->{LayoutObject}->JSONEncode(
