@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/SLAPreferencesGeneric.pm
+# Kernel/Output/HTML/SLAPreferences/SLAPreferencesGeneric.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,10 +7,15 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::SLAPreferencesGeneric;
+package Kernel::Output::HTML::SLAPreferences::SLAPreferencesGeneric;
 
 use strict;
 use warnings;
+
+our @ObjectDependencies = (
+    'Kernel::System::Web::Request',
+    'Kernel::System::SLA',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -24,12 +29,6 @@ sub new {
         $Self->{$_} = $Param{$_};
     }
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem SLAObject))
-    {
-        die "Got no $_!" if ( !$Self->{$_} );
-    }
-
     return $Self;
 }
 
@@ -37,7 +36,7 @@ sub Param {
     my ( $Self, %Param ) = @_;
 
     my @Params = ();
-    my $GetParam = $Self->{ParamObject}->GetParam( Param => $Self->{ConfigItem}->{PrefKey} );
+    my $GetParam = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => $Self->{ConfigItem}->{PrefKey} );
     if ( !defined($GetParam) ) {
         $GetParam = defined( $Param{SLAData}->{ $Self->{ConfigItem}->{PrefKey} } )
             ? $Param{SLAData}->{ $Self->{ConfigItem}->{PrefKey} }
@@ -62,7 +61,7 @@ sub Run {
         for (@Array) {
 
             # pref update db
-            $Self->{SLAObject}->SLAPreferencesSet(
+            $Kernel::OM->Get('Kernel::System::SLA')->SLAPreferencesSet(
                 SLAID => $Param{SLAData}->{SLAID},
                 Key   => $Key,
                 Value => $_,
