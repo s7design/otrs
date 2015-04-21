@@ -48,25 +48,23 @@ sub Run {
     my $SearchTerm = $Self->{ParamObject}->GetParam( Param => 'Term' ) || '';
 
     if ( $Self->{Subaction} eq 'SearchCustomerID' ) {
+
+        # build result list
+        my $UnknownTicketCustomerList;
+       
+        if ($IncludeUnknownTicketCustomers) {
+            
+            # add customers that are not saved in any backend
+            $UnknownTicketCustomerList = $Kernel::OM->Get('Kernel::System::Ticket')->SearchUnknownTicketCustomers(
+                SearchTerm => $SearchTerm,
+            );
+        }  
+
         my %CustomerCompanyList = $Self->{CustomerCompanyObject}->CustomerCompanyList(
             Search => $SearchTerm,
         );
+        map {$CustomerCompanyList{$_} = $UnknownTicketCustomerList->{$_}} keys %{$UnknownTicketCustomerList};
 
-        # build result list
-        my @Result;
-        # add customers that are not saved in any backend
-        if ($IncludeUnknownTicketCustomers) {
-            my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $SearchTerm, 'Like' ) . '%';
-            my $SQL = "SELECT DISTINCT customer_id FROM ticket WHERE customer_id LIKE ? $LikeEscapeString";
-            
-            $Self->{DBObject}->Prepare(
-                SQL  => $SQL,
-                Bind => [ \$QuotedSearch ],
-            );
-            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
-                $CustomerCompanyList{$Row[0]}=$Row[0];
-            }
-        }
 
         my @CustomerIDs = $Self->{CustomerUserObject}->CustomerIDList(
             SearchTerm => $SearchTerm,
@@ -86,6 +84,8 @@ sub Run {
             }
 
         }
+
+        my @Result;
 
         CUSTOMERID:
         for my $CustomerID ( sort keys %CustomerCompanyList ) {
@@ -113,27 +113,20 @@ sub Run {
     }
     elsif ( $Self->{Subaction} eq 'SearchCustomerUser' ) {
 
+        my $UnknownTicketCustomerList;
+       
+        if ($IncludeUnknownTicketCustomers) {
+            
+            # add customers that are not saved in any backend
+            $UnknownTicketCustomerList = $Kernel::OM->Get('Kernel::System::Ticket')->SearchUnknownTicketCustomers(
+                SearchTerm => $SearchTerm,
+            );
+        }  
+
         my %CustomerList = $Self->{CustomerUserObject}->CustomerSearch(
             Search => $SearchTerm,
         );
-
-        # add customers that are not saved in any backend
-        if ($IncludeUnknownTicketCustomers) { 
-            my $LikeEscapeString = $Self->{DBObject}->GetDatabaseFunction('LikeEscapeString');
-            my $QuotedSearch = '%' . $Self->{DBObject}->Quote( $SearchTerm, 'Like' ) . '%';
-            my $SQL
-                = "SELECT DISTINCT customer_user_id,customer_id FROM ticket WHERE customer_user_id LIKE ? $LikeEscapeString";
-
-            $Self->{DBObject}->Prepare(
-                SQL  => $SQL,
-                Bind => [ \$QuotedSearch ],
-            );
-
-            # fetch the result
-            while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
-                $CustomerList{$Row[0]}=$Row[1];
-            }   
-        }
+        map {$CustomerList{$_} = $UnknownTicketCustomerList->{$_}} keys %{$UnknownTicketCustomerList};
 
         my @Result;
 
