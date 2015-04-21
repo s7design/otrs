@@ -32,14 +32,26 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my %QueuePreferences = (
+            Module  => "Kernel::Output::HTML::QueuePreferences::QueuePreferencesGeneric",
+            Label   => "Comment2",
+            Desc    => "Define the queue comment 2.",
+            Block   => "TextArea",
+            Cols    => 50,
+            Rows    => 5,
+            PrefKey => "Comment2",
+        );
 
-        # do not check RichText
-        $SysConfigObject->ConfigItemUpdate(
+        # enable QueuePreferences
+        $Kernel::OM->Get('Kernel::Config')->Set(
+            Key   => 'QueuePreferences###Comment2',
+            Value => \%QueuePreferences,
+        );
+
+        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'QueuePreferences',
-            Value => 1,
+            Key   => 'QueuePreferences###Comment2',
+            Value => \%QueuePreferences,
         );
 
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -54,35 +66,11 @@ $Selenium->RunTest(
 
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
+        # go to queue admin
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminQueue");
 
-
-            my $Data = $Selenium->screenshot();
-            if ($Data ){
-                $Data = MIME::Base64::decode_base64($Data);
-
-                # This file should survive unit test scenario runs, so save it in a global directory.
-                my ( $FH, $Filename ) = File::Temp::tempfile(
-                    DIR    => '/tmp/',
-                    SUFFIX => '.png',
-                    UNLINK => 0,
-                );
-                close $FH;
-                $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
-                    Location => $Filename,
-                    Content  => \$Data,
-                );
-
-                $Self->True(
-                    1,
-                    "Saved screenshot in file://$Filename",
-                );
-            }
-
-
-
         # add new queue
-        $Selenium->find_element("//a[contains(\@href, \'Action=AdminQueue;Subaction=Add' )]")->click();
+        $Selenium->find_element( "a.Create", 'css' )->click();
 
         # check add page, and especially included queue attribute Comment2
         for my $ID (
@@ -94,76 +82,89 @@ $Selenium->RunTest(
             $Element->is_displayed();
         }
 
-        # # create a real test queue
-        # my $RandomQueueName = "Queue".$Helper->GetRandomID();
+        # create a real test queue
+        my $RandomQueueName = "Queue" . $Helper->GetRandomID();
 
-        # $Selenium->find_element( "#Name",                         'css' )->send_keys($RandomQueueName);
-        # $Selenium->find_element( "#GroupID option[value='1']",    'css' )->click();
-        # $Selenium->find_element( "#FollowUpID option[value='1']", 'css' )->click();
-        # $Selenium->find_element( "#SalutationID option[value='1']",    'css' )->click();
-        # $Selenium->find_element( "#SystemAddressID option[value='1']", 'css' )->click();
-        # $Selenium->find_element( "#SignatureID option[value='1']",     'css' )->click();
-        # $Selenium->find_element( "#ValidID option[value='1']",         'css' )->click();
+        $Selenium->find_element( "#Name",                              'css' )->send_keys($RandomQueueName);
+        $Selenium->find_element( "#GroupID option[value='1']",         'css' )->click();
+        $Selenium->find_element( "#FollowUpID option[value='1']",      'css' )->click();
+        $Selenium->find_element( "#SalutationID option[value='1']",    'css' )->click();
+        $Selenium->find_element( "#SystemAddressID option[value='1']", 'css' )->click();
+        $Selenium->find_element( "#SignatureID option[value='1']",     'css' )->click();
+        $Selenium->find_element( "#ValidID option[value='1']",         'css' )->click();
 
-        # # set included queue attribute Comment2
-        # $Selenium->find_element( "#Comment2",                           'css' )->send_keys('QueuePreferences Comment2');
-        # $Selenium->find_element( "#Name",                              'css' )->submit();
+        # set included queue attribute Comment2
+        $Selenium->find_element( "#Comment2", 'css' )->send_keys('QueuePreferences Comment2');
+        $Selenium->find_element( "#Name",     'css' )->submit();
 
-        # # check if test queue is created
-        # $Self->True(
-        #     index( $Selenium->get_page_source(), $RandomQueueName ) > -1,
-        #     'New queue found on table'
-        # );
+        # check if test queue is created
+        $Self->True(
+            index( $Selenium->get_page_source(), $RandomQueueName ) > -1,
+            'New queue found on table'
+        );
 
-        # # go to new queue again
-        # $Selenium->find_element( $RandomQueueName, 'link_text' )->click();
+        # go to new queue again
+        $Selenium->find_element( $RandomQueueName, 'link_text' )->click();
 
-        # # check queue value for Comment2
-        # $Self->Is(
-        #     $Selenium->find_element( '#Comment2', 'css' )->get_value(),
-        #     'QueuePreferences Comment2',
-        #     "#Comment2 stored value",
-        # );
+        # check queue value for Comment2
+        $Self->Is(
+            $Selenium->find_element( '#Comment2', 'css' )->get_value(),
+            'QueuePreferences Comment2',
+            "#Comment2 stored value",
+        );
 
-        # # update queue
-        # my $UpdatedComment = "Updated comment for QueuePreferences Comment2";
-        # my $UpdatedName = $RandomQueueName."-updated";
-        # $Selenium->find_element( "#Name",                         'css' )->clear();
-        # $Selenium->find_element( "#Name",                         'css' )->send_keys($UpdatedName);
-        # $Selenium->find_element( "#Comment2", 'css' )->clear();
-        # $Selenium->find_element( "#Comment2", 'css' )->send_keys($UpdatedComment);
-        # $Selenium->find_element( "#Comment2", 'css' )->submit();
+        # update queue
+        my $UpdatedComment = "Updated comment for QueuePreferences Comment2";
+        my $UpdatedName    = $RandomQueueName . "-updated";
+        $Selenium->find_element( "#Name",     'css' )->clear();
+        $Selenium->find_element( "#Name",     'css' )->send_keys($UpdatedName);
+        $Selenium->find_element( "#Comment2", 'css' )->clear();
+        $Selenium->find_element( "#Comment2", 'css' )->send_keys($UpdatedComment);
+        $Selenium->find_element( "#Comment2", 'css' )->submit();
 
-        # # check updated values
-        # $Selenium->find_element( $UpdatedName, 'link_text' )->click();
-        # $Self->Is(
-        #     $Selenium->find_element( '#Name', 'css' )->get_value(),
-        #     $UpdatedName,
-        #     "#Name updated value",
-        # );
-        # $Self->Is(
-        #     $Selenium->find_element( '#Comment2', 'css' )->get_value(),
-        #     $UpdatedComment,
-        #     "#Comment2 updated value",
-        # );
+        # check updated values
+        $Selenium->find_element( $UpdatedName, 'link_text' )->click();
+        $Self->Is(
+            $Selenium->find_element( '#Name', 'css' )->get_value(),
+            $UpdatedName,
+            "#Name updated value",
+        );
+        $Self->Is(
+            $Selenium->find_element( '#Comment2', 'css' )->get_value(),
+            $UpdatedComment,
+            "#Comment2 updated value",
+        );
 
-        # # delete test queue
-        # my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueLookup(
-        #     Queue => $UpdatedName,
-        # );
-        # my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-        #     SQL => "DELETE FROM queue WHERE id = $QueueID",
-        # );
-        # $Self->True(
-        #     $Success,
-        #     "QueueDelete - $UpdatedName",
-        # );
+        # delete test queue
+        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueLookup(
+            Queue => $UpdatedName,
+        );
+        my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+            SQL => "DELETE FROM queue_preferences WHERE queue_id = $QueueID",
+        );
+        $Self->True(
+            $Success,
+            "QueuePreferences are deleted - $UpdatedName",
+        );
+        $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+            SQL => "DELETE FROM queue WHERE id = $QueueID",
+        );
+        $Self->True(
+            $Success,
+            "Queue is deleted - $UpdatedName",
+        );
 
-        # # Make sure the cache is correct.
-        # $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-        #     Type => 'Queue',
-        # );
-    }
+        # make sure the cache is correct.
+        for my $Cache (
+            qw (Queue SysConfig)
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
+
+        }
 );
 
 1;
