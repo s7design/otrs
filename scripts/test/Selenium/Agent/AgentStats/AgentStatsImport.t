@@ -32,6 +32,21 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # get sys config object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        # do not check service and type
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Service',
+            Value => 0
+        );
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Type',
+            Value => 0
+        );
+
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users', 'stats' ],
@@ -52,6 +67,15 @@ $Selenium->RunTest(
         $Selenium->find_element( "#file_upload", 'css' )->send_keys($Location);
         $Selenium->find_element("//button[\@value='Import'][\@type='submit']")->click();
 
+        # wait until test stat is imported, if neccessary
+        ACTIVESLEEP:
+        for my $Second ( 1 .. 20 ) {
+            if ( $Selenium->execute_script("return \$('#compose').length") ) {
+                last ACTIVESLEEP;
+            }
+            sleep 1;
+        }
+
         # create params for import test stats
         my %StatsValues =
             (
@@ -65,7 +89,7 @@ $Selenium->RunTest(
             );
 
         # check for imported values on test stat
-        for my $StatsValue (%StatsValues) {
+        for my $StatsValue ( sort keys %StatsValues ) {
             $Self->True(
                 index( $Selenium->get_page_source(), $StatsValues{$StatsValue} ) > -1,
                 "Expexted param $StatsValue for imported stat is founded - $StatsValues{$StatsValue}"
@@ -74,7 +98,8 @@ $Selenium->RunTest(
 
         # navigate to AgentStats Overview screen with descending order
         $Selenium->get(
-            "${ScriptAlias}index.pl?Action=AgentStats;Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1");
+            "${ScriptAlias}index.pl?Action=AgentStats;Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1"
+        );
 
         # get stats object
         $Kernel::OM->ObjectParamAdd(
@@ -102,7 +127,8 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentStats;Subaction=View;StatID=$StatsIDLast\' )]")
             ->click();
         $Selenium->find_element(
-            "//a[contains(\@href, \'Action=AgentStats;Subaction=EditSpecification;StatID=$StatsIDLast\' )]")->click();
+            "//a[contains(\@href, \'Action=AgentStats;Subaction=EditSpecification;StatID=$StatsIDLast\' )]"
+        )->click();
 
         # Step 1
         my $EditStatTitle = "Edited Imported Stat " . $Helper->GetRandomID();

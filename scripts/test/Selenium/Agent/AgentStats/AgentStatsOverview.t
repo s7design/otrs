@@ -32,6 +32,21 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # get sys config object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        # do not check service and type
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Service',
+            Value => 0
+        );
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Type',
+            Value => 0
+        );
+
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users', 'stats' ],
@@ -137,8 +152,8 @@ $Selenium->RunTest(
 
             # click on default statistic
             $Selenium->find_element(
-                "//a[contains(\@href, \'Action=AgentStats;Subaction=View;StatID=$AgentStatsOverview->{StatID}\' )]")
-                ->click();
+                "//a[contains(\@href, \'Action=AgentStats;Subaction=View;StatID=$AgentStatsOverview->{StatID}\' )]"
+            )->click();
 
             for my $StatsParam (qw( Title Object Description Format)) {
 
