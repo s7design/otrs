@@ -67,7 +67,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#file_upload", 'css' )->send_keys($Location);
         $Selenium->find_element("//button[\@value='Import'][\@type='submit']")->click();
 
-        # wait until test stat is imported, if neccessary
+        # wait until test stats is imported, if neccessary
         ACTIVESLEEP:
         for my $Second ( 1 .. 20 ) {
             if ( $Selenium->execute_script("return \$('#compose').length") ) {
@@ -88,11 +88,11 @@ $Selenium->RunTest(
             Restriction => 'No element selected.',
             );
 
-        # check for imported values on test stat
+        # check for imported values on test stats
         for my $StatsValue ( sort keys %StatsValues ) {
             $Self->True(
                 index( $Selenium->get_page_source(), $StatsValues{$StatsValue} ) > -1,
-                "Expexted param $StatsValue for imported stat is founded - $StatsValues{$StatsValue}"
+                "Expexted param $StatsValue for imported stats is founded - $StatsValues{$StatsValue}"
             );
         }
 
@@ -117,13 +117,13 @@ $Selenium->RunTest(
         my $Count       = scalar @{$StatsIDs};
         my $StatsIDLast = $StatsIDs->[ $Count - 1 ];
 
-        # check for imported stat on overview screen
+        # check for imported stats on overview screen
         $Self->True(
             index( $Selenium->get_page_source(), $StatsValues{Title} ) > -1,
             "Imported stat $StatsValues{Title} - found on overview screen"
         );
 
-        # click on imported stat to edit it
+        # click on imported stats to edit it
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentStats;Subaction=View;StatID=$StatsIDLast\' )]")
             ->click();
         $Selenium->find_element(
@@ -131,7 +131,7 @@ $Selenium->RunTest(
         )->click();
 
         # Step 1
-        my $EditStatTitle = "Edited Imported Stat " . $Helper->GetRandomID();
+        my $EditStatTitle = "Edited Imported Stats " . $Helper->GetRandomID();
         $Selenium->find_element( "#Title", 'css' )->clear();
         $Selenium->find_element( "#Title", 'css' )->send_keys($EditStatTitle);
         $Selenium->find_element("//button[\@value='Next...'][\@type='submit']")->click();
@@ -171,10 +171,16 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete\' )]")->click();
         $Selenium->find_element("//button[\@value='Yes'][\@type='submit']")->click();
 
-        # sort descending stats by ID
-        $Selenium->get("${ScriptAlias}index.pl?Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1");
+        # wait until test stats is deleted, if neccessary
+        ACTIVESLEEP:
+        for my $Second ( 1 .. 20 ) {
+            if ( $Selenium->execute_script("return \$('.ContentColumn').length") ) {
+                last ACTIVESLEEP;
+            }
+            sleep 1;
+        }
 
-        # check if stat is deleted
+        # check if stats is deleted
         $Self->True(
             index( $Selenium->get_page_source(), $EditStatTitle ) == -1,
             "$EditStatTitle is deleted"

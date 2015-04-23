@@ -202,73 +202,73 @@ $Selenium->RunTest(
 
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
-        # create selenium tests for each stat object, check page, values and delete test
-        for my $Stat (@Tests) {
+        # create selenium tests for each stats object, check page, values and delete test
+        for my $Stats (@Tests) {
 
             $Selenium->get("${ScriptAlias}index.pl?Action=AgentStats;Subaction=Add");
 
             # Step 1
             # check page
-            for my $Step1Fields ( values @{ $Stat->{Step1Fields} } ) {
+            for my $Step1Fields ( values @{ $Stats->{Step1Fields} } ) {
                 $Selenium->find_element( "#$Step1Fields", 'css' )->is_displayed();
             }
 
             # input params
-            $Selenium->find_element( "#Title",       'css' )->send_keys( $Stat->{Title} );
+            $Selenium->find_element( "#Title",       'css' )->send_keys( $Stats->{Title} );
             $Selenium->find_element( "#Description", 'css' )->send_keys("Selenium test stat");
-            $Selenium->find_element( "#Object option[value='$Stat->{Object}']", 'css' )->click();
+            $Selenium->find_element( "#Object option[value='$Stats->{Object}']", 'css' )->click();
             $Selenium->find_element("//button[\@value='Next...'][\@type='submit']")->click();
 
             # Step 2
             # check page
-            for my $Step2Fields ( values @{ $Stat->{Step2Fields} } ) {
+            for my $Step2Fields ( values @{ $Stats->{Step2Fields} } ) {
                 $Selenium->find_element("//input[\@value='$Step2Fields']")->is_displayed();
             }
 
             # input params
-            $Selenium->find_element( "#$Stat->{XAxis}", 'css' )->click();
+            $Selenium->find_element( "#$Stats->{XAxis}", 'css' )->click();
             $Selenium->find_element("//button[\@value='Next...'][\@type='submit']")->click();
 
             # Step 3
             # check page
-            for my $Step3Fields ( values @{ $Stat->{Step3Fields} } ) {
+            for my $Step3Fields ( values @{ $Stats->{Step3Fields} } ) {
                 $Selenium->find_element("//input[\@name='Select$Step3Fields']")->is_displayed();
             }
 
             # input params
-            $Selenium->find_element( "#$Stat->{ValueSeries}", 'css' )->click();
+            $Selenium->find_element( "#$Stats->{ValueSeries}", 'css' )->click();
             $Selenium->find_element("//button[\@value='Next...'][\@type='submit']")->click();
 
             # Step 4
             # check page
-            for my $Step4Fields ( values @{ $Stat->{Step4Fields} } ) {
+            for my $Step4Fields ( values @{ $Stats->{Step4Fields} } ) {
                 $Selenium->find_element("//input[\@name='Select$Step4Fields']")->is_displayed();
             }
 
             # input params
-            if ( $Stat->{Object} eq "TicketSolutionResponseTime" ) {
-                $Selenium->find_element("//input[\@name='$Stat->{Restriction}->{Field}']")->click();
+            if ( $Stats->{Object} eq "TicketSolutionResponseTime" ) {
+                $Selenium->find_element("//input[\@name='$Stats->{Restriction}->{Field}']")->click();
                 $Selenium->find_element(
-                    "//input[\@value='Relativ'][\@name='$Stat->{Restriction}->{RestrictionPeriod}']")->click();
-                $Selenium->find_element( "#$Stat->{Restriction}->{RestrictionPeriodUnit}", 'css' )->click();
+                    "//input[\@value='Relativ'][\@name='$Stats->{Restriction}->{RestrictionPeriod}']")->click();
+                $Selenium->find_element( "#$Stats->{Restriction}->{RestrictionPeriodUnit}", 'css' )->click();
             }
-            elsif ( $Stat->{Object} eq "TicketAccountedTime" ) {
-                $Selenium->find_element("//input[\@name='$Stat->{Restriction}']")->click();
+            elsif ( $Stats->{Object} eq "TicketAccountedTime" ) {
+                $Selenium->find_element("//input[\@name='$Stats->{Restriction}']")->click();
             }
-            elsif ( $Stat->{Object} eq "TicketList" ) {
-                $Selenium->find_element( "#$Stat->{Restriction}", 'css' )->click();
+            elsif ( $Stats->{Object} eq "TicketList" ) {
+                $Selenium->find_element( "#$Stats->{Restriction}", 'css' )->click();
                 $Selenium->find_element("//input[\@name='FixedLimit']")->click();
             }
             else {
-                $Selenium->find_element( "#$Stat->{Restriction}", 'css' )->click();
+                $Selenium->find_element( "#$Stats->{Restriction}", 'css' )->click();
             }
             $Selenium->find_element("//button[\@value='Finish'][\@type='submit']")->click();
 
-            # verify stat params
-            for my $StatValue ( sort keys %{ $Stat->{ExpectedValues} } ) {
+            # verify stats params
+            for my $StatsValue ( sort keys %{ $Stats->{ExpectedValues} } ) {
                 $Self->True(
-                    index( $Selenium->get_page_source(), $Stat->{ExpectedValues}->{$StatValue} ) > -1,
-                    "Expexted $StatValue for stat is founded - $Stat->{ExpectedValues}->{$StatValue}"
+                    index( $Selenium->get_page_source(), $Stats->{ExpectedValues}->{$StatsValue} ) > -1,
+                    "Expexted $StatsValue for stats is founded - $Stats->{ExpectedValues}->{$StatsValue}"
                 );
             }
 
@@ -292,10 +292,10 @@ $Selenium->RunTest(
             $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete\' )]")->click();
 
             # check delete action screen
-            for my $StatData ( $Stat->{Title}, $StatsIDLast ) {
+            for my $StatsData ( $Stats->{Title}, $StatsIDLast ) {
                 $Self->True(
-                    index( $Selenium->get_page_source(), $StatData ) > -1,
-                    "$StatData is founded on delete action screen"
+                    index( $Selenium->get_page_source(), $StatsData ) > -1,
+                    "$StatsData is founded on delete action screen"
                 );
             }
 
@@ -305,10 +305,10 @@ $Selenium->RunTest(
             # sort descending stats by ID
             $Selenium->get("${ScriptAlias}index.pl?Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1");
 
-            # check if stat is deleted
+            # check if stats is deleted
             $Self->True(
-                index( $Selenium->get_page_source(), $Stat->{Title} ) == -1,
-                "$Stat->{Title} is deleted"
+                index( $Selenium->get_page_source(), $Stats->{Title} ) == -1,
+                "$Stats->{Title} is deleted"
             );
 
         }

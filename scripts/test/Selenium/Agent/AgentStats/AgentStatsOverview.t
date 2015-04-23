@@ -114,7 +114,7 @@ $Selenium->RunTest(
                 Title       => 'Overview about all tickets in the system',
                 Object      => 'TicketAccumulation',
                 Description => 'Current state of all tickets in the system without time restrictions.',
-                Format      => 'CSV',
+                Format      => 'Print',
                 StatID      => '7',
             },
             {
@@ -147,7 +147,7 @@ $Selenium->RunTest(
             },
         );
 
-        # test AgentStats overview for default statistics
+        # test AgentStats overview for default statistics ( in English )
         for my $AgentStatsOverview (@Tests) {
 
             # click on default statistic
@@ -164,7 +164,7 @@ $Selenium->RunTest(
                 );
             }
 
-            $Selenium->go_back();
+            $Selenium->find_element( "Go to overview", 'link_text' )->click();
 
         }
 

@@ -23,13 +23,13 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
-    # check needed objects
+    # check needed params
     for my $NeededData (
-        qw( UserID Subaction AccessRo )
+        qw( UserID Subaction AccessRo SessionID )
         )
     {
         if ( !$Param{$NeededData} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $NeededData!" );
+            $Kernel::OM->Get('Kernel::Output::HTML::Layout')->FatalError( Message => "Got no $NeededData!" );
         }
         $Self->{$NeededData} = $Param{$NeededData};
     }
@@ -2774,19 +2774,6 @@ sub _ColumnAndRowTranslation {
         }
     }
 
-    # get config object
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    # create the needed language object
-    use Kernel::Language;
-    $Self->{LanguageObject} = Kernel::Language->new(
-        MainObject   => $Kernel::OM->Get('Kernel::System::Main'),
-        ConfigObject => $ConfigObject,
-        EncodeObject => $Kernel::OM->Get('Kernel::System::Encode'),
-        LogObject    => $Kernel::OM->Get('Kernel::System::Log'),
-        UserLanguage => $Param{UserLanguage} || $ConfigObject->Get('DefaultLanguage') || 'en',
-    );
-
     # find out, if the column or row names should be translated
     my %Translation;
     my %Sort;
@@ -2838,13 +2825,16 @@ sub _ColumnAndRowTranslation {
         $Sort{UseAsValueSeries} = $SortUseAsXvalueOld;
     }
 
+    # get layout object
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     # translate the headline
-    $Param{HeadArrayRef}->[0] = $Self->{LanguageObject}->Translate( $Param{HeadArrayRef}->[0] );
+    $Param{HeadArrayRef}->[0] = $LayoutObject->{LanguageObject}->Translate( $Param{HeadArrayRef}->[0] );
 
     if ( $Translation{UseAsXvalue} && $Translation{UseAsXvalue} eq 'Time' ) {
         for my $Word ( @{ $Param{HeadArrayRef} } ) {
             if ( $Word =~ m{ ^ (\w+?) ( \s \d+ ) $ }smx ) {
-                my $TranslatedWord = $Self->{LanguageObject}->Translate($1);
+                my $TranslatedWord = $LayoutObject->{LanguageObject}->Translate($1);
                 $Word =~ s{ ^ ( \w+? ) ( \s \d+ ) $ }{$TranslatedWord$2}smx;
             }
         }
@@ -2852,7 +2842,7 @@ sub _ColumnAndRowTranslation {
 
     elsif ( $Translation{UseAsXvalue} ) {
         for my $Word ( @{ $Param{HeadArrayRef} } ) {
-            $Word = $Self->{LanguageObject}->Translate($Word);
+            $Word = $LayoutObject->{LanguageObject}->Translate($Word);
         }
     }
 
@@ -2907,7 +2897,7 @@ sub _ColumnAndRowTranslation {
     if ( $Translation{UseAsValueSeries} && $Translation{UseAsValueSeries} eq 'Time' ) {
         for my $Word ( @{ $Param{StatArrayRef} } ) {
             if ( $Word->[0] =~ m{ ^ (\w+?) ( \s \d+ ) $ }smx ) {
-                my $TranslatedWord = $Self->{LanguageObject}->Translate($1);
+                my $TranslatedWord = $LayoutObject->{LanguageObject}->Translate($1);
                 $Word->[0] =~ s{ ^ ( \w+? ) ( \s \d+ ) $ }{$TranslatedWord$2}smx;
             }
         }
@@ -2916,7 +2906,7 @@ sub _ColumnAndRowTranslation {
 
         # translate
         for my $Word ( @{ $Param{StatArrayRef} } ) {
-            $Word->[0] = $Self->{LanguageObject}->Translate( $Word->[0] );
+            $Word->[0] = $LayoutObject->{LanguageObject}->Translate( $Word->[0] );
         }
     }
 
