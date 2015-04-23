@@ -49,6 +49,8 @@ sub Run {
         # get needed params
         my $Search = $Self->{ParamObject}->GetParam( Param => 'Term' ) || '';
         my $MaxResults = int( $Self->{ParamObject}->GetParam( Param => 'MaxResults' ) || 20 );
+        my $IncludeUnknownTicketCustomers = int( $Self->{ParamObject}->GetParam( Param => 'IncludeUnknownTicketCustomers' ) || 0 );
+        my $LikeEscapeString = $Self->{DBObject}->GetDatabaseFunction('LikeEscapeString');
 
         # workaround, all auto completion requests get posted by utf8 anyway
         # convert any to 8bit string if application is not running in utf8
@@ -60,35 +62,43 @@ sub Run {
             );
         }
 
+        my $UnknownTicketCustomerList;
+       
+        if ($IncludeUnknownTicketCustomers) {
+            
+            # add customers that are not saved in any backend
+            $UnknownTicketCustomerList = $Kernel::OM->Get('Kernel::System::Ticket')->SearchUnknownTicketCustomers(
+                SearchTerm => $Search,
+            );
+        }  
+
         # get customer list
         my %CustomerUserList = $Self->{CustomerUserObject}->CustomerSearch(
             Search => $Search,
         );
+        map {$CustomerUserList{$_} = $UnknownTicketCustomerList->{$_}} keys %{$UnknownTicketCustomerList};
 
         # build data
         my @Data;
-        my $MaxResultCount = $MaxResults;
         CUSTOMERUSERID:
-        for my $CustomerUserID (
-            sort { $CustomerUserList{$a} cmp $CustomerUserList{$b} }
-            keys %CustomerUserList
-            )
+        for my $CustomerUserID (sort keys %CustomerUserList)
         {
-
+         
             my $CustomerValue = $CustomerUserList{$CustomerUserID};
 
             # replace new lines with one space (see bug#11133)
             $CustomerValue =~ s/\n/ /gs;
             $CustomerValue =~ s/\r/ /gs;
 
-            push @Data, {
-                CustomerKey   => $CustomerUserID,
-                CustomerValue => $CustomerValue,
-            };
-
-            $MaxResultCount--;
-            last CUSTOMERUSERID if $MaxResultCount <= 0;
+            if (  !( grep { $_->{Value} eq $CustomerValue } @Data ) ) {
+                push @Data, {
+                    CustomerKey   => $CustomerUserID,
+                    CustomerValue => $CustomerValue,
+                };
+            }
+            last CUSTOMERUSERID if scalar @Data >= $MaxResults;
         }
+
 
         # build JSON output
         $JSON = $Self->{LayoutObject}->JSONEncode(
