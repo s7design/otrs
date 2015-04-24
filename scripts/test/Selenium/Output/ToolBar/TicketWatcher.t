@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketSearchFulltext.t - frontend tests for ToolBarTicketSearchFulltext
+# TicketWatcher.t - frontend tests for TicketWatcher
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,26 +32,11 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable tool bar TicketSearchFulltext
-        my %TicketSearchFulltext = (
-            Block       => "ToolBarSearchFulltext",
-            CSS         => "Core.Agent.Toolbar.FulltextSearch.css",
-            Description => "Fulltext search",
-            Module      => "Kernel::Output::HTML::ToolBar::ToolBarGeneric",
-            Name        => "Fulltext search",
-            Priority    => "1990020",
-            Size        => "10",
-        );
-
-        $Kernel::OM->Get('Kernel::Config')->Set(
-            Key   => 'Frontend::ToolBarModule###12-Ticket::TicketSearchFulltext',
-            Value => \%TicketSearchFulltext,
-        );
-
+        # enable ticket watcher feature
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::ToolBarModule###12-Ticket::TicketSearchFulltext',
-            Value => \%TicketSearchFulltext,
+            Key   => 'Ticket::Watcher',
+            Value => 1
         );
 
         # create test user and login
@@ -63,11 +48,6 @@ $Selenium->RunTest(
             Type     => 'Agent',
             User     => $TestUserLogin,
             Password => $TestUserLogin,
-        );
-
-        # get test user ID
-        my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
-            UserLogin => $TestUserLogin,
         );
 
         # get ticket object
@@ -82,25 +62,35 @@ $Selenium->RunTest(
             State         => 'open',
             CustomerID    => 'SeleniumCustomerID',
             CustomerUser  => "test\@localhost.com",
-            OwnerID       => $TestUserID,
+            OwnerID       => 1,
             UserID        => 1,
-            ResponsibleID => $TestUserID,
+            ResponsibleID => 1,
         );
 
-        # input test user in search fulltext
-        $Selenium->find_element( "#Fulltext", 'css' )->send_keys($TestUserLogin);
-        $Selenium->find_element( "#Fulltext", 'css' )->submit();
+        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
-        # verify search
+        # go to AgentTicketZoom and check watcher feature - sudcribe ticket to watch it
+        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
         $Self->True(
-            index( $Selenium->get_page_source(), $TestUserLogin ) > -1,
-            "Found on screen, ticket created by - $TestUserLogin",
+            $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketWatcher\' )]")->click(),
+            "Ticket is watched - $TicketID",
+        );
+
+        # click on tool bar AgentTicketWatchView
+        $Selenium->find_element("//a[contains(\@title, \'Watched Tickets Total:\' )]")->click(),
+
+            # verify that we are on correct screen
+            my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketWatchView";
+
+        $Self->True(
+            index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
+            "ToolBar AgentTicketWatcherView shortcut - success",
         );
 
         # delete test ticket
         my $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
-            UserID   => $TestUserID,
+            UserID   => 1,
         );
         $Self->True(
             $Success,

@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketProcess.t - frontend tests for ToolBarTicketProcess
+# TicketPhone.t - frontend tests for TicketPhone
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,27 +32,26 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable tool bar AgentTicketProcess
-        my %AgentTicketProcess = (
-            AccessKey => "p",
-            Action    => "AgentTicketProcess",
-            CssClass  => "ProcessTicket",
-            Icon      => "fa fa-th-large",
-            Link      => "Action=AgentTicketProcess",
-            Module    => "Kernel::Output::HTML::ToolBar::ToolBarLink",
-            Name      => "New process ticket",
-            Priority  => "1020030",
+        # enable tool bar AgentTicketPhone
+        my %AgentTicketPhone = (
+            Action   => "AgentTicketPhone",
+            CssClass => "PhoneTicket",
+            Icon     => "fa fa-phone",
+            Link     => "Action=AgentTicketPhone",
+            Module   => "Kernel::Output::HTML::ToolBar::Link",
+            Name     => "New phone ticket",
+            Priority => "1020010",
         );
 
         $Kernel::OM->Get('Kernel::Config')->Set(
-            Key   => 'Frontend::ToolBarModule###6-Ticket::AgentTicketProcess',
-            Value => \%AgentTicketProcess,
+            Key   => 'Frontend::ToolBarModule###4-Ticket::AgentTicketPhone',
+            Value => \%AgentTicketPhone,
         );
 
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::ToolBarModule###6-Ticket::AgentTicketProcess',
-            Value => \%AgentTicketProcess
+            Key   => 'Frontend::ToolBarModule###4-Ticket::AgentTicketPhone',
+            Value => \%AgentTicketPhone
         );
 
         # create test user and login
@@ -66,16 +65,16 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # click on tool bar AgentTicketProcess
-        $Selenium->find_element("//a[contains(\@title, \'New process ticket:\' )]")->click(),
+        # click on tool bar AgentTicketPhone
+        $Selenium->find_element("//a[contains(\@title, \'New phone ticket:\' )]")->click(),
 
             # verify that we are on correct screen
             my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketProcess";
+        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketPhone";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
-            "ToolBar AgentTicketProcess shortcut - success",
+            "ToolBar AgentTicketPhone shortcut - success",
         );
         }
 );

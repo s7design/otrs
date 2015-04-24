@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketResponsible.t - frontend tests for ToolBarTicketResponsible
+# TicketSearchFulltext.t - frontend tests for TicketSearchFulltext
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,11 +32,26 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable ticket responsible feature
+        # enable tool bar TicketSearchFulltext
+        my %TicketSearchFulltext = (
+            Block       => "ToolBarSearchFulltext",
+            CSS         => "Core.Agent.Toolbar.FulltextSearch.css",
+            Description => "Fulltext search",
+            Module      => "Kernel::Output::HTML::ToolBar::Generic",
+            Name        => "Fulltext search",
+            Priority    => "1990020",
+            Size        => "10",
+        );
+
+        $Kernel::OM->Get('Kernel::Config')->Set(
+            Key   => 'Frontend::ToolBarModule###12-Ticket::TicketSearchFulltext',
+            Value => \%TicketSearchFulltext,
+        );
+
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Ticket::Responsible',
-            Value => 1
+            Key   => 'Frontend::ToolBarModule###12-Ticket::TicketSearchFulltext',
+            Value => \%TicketSearchFulltext,
         );
 
         # create test user and login
@@ -67,24 +82,19 @@ $Selenium->RunTest(
             State         => 'open',
             CustomerID    => 'SeleniumCustomerID',
             CustomerUser  => "test\@localhost.com",
-            OwnerID       => 1,
+            OwnerID       => $TestUserID,
             UserID        => 1,
             ResponsibleID => $TestUserID,
         );
 
-        # refresh dashboard page
-        $Selenium->refresh();
+        # input test user in search fulltext
+        $Selenium->find_element( "#Fulltext", 'css' )->send_keys($TestUserLogin);
+        $Selenium->find_element( "#Fulltext", 'css' )->submit();
 
-        # click on tool bar AgentTicketResponsibleView
-        $Selenium->find_element("//a[contains(\@title, \'Responsible Tickets Total:\' )]")->click(),
-
-            # verify that we are on correct screen
-            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketResponsibleView";
-
+        # verify search
         $Self->True(
-            index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
-            "ToolBar AgentTicketResponsibleView shortcut - success",
+            index( $Selenium->get_page_source(), $TestUserLogin ) > -1,
+            "Found on screen, ticket created by - $TestUserLogin",
         );
 
         # delete test ticket

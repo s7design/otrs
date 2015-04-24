@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketWatcher.t - frontend tests for ToolBarTicketWatcher
+# TicketResponsible.t - frontend tests for TicketResponsible
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,10 +32,10 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable ticket watcher feature
+        # enable ticket responsible feature
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Ticket::Watcher',
+            Key   => 'Ticket::Responsible',
             Value => 1
         );
 
@@ -48,6 +48,11 @@ $Selenium->RunTest(
             Type     => 'Agent',
             User     => $TestUserLogin,
             Password => $TestUserLogin,
+        );
+
+        # get test user ID
+        my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
+            UserLogin => $TestUserLogin,
         );
 
         # get ticket object
@@ -64,33 +69,28 @@ $Selenium->RunTest(
             CustomerUser  => "test\@localhost.com",
             OwnerID       => 1,
             UserID        => 1,
-            ResponsibleID => 1,
+            ResponsibleID => $TestUserID,
         );
 
-        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        # refresh dashboard page
+        $Selenium->refresh();
 
-        # go to AgentTicketZoom and check watcher feature - sudcribe ticket to watch it
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
-        $Self->True(
-            $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketWatcher\' )]")->click(),
-            "Ticket is watched - $TicketID",
-        );
-
-        # click on tool bar AgentTicketWatchView
-        $Selenium->find_element("//a[contains(\@title, \'Watched Tickets Total:\' )]")->click(),
+        # click on tool bar AgentTicketResponsibleView
+        $Selenium->find_element("//a[contains(\@title, \'Responsible Tickets Total:\' )]")->click(),
 
             # verify that we are on correct screen
-            my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketWatchView";
+            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketResponsibleView";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
-            "ToolBar AgentTicketWatcherView shortcut - success",
+            "ToolBar AgentTicketResponsibleView shortcut - success",
         );
 
         # delete test ticket
         my $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
-            UserID   => 1,
+            UserID   => $TestUserID,
         );
         $Self->True(
             $Success,

@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketPhone.t - frontend tests for ToolBarTicketPhone
+# TicketQueue.t - frontend tests for TicketQueue
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,26 +32,27 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable tool bar AgentTicketPhone
-        my %AgentTicketPhone = (
-            Action   => "AgentTicketPhone",
-            CssClass => "PhoneTicket",
-            Icon     => "fa fa-phone",
-            Link     => "Action=AgentTicketPhone",
-            Module   => "Kernel::Output::HTML::ToolBar::ToolBarLink",
-            Name     => "New phone ticket",
-            Priority => "1020010",
+        # enable tool bar AgentTicketQueue
+        my %AgentTicketQueue = (
+            AccessKey => "q",
+            Action    => "AgentTicketQueue",
+            CssClass  => "QueueView",
+            Icon      => "fa fa-folder",
+            Link      => "Action=AgentTicketQueue",
+            Module    => "Kernel::Output::HTML::ToolBar::Link",
+            Name      => "Queue view",
+            Priority  => "1010010",
         );
 
         $Kernel::OM->Get('Kernel::Config')->Set(
-            Key   => 'Frontend::ToolBarModule###4-Ticket::AgentTicketPhone',
-            Value => \%AgentTicketPhone,
+            Key   => 'Frontend::ToolBarModule###1-Ticket::AgentTicketQueue',
+            Value => \%AgentTicketQueue,
         );
 
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::ToolBarModule###4-Ticket::AgentTicketPhone',
-            Value => \%AgentTicketPhone
+            Key   => 'Frontend::ToolBarModule###1-Ticket::AgentTicketQueue',
+            Value => \%AgentTicketQueue
         );
 
         # create test user and login
@@ -65,16 +66,16 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # click on tool bar AgentTicketPhone
-        $Selenium->find_element("//a[contains(\@title, \'New phone ticket:\' )]")->click(),
+        # click on tool bar AgentTicketQueue
+        $Selenium->find_element("//a[contains(\@title, \'Queue view:\' )]")->click(),
 
             # verify that we are on correct screen
             my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketPhone";
+        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketQueue";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
-            "ToolBar AgentTicketPhone shortcut - success",
+            "ToolBar AgentTicketQueue shortcut - success",
         );
         }
 );

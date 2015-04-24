@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketEmail.t - frontend tests for ToolBarTicketEmail
+# TicketEscalation.t - frontend tests for TicketEscalation
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,26 +32,27 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable tool bar AgentTicketEmail
-        my %AgentTicketEmail = (
-            Action   => "AgentTicketEmail",
-            CssClass => "EmailTicket",
-            Icon     => "fa fa-envelope",
-            Link     => "Action=AgentTicketEmail",
-            Module   => "Kernel::Output::HTML::ToolBar::ToolBarLink",
-            Name     => "New email ticket",
-            Priority => "1020020",
+        # enable tool bar AgentTicketEscalationView
+        my %AgentTicketEscalationView = (
+            AccessKey => "w",
+            Action    => "AgentTicketEscalationView",
+            CssClass  => "EscalationView",
+            Icon      => "fa fa-exclamation",
+            Link      => "Action=AgentTicketEscalationView",
+            Module    => "Kernel::Output::HTML::ToolBar::Link",
+            Name      => "Escalation view",
+            Priority  => "1010030",
         );
 
         $Kernel::OM->Get('Kernel::Config')->Set(
-            Key   => 'Frontend::ToolBarModule###5-Ticket::AgentTicketEmail',
-            Value => \%AgentTicketEmail,
+            Key   => 'Frontend::ToolBarModule###3-Ticket::AgentTicketEscalationView',
+            Value => \%AgentTicketEscalationView,
         );
 
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::ToolBarModule###5-Ticket::AgentTicketEmail',
-            Value => \%AgentTicketEmail
+            Key   => 'Frontend::ToolBarModule###3-Ticket::AgentTicketEscalationView',
+            Value => \%AgentTicketEscalationView
         );
 
         # create test user and login
@@ -65,16 +66,16 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # click on tool bar AgentTicketEmail
-        $Selenium->find_element("//a[contains(\@title, \'New email ticket:\' )]")->click(),
+        # click on tool bar AgentTicketEscalationView
+        $Selenium->find_element("//a[contains(\@title, \'Escalation view:\' )]")->click(),
 
             # verify that we are on correct screen
             my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketEmail";
+        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketEscalationView";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
-            "ToolBar AgentTicketEmail shortcut - success",
+            "ToolBar AgentTicketEscalationView shortcut - success",
         );
         }
 );

@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketLocked.t - frontend tests for ToolBarTicketLocked
+# TicketLocked.t - frontend tests for TicketLocked
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see

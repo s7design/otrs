@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketSearchProfile.t - frontend tests for ToolBarTicketSearchProfile
+# TicketSearchProfile.t - frontend tests for TicketSearchProfile
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -37,7 +37,7 @@ $Selenium->RunTest(
             Block       => "ToolBarSearchProfile",
             Description => "Search template",
             MaxWidth    => "40",
-            Module      => "Kernel::Output::HTML::ToolBar::ToolBarTicketSearchProfile",
+            Module      => "Kernel::Output::HTML::ToolBar::TicketSearchProfile",
             Name        => "Search template",
             Priority    => "1990010",
         );

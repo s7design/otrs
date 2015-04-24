@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketStatus.t - frontend tests for ToolBarTicketStatus
+# TicketProcess.t - frontend tests for TicketProcess
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,27 +32,27 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable tool bar AgentTicketStatus
-        my %AgentTicketStatus = (
-            AccessKey => "S",
-            Action    => "AgentTicketStatusView",
-            CssClass  => "StatusView",
-            Icon      => "fa fa-list-ol",
-            Link      => "Action=AgentTicketStatusView",
-            Module    => "Kernel::Output::HTML::ToolBar::ToolBarLink",
-            Name      => "Status view",
-            Priority  => "1010020",
+        # enable tool bar AgentTicketProcess
+        my %AgentTicketProcess = (
+            AccessKey => "p",
+            Action    => "AgentTicketProcess",
+            CssClass  => "ProcessTicket",
+            Icon      => "fa fa-th-large",
+            Link      => "Action=AgentTicketProcess",
+            Module    => "Kernel::Output::HTML::ToolBar::Link",
+            Name      => "New process ticket",
+            Priority  => "1020030",
         );
 
         $Kernel::OM->Get('Kernel::Config')->Set(
-            Key   => 'Frontend::ToolBarModule###2-Ticket::AgentTicketStatus',
-            Value => \%AgentTicketStatus,
+            Key   => 'Frontend::ToolBarModule###6-Ticket::AgentTicketProcess',
+            Value => \%AgentTicketProcess,
         );
 
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::ToolBarModule###2-Ticket::AgentTicketStatus',
-            Value => \%AgentTicketStatus
+            Key   => 'Frontend::ToolBarModule###6-Ticket::AgentTicketProcess',
+            Value => \%AgentTicketProcess
         );
 
         # create test user and login
@@ -66,16 +66,16 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # click on tool bar AgentTicketStatus
-        $Selenium->find_element("//a[contains(\@title, \'Status view:\' )]")->click(),
+        # click on tool bar AgentTicketProcess
+        $Selenium->find_element("//a[contains(\@title, \'New process ticket:\' )]")->click(),
 
             # verify that we are on correct screen
             my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketStatusView";
+        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketProcess";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
-            "ToolBar AgentTicketStatus shortcut - success",
+            "ToolBar AgentTicketProcess shortcut - success",
         );
         }
 );

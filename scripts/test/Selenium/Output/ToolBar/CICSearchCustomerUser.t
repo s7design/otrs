@@ -1,5 +1,5 @@
 # --
-# ToolBarCICSearchCustomerUser.t - frontend tests for ToolBarCICSearchCustomerUser
+# CICSearchCustomerUser.t - frontend tests for CICSearchCustomerUser
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -37,7 +37,7 @@ $Selenium->RunTest(
             Block       => "ToolBarCICSearchCustomerUser",
             CSS         => "Core.Agent.Toolbar.CICSearch.css",
             Description => "Customer user search",
-            Module      => "Kernel::Output::HTML::ToolBar::ToolBarGeneric",
+            Module      => "Kernel::Output::HTML::ToolBar::Generic",
             Name        => "Customer user search",
             Priority    => "1990040",
             Size        => "10",

@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketService.t - frontend tests for ToolBarTicketService
+# TicketService.t - frontend tests for TicketService
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -36,7 +36,7 @@ $Selenium->RunTest(
         my %AgentTicketQueue = (
             CssClass => "ServiceView",
             Icon     => "fa fa-wrench",
-            Module   => "Kernel::Output::HTML::ToolBar::ToolBarTicketService",
+            Module   => "Kernel::Output::HTML::ToolBar::TicketService",
             Priority => "1030035",
         );
 

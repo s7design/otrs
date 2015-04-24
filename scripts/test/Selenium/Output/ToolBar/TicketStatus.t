@@ -1,5 +1,5 @@
 # --
-# ToolBarTicketQueue.t - frontend tests for ToolBarTicketQueue
+# TicketStatus.t - frontend tests for TicketStatus
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -32,27 +32,27 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable tool bar AgentTicketQueue
-        my %AgentTicketQueue = (
-            AccessKey => "q",
-            Action    => "AgentTicketQueue",
-            CssClass  => "QueueView",
-            Icon      => "fa fa-folder",
-            Link      => "Action=AgentTicketQueue",
-            Module    => "Kernel::Output::HTML::ToolBar::ToolBarLink",
-            Name      => "Queue view",
-            Priority  => "1010010",
+        # enable tool bar AgentTicketStatus
+        my %AgentTicketStatus = (
+            AccessKey => "S",
+            Action    => "AgentTicketStatusView",
+            CssClass  => "StatusView",
+            Icon      => "fa fa-list-ol",
+            Link      => "Action=AgentTicketStatusView",
+            Module    => "Kernel::Output::HTML::ToolBar::Link",
+            Name      => "Status view",
+            Priority  => "1010020",
         );
 
         $Kernel::OM->Get('Kernel::Config')->Set(
-            Key   => 'Frontend::ToolBarModule###1-Ticket::AgentTicketQueue',
-            Value => \%AgentTicketQueue,
+            Key   => 'Frontend::ToolBarModule###2-Ticket::AgentTicketStatus',
+            Value => \%AgentTicketStatus,
         );
 
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::ToolBarModule###1-Ticket::AgentTicketQueue',
-            Value => \%AgentTicketQueue
+            Key   => 'Frontend::ToolBarModule###2-Ticket::AgentTicketStatus',
+            Value => \%AgentTicketStatus
         );
 
         # create test user and login
@@ -66,16 +66,16 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # click on tool bar AgentTicketQueue
-        $Selenium->find_element("//a[contains(\@title, \'Queue view:\' )]")->click(),
+        # click on tool bar AgentTicketStatus
+        $Selenium->find_element("//a[contains(\@title, \'Status view:\' )]")->click(),
 
             # verify that we are on correct screen
             my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketQueue";
+        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketStatusView";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,
-            "ToolBar AgentTicketQueue shortcut - success",
+            "ToolBar AgentTicketStatus shortcut - success",
         );
         }
 );
