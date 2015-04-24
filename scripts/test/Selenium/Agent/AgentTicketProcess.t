@@ -26,9 +26,13 @@ my $ActivityObject          = $Kernel::OM->Get('Kernel::System::ProcessManagemen
 my $TransitionActionsObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::TransitionAction');
 my $ActivityDialogObject    = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::ActivityDialog');
 
-my $Selenium = Kernel::System::UnitTest::Selenium->new(
-    Verbose => 1,
+# get selenium object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Selenium' => {
+        Verbose => 1,
+        }
 );
+my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
@@ -103,7 +107,15 @@ $Selenium->RunTest(
 
         # create first scenario for test agent ticket process
         $Selenium->find_element( "#ProcessEntityID option[value='$ListReverse{$ProcessName}']", 'css' )->click();
-        sleep 1;
+
+        # Wait until form has loaded, if neccessary
+        ACTIVESLEEP:
+        for my $Second ( 1 .. 20 ) {
+            if ( $Selenium->execute_script("return \$('#Subject').length") ) {
+                last ACTIVESLEEP;
+            }
+            sleep 1;
+        }
 
         my $SubjectRandom = 'Subject' . $Helper->GetRandomID();
         my $ContentRandom = 'Content' . $Helper->GetRandomID();
@@ -131,6 +143,15 @@ $Selenium->RunTest(
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
 
+        # Wait until form has loaded, if neccessary
+        ACTIVESLEEP:
+        for my $Second ( 1 .. 20 ) {
+            if ( $Selenium->execute_script("return \$('#PriorityID').length") ) {
+                last ACTIVESLEEP;
+            }
+            sleep 1;
+        }
+
         # for test scenario to complete, in next step we set ticket priority to 5 very high
         $Selenium->find_element( "#PriorityID option[value='5']", 'css' )->click();
         $Selenium->find_element( "#Subject",                      'css' )->submit();
@@ -157,7 +178,15 @@ $Selenium->RunTest(
         # create second scenarion for test agent ticket process
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketProcess");
         $Selenium->find_element( "#ProcessEntityID option[value='$ListReverse{$ProcessName}']", 'css' )->click();
-        sleep 1;
+
+        # Wait until form has loaded, if neccessary
+        ACTIVESLEEP:
+        for my $Second ( 1 .. 20 ) {
+            if ( $Selenium->execute_script("return \$('#QueueID').length") ) {
+                last ACTIVESLEEP;
+            }
+            sleep 1;
+        }
 
         # in this scenarion we just set ticket queue to junk to finish test
         $Selenium->find_element( "#QueueID option[value='3']", 'css' )->click();
