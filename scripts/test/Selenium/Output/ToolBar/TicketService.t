@@ -109,11 +109,11 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ServiceIDUpdate",                      'css' )->click();
 
         # click on tool bar AgentTicketService
-        $Selenium->find_element("//a[contains(\@title, \'Tickets in MyServices:\' )]")->click(),
+        $Selenium->find_element("//a[contains(\@title, \'Tickets in MyServices:\' )]")->click();
 
-            # verify that we are on correct screen
-            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketService";
+        # verify that test is on the correct screen
+        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketService";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,

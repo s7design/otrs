@@ -67,11 +67,11 @@ $Selenium->RunTest(
         );
 
         # click on tool bar AgentTicketEscalationView
-        $Selenium->find_element("//a[contains(\@title, \'Escalation view:\' )]")->click(),
+        $Selenium->find_element("//a[contains(\@title, \'Escalation view:\' )]")->click();
 
-            # verify that we are on correct screen
-            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketEscalationView";
+        # verify that test is on the correct screen
+        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketEscalationView";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,

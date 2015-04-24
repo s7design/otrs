@@ -67,11 +67,11 @@ $Selenium->RunTest(
         );
 
         # click on tool bar AgentTicketQueue
-        $Selenium->find_element("//a[contains(\@title, \'Queue view:\' )]")->click(),
+        $Selenium->find_element("//a[contains(\@title, \'Queue view:\' )]")->click();
 
-            # verify that we are on correct screen
-            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketQueue";
+        # verify that test is on the correct screen
+        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketQueue";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,

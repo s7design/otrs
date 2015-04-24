@@ -66,11 +66,11 @@ $Selenium->RunTest(
         );
 
         # click on tool bar AgentTicketPhone
-        $Selenium->find_element("//a[contains(\@title, \'New phone ticket:\' )]")->click(),
+        $Selenium->find_element("//a[contains(\@title, \'New phone ticket:\' )]")->click();
 
-            # verify that we are on correct screen
-            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketPhone";
+        # verify that test is on the correct screen
+        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketPhone";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,

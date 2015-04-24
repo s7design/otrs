@@ -72,15 +72,15 @@ $Selenium->RunTest(
         # go to AgentTicketZoom and check watcher feature - sudcribe ticket to watch it
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
         $Self->True(
-            $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketWatcher\' )]")->click(),
+            $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketWatcher\' )]")->click();
             "Ticket is watched - $TicketID",
         );
 
         # click on tool bar AgentTicketWatchView
-        $Selenium->find_element("//a[contains(\@title, \'Watched Tickets Total:\' )]")->click(),
+        $Selenium->find_element("//a[contains(\@title, \'Watched Tickets Total:\' )]")->click();
 
-            # verify that we are on correct screen
-            my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketWatchView";
+        # verify that test is on the correct screen
+        my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketWatchView";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,

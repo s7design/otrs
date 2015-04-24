@@ -76,11 +76,11 @@ $Selenium->RunTest(
         $Selenium->refresh();
 
         # click on tool bar AgentTicketResponsibleView
-        $Selenium->find_element("//a[contains(\@title, \'Responsible Tickets Total:\' )]")->click(),
+        $Selenium->find_element("//a[contains(\@title, \'Responsible Tickets Total:\' )]")->click();
 
-            # verify that we are on correct screen
-            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        my $ExpectedURL     = "${ScriptAlias}index.pl?Action=AgentTicketResponsibleView";
+        # verify that test is on the correct screen
+        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ExpectedURL = "${ScriptAlias}index.pl?Action=AgentTicketResponsibleView";
 
         $Self->True(
             index( $Selenium->get_current_url(), $ExpectedURL ) > -1,

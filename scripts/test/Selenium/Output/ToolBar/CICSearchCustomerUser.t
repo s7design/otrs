@@ -100,23 +100,6 @@ $Selenium->RunTest(
             UserID         => $TestUserID,
         );
 
-        # get ticket object
-        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-
-        # create test ticket
-        my $TicketID = $TicketObject->TicketCreate(
-            Title         => 'Selenium test ticket',
-            Queue         => 'Raw',
-            Lock          => 'unlock',
-            Priority      => '3 normal',
-            State         => 'open',
-            CustomerID    => $TestCustomerID,
-            CustomerUser  => $TestCustomerEmail,
-            OwnerID       => $TestUserID,
-            UserID        => $TestUserID,
-            ResponsibleID => $TestUserID,
-        );
-
         # input test user in search Customer user
         my $AutoCCSearch = "\"$TestCustomerLogin $TestCustomerLogin\" <$TestCustomerEmail>";
         $Selenium->find_element( "#ToolBarCICSearchCustomerUser", 'css' )->send_keys($TestCustomerLogin);
@@ -151,15 +134,6 @@ $Selenium->RunTest(
             "Deleted CustomerUser - $CustomerID",
         );
 
-        # delete test ticket
-        $Success = $TicketObject->TicketDelete(
-            TicketID => $TicketID,
-            UserID   => $TestUserID,
-        );
-        $Self->True(
-            $Success,
-            "Delete ticket - $TicketID"
-        );
         }
 );
 

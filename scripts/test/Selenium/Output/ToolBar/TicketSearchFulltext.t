@@ -88,13 +88,13 @@ $Selenium->RunTest(
         );
 
         # input test user in search fulltext
-        $Selenium->find_element( "#Fulltext", 'css' )->send_keys($TestUserLogin);
+        $Selenium->find_element( "#Fulltext", 'css' )->send_keys("Selenium test ticket");
         $Selenium->find_element( "#Fulltext", 'css' )->submit();
 
         # verify search
         $Self->True(
             index( $Selenium->get_page_source(), $TestUserLogin ) > -1,
-            "Found on screen, ticket created by - $TestUserLogin",
+            "Ticket is found by Subject - \'Selenium test ticket\'",
         );
 
         # delete test ticket
