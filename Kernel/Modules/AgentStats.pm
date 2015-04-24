@@ -655,7 +655,10 @@ sub Run {
         }
 
         # check if the PDF module is installed and enabled
-        $Stat->{PDFUsable} = $Kernel::OM->Get('Kernel::System::PDF') ? 1 : 0;
+        if ( $ConfigObject->Get('PDF') ) {
+            $Stat->{PDFUsable} = $Kernel::OM->Get('Kernel::System::PDF') ? 1 : 0;
+        }
+
 
         # build output
         $Output .= $LayoutObject->Header( Title => 'View' );
@@ -2386,7 +2389,11 @@ sub Run {
             $MainObject->Require('Kernel::System::PDF');
 
             # get PDF object
-            my $PDFObject = $Kernel::OM->Get('Kernel::System::PDF');
+            my $PDFObject;
+
+            if ( $ConfigObject->Get('PDF') ) {
+                $PDFObject = $Kernel::OM->Get('Kernel::System::PDF');
+            }
 
             # PDF Output
             if ($PDFObject) {

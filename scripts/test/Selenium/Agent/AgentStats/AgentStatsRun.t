@@ -84,24 +84,6 @@ $Selenium->RunTest(
             "CustomerUser is created - $TestCustomer",
         );
 
-        # add test queue for testing
-        my $TestQueue = 'Queue' . $Helper->GetRandomID();
-        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-                Name            => $TestQueue,
-                ValidID         => 1,
-                GroupID         => 1,
-                SystemAddressID => 1,
-                SalutationID    => 1,
-                SignatureID     => 1,
-                Comment         => 'Selenium Queue',
-                UserID          => $TestUserID,
-            );
-
-        $Self->True(
-            $QueueID,
-            "Queue is created - $TestQueue",
-        );
-
         # get ticket object
         my  $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
@@ -115,7 +97,7 @@ $Selenium->RunTest(
             my $TicketID = $TicketObject->TicketCreate(
                 TN           => $TicketNumber,
                 Title        => "Selenium Test Ticket",
-                Queue        => $TestQueue,
+                Queue        => 'Junk',
                 Lock         => 'unlock',
                 Priority     => '3 normal',
                 State        => 'new',
@@ -199,9 +181,6 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentStats;Subaction=View;StatID=$StatsIDLast\' )]")
             ->click();
 
-        # select restricton by test queue
-        $Selenium->find_element( "#UseAsRestrictionQueueIDs option[value='$QueueID']", 'css' )->click();
-
         # run test statistic
         $Selenium->find_element( "#StartStatistic", 'css' )->click();
 
@@ -210,15 +189,6 @@ $Selenium->RunTest(
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
 
-        ############################
-        # there is a problem, I expexted PDF print screen (results of stats), but it is not loaded
-        # I check URL only for debuging
-
-        my $URL = $Selenium->get_current_url();
-        print $URL;
-
-        ############################
-
         # check result of stats
         for my $TicketNumber ( @TicketNumbers ) {
 
@@ -226,7 +196,6 @@ $Selenium->RunTest(
                 index( $Selenium->get_page_source(), $TicketNumber ) > -1,
                 "TicketNumber is founded on stats - $TicketNumber "
             );
-
         }
 
         $Self->True(
@@ -263,16 +232,8 @@ $Selenium->RunTest(
             );
         }
 
-        my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-            SQL => "DELETE FROM queue WHERE id = $QueueID",
-        );
-        $Self->True(
-            $Success,
-            "Queue is deleted - $TestQueue",
-        );
-
         # make sure the cache is correct.
-        for my $Cache ( qw( Ticket Stats Queue) ) {
+        for my $Cache ( qw( Ticket Stats ) ) {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
                 Type => 'Ticket',
             );

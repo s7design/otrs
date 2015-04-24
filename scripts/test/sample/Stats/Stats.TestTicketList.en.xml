@@ -15,6 +15,7 @@
 <SumRow>0</SumRow>
 <Title>Test TicketList statistic</Title>
 <UseAsRestriction Element="QueueIDs" Fixed="0">
+<SelectedValues>Junk</SelectedValues>
 </UseAsRestriction>
 <UseAsXvalue Element="TicketAttributes" Fixed="1">
 <SelectedValues>TicketNumber</SelectedValues>
