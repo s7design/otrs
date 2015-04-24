@@ -72,7 +72,7 @@ $Selenium->RunTest(
         # go to AgentTicketZoom and check watcher feature - sudcribe ticket to watch it
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
         $Self->True(
-            $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketWatcher\' )]")->click();
+            $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketWatcher\' )]")->click(),
             "Ticket is watched - $TicketID",
         );
 
