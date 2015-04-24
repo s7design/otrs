@@ -146,22 +146,34 @@ $Selenium->RunTest(
         $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
         $Selenium->find_element( "#ToCustomer", 'css' )->submit();
 
-        # return back to zoom view and click on history and switch to its view
-        $Selenium->switch_to_window( $Handles->[0] );
-        $Selenium->find_element("//*[text()='History']")->click();
+        # if Core::Sendmail setting aren't set up for sending mail, check for error message and exit test
+        my $Success;
+        eval {
+            $Success = index( $Selenium->get_page_source(), 'Impossible to send message to:' ),
+        };
 
-        $Handles = $Selenium->get_window_handles();
-        $Selenium->switch_to_window( $Handles->[1] );
+        if ( $Success > -1 ) {
+            print "Selenium Test Completed. Please configure Core::Sendmail to send email from system \n";
+        }
+        else {
 
-        # confirm email outbound action
-        my $PriorityMsg = "Email sent to customer.";
-        $Self->True(
-            index( $Selenium->get_page_source(), $PriorityMsg ) > -1,
-            "Ticket email outbound completed",
-        );
+            # return back to zoom view and click on history and switch to its view
+            $Selenium->switch_to_window( $Handles->[0] );
+            $Selenium->find_element("//*[text()='History']")->click();
+
+            $Handles = $Selenium->get_window_handles();
+            $Selenium->switch_to_window( $Handles->[1] );
+
+            # confirm email outbound action
+            my $PriorityMsg = "Email sent to customer.";
+            $Self->True(
+                index( $Selenium->get_page_source(), $PriorityMsg ) > -1,
+                "Ticket email outbound completed",
+            );
+        }
 
         # delete created test tickets
-        my $Success = $TicketObject->TicketDelete(
+        $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
             UserID   => $TestUserID,
         );
