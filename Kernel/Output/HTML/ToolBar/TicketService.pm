@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/ToolBar/ToolBarTicketService.pm
+# Kernel/Output/HTML/ToolBar/TicketService.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::ToolBar::ToolBarTicketService;
+package Kernel::Output::HTML::ToolBar::TicketService;
 
 use strict;
 use warnings;

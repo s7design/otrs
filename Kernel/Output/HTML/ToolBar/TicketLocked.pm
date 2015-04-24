@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/ToolBar/ToolBarTicketWatcher.pm
+# Kernel/Output/HTML/ToolBar/TicketLocked.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,16 +7,15 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::ToolBar::ToolBarTicketWatcher;
+package Kernel::Output::HTML::ToolBar::TicketLocked;
 
 use strict;
 use warnings;
 
 our @ObjectDependencies = (
-    'Kernel::Config',
     'Kernel::System::Log',
-    'Kernel::Output::HTML::Layout',
     'Kernel::System::Ticket',
+    'Kernel::Output::HTML::Layout',
 );
 
 sub new {
@@ -35,12 +34,6 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    # get config object
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    # check if feature is active
-    return if !$ConfigObject->Get('Ticket::Watcher');
-
     # check needed stuff
     for (qw(Config)) {
         if ( !$Param{$_} ) {
@@ -52,43 +45,22 @@ sub Run {
         }
     }
 
-    # get layout object
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
-    # check access
-    my @Groups;
-    if ( $ConfigObject->Get('Ticket::WatcherGroup') ) {
-        @Groups = @{ $ConfigObject->Get('Ticket::WatcherGroup') };
-    }
-    if (@Groups) {
-        my $Access = 0;
-        GROUP:
-        for my $Group (@Groups) {
-            next GROUP if !$LayoutObject->{"UserIsGroup[$Group]"};
-            if ( $LayoutObject->{"UserIsGroup[$Group]"} eq 'Yes' ) {
-                $Access = 1;
-                last GROUP;
-            }
-        }
-
-        # return on no access
-        return if !$Access;
-    }
-
     # get ticket object
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-    # find watched tickets
+    # get user lock data
     my $Count = $TicketObject->TicketSearch(
-        Result       => 'COUNT',
-        WatchUserIDs => [ $Self->{UserID} ],
-        UserID       => 1,
-        Permission   => 'ro',
+        Result     => 'COUNT',
+        Locks      => [ 'lock', 'tmp_lock' ],
+        OwnerIDs   => [ $Self->{UserID} ],
+        UserID     => 1,
+        Permission => 'ro',
     );
     my $CountNew = $TicketObject->TicketSearch(
-        Result       => 'COUNT',
-        WatchUserIDs => [ $Self->{UserID} ],
-        TicketFlag   => {
+        Result     => 'COUNT',
+        Locks      => [ 'lock', 'tmp_lock' ],
+        OwnerIDs   => [ $Self->{UserID} ],
+        TicketFlag => {
             Seen => 1,
         },
         TicketFlagUserID => $Self->{UserID},
@@ -96,12 +68,12 @@ sub Run {
         Permission       => 'ro',
     );
     $CountNew = $Count - $CountNew;
-
     my $CountReached = $TicketObject->TicketSearch(
         Result                        => 'COUNT',
+        Locks                         => [ 'lock', 'tmp_lock' ],
         StateType                     => ['pending reminder'],
-        WatchUserIDs                  => [ $Self->{UserID} ],
         TicketPendingTimeOlderMinutes => 1,
+        OwnerIDs                      => [ $Self->{UserID} ],
         UserID                        => 1,
         Permission                    => 'ro',
     );
@@ -114,39 +86,39 @@ sub Run {
     my $IconNew     = $Param{Config}->{IconNew};
     my $IconReached = $Param{Config}->{IconReached};
 
-    my $URL = $LayoutObject->{Baselink};
+    my $URL = $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{Baselink};
     my %Return;
     my $Priority = $Param{Config}->{Priority};
     if ($CountNew) {
         $Return{ $Priority++ } = {
             Block       => 'ToolBarItem',
-            Description => 'Watched Tickets New',
             Count       => $CountNew,
+            Description => 'Locked Tickets New',
             Class       => $ClassNew,
             Icon        => $IconNew,
-            Link        => $URL . 'Action=AgentTicketWatchView;Filter=New',
+            Link        => $URL . 'Action=AgentTicketLockedView;Filter=New',
             AccessKey   => $Param{Config}->{AccessKeyNew} || '',
         };
     }
     if ($CountReached) {
         $Return{ $Priority++ } = {
             Block       => 'ToolBarItem',
-            Description => 'Watched Tickets Reminder Reached',
             Count       => $CountReached,
+            Description => 'Locked Tickets Reminder Reached',
             Class       => $ClassReached,
             Icon        => $IconReached,
-            Link        => $URL . 'Action=AgentTicketWatchView;Filter=ReminderReached',
+            Link        => $URL . 'Action=AgentTicketLockedView;Filter=ReminderReached',
             AccessKey   => $Param{Config}->{AccessKeyReached} || '',
         };
     }
     if ($Count) {
         $Return{ $Priority++ } = {
             Block       => 'ToolBarItem',
-            Description => 'Watched Tickets Total',
             Count       => $Count,
+            Description => 'Locked Tickets Total',
             Class       => $Class,
             Icon        => $Icon,
-            Link        => $URL . 'Action=AgentTicketWatchView',
+            Link        => $URL . 'Action=AgentTicketLockedView',
             AccessKey   => $Param{Config}->{AccessKey} || '',
         };
     }

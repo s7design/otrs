@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/ToolBar/ToolBarTicketSearchProfile.pm
+# Kernel/Output/HTML/ToolBar/TicketSearchProfile.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::ToolBar::ToolBarTicketSearchProfile;
+package Kernel::Output::HTML::ToolBar::TicketSearchProfile;
 
 use strict;
 use warnings;
