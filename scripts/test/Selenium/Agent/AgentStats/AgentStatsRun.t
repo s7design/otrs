@@ -27,7 +27,7 @@ $Selenium->RunTest(
         # get helper object
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 0,
+                RestoreSystemConfiguration => 1,
                 }
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
@@ -44,6 +44,12 @@ $Selenium->RunTest(
         $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'Ticket::Type',
+            Value => 0
+        );
+
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'PDF',
             Value => 0
         );
 
