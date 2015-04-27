@@ -12,6 +12,12 @@ package Kernel::Output::HTML::ArticleAttachmentHTMLViewer;
 use strict;
 use warnings;
 
+our @ObjectDependencies = (
+    'Kernel::System::Log',
+    'Kernel::Config',
+    'Kernel::Output::HTML::Layout',
+);
+
 sub new {
     my ( $Type, %Param ) = @_;
 
@@ -19,10 +25,6 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID TicketObject ArticleID)) {
-        $Self->{$_} = $Param{$_} || die "Got no $_!";
-    }
     return $Self;
 }
 
@@ -32,7 +34,7 @@ sub Run {
     # check needed stuff
     for (qw(File Article)) {
         if ( !$Param{$_} ) {
-            $Self->{LogObject}->Log(
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
                 Message  => "Need $_!"
             );
@@ -40,14 +42,17 @@ sub Run {
         }
     }
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # check if config exists
-    if ( $Self->{ConfigObject}->Get('MIME-Viewer') ) {
-        for ( sort keys %{ $Self->{ConfigObject}->Get('MIME-Viewer') } ) {
+    if ( $ConfigObject->Get('MIME-Viewer') ) {
+        for ( sort keys %{ $ConfigObject->Get('MIME-Viewer') } ) {
             if ( $Param{File}->{ContentType} =~ /^$_/i ) {
                 return (
                     %{ $Param{File} },
                     Action => 'Viewer',
-                    Link   => $Self->{LayoutObject}->{Baselink} .
+                    Link   => $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{Baselink} .
                         "Action=AgentTicketAttachment;ArticleID=$Param{Article}->{ArticleID};FileID=$Param{File}->{FileID};Viewer=1",
                     Target => 'target="attachment"',
                     Class  => 'ViewAttachment',
