@@ -32,11 +32,11 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
-    for (qw(File Article)) {
-        if ( !$Param{$_} ) {
+    for my $Needed (qw(File Article)) {
+        if ( !$Param{$Needed} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message  => "Need $_!"
+                Message  => "Need $Needed!"
             );
             return;
         }

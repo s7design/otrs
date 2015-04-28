@@ -28,6 +28,19 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
+    # get needed params
+    for my $Needed (qw(UserID ArticleID)) {
+        if ( $Param{$Needed} ) {
+            $Self->{$Needed} = $Param{$Needed};
+        }
+        else {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need $Needed!"
+            );
+        }
+    }
+
     return $Self;
 }
 
@@ -47,24 +60,10 @@ sub Check {
     return if $Param{Article}->{ArticleType} !~ /email/i;
 
     my $StoreDecryptedData = $ConfigObject->Get('SMIME::StoreDecryptedData');
-    my $SMIMEObject        = $Kernel::OM->Get('Kernel::System::Crypt::SMIME');
 
     # get needed objects
-    my $LogObject    = $Param{LogObject}    || $Kernel::OM->Get('Kernel::System::Log');
+    my $SMIMEObject        = $Kernel::OM->Get('Kernel::System::Crypt::SMIME');
     my $TicketObject = $Param{TicketObject} || $Kernel::OM->Get('Kernel::System::Ticket');
-
-    # get needed params
-    for (qw(UserID ArticleID)) {
-        if ( $Param{$_} ) {
-            $Self->{$_} = $Param{$_};
-        }
-        else {
-            $LogObject->Log(
-                Priority => 'error',
-                Message  => "Need $_!"
-            );
-        }
-    }
 
     # check inline smime
     if ( $Param{Article}->{Body} =~ /^-----BEGIN PKCS7-----/ ) {

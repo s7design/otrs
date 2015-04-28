@@ -32,6 +32,19 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
+    # get needed params
+    for my $Needed (qw(UserID ArticleID)) {
+        if ( $Param{$Needed} ) {
+            $Self->{$Needed} = $Param{$Needed};
+        }
+        else {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need $Needed!"
+            );
+        }
+    }
+
     return $Self;
 }
 
@@ -51,24 +64,10 @@ sub Check {
     return if $Param{Article}->{ArticleType} !~ /email/i;
 
     my $StoreDecryptedData = $ConfigObject->Get('PGP::StoreDecryptedData');
-    my $PGPObject          = $Kernel::OM->Get('Kernel::System::Crypt::PGP');
 
     # get needed objects
     my $TicketObject = $Param{TicketObject} || $Kernel::OM->Get('Kernel::System::Ticket');
-    my $LogObject    = $Param{LogObject}    || $Kernel::OM->Get('Kernel::System::Log');
-
-    # get needed params
-    for (qw(UserID ArticleID)) {
-        if ( $Param{$_} ) {
-            $Self->{$_} = $Param{$_};
-        }
-        else {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Need $_!"
-            );
-        }
-    }
+    my $PGPObject          = $Kernel::OM->Get('Kernel::System::Crypt::PGP');
 
     # check inline pgp crypt
     if ( $Param{Article}->{Body} =~ /\A[\s\n]*^-----BEGIN PGP MESSAGE-----/m ) {
