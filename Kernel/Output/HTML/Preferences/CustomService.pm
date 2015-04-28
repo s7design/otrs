@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesCustomService.pm
+# Kernel/Output/HTML/Preferences/CustomService.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesCustomService;
+package Kernel::Output::HTML::Preferences::CustomService;
 
 use strict;
 use warnings;
@@ -51,8 +51,11 @@ sub Param {
         UserID => $Self->{UserID},
     );
 
-    if ( $Kernel::OM->Get('Kernel::System::Web::Request')->GetArray( Param => 'ServiceID' ) ) {
-        @CustomServiceIDs = $Kernel::OM->Get('Kernel::System::Web::Request')->GetArray( Param => 'ServiceID' );
+    # get param object
+    my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
+
+    if ( $ParamObject->GetArray( Param => 'ServiceID' ) ) {
+        @CustomServiceIDs = $ParamObject->GetArray( Param => 'ServiceID' );
     }
     elsif ( $Param{UserData}->{UserID} && !defined $CustomServiceIDs[0] ) {
         @CustomServiceIDs = $Kernel::OM->Get('Kernel::System::Service')->GetAllCustomServices(

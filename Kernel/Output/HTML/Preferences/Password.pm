@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesPassword.pm
+# Kernel/Output/HTML/Preferences/Password.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,13 +7,25 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesPassword;
+package Kernel::Output::HTML::Preferences::Password;
 
 use strict;
 use warnings;
 
 use Kernel::System::Auth;
 use Kernel::System::CustomerAuth;
+
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Log',
+    'Kernel::System::DB',
+    'Kernel::Output::HTML::Layout',
+    'Kernel::System::Main',
+    'Kernel::System::Encode',
+    'Kernel::System::User',
+    'Kernel::System::Group',
+    'Kernel::System::Time',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -41,11 +53,14 @@ sub Param {
         ? 'AuthModule'
         : 'Customer::AuthModule';
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # get auth module
-    my $Module      = $Self->{ConfigObject}->Get($AuthModule);
+    my $Module      = $ConfigObject->Get($AuthModule);
     my $AuthBackend = $Param{UserData}->{UserAuthBackend};
     if ($AuthBackend) {
-        $Module = $Self->{ConfigObject}->Get( $AuthModule . $AuthBackend );
+        $Module = $ConfigObject->Get( $AuthModule . $AuthBackend );
     }
 
     # return on no pw reset backends
@@ -82,8 +97,11 @@ sub Param {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # pref update db
-    return 1 if $Self->{ConfigObject}->Get('DemoSystem');
+    return 1 if $ConfigObject->Get('DemoSystem');
 
     # get password from form
     my $CurPw;
@@ -104,18 +122,24 @@ sub Run {
         ? 'Kernel::System::Auth'
         : 'Kernel::System::CustomerAuth';
 
+    # get user object
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
+
     # create authentication object
     my $AuthObject = $AuthModule->new(
-        ConfigObject => $Self->{ConfigObject},
-        EncodeObject => $Self->{EncodeObject},
-        LogObject    => $Self->{LogObject},
-        UserObject   => $Self->{UserObject},
-        GroupObject  => $Self->{GroupObject},
-        DBObject     => $Self->{DBObject},
-        MainObject   => $Self->{MainObject},
-        TimeObject   => $Self->{TimeObject},
+        ConfigObject => $ConfigObject,
+        EncodeObject => $Kernel::OM->Get('Kernel::System::Encode'),
+        LogObject    => $Kernel::OM->Get('Kernel::System::Log'),
+        UserObject   => $UserObject,
+        GroupObject  => $Kernel::OM->Get('Kernel::System::Group'),
+        DBObject     => $Kernel::OM->Get('Kernel::System::DB'),
+        MainObject   => $Kernel::OM->Get('Kernel::System::Main'),
+        TimeObject   => $Kernel::OM->Get('Kernel::System::Time'),
     );
     return 1 if !$AuthObject;
+
+    # get layout object
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # validate current password
     if (
@@ -125,20 +149,20 @@ sub Run {
         )
         )
     {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}
+        $Self->{Error} = $LayoutObject->{LanguageObject}
             ->Translate('The current password is not correct. Please try again!');
         return;
     }
 
     # check if pw is true
     if ( !$Pw || !$Pw1 ) {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}->Translate('Please supply your new password!');
+        $Self->{Error} = $LayoutObject->{LanguageObject}->Translate('Please supply your new password!');
         return;
     }
 
     # compare pws
     if ( $Pw ne $Pw1 ) {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}
+        $Self->{Error} = $LayoutObject->{LanguageObject}
             ->Translate('Can\'t update password, your new passwords do not match. Please try again!');
         return;
     }
@@ -148,14 +172,14 @@ sub Run {
 
     # check if password is not matching PasswordRegExp
     if ( $Config->{PasswordRegExp} && $Pw !~ /$Config->{PasswordRegExp}/ ) {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}
+        $Self->{Error} = $LayoutObject->{LanguageObject}
             ->Translate('Can\'t update password, it contains invalid characters!');
         return;
     }
 
     # check min size of password
     if ( $Config->{PasswordMinSize} && length $Pw < $Config->{PasswordMinSize} ) {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}->Translate(
+        $Self->{Error} = $LayoutObject->{LanguageObject}->Translate(
             'Can\'t update password, it must be at least %s characters long!',
             $Config->{PasswordMinSize}
         );
@@ -168,27 +192,27 @@ sub Run {
         && ( $Pw !~ /[A-Z].*[A-Z]/ || $Pw !~ /[a-z].*[a-z]/ )
         )
     {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}
+        $Self->{Error} = $LayoutObject->{LanguageObject}
             ->Translate('Can\'t update password, it must contain at least 2 lowercase and 2 uppercase characters!');
         return;
     }
 
     # check min 1 digit password
     if ( $Config->{PasswordNeedDigit} && $Pw !~ /\d/ ) {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}
+        $Self->{Error} = $LayoutObject->{LanguageObject}
             ->Translate('Can\'t update password, it must contain at least 1 digit!');
         return;
     }
 
     # check min 2 char password
     if ( $Config->{PasswordMin2Characters} && $Pw !~ /[A-z][A-z]/ ) {
-        $Self->{Error} = $Self->{LayoutObject}->{LanguageObject}
+        $Self->{Error} = $LayoutObject->{LanguageObject}
             ->Translate('Can\'t update password, it must contain at least 2 characters!');
         return;
     }
 
     # set new password
-    my $Success = $Self->{UserObject}->SetPassword(
+    my $Success = $UserObject->SetPassword(
         UserLogin => $Param{UserData}->{UserLogin},
         PW        => $Pw,
     );

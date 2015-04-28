@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesTicketWatcher.pm
+# Kernel/Output/HTML/Preferences/Generic.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,10 +7,17 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesTicketWatcher;
+package Kernel::Output::HTML::Preferences::Generic;
 
 use strict;
 use warnings;
+
+our @ObjectDependencies = (
+    'Kernel::System::Web::Request',
+    'Kernel::Config',
+    'Kernel::System::User',
+    'Kernel::System::AuthSession',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -19,9 +26,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem)) {
-        die "Got no $_!" if !$Self->{$_};
+    for my $Needed (qw(UserID ConfigItem)) {
+        die "Got no $Needed!" if ( !$Self->{$Needed} );
     }
 
     return $Self;
@@ -30,42 +36,19 @@ sub new {
 sub Param {
     my ( $Self, %Param ) = @_;
 
-    # check if feature is active
-    return if !$Self->{ConfigObject}->Get('Ticket::Watcher');
-
-    # check access
-    my @Groups;
-    if ( $Self->{ConfigObject}->Get('Ticket::WatcherGroup') ) {
-        @Groups = @{ $Self->{ConfigObject}->Get('Ticket::WatcherGroup') };
+    my @Params;
+    my $GetParam = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => $Self->{ConfigItem}->{PrefKey} );
+    if ( !defined $GetParam ) {
+        $GetParam = defined( $Param{UserData}->{ $Self->{ConfigItem}->{PrefKey} } )
+            ? $Param{UserData}->{ $Self->{ConfigItem}->{PrefKey} }
+            : $Self->{ConfigItem}->{DataSelected};
     }
-    my $Access = 0;
-    if ( !@Groups ) {
-        $Access = 1;
-    }
-    else {
-        GROUP:
-        for my $Group (@Groups) {
-            next GROUP if !$Self->{LayoutObject}->{"UserIsGroup[$Group]"};
-            if ( $Self->{LayoutObject}->{"UserIsGroup[$Group]"} eq 'Yes' ) {
-                $Access = 1;
-                last GROUP;
-            }
-        }
-    }
-
-    # return on no access
-    return if !$Access;
-
-    my $SelectedID = $Param{UserData}->{UserSendWatcherNotification};
-    $SelectedID = $Self->{ConfigItem}->{DataSelected} if !defined $SelectedID;
-    $SelectedID = 0 if !defined $SelectedID;
-
-    my @Params = (
+    push(
+        @Params,
         {
             %Param,
             Name       => $Self->{ConfigItem}->{PrefKey},
-            SelectedID => $SelectedID,
-            Block      => 'Option',
+            SelectedID => $GetParam,
         },
     );
     return @Params;
@@ -79,17 +62,17 @@ sub Run {
         for (@Array) {
 
             # pref update db
-            if ( !$Self->{ConfigObject}->Get('DemoSystem') ) {
-                $Self->{UserObject}->SetPreferences(
+            if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
+                $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $_,
                 );
             }
-
-            # update SessionID
             if ( $Param{UserData}->{UserID} eq $Self->{UserID} ) {
-                $Self->{SessionObject}->UpdateSessionID(
+
+                # update SessionID
+                $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
                     SessionID => $Self->{SessionID},
                     Key       => $Key,
                     Value     => $_,
@@ -97,7 +80,6 @@ sub Run {
             }
         }
     }
-
     $Self->{Message} = 'Preferences updated successfully!';
     return 1;
 }

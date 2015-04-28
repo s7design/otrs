@@ -1034,7 +1034,7 @@ sub LoadDefaults {
         'Area' => 'Agent',
         'Column' => 'User Profile',
         'Label' => 'Change password',
-        'Module' => 'Kernel::Output::HTML::PreferencesPassword',
+        'Module' => 'Kernel::Output::HTML::Preferences::Password',
         'PasswordMaxLoginFailed' => '0',
         'PasswordMin2Characters' => '0',
         'PasswordMin2Lower2UpperCharacters' => '0',
@@ -1044,7 +1044,7 @@ sub LoadDefaults {
         'Prio' => '0500'
     };
     $Self->{PreferencesGroups}->{SpellDict} = {
-        Module => 'Kernel::Output::HTML::PreferencesGeneric',
+        Module => 'Kernel::Output::HTML::Preferences::Generic',
         Column => 'Other Options',
         Label  => 'Spelling Dictionary',
         Desc   => 'Select your default spelling dictionary.',
@@ -1070,7 +1070,7 @@ sub LoadDefaults {
         'Data' => '[% Env("UserComment") %]',
         'Key' => 'Comment',
         'Label' => 'Comment',
-        'Module' => 'Kernel::Output::HTML::PreferencesGeneric',
+        'Module' => 'Kernel::Output::HTML::Preferences::Generic',
         'PrefKey' => 'UserComment',
         'Prio' => '6000'
     };
@@ -1080,7 +1080,7 @@ sub LoadDefaults {
         'Column' => 'User Profile',
         'Key' => 'Frontend language',
         'Label' => 'Language',
-        'Module' => 'Kernel::Output::HTML::PreferencesLanguage',
+        'Module' => 'Kernel::Output::HTML::Preferences::Language',
         'PrefKey' => 'UserLanguage',
         'Prio' => '1000'
     };

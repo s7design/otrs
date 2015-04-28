@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesColumnFilters.pm
+# Kernel/Output/HTML/Preferences/ColumnFilters.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,12 +7,16 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesColumnFilters;
+package Kernel::Output::HTML::Preferences::ColumnFilters;
 
 use strict;
 use warnings;
 
-use Kernel::System::JSON;
+our @ObjectDependencies = (
+    'Kernel::System::Web::Request',
+    'Kernel::Config',
+    'Kernel::System::JSON',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -21,13 +25,9 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem)) {
+    for (qw(UserID ConfigItem)) {
         die "Got no $_!" if ( !$Self->{$_} );
     }
-
-    # create additional objects
-    $Self->{JSONObject} = Kernel::System::JSON->new( %{$Self} );
 
     return $Self;
 }
@@ -36,7 +36,7 @@ sub Param {
     my ( $Self, %Param ) = @_;
 
     my @Params;
-    my $GetParam = $Self->{ParamObject}->GetParam( Param => 'FilterAction' );
+    my $GetParam = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'FilterAction' );
 
     push(
         @Params,
@@ -50,18 +50,18 @@ sub Param {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $FilterAction = $Self->{ParamObject}->GetParam( Param => 'FilterAction' );
+    my $FilterAction = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'FilterAction' );
 
     return 1 if !defined $FilterAction;
 
     for my $Key ( sort keys %{ $Param{GetParam} } ) {
 
         # pref update db
-        if ( !$Self->{ConfigObject}->Get('DemoSystem') ) {
-            $Self->{UserObject}->SetPreferences(
+        if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
+            $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
                 UserID => $Param{UserData}->{UserID},
                 Key    => $Key . '-' . $FilterAction,
-                Value  => $Self->{JSONObject}->Encode( Data => $Param{GetParam}->{$Key} ),
+                Value  => $Kernel::OM->Get('Kernel::System::JSON')->Encode( Data => $Param{GetParam}->{$Key} ),
             );
         }
     }

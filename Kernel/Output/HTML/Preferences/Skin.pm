@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesSkin.pm
+# Kernel/Output/HTML/Preferences/Skin.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,10 +7,18 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesSkin;
+package Kernel::Output::HTML::Preferences::Skin;
 
 use strict;
 use warnings;
+
+our @ObjectDependencies = (
+    'Kernel::System::Web::Request',
+    'Kernel::Config',
+    'Kernel::System::User',
+    'Kernel::System::AuthSession',
+    'Kernel::Output::HTML::Layout',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -19,12 +27,9 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (
-        qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem)
-        )
-    {
-        $Self->{$_} = $Param{$_} || die "Got no $_!";
+
+    for my $Needed ( qw(UserID ConfigItem) ) {
+        $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
     }
 
     return $Self;
@@ -32,14 +37,18 @@ sub new {
 
 sub Param {
     my ( $Self, %Param ) = @_;
-    my $PossibleSkins = $Self->{ConfigObject}->Get('Loader::Agent::Skin') || {};
-    my $Home = $Self->{ConfigObject}->Get('Home');
+
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    my $PossibleSkins = $ConfigObject->Get('Loader::Agent::Skin') || {};
+    my $Home = $ConfigObject->Get('Home');
     my %ActiveSkins;
 
     # prepare the list of active skins
     for my $PossibleSkin ( values %{$PossibleSkins} ) {
         if (
-            $Self->{LayoutObject}->SkinValidate(
+            $Kernel::OM->Get('Kernel::Output::HTML::Layout')->SkinValidate(
                 Skin     => $PossibleSkin->{InternalName},
                 SkinType => 'Agent'
             )
@@ -57,9 +66,9 @@ sub Param {
             Name       => $Self->{ConfigItem}->{PrefKey},
             Data       => \%ActiveSkins,
             HTMLQuote  => 0,
-            SelectedID => $Self->{ParamObject}->GetParam( Param => 'UserSkin' )
+            SelectedID => $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'UserSkin' )
                 || $Param{UserData}->{UserSkin}
-                || $Self->{ConfigObject}->Get('Loader::Agent::DefaultSelectedSkin'),
+                || $ConfigObject->Get('Loader::Agent::DefaultSelectedSkin'),
             Block => 'Option',
             Max   => 100,
         },
@@ -75,8 +84,8 @@ sub Run {
         for my $Value (@Array) {
 
             # pref update db
-            if ( !$Self->{ConfigObject}->Get('DemoSystem') ) {
-                $Self->{UserObject}->SetPreferences(
+            if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
+                $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $Value,
@@ -85,7 +94,7 @@ sub Run {
 
             # update SessionID
             if ( $Param{UserData}->{UserID} eq $Self->{UserID} ) {
-                $Self->{SessionObject}->UpdateSessionID(
+                $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
                     SessionID => $Self->{SessionID},
                     Key       => $Key,
                     Value     => $Value,

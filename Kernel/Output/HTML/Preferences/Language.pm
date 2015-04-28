@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesLanguage.pm
+# Kernel/Output/HTML/Preferences/Language.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,10 +7,18 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesLanguage;
+package Kernel::Output::HTML::Preferences::Language;
 
 use strict;
 use warnings;
+
+our @ObjectDependencies = (
+    'Kernel::System::Web::Request',
+    'Kernel::Config',
+    'Kernel::Output::HTML::Layout',
+    'Kernel::System::User',
+    'Kernel::System::AuthSession',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -19,9 +27,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem)) {
-        $Self->{$_} = $Param{$_} || die "Got no $_!";
+    for my $Needed (qw(UserID ConfigItem)) {
+        $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
     }
 
     return $Self;
@@ -30,18 +37,21 @@ sub new {
 sub Param {
     my ( $Self, %Param ) = @_;
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     my @Params;
     push(
         @Params,
         {
             %Param,
             Name       => $Self->{ConfigItem}->{PrefKey},
-            Data       => $Self->{ConfigObject}->Get('DefaultUsedLanguages'),
+            Data       => $ConfigObject->Get('DefaultUsedLanguages'),
             HTMLQuote  => 0,
-            SelectedID => $Self->{ParamObject}->GetParam( Param => 'UserLanguage' )
+            SelectedID => $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'UserLanguage' )
                 || $Param{UserData}->{UserLanguage}
-                || $Self->{LayoutObject}->{UserLanguage}
-                || $Self->{ConfigObject}->Get('DefaultLanguage'),
+                || $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{UserLanguage}
+                || $ConfigObject->Get('DefaultLanguage'),
             Block => 'Option',
             Max   => 100,
         },
@@ -57,8 +67,8 @@ sub Run {
         for (@Array) {
 
             # pref update db
-            if ( !$Self->{ConfigObject}->Get('DemoSystem') ) {
-                $Self->{UserObject}->SetPreferences(
+            if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
+                $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $_,
@@ -67,7 +77,7 @@ sub Run {
 
             # update SessionID
             if ( $Param{UserData}->{UserID} eq $Self->{UserID} ) {
-                $Self->{SessionObject}->UpdateSessionID(
+                $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
                     SessionID => $Self->{SessionID},
                     Key       => $Key,
                     Value     => $_,

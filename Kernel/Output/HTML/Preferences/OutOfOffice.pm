@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesOutOfOffice.pm
+# Kernel/Output/HTML/Preferences/OutOfOffice.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,10 +7,18 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesOutOfOffice;
+package Kernel::Output::HTML::Preferences::OutOfOffice;
 
 use strict;
 use warnings;
+
+our @ObjectDependencies = (
+    'Kernel::Output::HTML::Layout',
+    'Kernel::System::Web::Request',
+    'Kernel::Config',
+    'Kernel::System::User',
+    'Kernel::System::AuthSession',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -19,9 +27,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem)) {
-        die "Got no $_!" if ( !$Self->{$_} );
+    if ( !$Self->{UserID} ) {
+        die "Got no UserID!";
     }
 
     return $Self;
@@ -30,6 +37,9 @@ sub new {
 sub Param {
     my ( $Self, %Param ) = @_;
 
+    # get layout object
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     my @Params;
     if ( $Param{UserData}->{OutOfOffice} ) {
         $Param{OutOfOfficeOn} = 'checked="checked"';
@@ -37,7 +47,7 @@ sub Param {
     else {
         $Param{OutOfOfficeOff} = 'checked="checked"';
     }
-    $Param{OptionStart} = $Self->{LayoutObject}->BuildDateSelection(
+    $Param{OptionStart} = $LayoutObject->BuildDateSelection(
         Format                 => 'DateInputFormat',
         Area                   => 'no',
         Prefix                 => 'OutOfOfficeStart',
@@ -50,7 +60,7 @@ sub Param {
         YearPeriodFuture       => 5,
         Validate               => 1,
     );
-    $Param{OptionEnd} = $Self->{LayoutObject}->BuildDateSelection(
+    $Param{OptionEnd} = $LayoutObject->BuildDateSelection(
         Format               => 'DateInputFormat',
         Area                 => 'no',
         DiffTime             => 60 * 60 * 24 * 1,
@@ -78,18 +88,22 @@ sub Param {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    #  get needed objects
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
+    my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
+
     for my $Key (
         qw(OutOfOffice OutOfOfficeStartYear OutOfOfficeStartMonth OutOfOfficeStartDay OutOfOfficeEndYear OutOfOfficeEndMonth OutOfOfficeEndDay)
         )
     {
 
-        $Param{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
+        $Param{$Key} = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => $Key );
 
         if ( defined $Param{$Key} ) {
 
             # pref update db
-            if ( !$Self->{ConfigObject}->Get('DemoSystem') ) {
-                $Self->{UserObject}->SetPreferences(
+            if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
+                $UserObject->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $Param{$Key},
@@ -98,7 +112,7 @@ sub Run {
 
             # update SessionID
             if ( $Param{UserData}->{UserID} eq $Self->{UserID} ) {
-                $Self->{SessionObject}->UpdateSessionID(
+                $SessionObject->UpdateSessionID(
                     SessionID => $Self->{SessionID},
                     Key       => $Key,
                     Value     => $Param{$Key},
@@ -109,9 +123,9 @@ sub Run {
 
     # also update the lastname to remove out of office message
     if ( $Param{UserData}->{UserID} eq $Self->{UserID} ) {
-        my %User = $Self->{UserObject}->GetUserData( UserID => $Self->{UserID} );
+        my %User = $UserObject->GetUserData( UserID => $Self->{UserID} );
 
-        $Self->{SessionObject}->UpdateSessionID(
+        $SessionObject->UpdateSessionID(
             SessionID => $Self->{SessionID},
             Key       => 'UserLastname',
             Value     => $User{UserLastname},

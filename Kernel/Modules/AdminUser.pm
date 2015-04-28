@@ -583,7 +583,7 @@ sub _Edit {
             if ( $Group eq 'Password' ) {
                 next PRIO;
             }
-            my $Module = $Preference{Module} || 'Kernel::Output::HTML::PreferencesGeneric';
+            my $Module = $Preference{Module} || 'Kernel::Output::HTML::Preferences::Generic';
 
             # load module
             if ( $Kernel::OM->Get('Kernel::System::Main')->Require($Module) ) {
