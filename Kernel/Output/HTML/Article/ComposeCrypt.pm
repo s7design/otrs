@@ -1,5 +1,4 @@
 # --
-# Kernel/Output/HTML/Article/ComposeCrypt.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -63,7 +62,7 @@ sub Run {
     }
     my @SearchAddress = ();
     if ($Recipient) {
-        @SearchAddress =    Mail::Address->parse($Recipient);
+        @SearchAddress = Mail::Address->parse($Recipient);
     }
 
     my $Class;

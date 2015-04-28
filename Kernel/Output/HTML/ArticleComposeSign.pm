@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/ArticleComposeSign.pm
+# Kernel/Output/HTML/Article/ComposeSign.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::ArticleComposeSign;
+package Kernel::Output::HTML::Article::ComposeSign;
 
 use strict;
 use warnings;
@@ -74,7 +74,7 @@ sub Run {
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $List = $LayoutObject->BuildSelection(
-        Data       => \%KeyList,
+        Data            => \%KeyList,
         Name       => 'SignKeyID',
         SelectedID => $Param{SignKeyID},
     );

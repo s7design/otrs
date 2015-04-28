@@ -1,5 +1,4 @@
 # --
-# Kernel/Output/HTML/Article/AttachmentHTMLViewer.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -35,7 +34,7 @@ sub Run {
     for my $Needed (qw(File Article)) {
         if ( !$Param{$Needed} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
-                    Priority => 'error',
+                Priority => 'error',
                 Message  => "Need $Needed!"
             );
             return;

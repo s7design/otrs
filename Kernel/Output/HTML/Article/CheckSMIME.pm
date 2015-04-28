@@ -1,5 +1,4 @@
 # --
-# Kernel/Output/HTML/ArticleCheckSMIME.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::ArticleCheckSMIME;
+package Kernel::Output::HTML::Article::CheckSMIME;
 
 use strict;
 use warnings;

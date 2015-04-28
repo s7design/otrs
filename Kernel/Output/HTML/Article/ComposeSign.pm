@@ -1,5 +1,4 @@
 # --
-# Kernel/Output/HTML/Article/ComposeCrypt.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::Article::ComposeCrypt;
+package Kernel::Output::HTML::Article::ComposeSign;
 
 use strict;
 use warnings;
@@ -19,6 +18,7 @@ our @ObjectDependencies = (
     'Kernel::System::Crypt::PGP',
     'Kernel::System::Crypt::SMIME',
     'Kernel::Output::HTML::Layout',
+    'Kernel::System::Queue',
 );
 
 sub new {
@@ -40,7 +40,7 @@ sub Option {
     # check if pgp or smime is disabled
     return if !$ConfigObject->Get('PGP') && !$ConfigObject->Get('SMIME');
 
-    return ('CryptKeyID');
+    return ('SignKeyID');
 }
 
 sub Run {
@@ -54,44 +54,35 @@ sub Run {
 
     my %KeyList = $Self->Data(%Param);
 
-    # find recipient list
-    my $Recipient = '';
-    for (qw(To Cc Bcc)) {
-        if ( $Param{$_} ) {
-            $Recipient .= ', ' . $Param{$_};
+    # add signing options
+    if (
+        !defined $Param{SignKeyID}
+        || ( $Param{ExpandCustomerName} && $Param{ExpandCustomerName} == 3 )
+        )
+    {
+
+        # get default signing key
+        if ( $Param{QueueID} ) {
+            my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
+            my %Queue = $QueueObject->QueueGet( ID => $Param{QueueID} );
+            $Param{SignKeyID} = $Queue{DefaultSignKey} || '';
         }
-    }
-    my @SearchAddress = ();
-    if ($Recipient) {
-        @SearchAddress =    Mail::Address->parse($Recipient);
-    }
-
-    my $Class;
-
-    # backend currently only supports one recipient
-    if ( $#SearchAddress > 0 && $Param{CryptKeyID} ) {
-        $Self->{Error}->{CryptMultipleRecipient} = 1;
-        $Class .= ' ServerError';
     }
 
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    # add crypt options
     my $List = $LayoutObject->BuildSelection(
         Data       => \%KeyList,
-        Name       => 'CryptKeyID',
-        SelectedID => $Param{CryptKeyID} || '',
-        Class      => $Class,
-        Max        => 150,
+        Name       => 'SignKeyID',
+        SelectedID => $Param{SignKeyID},
     );
     $LayoutObject->Block(
         Name => 'Option',
         Data => {
-            Name    => 'CryptKeyID',
-            Key     => 'Crypt',
-            Value   => $List,
-            Invalid => 'Just one recipient for crypt is possible!',
+            Name  => 'SignKeyID',
+            Key   => 'Sign',
+            Value => $List,
         },
     );
     return;
@@ -106,75 +97,47 @@ sub Data {
     # check if pgp or smime is disabled
     return if !$ConfigObject->Get('PGP') && !$ConfigObject->Get('SMIME');
 
-    # find recipient list
-    my $Recipient = '';
-    for (qw(To Cc Bcc)) {
-        if ( $Param{$_} ) {
-            $Recipient .= ', ' . $Param{$_};
-        }
-    }
-    my @SearchAddress = ();
-    if ($Recipient) {
-        @SearchAddress = Mail::Address->parse($Recipient);
-    }
-
     # generate key list
     my %KeyList;
 
-    # add non crypt option
+    # add non signing option
     $KeyList{''} = '-none-';
 
-    # backend currently only supports one recipient
-    if ( $#SearchAddress > 0 ) {
-        return %KeyList;
-    }
-    elsif (@SearchAddress) {
+    if ( $Param{From} ) {
+
+        my @SearchAddress = Mail::Address->parse( $Param{From} );
 
         # check pgp backend
         my $PGPObject = $Kernel::OM->Get('Kernel::System::Crypt::PGP');
         if ($PGPObject) {
-            my @PublicKeys = $PGPObject->PublicKeySearch(
+            my @PrivateKeys = $PGPObject->PrivateKeySearch(
                 Search => $SearchAddress[0]->address(),
             );
-            for my $DataRef (@PublicKeys) {
+            for my $DataRef (@PrivateKeys) {
                 my $Expires = '';
                 if ( $DataRef->{Expires} ) {
                     $Expires = "[$DataRef->{Expires}]";
                 }
 
-                my $Status = '';
-                $Status = '[' . $DataRef->{Status} . ']';
-                if ( $DataRef->{Status} eq 'expired' ) {
-                    $Status = '[WARNING: EXPIRED KEY]';
-                }
-                elsif ( $DataRef->{Status} eq 'revoked' ) {
-                    $Status = '[WARNING: REVOKED KEY]';
-                }
-
                 # disable inline pgp if rich text is enabled
                 if ( !$Kernel::OM->Get('Kernel::Output::HTML::Layout')->{BrowserRichText} ) {
                     $KeyList{"PGP::Inline::$DataRef->{Key}"}
-                        = "PGP-Inline: $Status $DataRef->{Key} $Expires $DataRef->{Identifier}";
+                        = "PGP-Inline: $DataRef->{Key} $Expires $DataRef->{Identifier}";
                 }
-
                 $KeyList{"PGP::Detached::$DataRef->{Key}"}
-                    = "PGP-Detached: $Status $DataRef->{Key} $Expires $DataRef->{Identifier}";
+                    = "PGP-Detached: $DataRef->{Key} $Expires $DataRef->{Identifier}";
             }
         }
 
         # check smime backend
         my $SMIMEObject = $Kernel::OM->Get('Kernel::System::Crypt::SMIME');
         if ($SMIMEObject) {
-            my @PublicKeys = $SMIMEObject->CertificateSearch(
+            my @PrivateKeys = $SMIMEObject->PrivateSearch(
                 Search => $SearchAddress[0]->address(),
             );
-            for my $DataRef (@PublicKeys) {
-                my $EndDate = '';
-                if ( $DataRef->{EndDate} ) {
-                    $EndDate = "[$DataRef->{EndDate}]";
-                }
+            for my $DataRef (@PrivateKeys) {
                 $KeyList{"SMIME::Detached::$DataRef->{Filename}"}
-                    = "SMIME-Detached: $DataRef->{Filename} $EndDate $DataRef->{Email}";
+                    = "SMIME-Detached: $DataRef->{Filename} [$DataRef->{EndDate}] $DataRef->{Email}";
             }
         }
 
@@ -185,10 +148,10 @@ sub Data {
 sub ArticleOption {
     my ( $Self, %Param ) = @_;
 
-    if ( $Param{CryptKeyID} ) {
-        my ( $Type, $SubType, $Key ) = split /::/, $Param{CryptKeyID};
+    if ( $Param{SignKeyID} ) {
+        my ( $Type, $SubType, $Key ) = split /::/, $Param{SignKeyID};
         return (
-            Crypt => {
+            Sign => {
                 Type    => $Type,
                 SubType => $SubType,
                 Key     => $Key,
@@ -196,6 +159,27 @@ sub ArticleOption {
         );
     }
     return;
+}
+
+sub GetParamAJAX {
+    my ( $Self, %Param ) = @_;
+
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    # check if pgp or smime is disabled
+    return if !$ConfigObject->Get('PGP') && !$ConfigObject->Get('SMIME');
+
+    my %Result;
+
+    # get default signing key
+    if ( $Param{QueueID} ) {
+        my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
+        my %Queue = $QueueObject->QueueGet( ID => $Param{QueueID} );
+        $Result{SignKeyID} = $Queue{DefaultSignKey} || '';
+    }
+
+    return %Result;
 }
 
 sub Error {
