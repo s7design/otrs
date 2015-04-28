@@ -89,7 +89,7 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     #  get needed objects
-    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
+    my $UserObject    = $Kernel::OM->Get('Kernel::System::User');
     my $SessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
 
     for my $Key (

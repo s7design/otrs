@@ -16,6 +16,7 @@ our @ObjectDependencies = (
     'Kernel::System::Web::Request',
     'Kernel::Config',
     'Kernel::System::JSON',
+    'Kernel::System::User',
 );
 
 sub new {

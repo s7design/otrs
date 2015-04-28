@@ -149,8 +149,8 @@ sub Run {
         )
         )
     {
-        $Self->{Error} = $LayoutObject->{LanguageObject}
-            ->Translate('The current password is not correct. Please try again!');
+        $Self->{Error}
+            = $LayoutObject->{LanguageObject}->Translate('The current password is not correct. Please try again!');
         return;
     }
 
@@ -172,8 +172,8 @@ sub Run {
 
     # check if password is not matching PasswordRegExp
     if ( $Config->{PasswordRegExp} && $Pw !~ /$Config->{PasswordRegExp}/ ) {
-        $Self->{Error} = $LayoutObject->{LanguageObject}
-            ->Translate('Can\'t update password, it contains invalid characters!');
+        $Self->{Error}
+            = $LayoutObject->{LanguageObject}->Translate('Can\'t update password, it contains invalid characters!');
         return;
     }
 
@@ -199,8 +199,8 @@ sub Run {
 
     # check min 1 digit password
     if ( $Config->{PasswordNeedDigit} && $Pw !~ /\d/ ) {
-        $Self->{Error} = $LayoutObject->{LanguageObject}
-            ->Translate('Can\'t update password, it must contain at least 1 digit!');
+        $Self->{Error}
+            = $LayoutObject->{LanguageObject}->Translate('Can\'t update password, it must contain at least 1 digit!');
         return;
     }
 
