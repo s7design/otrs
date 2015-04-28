@@ -756,36 +756,14 @@ sub _Element {
         return if !$PermissionOK;
     }
 
-    # get needed objects
-    my $SlaveDBObject     = $Kernel::OM->Get('Kernel::System::DB');
-    my $SlaveTicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-    my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
-
-    # use a slave db to search dashboard date
-    if ( $ConfigObject->Get('Core::MirrorDB::DSN') ) {
-
-        $SlaveDBObject = $Kernel::OM->Get('Kernel::System::DB')->new(
-            DatabaseDSN  => $ConfigObject->Get('Core::MirrorDB::DSN'),
-            DatabaseUser => $ConfigObject->Get('Core::MirrorDB::User'),
-            DatabasePw   => $ConfigObject->Get('Core::MirrorDB::Password'),
-        );
-
-        if ($SlaveDBObject) {
-
-            $SlaveTicketObject = $Kernel::OM->Get('Kernel::System::Ticket')->new(
-                %Param,
-                DBObject => $SlaveDBObject,
-            );
-        }
-    }
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # load backends
     my $Module = $Configs->{$Name}->{Module};
     return if !$Kernel::OM->Get('Kernel::System::Main')->Require($Module);
     my $Object = $Module->new(
         %{$Self},
-        DBObject              => $SlaveDBObject,
-        TicketObject          => $SlaveTicketObject,
         Config                => $Configs->{$Name},
         Name                  => $Name,
         CustomerID            => $Self->{CustomerID} || '',
@@ -799,6 +777,9 @@ sub _Element {
 
     # get module config
     my %Config = $Object->Config();
+
+    # Perform the actual data fetching and computation on the slave db, if configured
+    local $Kernel::System::DB::UseSlaveDB = 1;
 
     # get module preferences
     my @Preferences = $Object->Preferences();
