@@ -115,30 +115,32 @@ $Selenium->RunTest(
         # wait until attachment is upoading
         ACTIVESLEEP:
         for my $Second ( 1 .. 20 ) {
-            if ( index( $Selenium->get_page_source(), 'Subject' ) > -1, ) {
+            if ( index( $Selenium->get_page_source(), $AttachmentName ) > -1 ) {
                 last ACTIVESLEEP;
             }
             sleep 1;
         }
-        $Selenium->find_element( "#Subject", 'css' )->submit();
 
-        # wait until ticket is created
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            if ( $Selenium->execute_script("return \$('form').length") ) {
-                last ACTIVESLEEP;
-            }
-            sleep 1;
-        }
+        $Selenium->find_element( "#Subject", 'css' )->submit();
 
         # search for new created ticket on AgentTicketZoom screen
         my %TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
             Result         => 'HASH',
             Limit          => 1,
             CustomerUserID => $TestCustomer,
+            UserID         => $TestUserID,
         );
         my $TicketNumber = (%TicketIDs)[1];
         my $TicketID     = (%TicketIDs)[0];
+
+        # wait until ticket is created
+        ACTIVESLEEP:
+        for my $Second ( 1 .. 20 ) {
+            if ( index( $Selenium->get_page_source(), $TicketNumber ) > -1 ) {
+                last ACTIVESLEEP;
+            }
+            sleep 1;
+        }
 
         $Self->True(
             index( $Selenium->get_page_source(), $TicketNumber ) > -1,
