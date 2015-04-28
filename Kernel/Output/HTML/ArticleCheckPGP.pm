@@ -282,7 +282,6 @@ sub Check {
                 my $EntityCopy = $Entity->dup();
 
                 my $ParserObject = Kernel::System::EmailParser->new(
-                    %{$Self},
                     Entity => $EntityCopy,
                 );
 
