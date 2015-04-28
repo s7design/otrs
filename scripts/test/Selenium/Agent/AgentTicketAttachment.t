@@ -19,8 +19,7 @@ $Kernel::OM->ObjectParamAdd(
 
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
-# get needed objects
-my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
+# get sysconfig object
 my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
 $Selenium->RunTest(
@@ -155,6 +154,8 @@ $Selenium->RunTest(
             "$AttachmentName is found on page",
         );
 
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
         # get article id
         my @ArticleIDs = $TicketObject->ArticleIndex(
             TicketID => (%TicketIDs)[0],
@@ -171,7 +172,7 @@ $Selenium->RunTest(
         );
 
         # delete created test ticket
-        my $Success = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
+        my $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
             UserID   => 1,
         );
@@ -193,8 +194,9 @@ $Selenium->RunTest(
         );
 
         # make sure the cache is correct.
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
+        for my $Cache (qw( Ticket CustomerUser )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => $Cache );
+        }
 
         }
 );
