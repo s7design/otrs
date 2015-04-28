@@ -62,7 +62,7 @@ sub Check {
     my $StoreDecryptedData = $ConfigObject->Get('SMIME::StoreDecryptedData');
 
     # get needed objects
-    my $SMIMEObject        = $Kernel::OM->Get('Kernel::System::Crypt::SMIME');
+    my $SMIMEObject = $Kernel::OM->Get('Kernel::System::Crypt::SMIME');
     my $TicketObject = $Param{TicketObject} || $Kernel::OM->Get('Kernel::System::Ticket');
 
     # check inline smime

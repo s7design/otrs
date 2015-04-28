@@ -193,7 +193,7 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[1] );
 
         # check expexted values in PDF test attachment
-        for my $ExpextedValue ( qw( OTRS.org TEST ) ) {
+        for my $ExpextedValue (qw( OTRS.org TEST )) {
             $Self->True(
                 index( $Selenium->get_page_source(), $ExpextedValue ) > -1,
                 "Value is founded on screen - $ExpextedValue"
@@ -223,7 +223,7 @@ $Selenium->RunTest(
         );
 
         # delete created test customer user
-        $Success      = $DBObject->Do(
+        $Success = $DBObject->Do(
             SQL  => "DELETE FROM customer_user WHERE login = ?",
             Bind => [ \$TestCustomer ],
         );
@@ -233,11 +233,11 @@ $Selenium->RunTest(
         );
 
         # make sure the cache is correct.
-        for my $Cache ( qw( Ticket CustomerUser CustomerCompany) ){
+        for my $Cache (qw( Ticket CustomerUser CustomerCompany)) {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => $Cache );
         }
 
-    }
+        }
 );
 
 1;
