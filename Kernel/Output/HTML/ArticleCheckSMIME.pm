@@ -102,7 +102,6 @@ sub Check {
         }
 
         my $ParserObject = Kernel::System::EmailParser->new(
-            %{$Self},
             Email => \@Email,
         );
 

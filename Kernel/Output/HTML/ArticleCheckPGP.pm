@@ -190,7 +190,6 @@ sub Check {
 
         # create local email parser object
         my $ParserObject = Kernel::System::EmailParser->new(
-            %{$Self},
             Email => $Message,
         );
 
