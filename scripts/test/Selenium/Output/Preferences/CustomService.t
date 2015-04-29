@@ -1,5 +1,4 @@
 # --
-# CustomService.t - frontend tests for Preference/CustomService
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
