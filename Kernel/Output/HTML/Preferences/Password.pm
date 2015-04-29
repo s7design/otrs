@@ -12,19 +12,12 @@ package Kernel::Output::HTML::Preferences::Password;
 use strict;
 use warnings;
 
-use Kernel::System::Auth;
-use Kernel::System::CustomerAuth;
-
 our @ObjectDependencies = (
     'Kernel::Config',
-    'Kernel::System::Log',
-    'Kernel::System::DB',
     'Kernel::Output::HTML::Layout',
-    'Kernel::System::Main',
-    'Kernel::System::Encode',
     'Kernel::System::User',
-    'Kernel::System::Group',
-    'Kernel::System::Time',
+    'Kernel::System::Auth',
+    'Kernel::System::CustomerAuth',
 );
 
 sub new {
@@ -34,10 +27,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem MainObject))
-    {
-        die "Got no $_!" if !$Self->{$_};
+    for my $Needed (qw(UserID ConfigItem)) {
+        die "Got no $Needed!" if !$Self->{$Needed};
     }
 
     return $Self;
@@ -119,23 +110,10 @@ sub Run {
 
     # define AuthModule for frontend
     my $AuthModule = $Self->{ConfigItem}->{Area} eq 'Agent'
-        ? 'Kernel::System::Auth'
-        : 'Kernel::System::CustomerAuth';
+        ? 'Auth'
+        : 'CustomerAuth';
 
-    # get user object
-    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
-
-    # create authentication object
-    my $AuthObject = $AuthModule->new(
-        ConfigObject => $ConfigObject,
-        EncodeObject => $Kernel::OM->Get('Kernel::System::Encode'),
-        LogObject    => $Kernel::OM->Get('Kernel::System::Log'),
-        UserObject   => $UserObject,
-        GroupObject  => $Kernel::OM->Get('Kernel::System::Group'),
-        DBObject     => $Kernel::OM->Get('Kernel::System::DB'),
-        MainObject   => $Kernel::OM->Get('Kernel::System::Main'),
-        TimeObject   => $Kernel::OM->Get('Kernel::System::Time'),
-    );
+    my $AuthObject = $Kernel::OM->Get( 'Kernel::System::' . $AuthModule );
     return 1 if !$AuthObject;
 
     # get layout object
@@ -212,7 +190,7 @@ sub Run {
     }
 
     # set new password
-    my $Success = $UserObject->SetPassword(
+    my $Success = $Kernel::OM->Get('Kernel::System::User')->SetPassword(
         UserLogin => $Param{UserData}->{UserLogin},
         PW        => $Pw,
     );

@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesTimeZone.pm
+# Kernel/Output/HTML/Preferences/TimeZone.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,10 +7,18 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesTimeZone;
+package Kernel::Output::HTML::Preferences::TimeZone;
 
 use strict;
 use warnings;
+
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Web::Request',
+    'Kernel::Output::HTML::Layout',
+    'Kernel::System::User',
+    'Kernel::System::AuthSession',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -19,9 +27,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem)) {
-        die "Got no $_!" if !$Self->{$_};
+    for my $Needed (qw( UserID ConfigItem)) {
+        die "Got no $Needed!" if !$Self->{$Needed};
     }
 
     return $Self;
@@ -30,11 +37,14 @@ sub new {
 sub Param {
     my ( $Self, %Param ) = @_;
 
-    return if !$Self->{ConfigObject}->Get('TimeZoneUser');
-    return if $Self->{ConfigObject}->Get('TimeZoneUserBrowserAutoOffset');
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    return if !$ConfigObject->Get('TimeZoneUser');
+    return if $ConfigObject->Get('TimeZoneUserBrowserAutoOffset');
     return
-        if $Self->{ConfigObject}->Get('TimeZoneUserBrowserAutoOffset')
-        && !$Self->{LayoutObject}->{BrowserJavaScriptSupport};
+        if $ConfigObject->Get('TimeZoneUserBrowserAutoOffset')
+        && !$Kernel::OM->Get('Kernel::Output::HTML::Layout')->{BrowserJavaScriptSupport};
 
     my @Params = ();
     push(
@@ -69,7 +79,7 @@ sub Param {
                 '-11' => '-11',
                 '-12' => '-12',
             },
-            SelectedID => $Self->{ParamObject}->GetParam( Param => 'UserTimeZone' )
+            SelectedID => $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'UserTimeZone' )
                 || $Param{UserData}->{UserTimeZone}
                 || '0',
             Block => 'Option',
@@ -86,8 +96,8 @@ sub Run {
         for (@Array) {
 
             # pref update db
-            if ( !$Self->{ConfigObject}->Get('DemoSystem') ) {
-                $Self->{UserObject}->SetPreferences(
+            if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
+                $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $_,
@@ -96,7 +106,7 @@ sub Run {
 
             # update SessionID
             if ( $Param{UserData}->{UserID} eq $Self->{UserID} ) {
-                $Self->{SessionObject}->UpdateSessionID(
+                $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
                     SessionID => $Self->{SessionID},
                     Key       => $Key,
                     Value     => $_,

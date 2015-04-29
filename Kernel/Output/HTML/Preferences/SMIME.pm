@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesSMIME.pm
+# Kernel/Output/HTML/Preferences/SMIME.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,13 +7,17 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesSMIME;
+package Kernel::Output::HTML::Preferences::SMIME;
 
 use strict;
 use warnings;
 
 our @ObjectDependencies = (
     'Kernel::System::Crypt::SMIME',
+    'Kernel::Config',
+    'Kernel::System::Web::Request',
+    'Kernel::System::User',
+    'Kernel::System::Log',
 );
 
 sub new {
@@ -23,12 +27,8 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    # get needed objects
-    for (
-        qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem MainObject EncodeObject)
-        )
-    {
-        die "Got no $_!" if ( !$Self->{$_} );
+    for my $Needed ( qw( UserID ConfigItem ) ) {
+        die "Got no $Needed!" if ( !$Self->{$Needed} );
     }
 
     return $Self;
@@ -37,7 +37,7 @@ sub new {
 sub Param {
     my ( $Self, %Param ) = @_;
 
-    return if !$Self->{ConfigObject}->Get('SMIME');
+    return if !$Kernel::OM->Get('Kernel::Config')->Get('SMIME');
 
     my @Params = ();
     push(
@@ -55,7 +55,7 @@ sub Param {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my %UploadStuff = $Self->{ParamObject}->GetUploadAll(
+    my %UploadStuff = $Kernel::OM->Get('Kernel::System::Web::Request')->GetUploadAll(
         Param => 'UserSMIMEKey',
     );
     return 1 if !$UploadStuff{Content};
@@ -75,17 +75,21 @@ sub Run {
         if ( $Result{Filename} ) {
             $UploadStuff{Filename} = $Result{Filename};
         }
-        $Self->{UserObject}->SetPreferences(
+
+        # get user object
+        my $UserObject = $Kernel::OM->Get('Kernel::System::User');
+
+        $UserObject->SetPreferences(
             UserID => $Param{UserData}->{UserID},
             Key    => 'SMIMEHash',
             Value  => $Attributes{Hash},
         );
-        $Self->{UserObject}->SetPreferences(
+        $UserObject->SetPreferences(
             UserID => $Param{UserData}->{UserID},
             Key    => 'SMIMEFingerprint',
             Value  => $Attributes{Fingerprint},
         );
-        $Self->{UserObject}->SetPreferences(
+        $UserObject->SetPreferences(
             UserID => $Param{UserData}->{UserID},
             Key    => 'SMIMEFilename',
             Value  => $UploadStuff{Filename},
@@ -103,13 +107,16 @@ sub Download {
     return 1 if !$SMIMEObject;
 
     # get preferences with key parameters
-    my %Preferences = $Self->{UserObject}->GetPreferences(
+    my %Preferences = $Kernel::OM->Get('Kernel::System::User')->GetPreferences(
         UserID => $Param{UserData}->{UserID},
     );
 
+    # get log object
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
     # check if SMIMEFilename is there
     if ( !$Preferences{SMIMEFilename} ) {
-        $Self->{LogObject}->Log(
+        $LogObject->Log(
             Priority => 'Error',
             Message  => 'Need SMIMEFilename to get certificate of user: '
                 . $Param{UserData}->{UserID},
@@ -124,7 +131,7 @@ sub Download {
 
     # check if cert exists
     if ( !$Preferences{SMIMECert} ) {
-        $Self->{LogObject}->Log(
+        $LogObject->Log(
             Priority => 'Error',
             Message  => 'Couldn\'t get cert' . $Preferences{SMIMEFilename},
         );

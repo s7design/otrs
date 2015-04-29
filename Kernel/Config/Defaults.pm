@@ -1089,7 +1089,7 @@ sub LoadDefaults {
         'Column' => 'User Profile',
         'Key' => 'Frontend theme',
         'Label' => 'Theme',
-        'Module' => 'Kernel::Output::HTML::PreferencesTheme',
+        'Module' => 'Kernel::Output::HTML::Preferences::Theme',
         'PrefKey' => 'UserTheme',
         'Prio' => '3000'
     };

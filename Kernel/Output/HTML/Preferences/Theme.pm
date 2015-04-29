@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/PreferencesTheme.pm
+# Kernel/Output/HTML/Preferences/Theme.pm
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,10 +7,17 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::PreferencesTheme;
+package Kernel::Output::HTML::Preferences::Theme;
 
 use strict;
 use warnings;
+
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Web::Request',
+    'Kernel::System::User',
+    'Kernel::System::AuthSession',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -20,11 +27,8 @@ sub new {
     bless( $Self, $Type );
 
     # get needed objects
-    for (
-        qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem)
-        )
-    {
-        $Self->{$_} = $Param{$_} || die "Got no $_!";
+    for my $Needed ( qw(ConfigObject LogObject DBObject LayoutObject UserID ParamObject ConfigItem) ) {
+        $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
     }
 
     return $Self;
@@ -33,10 +37,13 @@ sub new {
 sub Param {
     my ( $Self, %Param ) = @_;
 
-    my $PossibleThemesRef = $Self->{ConfigObject}->Get('Frontend::Themes')
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    my $PossibleThemesRef = $ConfigObject->Get('Frontend::Themes')
         || {};
     my %PossibleThemes = %{$PossibleThemesRef};
-    my $Home           = $Self->{ConfigObject}->Get('Home');
+    my $Home           = $ConfigObject->Get('Home');
 
     my %ActiveThemes;
 
@@ -62,9 +69,9 @@ sub Param {
             Name       => $Self->{ConfigItem}->{PrefKey},
             Data       => \%ActiveThemes,
             HTMLQuote  => 0,
-            SelectedID => $Self->{ParamObject}->GetParam( Param => 'UserTheme' )
+            SelectedID => $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'UserTheme' )
                 || $Param{UserData}->{UserTheme}
-                || $Self->{ConfigObject}->Get('DefaultTheme'),
+                || $ConfigObject->Get('DefaultTheme'),
             Block => 'Option',
             Max   => 100,
         },
@@ -80,8 +87,8 @@ sub Run {
         for (@Array) {
 
             # pref update db
-            if ( !$Self->{ConfigObject}->Get('DemoSystem') ) {
-                $Self->{UserObject}->SetPreferences(
+            if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
+                $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $_,
@@ -90,7 +97,7 @@ sub Run {
 
             # update SessionID
             if ( $Param{UserData}->{UserID} eq $Self->{UserID} ) {
-                $Self->{SessionObject}->UpdateSessionID(
+                $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
                     SessionID => $Self->{SessionID},
                     Key       => $Key,
                     Value     => $_,
