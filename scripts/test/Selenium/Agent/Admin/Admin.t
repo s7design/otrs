@@ -108,8 +108,8 @@ $Selenium->RunTest(
                         $Success,
                         "S/MIME environment is not working. Please check log for more info!",
                     );
+                    next ADMINMODULE;
                 }
-                next ADMINMODULE;
             }
             $Selenium->get("${ScriptAlias}index.pl?Action=$AdminModule");
 
