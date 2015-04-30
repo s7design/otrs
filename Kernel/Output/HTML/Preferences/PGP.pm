@@ -16,7 +16,6 @@ our @ObjectDependencies = (
     'Kernel::System::Crypt::PGP',
     'Kernel::System::Web::Request',
     'Kernel::System::Log',
-    'Kernel::System::User',
 );
 
 sub new {
@@ -26,7 +25,7 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    for my $Needed (qw( UserID ConfigItem )) {
+    for my $Needed (qw( UserID UserObject ConfigItem )) {
         die "Got no $Needed!" if ( !$Self->{$Needed} );
     }
 
@@ -79,26 +78,23 @@ sub Run {
             }
         }
 
-        # get user object
-        my $UserObject = $Kernel::OM->Get('Kernel::System::User');
-
-        $UserObject->SetPreferences(
+        $Self->{UserObject}->SetPreferences(
             UserID => $Param{UserData}->{UserID},
             Key    => 'PGPKeyID',                   # new parameter PGPKeyID
             Value  => $1,                           # write KeyID on a per user base
         );
-        $UserObject->SetPreferences(
+        $Self->{UserObject}->SetPreferences(
             UserID => $Param{UserData}->{UserID},
             Key    => 'PGPFilename',
             Value  => $UploadStuff{Filename},
         );
 
-        #        $UserObject->SetPreferences(
+        #        $Self->{UserObject}->SetPreferences(
         #            UserID => $Param{UserData}->{UserID},
         #            Key => 'UserPGPKey',
         #            Value => $UploadStuff{Content},
         #        );
-        #        $UserObject->SetPreferences(
+        #        $Self->{UserObject}->SetPreferences(
         #            UserID => $Param{UserData}->{UserID},
         #            Key => "PGPContentType",
         #            Value => $UploadStuff{ContentType},
@@ -115,7 +111,7 @@ sub Download {
     return 1 if !$PGPObject;
 
     # get preferences with key parameters
-    my %Preferences = $Kernel::OM->Get('Kernel::System::User')->GetPreferences(
+    my %Preferences = $Self->{UserObject}->GetPreferences(
         UserID => $Param{UserData}->{UserID},
     );
 

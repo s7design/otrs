@@ -15,7 +15,6 @@ our @ObjectDependencies = (
     'Kernel::System::Web::Request',
     'Kernel::Config',
     'Kernel::Output::HTML::Layout',
-    'Kernel::System::User',
     'Kernel::System::AuthSession',
 );
 
@@ -26,7 +25,7 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    for my $Needed (qw(UserID ConfigItem)) {
+    for my $Needed (qw(UserID UserObject ConfigItem)) {
         $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
     }
 
@@ -67,7 +66,7 @@ sub Run {
 
             # pref update db
             if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
-                $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
+                $Self->{UserObject}->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $_,

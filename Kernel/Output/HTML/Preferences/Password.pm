@@ -14,7 +14,6 @@ use warnings;
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::Output::HTML::Layout',
-    'Kernel::System::User',
     'Kernel::System::Auth',
     'Kernel::System::CustomerAuth',
 );
@@ -26,7 +25,7 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    for my $Needed (qw(UserID ConfigItem)) {
+    for my $Needed (qw(UserID UserObject ConfigItem)) {
         die "Got no $Needed!" if !$Self->{$Needed};
     }
 
@@ -189,7 +188,7 @@ sub Run {
     }
 
     # set new password
-    my $Success = $Kernel::OM->Get('Kernel::System::User')->SetPassword(
+    my $Success = $Self->{UserObject}->SetPassword(
         UserLogin => $Param{UserData}->{UserLogin},
         PW        => $Pw,
     );

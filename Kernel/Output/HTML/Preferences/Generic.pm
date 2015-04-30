@@ -14,7 +14,6 @@ use warnings;
 our @ObjectDependencies = (
     'Kernel::System::Web::Request',
     'Kernel::Config',
-    'Kernel::System::User',
     'Kernel::System::AuthSession',
 );
 
@@ -25,7 +24,7 @@ sub new {
     my $Self = {%Param};
     bless( $Self, $Type );
 
-    for my $Needed (qw(UserID ConfigItem)) {
+    for my $Needed (qw(UserID UserObject ConfigItem)) {
         die "Got no $Needed!" if ( !$Self->{$Needed} );
     }
 
@@ -63,7 +62,7 @@ sub Run {
 
             # pref update db
             if ( !$Kernel::OM->Get('Kernel::Config')->Get('DemoSystem') ) {
-                $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
+                $Self->{UserObject}->SetPreferences(
                     UserID => $Param{UserData}->{UserID},
                     Key    => $Key,
                     Value  => $_,
