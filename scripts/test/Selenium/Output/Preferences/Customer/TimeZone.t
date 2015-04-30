@@ -49,30 +49,30 @@ $Selenium->RunTest(
         );
 
         # create test user and login
-        my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => [ 'admin', 'users' ],
+        my $TestUserLogin = $Helper->TestCustomerUserCreate(
+            Groups => ['admin'],
         ) || die "Did not get test user";
 
         $Selenium->Login(
-            Type     => 'Agent',
+            Type     => 'Customer',
             User     => $TestUserLogin,
             Password => $TestUserLogin,
         );
 
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
-        # go to agent preferences
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentPreferences");
+        # go to customer preferences
+        $Selenium->get("${ScriptAlias}customer.pl?Action=CustomerPreferences");
 
-        # change test user time zone preference to +6 hours
+        # change test customer user time zone preference to +6 hours
         $Selenium->find_element( "#UserTimeZone option[value='+6']", 'css' )->click();
-        $Selenium->find_element( "#UserTimeZoneUpdate",              'css' )->click();
+        $Selenium->find_element(".//*/div/div[4]/form/fieldset/button")->click();
 
         # check for update preference message on screen
         my $UpdateMessage = "Preferences updated successfully!";
         $Self->True(
             index( $Selenium->get_page_source(), $UpdateMessage ) > -1,
-            'Preference time zone - updated'
+            'Customer preference time zone - updated'
         );
         }
 );

@@ -46,16 +46,31 @@ $Selenium->RunTest(
         # go to agent preferences
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentPreferences");
 
-        # change test user out of office preference
-        $Selenium->find_element( "#OutOfOfficeOn",                           'css' )->click();
-        $Selenium->find_element( "#OutOfOfficeEndYear option[value='2016']", 'css' )->click();
-        $Selenium->find_element( "#Update",                                  'css' )->click();
+        # change test user password preference, input incorrect current password
+        my $NewPw = "new" . $TestUserLogin;
+        $Selenium->find_element( "#CurPw",  'css' )->send_keys("incorrect");
+        $Selenium->find_element( "#NewPw",  'css' )->send_keys($NewPw);
+        $Selenium->find_element( "#NewPw1", 'css' )->send_keys($NewPw);
+        $Selenium->find_element( "#CurPw",  'css' )->submit();
 
-        # check for update preference message on screen
+        # check for incorrect password update preferences message on screen
+        my $IncorrectUpdateMessage = "The current password is not correct. Please try again!";
+        $Self->True(
+            index( $Selenium->get_page_source(), $IncorrectUpdateMessage ) > -1,
+            'Agent incorrect preferences password - update'
+        );
+
+        # change test user password preference, correct input
+        $Selenium->find_element( "#CurPw",  'css' )->send_keys($TestUserLogin);
+        $Selenium->find_element( "#NewPw",  'css' )->send_keys($NewPw);
+        $Selenium->find_element( "#NewPw1", 'css' )->send_keys($NewPw);
+        $Selenium->find_element( "#CurPw",  'css' )->submit();
+
+        # check for correct password update preferences message on screen
         my $UpdateMessage = "Preferences updated successfully!";
         $Self->True(
             index( $Selenium->get_page_source(), $UpdateMessage ) > -1,
-            'Preference out of office time - updated'
+            'Agent preference password - updated'
         );
         }
 );

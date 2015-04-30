@@ -26,13 +26,31 @@ $Selenium->RunTest(
         # get helper object
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 0,
+                RestoreSystemConfiguration => 1,
                 }
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # get sysconfig object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        # enable TimeZoneUser
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'TimeZoneUser',
+            Value => 1,
+        );
+
+        # disable TimeZoneUserBrowserAutoOffset
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'TimeZoneUserBrowserAutoOffset',
+            Value => 0,
+        );
+
+        # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => ['admin'],
+            Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -46,31 +64,15 @@ $Selenium->RunTest(
         # go to agent preferences
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentPreferences");
 
-        # change test user password preference, input incorrect current password
-        my $NewPw = "new" . $TestUserLogin;
-        $Selenium->find_element( "#CurPw",  'css' )->send_keys("incorrect");
-        $Selenium->find_element( "#NewPw",  'css' )->send_keys($NewPw);
-        $Selenium->find_element( "#NewPw1", 'css' )->send_keys($NewPw);
-        $Selenium->find_element( "#CurPw",  'css' )->submit();
+        # change test user time zone preference to +6 hours
+        $Selenium->find_element( "#UserTimeZone option[value='+6']", 'css' )->click();
+        $Selenium->find_element( "#UserTimeZoneUpdate",              'css' )->click();
 
-        # check for incorrect password update preferences message on screen
-        my $IncorrectUpdateMessage = "The current password is not correct. Please try again!";
-        $Self->True(
-            index( $Selenium->get_page_source(), $IncorrectUpdateMessage ) > -1,
-            'Incorrect preferences password - update'
-        );
-
-        # change test user password preference, correct input
-        $Selenium->find_element( "#CurPw",  'css' )->send_keys($TestUserLogin);
-        $Selenium->find_element( "#NewPw",  'css' )->send_keys($NewPw);
-        $Selenium->find_element( "#NewPw1", 'css' )->send_keys($NewPw);
-        $Selenium->find_element( "#CurPw",  'css' )->submit();
-
-        # check for correct password update preferences message on screen
+        # check for update preference message on screen
         my $UpdateMessage = "Preferences updated successfully!";
         $Self->True(
             index( $Selenium->get_page_source(), $UpdateMessage ) > -1,
-            'Preference password - updated'
+            'Agent preference time zone - updated'
         );
         }
 );

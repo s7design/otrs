@@ -77,7 +77,7 @@ $Selenium->RunTest(
         my $UpdateMessage = "Preferences updated successfully!";
         $Self->True(
             index( $Selenium->get_page_source(), $UpdateMessage ) > -1,
-            'Preference custom queue - updated'
+            'Agent preference custom queue - updated'
         );
 
         # get DB object

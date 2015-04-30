@@ -156,7 +156,7 @@ $Selenium->RunTest(
 
             $Self->True(
                 index( $Selenium->get_page_source(), $UpdateMessage ) > -1,
-                "Preference $Test->{Name} - updated"
+                "Agent preference $Test->{Name} - updated"
             );
         }
         }

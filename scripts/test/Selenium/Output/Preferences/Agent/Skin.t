@@ -54,7 +54,7 @@ $Selenium->RunTest(
         my $UpdateMessage = "Preferences updated successfully!";
         $Self->True(
             index( $Selenium->get_page_source(), $UpdateMessage ) > -1,
-            'Preference skin - updated'
+            'Agent preference skin - updated'
         );
         }
 );

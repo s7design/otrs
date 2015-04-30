@@ -31,13 +31,6 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable ticket watcher feature
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Watcher',
-            Value => 1,
-        );
-
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
         ) || die "Did not get test user";
@@ -54,14 +47,14 @@ $Selenium->RunTest(
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentPreferences");
 
         # change test user language preference to Deutsch
-        $Selenium->find_element( "#UserSendWatcherNotification option[value='1']", 'css' )->click();
-        $Selenium->find_element( "#UserSendWatcherNotificationUpdate",             'css' )->click();
+        $Selenium->find_element( "#UserLanguage option[value='de']", 'css' )->click();
+        $Selenium->find_element( "#UserLanguageUpdate",              'css' )->click();
 
         # check for update preference message on screen
-        my $UpdateMessage = "Preferences updated successfully!";
+        my $UpdateMessage = "Benutzereinstellungen erfolgreich aktualisiert!";
         $Self->True(
             index( $Selenium->get_page_source(), $UpdateMessage ) > -1,
-            'Preference ticket watch notification - updated'
+            'Agent preference language - updated'
         );
         }
 );
