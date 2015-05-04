@@ -1,5 +1,4 @@
 # --
-# AgentStatsRun.t - frontend tests for AgentStatsRun
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -130,13 +129,7 @@ $Selenium->RunTest(
         $Selenium->find_element("//button[\@value='Import'][\@type='submit']")->click();
 
         # wait until test stat is imported, if neccessary
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            if ( $Selenium->execute_script("return \$('#compose').length") ) {
-                last ACTIVESLEEP;
-            }
-            sleep 1;
-        }
+        $Selenium->WaitFor( JavaScript => "return \$('#compose').length" );
 
         # create params for import test stats
         my %StatsValues =
@@ -210,21 +203,15 @@ $Selenium->RunTest(
             "Title of stats is founded - $StatsValues{Title} "
         );
 
-        # go back to stats view
-        $Selenium->close();
-        $Selenium->switch_to_window( $Handles->[0] );
-
-        # delete edited imported test stats
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete\' )]")->click();
-        $Selenium->find_element("//button[\@value='Yes'][\@type='submit']")->click();
-
-        $Selenium->get("${ScriptAlias}index.pl?Subaction=Overview;");
-
-        # check if stat is deleted
-        $Self->True(
-            index( $Selenium->get_page_source(), $StatsValues{Title} ) == -1,
-            "Test stats is deleted - $StatsValues{Title} "
-        );
+        # delete test stats
+        # my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+        #     SQL  => "DELETE FROM xml_storage where xml_key = ?",
+        #     Bind => [ \$StatsIDLast ],
+        # );
+        # $Self->True(
+        #     $Success,
+        #     "Deleted stats - $StatsValues{Title}",
+        # );
 
         # delete created test tickets
         for my $TicketID (@TicketIDs) {
