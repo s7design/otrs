@@ -204,14 +204,14 @@ $Selenium->RunTest(
         );
 
         # delete test stats
-        # my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-        #     SQL  => "DELETE FROM xml_storage where xml_key = ?",
-        #     Bind => [ \$StatsIDLast ],
-        # );
-        # $Self->True(
-        #     $Success,
-        #     "Deleted stats - $StatsValues{Title}",
-        # );
+        my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+            SQL  => "DELETE FROM xml_storage where xml_key = ?",
+            Bind => [ \$StatsIDLast ],
+        );
+        $Self->True(
+            $Success,
+            "Deleted stats - $StatsValues{Title}",
+        );
 
         # delete created test tickets
         for my $TicketID (@TicketIDs) {
