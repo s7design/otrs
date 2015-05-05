@@ -15,11 +15,6 @@ use vars (qw($Self));
 # Update 'To' in CustomerTicketMessage on Add/Update Group (Bug#10988).
 
 # get selenium object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Selenium' => {
-        Verbose => 1,
-    },
-);
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
@@ -175,7 +170,7 @@ $Selenium->RunTest(
             );
         }
 
-    }
+        }
 );
 
 1;

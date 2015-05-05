@@ -14,16 +14,9 @@ our $ObjectManagerDisabled = 1;
 
 use vars (qw($Self));
 
-# get config object
+# get needed objects
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-# get selenium object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Selenium' => {
-        Verbose => 1,
-        }
-);
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $Selenium     = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
@@ -103,7 +96,6 @@ $Selenium->RunTest(
         $Selenium->find_element( "#UserEmail",     'css' )->send_keys( $RandomID . '@localhost.com' );
         $Selenium->find_element( "#UserFirstname", 'css' )->submit();
 
-
         #edit real test agent values
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminUser;Search=$RandomID");
         $Selenium->find_element( $RandomID, 'link_text' )->click();
@@ -143,7 +135,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
         $Selenium->find_element( "#UserFirstname",             'css' )->submit();
 
-    }
+        }
 
 );
 

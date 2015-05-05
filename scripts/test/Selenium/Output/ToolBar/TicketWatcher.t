@@ -13,11 +13,6 @@ use utf8;
 use vars (qw($Self));
 
 # get selenium object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Selenium' => {
-        Verbose => 1,
-        }
-);
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
@@ -92,7 +87,7 @@ $Selenium->RunTest(
             $Success,
             "Delete ticket - $TicketID"
         );
-    }
+        }
 );
 
 1;

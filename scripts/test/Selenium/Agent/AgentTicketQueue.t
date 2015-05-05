@@ -13,11 +13,6 @@ use utf8;
 use vars (qw($Self));
 
 # get selenium object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Selenium' => {
-        Verbose => 1,
-        }
-);
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
@@ -163,7 +158,9 @@ $Selenium->RunTest(
             for my $View (qw(Small Medium Preview)) {
 
                 # return to default small view
-                $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketQueue;QueueID=$Test->{QueueID};SortBy=Age;OrderBy=Down;View=Small");
+                $Selenium->get(
+                    "${ScriptAlias}index.pl?Action=AgentTicketQueue;QueueID=$Test->{QueueID};SortBy=Age;OrderBy=Down;View=Small"
+                );
 
                 # click on viewer controler
                 $Selenium->find_element(
@@ -247,7 +244,7 @@ $Selenium->RunTest(
             );
         }
 
-    }
+        }
 );
 
 1;

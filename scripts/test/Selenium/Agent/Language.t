@@ -11,24 +11,22 @@ use warnings;
 use utf8;
 
 use vars (qw($Self));
-
 use Kernel::Language;
-use Kernel::System::UnitTest::Helper;
-use Kernel::System::UnitTest::Selenium;
 
 # get needed objects
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-my $Selenium = Kernel::System::UnitTest::Selenium->new(
-    Verbose => 1,
-);
+my $Selenium     = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
-        my $Helper = Kernel::System::UnitTest::Helper->new(
-            RestoreSystemConfiguration => 0,
+        # get helper object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::System::UnitTest::Helper' => {
+                RestoreSystemConfiguration => 0,
+                }
         );
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         my $TestUserLogin = $Helper->TestUserCreate() || die "Did not get test user";
 
@@ -83,7 +81,7 @@ $Selenium->RunTest(
                 "Success notification in $Language",
             );
         }
-    }
+        }
 );
 
 1;
