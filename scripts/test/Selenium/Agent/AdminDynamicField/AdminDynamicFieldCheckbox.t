@@ -120,7 +120,8 @@ $Selenium->RunTest(
                 "#DefaultValue updated value",
             );
 
-            $Selenium->go_back();
+            # go back to AdminDynamicField screen
+            $Selenium->get("${ScriptAlias}index.pl?Action=AdminDynamicField");
 
             # delete DynamicFields
             my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
@@ -143,7 +144,7 @@ $Selenium->RunTest(
         # delete cache
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => "DynamicField" );
 
-    }
+        }
 
 );
 

@@ -170,7 +170,8 @@ $Selenium->RunTest(
             "#ValidID updated value",
         );
 
-        $Selenium->go_back();
+        # go back to AdminNotificationEvent overview screen
+        $Selenium->get("${ScriptAlias}index.pl?Action=AdminNotificationEvent");
 
         # get NotificationEventID
         my %NotifEventID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationGet(
@@ -180,7 +181,7 @@ $Selenium->RunTest(
         # delete test SLA with delete button
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$NotifEventID{ID}' )]")->click();
 
-    }
+        }
 
 );
 

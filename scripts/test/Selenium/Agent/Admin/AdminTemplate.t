@@ -145,7 +145,8 @@ $Selenium->RunTest(
             "#ValidID updated value",
         );
 
-        $Selenium->go_back();
+        # go back to AdminTemplate screen
+        $Selenium->get("${ScriptAlias}index.pl?Action=AdminTemplate");
 
         # test template delete button
         my $TemplateID = $Kernel::OM->Get('Kernel::System::StandardTemplate')->StandardTemplateLookup(
@@ -154,7 +155,7 @@ $Selenium->RunTest(
 
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$TemplateID' )]")->click();
 
-    }
+        }
 );
 
 1;

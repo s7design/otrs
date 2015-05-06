@@ -96,7 +96,9 @@ $Selenium->RunTest(
                 'Selenium test attachment',
                 "#Comment updated value",
             );
-            $Selenium->go_back();
+
+            # go back to AdminAttachment overview screen
+            $Selenium->get("${ScriptAlias}index.pl?Action=AdminAttachment");
 
             # check delete button
             my $ID = $Kernel::OM->Get('Kernel::System::StdAttachment')->StdAttachmentLookup(
@@ -105,7 +107,7 @@ $Selenium->RunTest(
             $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$ID' )]")->click();
 
         }
-    }
+        }
 );
 
 1;
