@@ -110,7 +110,6 @@ $Selenium->RunTest(
         # test search filters
         $Selenium->find_element( "#FilterTemplates",   'css' )->send_keys($TemplateRandomID);
         $Selenium->find_element( "#FilterAttachments", 'css' )->send_keys($AttachmentRandomID);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//a[contains(\@href, \'Subaction=Template;ID=$TemplateID' )]")->is_displayed(),
@@ -167,7 +166,7 @@ $Selenium->RunTest(
             "StandardTemplateDelete() for Attachment -> Template tests | with True",
         );
 
-    }
+        }
 
 );
 

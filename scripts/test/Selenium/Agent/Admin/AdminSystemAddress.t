@@ -100,13 +100,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Comment",                          'css' )->send_keys($SysAddComment);
         $Selenium->find_element( "#Name",                             'css' )->submit();
 
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            if ( $Selenium->execute_script("return \$('.MasterAction').length") ) {
-                last ACTIVESLEEP;
-            }
-            sleep 1;
-        }
+        # wait for SystemAddress create
+        $Selenium->WaitFor( JavaScript => "return \$('.MasterAction').length" );
 
         # check for created test SystemAddress
         $Self->True(
@@ -148,13 +143,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Comment",                   'css' )->clear();
         $Selenium->find_element( "#Name",                      'css' )->submit();
 
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            if ( $Selenium->execute_script("return \$('.MasterAction').length") ) {
-                last ACTIVESLEEP;
-            }
-            sleep 1;
-        }
+        # wait for SystemAddress edit
+        $Selenium->WaitFor( JavaScript => "return \$('.MasterAction').length" );
 
         # check edited test SystemAddress values
         $Selenium->find_element( $SysAddRandom, 'link_text' )->click();
@@ -198,7 +188,7 @@ $Selenium->RunTest(
             );
         }
 
-    }
+        }
 
 );
 

@@ -141,15 +141,14 @@ $Selenium->RunTest(
 
             # return back to AgentTicketZoom
             $Selenium->switch_to_window( $Handles->[0] );
-
-            sleep(2);
+            $Selenium->WaitFor( JavaScript => "return \$('div.MainBox').length" );
 
             # click on history link and switch window
             $Selenium->find_element("//*[text()='History']")->click();
             $Handles = $Selenium->get_window_handles();
             $Selenium->switch_to_window( $Handles->[1] );
 
-            sleep(2);
+            $Selenium->WaitFor( JavaScript => "return \$('table.DataTable').length" );
 
             # verify for expected action
             $Self->True(
@@ -189,7 +188,7 @@ $Selenium->RunTest(
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
 
-    }
+        }
 );
 
 1;

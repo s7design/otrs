@@ -92,17 +92,8 @@ $Selenium->RunTest(
         # click on search
         $Selenium->find_element( "#GlobalSearchNav", 'css' )->click();
 
-        # wait until search window is loading
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            sleep 1;
-
-            # check if customer data is loaded
-            if ( $Selenium->execute_script("return \$('#SearchProfileNew').length") ) {
-                last ACTIVESLEEP;
-            }
-            print "Waiting to load search window  $Second  second(s)...\n\n";
-        }
+        # Wait until form has loaded, if neccessary
+        $Selenium->WaitFor( JavaScript => "return \$('#SearchProfileNew').length" );
 
         # create new template search
         my $SearchProfileName = "SeleniumTest";
@@ -155,7 +146,7 @@ $Selenium->RunTest(
             $Success,
             "Delete ticket - $TicketID"
         );
-    }
+        }
 );
 
 1;

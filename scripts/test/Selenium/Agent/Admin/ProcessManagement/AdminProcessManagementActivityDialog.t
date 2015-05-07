@@ -56,9 +56,11 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Description", 'css' )->send_keys("Selenium Test Process");
         $Selenium->find_element( "#Name",        'css' )->submit();
 
-        # click on ActivityDialog dropdown and "Create New Activity Dialog"
+        # click on ActivityDialog dropdown, wait to load it and "Create New Activity Dialog"
         $Selenium->find_element( "Activity Dialogs", 'link_text' )->click();
-        sleep 1;
+
+        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_ActivityDialog:visible").length' );
+
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ActivityDialogNew' )]")->click();
 
         # switch to pop up window
@@ -98,10 +100,8 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[0] );
 
         # check for created test activity dialog using filter on AdminProcessManagement screen
-        $Selenium->find_element( "Activity Dialogs", 'link_text' )->click();
-        sleep 1;
+        $Selenium->find_element( "Activity Dialogs",      'link_text' )->click();
         $Selenium->find_element( "#ActivityDialogFilter", 'css' )->send_keys($ActivityDialogRandom);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityDialogRandom\"]")->is_displayed(),
@@ -161,10 +161,8 @@ $Selenium->RunTest(
         # check for edited test ActivityDialog using filter on AdminProcessManagement screen
         my $ActivityDialogRandomEdit = $ActivityDialogRandom . "edit";
         my $DescriptionShortEdit     = $DescriptionShort . " Edit";
-        $Selenium->find_element( "Activity Dialogs", 'link_text' )->click();
-        sleep 1;
+        $Selenium->find_element( "Activity Dialogs",      'link_text' )->click();
         $Selenium->find_element( "#ActivityDialogFilter", 'css' )->send_keys($ActivityDialogRandomEdit);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityDialogRandomEdit\"]")->is_displayed(),
@@ -230,7 +228,7 @@ $Selenium->RunTest(
             Type => 'ProcessManagement_ActivityDialog',
         );
 
-    }
+        }
 
 );
 

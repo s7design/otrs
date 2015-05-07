@@ -103,7 +103,7 @@ $Selenium->RunTest(
 
         # create first scenarion for test customer ticket process
         $Selenium->find_element( "#ProcessEntityID option[value='$ListReverse{$ProcessName}']", 'css' )->click();
-        sleep 1;
+        $Selenium->WaitFor( JavaScript => "return \$('#Subject').length" );
 
         my $SubjectRandom = 'Subject' . $Helper->GetRandomID();
         my $ContentRandom = 'Content' . $Helper->GetRandomID();
@@ -136,7 +136,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Subject",                      'css' )->submit();
         $Selenium->switch_to_window( $Handles->[0] );
         $Selenium->refresh();
-        sleep 1;
+        $Selenium->WaitFor( JavaScript => "return \$('.Content').length" );
 
         # check for inputed values as final step in first scenario
         $Self->True(
@@ -158,7 +158,7 @@ $Selenium->RunTest(
         # create second scenarion for test customer ticket process
         $Selenium->get("${ScriptAlias}customer.pl?Action=CustomerTicketProcess");
         $Selenium->find_element( "#ProcessEntityID option[value='$ListReverse{$ProcessName}']", 'css' )->click();
-        sleep 1;
+        $Selenium->WaitFor( JavaScript => "return \$('#Subject').length" );
 
         # in this scenarion we just set ticket queue to junk to finish test
         $Selenium->find_element( "#QueueID option[value='3']", 'css' )->click();
@@ -284,7 +284,16 @@ $Selenium->RunTest(
         $ScriptAlias = $ConfigObject->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
-    }
+
+        # make sure cache is correct
+        for my $Cache (
+            qw(ProcessManagement_Activity ProcessManagement_ActivityDialog ProcessManagement_Process ProcessManagement_Transition ProcessManagement_TransitionAction )
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => $Cache );
+        }
+
+        }
 );
 
 1;

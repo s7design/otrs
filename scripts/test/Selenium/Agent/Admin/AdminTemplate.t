@@ -89,7 +89,6 @@ $Selenium->RunTest(
 
         # test search filter
         $Selenium->find_element( "#Filter", 'css' )->send_keys($TemplateRandomID);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element( $TemplateRandomID, 'link_text' )->is_displayed(),
@@ -154,7 +153,7 @@ $Selenium->RunTest(
 
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;ID=$TemplateID' )]")->click();
 
-    }
+        }
 );
 
 1;

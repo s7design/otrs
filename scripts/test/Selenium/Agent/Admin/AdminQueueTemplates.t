@@ -97,7 +97,6 @@ $Selenium->RunTest(
         # test search filters
         $Selenium->find_element( "#FilterTemplates", 'css' )->send_keys($TemplateRandomID);
         $Selenium->find_element( "#FilterQueues",    'css' )->send_keys($QueueRandomID);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//a[contains(\@href, \'Subaction=Template;ID=$TemplateID' )]")->is_displayed(),
@@ -156,7 +155,7 @@ $Selenium->RunTest(
             Type => "Queue",
         );
 
-    }
+        }
 
 );
 

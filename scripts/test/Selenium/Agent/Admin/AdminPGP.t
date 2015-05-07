@@ -71,13 +71,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#FileUpload", 'css' )->send_keys($Location1);
         $Selenium->find_element("//button[\@type='submit']")->click();
 
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            if ( $Selenium->execute_script("return \$('tr.Last').length") ) {
-                last ACTIVESLEEP;
-            }
-            sleep 1;
-        }
+        # wait for key to upload
+        $Selenium->WaitFor( JavaScript => "return \$('tr.Last').length" );
 
         # add second test PGP key
         $Selenium->find_element("//a[contains(\@href, \'Action=AdminPGP;Subaction=Add' )]")->click();
@@ -87,13 +82,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#FileUpload", 'css' )->send_keys($Location2);
         $Selenium->find_element("//button[\@type='submit']")->click();
 
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            if ( $Selenium->execute_script("return \$('tr.Last').length") ) {
-                last ACTIVESLEEP;
-            }
-            sleep 1;
-        }
+        # wait for key to upload
+        $Selenium->WaitFor( JavaScript => "return \$('tr.Last').length" );
 
         # check if test PGP keys show on AdminPGP screen
         my %PGPKey = (
@@ -174,7 +164,7 @@ $Selenium->RunTest(
             "Directory deleted - '$PGPPath'",
         );
 
-    }
+        }
 
 );
 

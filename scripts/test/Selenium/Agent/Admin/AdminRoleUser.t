@@ -77,7 +77,6 @@ $Selenium->RunTest(
 
         # test filter for Users
         $Selenium->find_element( "#FilterUsers", 'css' )->send_keys($TestUserLogin);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element( "$FullUserID", 'link_text' )->is_displayed(),
@@ -86,7 +85,6 @@ $Selenium->RunTest(
 
         # test filter for Roles
         $Selenium->find_element( "#FilterRoles", 'css' )->send_keys($RoleRandomID);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element( "$RoleRandomID", 'link_text' )->is_displayed(),
@@ -137,7 +135,7 @@ $Selenium->RunTest(
             Type => 'Group'
         );
 
-    }
+        }
 
 );
 
