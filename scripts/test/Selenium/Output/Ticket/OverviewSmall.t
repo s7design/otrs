@@ -93,6 +93,7 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@title, \'Queue, filter not active\' )]")->click();
         $Selenium->WaitFor( JavaScript => "return \$('#ColumnFilterQueue').length" );
         $Selenium->find_element( "#ColumnFilterQueue",                          'css' )->click();
+        sleep(1);
         $Selenium->find_element( "#ColumnFilterQueue option[value='$QueueID']", 'css' )->click();
         $Selenium->refresh();
         $Selenium->WaitFor( JavaScript => "return \$('div#OverviewBody').length" );
@@ -127,10 +128,8 @@ $Selenium->RunTest(
             "$SortTicketNumbers[14] - found on screen"
         );
 
-        # test if filters are stored after leaving screen
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentDashboard");
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketStatusView");
-        $Selenium->WaitFor( JavaScript => "return \$('div#OverviewBody').length" );
+        # test if filters are still stored
+        $Selenium->refresh();
 
         $Self->True(
             index( $Selenium->get_page_source(), $SortTicketNumbers[14] ) > -1,
