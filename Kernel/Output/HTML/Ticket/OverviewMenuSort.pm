@@ -27,8 +27,10 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
-    # get Action param
-    $Self->{Action} = $Param{Action} || die "Got no Action!";
+    # get needed params
+    for my $Needed (qw(Action UserID)) {
+        $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
+    }
 
     return $Self;
 }
@@ -54,14 +56,6 @@ sub Run {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    # create language object
-    $Kernel::OM->ObjectParamAdd(
-        'Kernel::Language' => {
-            UserLanguage => $LayoutObject->{UserLanguage},
-            }
-    );
-    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
-
     my @SortData;
     my $SelectedSortByOption;
     for my $CurrentSortByOption ( sort keys %{$SortConfiguration} ) {
@@ -76,8 +70,8 @@ sub Run {
         }
 
         my $TranslatedValue =
-            $LanguageObject->Translate('Order by') . ' "' .
-            $LanguageObject->Translate($CurrentSortByOption) . '"';
+            $LayoutObject->{LanguageObject}->Translate('Order by') . ' "' .
+            $LayoutObject->{LanguageObject}->Translate($CurrentSortByOption) . '"';
 
         for my $CurrentOrderBy (qw(Down Up)) {
 
@@ -92,7 +86,7 @@ sub Run {
             }
 
             my $OrderByTranslation = $CurrentOrderBy eq 'Down' ? 'ascending' : 'descending';
-            $OrderByTranslation = $LanguageObject->Translate($OrderByTranslation);
+            $OrderByTranslation = $LayoutObject->{LanguageObject}->Translate($OrderByTranslation);
 
             push @SortData, {
                 Key      => "$CurrentSortByOption|$CurrentOrderBy",
@@ -109,7 +103,7 @@ sub Run {
     $ReturnData{HTML} = $LayoutObject->BuildSelection(
         Data  => \@SortData,
         Name  => 'SortBy',
-        Title => $LanguageObject->Translate('Order by'),
+        Title => $LayoutObject->{LanguageObject}->Translate('Order by'),
     );
 
     return if !$ReturnData{HTML};
