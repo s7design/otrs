@@ -5809,7 +5809,7 @@
         <SubGroup>Frontend::Agent::ModuleNotify</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="Module">Kernel::Output::HTML::NotificationAgentTicketEscalation</Item>
+                <Item Key="Module">Kernel::Output::HTML::Notification::AgentTicketEscalation</Item>
                 <Item Key="ShownMax">25</Item>
                 <Item Key="EscalationInMinutes">120</Item>
                 <Item Key="CacheTime">40</Item>
