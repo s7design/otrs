@@ -117,8 +117,7 @@ $Selenium->RunTest(
         $Selenium->WaitFor( JavaScript => 'return $("li.ui-menu-item:visible").length' );
 
         $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
-        $Selenium->WaitFor( JavaScript => 'retun $("p.Value").length' );
-
+        sleep(1);
         $Selenium->find_element( "#Dest option[value='2||Raw']", 'css' )->click();
         $Selenium->find_element( "#Subject",                     'css' )->send_keys($TicketSubject);
         $Selenium->find_element( "#RichText",                    'css' )->send_keys($TicketBody);
@@ -189,7 +188,7 @@ $Selenium->RunTest(
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'CustomerUser' );
 
-        }
+    }
 );
 
 1;

@@ -228,7 +228,7 @@ $Selenium->RunTest(
             Type => 'ProcessManagement_ActivityDialog',
         );
 
-        }
+    }
 
 );
 
