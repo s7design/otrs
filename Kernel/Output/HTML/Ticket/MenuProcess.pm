@@ -11,7 +11,13 @@ package Kernel::Output::HTML::Ticket::MenuProcess;
 use strict;
 use warnings;
 
-use Kernel::Output::HTML::NavBarAgentTicketProcess;
+our @ObjectDependencies = (
+    'Kernel::Output::HTML::NavBarAgentTicketProcess',
+    'Kernel::System::Log',
+    'Kernel::Config',
+    'Kernel::System::Ticket',
+    'Kernel::System::Group',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -21,15 +27,17 @@ sub new {
     bless( $Self, $Type );
 
     # get needed objects
-    for (
-        qw(ConfigObject LogObject DBObject LayoutObject UserID GroupObject TicketObject MainObject EncodeObject TimeObject)
-        )
-    {
+    for (qw( LayoutObject UserID )) {
         $Self->{$_} = $Param{$_} || die "Got no $_!";
     }
 
     # use the nav bar module to check for process ACLs to prevent code duplication
-    $Self->{NavBarModule} = Kernel::Output::HTML::NavBarAgentTicketProcess->new( %{$Self} );
+    $Kernel::OM->ObjectParamAdd(
+        'Kernel::Output::HTML::NavBarAgentTicketProcess' => {
+            %{$Self},
+        },
+    );
+    $Self->{NavBarModule} = $Kernel::OM->Get('Kernel::Output::HTML::NavBarAgentTicketProcess');
 
     return $Self;
 }
@@ -37,33 +45,43 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+    # get log object
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
     # check needed stuff
     if ( !$Param{Ticket} ) {
-        $Self->{LogObject}->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => 'Need Ticket!'
         );
         return;
     }
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # check if ticket is already enrolled into a process
     my $ProcessEntityID = $Param{Ticket}->{
         'DynamicField_'
-            . $Self->{ConfigObject}->Get('Process::DynamicFieldProcessManagementProcessID')
+            . $ConfigObject->Get('Process::DynamicFieldProcessManagementProcessID')
     } || '';
     return if $ProcessEntityID;
 
     # check if frontend module registered, if not, do not show action
     if ( $Param{Config}->{Action} ) {
-        my $Module = $Self->{ConfigObject}->Get('Frontend::Module')->{ $Param{Config}->{Action} };
+        my $Module = $ConfigObject->Get('Frontend::Module')->{ $Param{Config}->{Action} };
         return if !$Module;
     }
 
     # check permission
-    my $Config = $Self->{ConfigObject}->Get("Ticket::Frontend::$Param{Config}->{Action}");
+    my $Config = $ConfigObject->Get("Ticket::Frontend::$Param{Config}->{Action}");
     if ($Config) {
+
+        # get ticket object
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
         if ( $Config->{Permission} ) {
-            my $AccessOk = $Self->{TicketObject}->TicketPermission(
+            my $AccessOk = $TicketObject->TicketPermission(
                 Type     => $Config->{Permission},
                 TicketID => $Param{Ticket}->{TicketID},
                 UserID   => $Self->{UserID},
@@ -73,10 +91,10 @@ sub Run {
         }
         if ( $Config->{RequiredLock} ) {
             if (
-                $Self->{TicketObject}->TicketLockGet( TicketID => $Param{Ticket}->{TicketID} )
+                $TicketObject->TicketLockGet( TicketID => $Param{Ticket}->{TicketID} )
                 )
             {
-                my $AccessOk = $Self->{TicketObject}->OwnerCheck(
+                my $AccessOk = $TicketObject->OwnerCheck(
                     TicketID => $Param{Ticket}->{TicketID},
                     OwnerID  => $Self->{UserID},
                 );
@@ -97,14 +115,14 @@ sub Run {
             my ( $Permission, $Name ) = split /:/, $Item;
 
             if ( !$Permission || !$Name ) {
-                $Self->{LogObject}->Log(
+                $LogObject->Log(
                     Priority => 'error',
                     Message  => "Invalid config for Key Group: '$Item'! "
                         . "Need something like '\$Permission:\$Group;'",
                 );
             }
 
-            my %Groups = $Self->{GroupObject}->PermissionUserGet(
+            my %Groups = $Kernel::OM->Get('Kernel::System::Group')->PermissionUserGet(
                 UserID => $Self->{UserID},
                 Type   => $Permission,
             );
