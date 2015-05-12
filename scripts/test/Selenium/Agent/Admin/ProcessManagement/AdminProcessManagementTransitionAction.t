@@ -59,6 +59,7 @@ $Selenium->RunTest(
         # wait to load element ( in some case with FireFox)
         sleep 1;
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
+
         # wait to togle element
         sleep 1;
         $Selenium->find_element(".//a[contains(\@href, \'Subaction=TransitionActionNew' )]")->click();
@@ -176,6 +177,7 @@ $Selenium->RunTest(
 
         # check for edited test TransitionAction using filter on AdminProcessManagement screen
         my $TransitionActionRandomEdit = $TransitionActionRandom . "edit";
+
         # wait to load element ( in some case with FireFox)
         sleep 1;
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
