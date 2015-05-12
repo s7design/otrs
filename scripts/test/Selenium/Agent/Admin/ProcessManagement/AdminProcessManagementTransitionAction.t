@@ -56,10 +56,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name",        'css' )->submit();
 
         # click on Transition Actions dropdown and "Create New Transition Action"
+        # wait to load element ( in some case with FireFox)
+        sleep 1;
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
-        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_TransitionAction:visible").length' );
-
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=TransitionActionNew' )]")->click();
+        # wait to togle element
+        sleep 1;
+        $Selenium->find_element(".//a[contains(\@href, \'Subaction=TransitionActionNew' )]")->click();
 
         # switch to pop up window
         my $Handles = $Selenium->get_window_handles();
@@ -104,9 +106,10 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[0] );
 
         # check for created test TransitionAction using filter on AdminProcessManagement screen
+        # wait to load element ( in some case with FireFox)
+        sleep 1;
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
-        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_TransitionAction:visible").length' );
-
+        $Selenium->WaitFor( JavaScript => 'return $("#TransitionActionFilter:visible").length' );
         $Selenium->find_element( "#TransitionActionFilter", 'css' )->send_keys($TransitionActionRandom);
 
         $Self->True(
@@ -129,6 +132,7 @@ $Selenium->RunTest(
         # go to edit test TransitionAction screen
         $Selenium->find_element("//a[contains(\@href, \'Subaction=TransitionActionEdit;ID=$TransitionActionID' )]")
             ->click();
+
         $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
 
@@ -172,9 +176,10 @@ $Selenium->RunTest(
 
         # check for edited test TransitionAction using filter on AdminProcessManagement screen
         my $TransitionActionRandomEdit = $TransitionActionRandom . "edit";
+        # wait to load element ( in some case with FireFox)
+        sleep 1;
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
-        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_TransitionAction:visible").length' );
-
+        $Selenium->WaitFor( JavaScript => 'return $("#TransitionActionFilter:visible").length' );
         $Selenium->find_element( "#TransitionActionFilter", 'css' )->send_keys($TransitionActionRandomEdit);
 
         $Self->True(
@@ -185,6 +190,7 @@ $Selenium->RunTest(
         # go to edit test TransitionAction screen again
         $Selenium->find_element("//a[contains(\@href, \'Subaction=TransitionActionEdit;ID=$TransitionActionID' )]")
             ->click();
+
         $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
 

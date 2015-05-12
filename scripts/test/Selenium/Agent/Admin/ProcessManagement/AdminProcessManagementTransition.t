@@ -56,9 +56,10 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name",        'css' )->submit();
 
         # click on Transitions dropdown and "Create New Transition"
+        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_Transition").length' );
         $Selenium->find_element( "Transitions", 'link_text' )->click();
-        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_Transition:visible").length' );
-
+        # wait to toggle element
+        sleep 1;
         $Selenium->find_element("//a[contains(\@href, \'Subaction=TransitionNew' )]")->click();
 
         # Wait until form has loaded, if neccessary
@@ -114,9 +115,8 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[0] );
 
         # check for created test Transition using filter on AdminProcessManagement screen
+        $Selenium->WaitFor( JavaScript => 'return $("#TransitionFilter").length' );
         $Selenium->find_element( "Transitions", 'link_text' )->click();
-        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_Transition:visible").length' );
-
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandom);
 
         $Self->True(
@@ -192,9 +192,8 @@ $Selenium->RunTest(
 
         # check for edited test Transition using filter on AdminProcessManagement screen
         my $TransitionRandomEdit = $TransitionRandom . "edit";
+        $Selenium->WaitFor( JavaScript => 'return $("#TransitionFilter").length' );
         $Selenium->find_element( "Transitions", 'link_text' )->click();
-        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_Transition:visible").length' );
-
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandomEdit);
 
         $Self->True(
