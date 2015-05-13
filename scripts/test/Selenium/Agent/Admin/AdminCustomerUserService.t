@@ -85,11 +85,13 @@ $Selenium->RunTest(
 
         # filter for service. It is autocomplete, submit is not necessary
         $Selenium->find_element( "#FilterServices", 'css' )->send_keys($RandomID2);
+        sleep 1;
         $Self->True(
             $Selenium->find_element( "$RandomID2", 'link_text' )->is_displayed(),
             "$RandomID2 service found on page",
         );
         $Selenium->find_element( "#FilterServices", 'css' )->clear();
+        sleep 1;
 
         # allocate test service to test customer user
         $Selenium->find_element("//a[contains(\@href, \'CustomerUserLogin=$RandomID' )]")->click();
