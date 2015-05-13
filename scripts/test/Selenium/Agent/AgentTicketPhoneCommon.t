@@ -134,7 +134,7 @@ $Selenium->RunTest(
             }
 
             # add body text and submit
-            my $ActionText = $Action . " Selenium Test";
+            my $ActionText = $Action->{Name} . " Selenium Test";
             $Selenium->find_element( "#RichText",                      'css' )->send_keys($ActionText);
             $Selenium->find_element( "#NextStateID option[value='4']", 'css' )->click();
             $Selenium->find_element( "#submitRichText",                'css' )->click();

@@ -52,6 +52,7 @@ $Selenium->RunTest(
 
         # click 'Add template'
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Add' )]")->click();
+        $Selenium->WaitFor( JavaScript => "return \$('#TemplateType').length" );
 
         for my $ID (
             qw(TemplateType Name IDs ValidID Comment)

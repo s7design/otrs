@@ -76,7 +76,10 @@ $Selenium->RunTest(
             )
         {
 
+            # wait for notification overview
+            $Selenium->WaitFor( JavaScript => "return \$('#Notifications').length" );
             $Selenium->find_element( "Agent::$Notification", 'link_text' )->click();
+            $Selenium->WaitFor( JavaScript => "return \$('#Subject').length" );
 
             # edit notification
             my $CurrentNotificationSubject = $Selenium->find_element( "#Subject", 'css' )->get_value();
