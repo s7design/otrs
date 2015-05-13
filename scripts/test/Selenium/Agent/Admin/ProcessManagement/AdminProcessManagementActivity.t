@@ -94,6 +94,7 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[0] );
 
         # check for created test activity using filter on AdminProcessManagement screen
+        $Selenium->WaitFor( JavaScript => 'return $("#ActivityFilter").length' );
         $Selenium->find_element( "#ActivityFilter", 'css' )->send_keys($ActivityRandom);
 
         $Self->True(

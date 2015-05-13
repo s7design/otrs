@@ -56,7 +56,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name",        'css' )->submit();
 
         # click on Transitions dropdown and "Create New Transition"
-        $Selenium->WaitFor( JavaScript => 'return $("a.PopupType_Transition").length' );
+        $Selenium->WaitFor( JavaScript => "return \$('#ActivityFilter').length" );
         $Selenium->find_element( "Transitions", 'link_text' )->click();
 
         # wait to toggle element

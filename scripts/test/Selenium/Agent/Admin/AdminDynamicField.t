@@ -74,13 +74,15 @@ $Selenium->RunTest(
                 $Selenium->find_element( "#Name",                      'css' )->submit();
 
                 # check if test DynamicField show on AdminDynamicField screen
+                $Selenium->WaitFor( JavaScript => "return \$('.DynamicFieldsContent').length" );
                 $Self->True(
                     index( $Selenium->get_page_source(), $RandomID ) > -1,
-                    "$RandomID $Type DynamicField found on page",
+                    "$RandomID $ID $Type DynamicField found on page",
                 );
 
                 # go to new DynamicField again
                 $Selenium->find_element( $RandomID,                    'link_text' )->click();
+                $Selenium->WaitFor( JavaScript => "return \$('#Label').length" );
                 $Selenium->find_element( "#Label",                     'css' )->clear();
                 $Selenium->find_element( "#Label",                     'css' )->send_keys( $RandomID . "-update" );
                 $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
@@ -88,6 +90,7 @@ $Selenium->RunTest(
 
                 # go to new DynamicField again after update and check values
                 $Selenium->find_element( $RandomID, 'link_text' )->click();
+                $Selenium->WaitFor( JavaScript => "return \$('#Name').length" );
 
                 # check new DynamicField values
                 $Self->Is(
