@@ -17,10 +17,6 @@ our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Cache',
     'Kernel::System::Ticket',
-    'Kernel::System::ProcessManagement::Activity',
-    'Kernel::System::ProcessManagement::ActivityDialog',
-    'Kernel::System::ProcessManagement::Transition',
-    'Kernel::System::ProcessManagement::TransitionAction',
     'Kernel::System::ProcessManagement::Process',
 );
 
@@ -77,17 +73,6 @@ sub Run {
     # otherwise determine the value by quering the process object
     else {
 
-        # create objects (only create objects if no cache, to increse performance)
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::ProcessManagement::Process' => {
-                ActivityObject         => $Kernel::OM->Get('Kernel::System::ProcessManagement::Activity'),
-                ActivityDialogObject   => $Kernel::OM->Get('Kernel::System::ProcessManagement::ActivityDialog'),
-                TransitionObject       => $Kernel::OM->Get('Kernel::System::ProcessManagement::Transition'),
-                TransitionActionObject => $Kernel::OM->Get('Kernel::System::ProcessManagement::TransitionAction'),
-                }
-        );
-        my $ProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::Process');
-
         $DisplayMenuItem = 0;
         my $Processes = $ConfigObject->Get('Process');
 
@@ -95,7 +80,7 @@ sub Run {
         if ( IsHashRefWithData($Processes) ) {
 
             # get process list
-            my $ProcessList = $ProcessObject->ProcessList(
+            my $ProcessList = $Kernel::OM->Get('Kernel::System::ProcessManagement::Process')->ProcessList(
                 ProcessState => ['Active'],
                 Interface    => ['AgentInterface'],
             );
