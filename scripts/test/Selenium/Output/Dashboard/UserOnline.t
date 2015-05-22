@@ -26,25 +26,26 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # set UserOnline sysconfig
-        my %UserOnlineParam = (
-            Block         => 'ContentSmall',
-            CacheTTLLocal => 5,
-            Default       => 1,
-            Description   => '',
-            Filter        => 'Agent',
-            Group         => '',
-            IdleMinutes   => 60,
-            Limit         => 10,
-            Module        => 'Kernel::Output::HTML::Dashboard::UserOnline',
-            ShowEmail     => 0,
-            SortBy        => 'UserFullname',
-            Title         => 'Online'
+        # get SysConfig object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        # make sure that UserOnline is enabled
+        my %UserOnlineSysConfig = $SysConfigObject->ConfigItemGet(
+            Name    => 'DashboardBackend###0400-UserOnline',
+            Default => 1,
         );
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+
+        %UserOnlineSysConfig = map { $_->{Key} => $_->{Content} }
+            grep { defined $_->{Key} } @{ $UserOnlineSysConfig{Setting}->[1]->{Hash}->[1]->{Item} };
+
+        # enable EventsTicketCalendar and set it to load as default plugin
+        $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'DashboardBackend###0400-UserOnline',
-            Value => \%UserOnlineParam,
+            Value => {
+                %UserOnlineSysConfig,
+                Default => 1,
+                }
         );
 
         # create and login test customer
@@ -81,7 +82,9 @@ $Selenium->RunTest(
 
         # switch to online customers and test UserOnline plugin for customers
         $Selenium->find_element("//a[contains(\@id, \'Customer' )]")->click();
-        sleep 20;
+
+        # wait to open Customer tab
+        sleep 1;
         my $ExpectedCustomer = "$TestCustomerUserLogin $TestCustomerUserLogin";
         $Self->True(
             index( $Selenium->get_page_source(), $ExpectedCustomer ) > -1,

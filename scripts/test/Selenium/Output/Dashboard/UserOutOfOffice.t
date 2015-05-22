@@ -19,7 +19,32 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::System::UnitTest::Helper' => {
+                RestoreSystemConfiguration => 1,
+            },
+        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
+        # get SysConfig object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        # make sure that UserOutOfOffice is enabled
+        my %UserOutOfOfficeSysConfig = $SysConfigObject->ConfigItemGet(
+            Name    => 'DashboardBackend###0390-UserOutOfOffice',
+            Default => 1,
+        );
+
+        %UserOutOfOfficeSysConfig = map { $_->{Key} => $_->{Content} }
+            grep { defined $_->{Key} } @{ $UserOutOfOfficeSysConfig{Setting}->[1]->{Hash}->[1]->{Item} };
+
+        # enable UserOutOfOffice and set it to load as default plugin
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'DashboardBackend###0390-UserOutOfOffice',
+            Value => \%UserOutOfOfficeSysConfig,
+
+        );
 
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -53,7 +78,7 @@ $Selenium->RunTest(
             },
             {
                 Key   => 'OutOfOfficeStartYear',
-                Value => $Year - 1,
+                Value => $Year,
             },
             {
                 Key   => 'OutOfOfficeEndYear',
@@ -96,6 +121,7 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $ExpectedResult ) > -1,
             "OutOfOffice message - found on screen"
         );
+
     }
 );
 

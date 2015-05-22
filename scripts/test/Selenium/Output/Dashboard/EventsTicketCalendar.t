@@ -31,25 +31,6 @@ $Selenium->RunTest(
         # get SysConfig object
         my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
-        # do not check RichText
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Frontend::RichText',
-            Value => 0
-        );
-
-        # do not check service and type
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Service',
-            Value => 0
-        );
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Type',
-            Value => 0
-        );
-
         # disable all dashboard plugins
         my $Config = $Kernel::OM->Get('Kernel::Config')->Get('DashboardBackend');
         $SysConfigObject->ConfigItemUpdate(
@@ -58,19 +39,22 @@ $Selenium->RunTest(
             Value => \%$Config,
         );
 
-        # enable EventsTicketCalendar and set it to load as default plugin
-        my %EventsTicketCalendarSysConfig = (
-            Block    => 'ContentLarge',
-            CacheTTL => 0,
-            Default  => 1,
-            Group    => '',
-            Module   => 'Kernel::Output::HTML::Dashboard::EventsTicketCalendar',
-            Title    => 'Events Ticket Calendar',
+        my %EventsTicketCalendarSysConfig = $SysConfigObject->ConfigItemGet(
+            Name    => 'DashboardBackend###0280-DashboardEventsTicketCalendar',
+            Default => 1,
         );
+
+        %EventsTicketCalendarSysConfig = map { $_->{Key} => $_->{Content} }
+            grep { defined $_->{Key} } @{ $EventsTicketCalendarSysConfig{Setting}->[1]->{Hash}->[1]->{Item} };
+
+        # enable EventsTicketCalendar and set it to load as default plugin
         $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'DashboardBackend###0280-DashboardEventsTicketCalendar',
-            Value => \%EventsTicketCalendarSysConfig,
+            Value => {
+                %EventsTicketCalendarSysConfig,
+                Default => 1,
+                }
         );
 
         # create test user and login
@@ -123,65 +107,57 @@ $Selenium->RunTest(
             }
         }
 
-        # get dynamic field sysconfig params
-        my %SysConfigDynamicField = (
-            TicketCalendarEndTime   => 1,
-            TicketCalendarStartTime => 1,
-        );
-
-        # enable created test calendar dynamic fields for phone ticket
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Frontend::AgentTicketPhone###DynamicField',
-            Value => \%SysConfigDynamicField,
-        );
-
-        # get customer user object
-        my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
-
-        # create customer user
-        my $TestCustomerUser   = "SeleniumCustomer" . rand int(1000);
-        my $TestCustomerUserID = $CustomerUserObject->CustomerUserAdd(
-            Source         => 'CustomerUser',
-            UserFirstname  => $TestCustomerUser,
-            UserLastname   => $TestCustomerUser,
-            UserCustomerID => $TestCustomerUser,
-            UserLogin      => $TestCustomerUser,
-            UserEmail      => $TestCustomerUser . "\@localhost.com",
-            ValidID        => 1,
-            UserID         => $TestUserID,
+        # create test ticket
+        my $TicketID = $Kernel::OM->Get('Kernel::System::Ticket')->TicketCreate(
+            Title        => 'Ticket One Title',
+            Queue        => 'Raw',
+            Lock         => 'unlock',
+            Priority     => '3 normal',
+            State        => 'new',
+            CustomerID   => '123465',
+            CustomerUser => 'customerOne@example.com',
+            OwnerID      => 1,
+            UserID       => 1,
         );
         $Self->True(
-            $TestCustomerUserID,
-            "Customer user $TestCustomerUser - created"
+            $TicketID,
+            "Test ticket is created - $TicketID",
         );
 
-        # create test ticket that will be shown on EventsTicketCalendar
+        # get backend object
+        my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
+        # get time object
+        my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+
+        # get current system time
+        my $Now = $TimeObject->SystemTime();
+
+        my %DynamicFieldValue = (
+            TicketCalendarStartTime => $TimeObject->SystemTime2TimeStamp(
+                SystemTime => $Now,
+            ),
+            TicketCalendarEndTime => $TimeObject->SystemTime2TimeStamp(
+                SystemTime => $Now + 60 * 60,
+            ),
+        );
+
+        # set value of ticket's dynamic fields
+        for my $DynamicFieldName (qw(TicketCalendarStartTime TicketCalendarEndTime)) {
+
+            my $DynamicField = $DynamicFieldObject->DynamicFieldGet(
+                Name => $DynamicFieldName,
+            );
+
+            $BackendObject->ValueSet(
+                DynamicFieldConfig => $DynamicField,
+                ObjectID           => $TicketID,
+                Value              => $DynamicFieldValue{$DynamicFieldName},
+                UserID             => 1,
+            );
+        }
+
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketPhone");
-
-        my $AutoCompleteString
-            = "\"$TestCustomerUser $TestCustomerUser\" <$TestCustomerUser\@localhost.com> ($TestCustomerUser)";
-        my $TicketSubject = "Selenium Ticket";
-        my $TicketBody    = "Selenium body test";
-        $Selenium->find_element( "#FromCustomer", 'css' )->send_keys($TestCustomerUser);
-        $Selenium->WaitFor( JavaScript => 'return $("li.ui-menu-item:visible").length' );
-
-        $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
-        $Selenium->find_element( "#Dest option[value='2||Raw']",              'css' )->click();
-        $Selenium->find_element( "#Subject",                                  'css' )->send_keys($TicketSubject);
-        $Selenium->find_element( "#RichText",                                 'css' )->send_keys($TicketBody);
-        $Selenium->find_element( "#DynamicField_TicketCalendarEndTimeUsed",   'css' )->click();
-        $Selenium->find_element( "#DynamicField_TicketCalendarStartTimeUsed", 'css' )->click();
-        $Selenium->find_element( "#Subject",                                  'css' )->submit();
-
-        # get test created ticket ID
-        my %TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
-            Result         => 'HASH',
-            Limit          => 1,
-            CustomerUserID => $TestCustomerUserID,
-        );
-        my $TicketID = (%TicketIDs)[0];
 
         # go to dashboard screen
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentDashboard");
@@ -202,17 +178,7 @@ $Selenium->RunTest(
             "Ticket with ticket id $TicketID is deleted"
         );
 
-        # delete created test customer user
-        $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-            SQL  => "DELETE FROM customer_user WHERE customer_id = ?",
-            Bind => [ \$TestCustomerUserID ],
-        );
-        $Self->True(
-            $Success,
-            "Deleted CustomerUser - $TestCustomerUserID",
-        );
-
-        # delete created test calendar dynamic fields
+        # # delete created test calendar dynamic fields
         for my $DynamicFieldDelete (@DynamicFieldIDs) {
             $Success = $DynamicFieldObject->DynamicFieldDelete(
                 ID     => $DynamicFieldDelete,
@@ -226,7 +192,7 @@ $Selenium->RunTest(
 
         # make sure the cache is correct.
         for my $Cache (
-            qw (Ticket CustomerUser DynamicField)
+            qw (Ticket DynamicField)
             )
         {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
