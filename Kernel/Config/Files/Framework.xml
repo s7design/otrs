@@ -3776,7 +3776,7 @@ You can log in via the following URL:
         <SubGroup>Frontend::Customer</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="Module">Kernel::Output::HTML::CustomerUserGeneric</Item>
+                <Item Key="Module">Kernel::Output::HTML::Customer::UserGeneric</Item>
                 <Item Key="Required">UserStreet;UserCity;</Item>
                 <Item Key="Attributes">UserStreet;UserCity;UserCountry;</Item>
                 <Item Key="CSS">Core.Agent.CustomerUser.GoogleMaps.css</Item>
@@ -3794,7 +3794,7 @@ You can log in via the following URL:
         <SubGroup>Frontend::Customer</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="Module">Kernel::Output::HTML::CustomerUserGeneric</Item>
+                <Item Key="Module">Kernel::Output::HTML::Customer::UserGeneric</Item>
                 <Item Key="Required">UserFirstname;UserLastname;</Item>
                 <Item Key="Attributes">UserFirstname;UserLastname;</Item>
                 <Item Key="CSS">Core.Agent.CustomerUser.Google.css</Item>
@@ -3806,13 +3806,13 @@ You can log in via the following URL:
             </Hash>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Frontend::CustomerUser::Item###2-LinkedIn" Required="0" Valid="0">
+    <ConfigItem Name="Frontend::CustomerUser::Item###3-LinkedIn" Required="0" Valid="0">
         <Description Translatable="1">Defines a customer item, which generates a LinkedIn icon at the end of a customer info block.</Description>
         <Group>Framework</Group>
         <SubGroup>Frontend::Customer</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="Module">Kernel::Output::HTML::CustomerUserGeneric</Item>
+                <Item Key="Module">Kernel::Output::HTML::Customer::UserGeneric</Item>
                 <Item Key="Required">UserFirstname;UserLastname;</Item>
                 <Item Key="Attributes">UserFirstname;UserLastname;</Item>
                 <Item Key="CSS">Core.Agent.CustomerUser.LinkedIn.css</Item>
@@ -3824,13 +3824,13 @@ You can log in via the following URL:
             </Hash>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Frontend::CustomerUser::Item###3-XING" Required="0" Valid="0">
+    <ConfigItem Name="Frontend::CustomerUser::Item###4-XING" Required="0" Valid="0">
         <Description Translatable="1">Defines a customer item, which generates a XING icon at the end of a customer info block.</Description>
         <Group>Framework</Group>
         <SubGroup>Frontend::Customer</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="Module">Kernel::Output::HTML::CustomerUserGeneric</Item>
+                <Item Key="Module">Kernel::Output::HTML::Customer::UserGeneric</Item>
                 <Item Key="Required">UserFirstname;UserLastname;</Item>
                 <Item Key="Attributes">UserFirstname;UserLastname;</Item>
                 <Item Key="CSS">Core.Agent.CustomerUser.Xing.css</Item>
