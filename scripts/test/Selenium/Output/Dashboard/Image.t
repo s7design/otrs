@@ -62,6 +62,14 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $ImageLink ) > -1,
             "Image dashboard plugin link '$ImageLink' - found",
         );
+
+        # make sure cache is correct
+        for my $Cache (qw( Ticket DynamicField Dashboard DashboardQueueOverview )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
+
     }
 );
 

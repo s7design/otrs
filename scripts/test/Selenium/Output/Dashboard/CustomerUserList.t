@@ -109,14 +109,14 @@ $Selenium->RunTest(
             );
         }
 
-        # make sure the cache is correct.
-        for my $Cache (qw(CustomerCompany CustomerUser)) {
+        # make sure cache is correct
+        for my $Cache (qw( CustomerCompany CustomerUser Dashboard DashboardQueueOverview )) {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
                 Type => $Cache,
             );
         }
 
-        }
+    }
 );
 
 1;

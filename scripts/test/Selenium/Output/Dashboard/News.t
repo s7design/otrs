@@ -70,6 +70,14 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $NewsLink ) > -1,
             "News dashboard plugin link - found",
         );
+
+        # make sure cache is correct
+        for my $Cache (qw( Ticket DynamicField Dashboard DashboardQueueOverview )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
+
     }
 );
 

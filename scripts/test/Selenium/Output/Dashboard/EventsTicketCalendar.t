@@ -190,11 +190,8 @@ $Selenium->RunTest(
             );
         }
 
-        # make sure the cache is correct.
-        for my $Cache (
-            qw (Ticket DynamicField)
-            )
-        {
+        # make sure cache is correct
+        for my $Cache (qw( Ticket DynamicField Dashboard DashboardQueueOverview )) {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
                 Type => $Cache,
             );

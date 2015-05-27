@@ -90,6 +90,14 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $ExpectedCustomer ) > -1,
             "$TestCustomerUserLogin - found on UserOnline plugin"
         );
+
+        # make sure cache is correct
+        for my $Cache (qw( Ticket DynamicField Dashboard DashboardQueueOverview DashboardProductNotify )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
+
     }
 );
 

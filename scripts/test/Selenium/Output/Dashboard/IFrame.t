@@ -62,6 +62,14 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $IFrameLink ) > -1,
             "IFrame dashboard plugin link '$IFrameLink' - found",
         );
+
+        # make sure cache is correct
+        for my $Cache (qw( Ticket DynamicField Dashboard DashboardQueueOverview )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
+
     }
 );
 

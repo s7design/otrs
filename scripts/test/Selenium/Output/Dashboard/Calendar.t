@@ -148,7 +148,14 @@ $Selenium->RunTest(
             "Delete queue - $QueueID",
         );
 
+        # make sure cache is correct
+        for my $Cache (qw( Queue Dashboard DashboardQueueOverview )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
         }
+
+    }
 );
 
 1;

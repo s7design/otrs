@@ -122,6 +122,13 @@ $Selenium->RunTest(
             "OutOfOffice message - found on screen"
         );
 
+        # make sure cache is correct
+        for my $Cache (qw( Ticket DynamicField Dashboard DashboardQueueOverview DashboardProductNotify )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
+
     }
 );
 

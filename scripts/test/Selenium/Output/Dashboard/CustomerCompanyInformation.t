@@ -77,12 +77,14 @@ $Selenium->RunTest(
             "Deleted CustomerCompany - $CustomerCompanyID",
         );
 
-        # make sure the cache is correct
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-            Type => 'CustomerCompany',
-        );
-
+        # make sure cache is correct
+        for my $Cache (qw( CustomerCompany Dashboard DashboardQueueOverview )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
         }
+
+    }
 );
 
 1;
