@@ -36,7 +36,7 @@ $Selenium->RunTest(
 
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => [ 'admin', 'users' ],
+            Groups => ['users'],
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -64,12 +64,24 @@ $Selenium->RunTest(
             SalutationID    => 1,
             SignatureID     => 1,
             Comment         => 'Selenium Queue',
-            UserID          => 1,
+            UserID          => $TestUserID,
         );
         $Self->True(
             $QueueID,
             "Queue add $QueueName - ID $QueueID",
         );
+
+        # get config object
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+        my $ScriptAlias  = $ConfigObject->Get('ScriptAlias');
+
+        # set MyQueue preferences
+        $Selenium->get("${ScriptAlias}index.pl?Action=AgentPreferences");
+        $Selenium->find_element( "#QueueID option[value='$QueueID']", 'css' )->click();
+        $Selenium->find_element( "#QueueIDUpdate",                    'css' )->click();
+
+        # go to dascboard
+        $Selenium->get("${ScriptAlias}index.pl?Action=AgentDashboard");
 
         # get ticket object
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
@@ -83,8 +95,8 @@ $Selenium->RunTest(
             State        => 'pending reminder',
             CustomerID   => '123465',
             CustomerUser => 'customer@example.com',
-            OwnerID      => 1,
-            UserID       => 1,
+            OwnerID      => $TestUserID,
+            UserID       => $TestUserID,
         );
         $Self->True(
             $TicketID,
@@ -95,45 +107,28 @@ $Selenium->RunTest(
         $Helper->FixedTimeAddSeconds(300);
 
         # create test params
-        my @Test = (
-            {
-                DashboardName => 'TicketPendingReminder',
-                SysConfigName => 'DashboardBackend###0100-TicketPendingReminder',
-            },
-            {
-                DashboardName => 'TicketEscalation',
-                SysConfigName => 'DashboardBackend###0110-TicketEscalation',
-            },
-            {
-                DashboardName => 'TicketNew',
-                SysConfigName => 'DashboardBackend###0120-TicketNew',
-            },
-            {
-                DashboardName => 'TicketOpen',
-                SysConfigName => 'DashboardBackend###0130-TicketOpen',
-            },
-        );
+        my @Test = ( "0100-TicketPendingReminder", "0110-TicketEscalation", "0120-TicketNew", "0130-TicketOpen" );
 
         # test if ticket is shown in each dashboard ticket generic plugin
-        for my $DashboardTest (@Test) {
+        for my $DashboardName (@Test) {
 
             # set ticket state depending on the stage in test
-            if ( $DashboardTest->{DashboardName} eq 'TicketNew' ) {
+            if ( $DashboardName eq '0120-TicketNew' ) {
                 my $Success = $TicketObject->TicketStateSet(
                     State    => 'new',
                     TicketID => $TicketID,
-                    UserID   => 1,
+                    UserID   => $TestUserID,
                 );
                 $Self->True(
                     $Success,
                     "Changed ticket state to - New"
                 );
             }
-            if ( $DashboardTest->{DashboardName} eq 'TicketOpen' ) {
+            if ( $DashboardName eq '0130-TicketOpen' ) {
                 my $Success = $TicketObject->TicketStateSet(
                     State    => 'open',
                     TicketID => $TicketID,
-                    UserID   => 1,
+                    UserID   => $TestUserID,
                 );
                 $Self->True(
                     $Success,
@@ -145,7 +140,7 @@ $Selenium->RunTest(
             my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
             # disable all dashboard plugins
-            my $Config = $Kernel::OM->Get('Kernel::Config')->Get('DashboardBackend');
+            my $Config = $ConfigObject->Get('DashboardBackend');
             $SysConfigObject->ConfigItemUpdate(
                 Valid => 0,
                 Key   => 'DashboardBackend',
@@ -154,25 +149,25 @@ $Selenium->RunTest(
 
             # enable current needed dashboard plugin sysconfig
             $SysConfigObject->ConfigItemReset(
-                Name => $DashboardTest->{SysConfigName},
+                Name => "DashboardBackend###" . $DashboardName,
             );
 
             # refresh dashboard screen and clean it's cache
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
                 Type => 'Dashboard',
             );
+
             $Selenium->refresh();
 
-            # switch view to all tickets on TicketPendingReminder plugin
-            if ( $DashboardTest->{DashboardName} eq 'TicketPendingReminder' ) {
-                $Selenium->find_element( "#Dashboard0100-TicketPendingReminderAll", 'css' )->click();
-                $Selenium->WaitFor( JavaScript => 'return $(".MasterAction").length' );
-            }
+            # set filter by MyQueue
+            my $Filter = "#Dashboard$DashboardName" . "MyQueues";
+            $Selenium->find_element( $Filter, 'css' )->click();
+            sleep 1;
 
             # check for test ticket on current dashboard plugin
             $Self->True(
                 index( $Selenium->get_page_source(), "Action=AgentTicketZoom;TicketID=$TicketID" ) > -1,
-                "$DashboardTest->{DashboardName} dashboard plugin test ticket link - found",
+                "$DashboardName dashboard plugin test ticket link - found",
             );
 
         }
@@ -180,15 +175,27 @@ $Selenium->RunTest(
         # delete test tickets
         my $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
-            UserID   => 1,
+            UserID   => $TestUserID,
         );
         $Self->True(
             $Success,
             "Delete ticket - ID $TicketID"
         );
 
+        # get DB object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+        # delete MyQueue from personal_queues
+        $Success = $DBObject->Do(
+            SQL => "DELETE FROM personal_queues WHERE queue_id = $QueueID",
+        );
+        $Self->True(
+            $Success,
+            "Delete MyQueue from personal_queues - ID $QueueID",
+        );
+
         # delete test queue
-        $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+        $Success = $DBObject->Do(
             SQL => "DELETE FROM queue WHERE id = $QueueID",
         );
         $Self->True(
@@ -197,7 +204,7 @@ $Selenium->RunTest(
         );
 
         # make sure cache is correct
-        for my $Cache (qw(Ticket Queue)) {
+        for my $Cache (qw(Ticket Queue Dashboard DashboardQueueOverview )) {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
                 Type => $Cache,
             );
