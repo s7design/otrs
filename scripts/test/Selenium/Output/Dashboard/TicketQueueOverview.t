@@ -127,7 +127,7 @@ $Selenium->RunTest(
         );
 
         # make sure cache is correct
-        for my $Cache (qw(Ticket Queue)) {
+        for my $Cache (qw( Ticket Queue Dashboard DashboardQueueOverview )) {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
                 Type => $Cache,
             );

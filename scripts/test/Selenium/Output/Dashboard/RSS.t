@@ -70,6 +70,13 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $RSSLink ) > -1,
             "RSS dashboard plugin link - found",
         );
+
+        # make sure cache is correct
+        for my $Cache (qw( Dashboard DashboardQueueOverview )) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
     }
 );
 
