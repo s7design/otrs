@@ -515,28 +515,28 @@ sub _MigrateConfigs {
     );
 
     print "...done.\n";
-    print "--- OutputFilter modules...";
+    print "--- FilterText modules...";
 
     # output filter module
     $Setting = $ConfigObject->Get('Frontend::Output::FilterText');
 
-    OUTPUTFILTERMODULE:
-    for my $OutputFilterModule ( sort keys %{$Setting} ) {
+    FILTERTEXTMODULE:
+    for my $FilterTextModule ( sort keys %{$Setting} ) {
 
         # update module location
-        my $Module = $Setting->{$OutputFilterModule}->{'Module'} // '';
+        my $Module = $Setting->{$FilterTextModule}->{'Module'} // '';
 
         if ( $Module !~ m{Kernel::Output::HTML::OutputFilter(\w+)} ) {
-            next OUTPUTFILTERMODULE;
+            next FILTERTEXTMODULE;
         }
-        $Module =~ s{Kernel::Output::HTML::OutputFilter(\w+)}{Kernel::Output::HTML::OutputFilter::$1}xmsg;
-        $Setting->{$OutputFilterModule}->{'Module'} = $Module;
+        $Module =~ s{Kernel::Output::HTML::OutputFilter(\w+)}{Kernel::Output::HTML::FilterText::$1}xmsg;
+        $Setting->{$FilterTextModule}->{'Module'} = $Module;
 
         # set new setting,
         my $Success = $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::Output::FilterText###' . $OutputFilterModule,
-            Value => $Setting->{$OutputFilterModule},
+            Key   => 'Frontend::Output::FilterText###' . $FilterTextModule,
+            Value => $Setting->{$FilterTextModule},
         );
     }
 
