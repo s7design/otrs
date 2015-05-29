@@ -6,14 +6,19 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::LayoutDatepicker;
+package Kernel::Output::HTML::Layout::Datepicker;
 
 use strict;
 use warnings;
 
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::Language',
+);
+
 =head1 NAME
 
-Kernel::Output::HTML::LayoutDatepicker - Datepicker data
+Kernel::Output::HTML::Layout::Datepicker - Datepicker data
 
 =head1 SYNOPSIS
 
@@ -36,30 +41,35 @@ Returns a hash of all vacation days defined in the system.
 sub DatepickerGetVacationDays {
     my ( $Self, %Param ) = @_;
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # get the defined vacation days
-    my $TimeVacationDays        = $Self->{ConfigObject}->Get('TimeVacationDays');
-    my $TimeVacationDaysOneTime = $Self->{ConfigObject}->Get('TimeVacationDaysOneTime');
+    my $TimeVacationDays        = $ConfigObject->Get('TimeVacationDays');
+    my $TimeVacationDaysOneTime = $ConfigObject->Get('TimeVacationDaysOneTime');
     if ( $Param{Calendar} ) {
-        if ( $Self->{ConfigObject}->Get( "TimeZone::Calendar" . $Param{Calendar} . "Name" ) ) {
-            $TimeVacationDays        = $Self->{ConfigObject}->Get( "TimeVacationDays::Calendar" . $Param{Calendar} );
-            $TimeVacationDaysOneTime = $Self->{ConfigObject}->Get(
+        if ( $ConfigObject->Get( "TimeZone::Calendar" . $Param{Calendar} . "Name" ) ) {
+            $TimeVacationDays        = $ConfigObject->Get( "TimeVacationDays::Calendar" . $Param{Calendar} );
+            $TimeVacationDaysOneTime = $ConfigObject->Get(
                 "TimeVacationDaysOneTime::Calendar" . $Param{Calendar}
             );
         }
     }
 
+    # get language object
+    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+
     # translate the vacation description if possible
     for my $Month ( sort keys %{$TimeVacationDays} ) {
         for my $Day ( sort keys %{ $TimeVacationDays->{$Month} } ) {
-            $TimeVacationDays->{$Month}->{$Day}
-                = $Self->{LanguageObject}->Translate( $TimeVacationDays->{$Month}->{$Day} );
+            $TimeVacationDays->{$Month}->{$Day} = $LanguageObject->Translate( $TimeVacationDays->{$Month}->{$Day} );
         }
     }
 
     for my $Year ( sort keys %{$TimeVacationDaysOneTime} ) {
         for my $Month ( sort keys %{ $TimeVacationDaysOneTime->{$Year} } ) {
             for my $Day ( sort keys %{ $TimeVacationDaysOneTime->{$Year}->{$Month} } ) {
-                $TimeVacationDaysOneTime->{$Year}->{$Month}->{$Day} = $Self->{LanguageObject}->Translate(
+                $TimeVacationDaysOneTime->{$Year}->{$Month}->{$Day} = $LanguageObject->Translate(
                     $TimeVacationDaysOneTime->{$Year}->{$Month}->{$Day}
                 );
             }

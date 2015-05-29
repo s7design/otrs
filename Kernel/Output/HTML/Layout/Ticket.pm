@@ -6,16 +6,30 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::LayoutTicket;
+package Kernel::Output::HTML::Layout::Ticket;
 
 use strict;
 use warnings;
 
 use Kernel::System::VariableCheck qw(:all);
 
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Log',
+    'Kernel::System::Main',
+    'Kernel::System::HTMLUtils',
+    'Kernel::System::Ticket',
+    'Kernel::System::Encode',
+    'Kernel::System::AuthSession',
+    'Kernel::System::User',
+    'Kernel::System::Web::Request',
+    'Kernel::Language',
+    'Kernel::System::JSON',
+);
+
 =head1 NAME
 
-Kernel::Output::HTML::LayoutTicket - all Ticket-related HTML functions
+Kernel::Output::HTML::Layout::Ticket - all Ticket-related HTML functions
 
 =head1 SYNOPSIS
 
@@ -37,7 +51,7 @@ sub AgentCustomerViewTable {
         $Self->FatalError( Message => 'Need Hash ref in Data param' );
     }
     elsif ( ref $Param{Data} eq 'HASH' && !%{ $Param{Data} } ) {
-        return $Self->{LanguageObject}->Translate('none');
+        return $Kernel::OM->Get('Kernel::Language')->Translate('none');
     }
 
     # add ticket params if given
@@ -82,14 +96,18 @@ sub AgentCustomerViewTable {
         Data => $Param{Data},
     );
 
+    # get needed objects
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+
     # check Frontend::CustomerUser::Image
-    my $CustomerImage = $Self->{ConfigObject}->Get('Frontend::CustomerUser::Image');
+    my $CustomerImage = $ConfigObject->Get('Frontend::CustomerUser::Image');
     if ($CustomerImage) {
         my %Modules = %{$CustomerImage};
 
         MODULE:
         for my $Module ( sort keys %Modules ) {
-            if ( !$Self->{MainObject}->Require( $Modules{$Module}->{Module} ) ) {
+            if ( !$MainObject->Require( $Modules{$Module}->{Module} ) ) {
                 $Self->FatalDie();
             }
 
@@ -146,7 +164,7 @@ sub AgentCustomerViewTable {
                 my $CompanyValidID = $Param{Data}->{CustomerCompanyValidID};
 
                 if ($CompanyValidID) {
-                    if ( !$Self->{MainObject}->Require('Kernel::System::Valid') ) {
+                    if ( !$MainObject->Require('Kernel::System::Valid') ) {
                         $Self->FatalDie();
                     }
 
@@ -165,7 +183,7 @@ sub AgentCustomerViewTable {
     }
 
     # check Frontend::CustomerUser::Item
-    my $CustomerItem      = $Self->{ConfigObject}->Get('Frontend::CustomerUser::Item');
+    my $CustomerItem      = $ConfigObject->Get('Frontend::CustomerUser::Item');
     my $CustomerItemCount = 0;
     if ($CustomerItem) {
         $Self->Block(
@@ -175,7 +193,7 @@ sub AgentCustomerViewTable {
 
         MODULE:
         for my $Module ( sort keys %Modules ) {
-            if ( !$Self->{MainObject}->Require( $Modules{$Module}->{Module} ) ) {
+            if ( !$MainObject->Require( $Modules{$Module}->{Module} ) ) {
                 $Self->FatalDie();
             }
 
@@ -228,15 +246,19 @@ sub AgentQueueListOption {
 
     # set OnChange if AJAX is used
     if ( $Param{Ajax} ) {
+
+        # get log object
+        my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
         if ( !$Param{Ajax}->{Depend} ) {
-            $Self->{LogObject}->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => 'Need Depend Param Ajax option!',
             );
             $Self->FatalError();
         }
         if ( !$Param{Ajax}->{Update} ) {
-            $Self->{LogObject}->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => 'Need Update Param Ajax option()!',
             );
@@ -255,7 +277,7 @@ sub AgentQueueListOption {
     }
 
     # just show a simple list
-    if ( $Self->{ConfigObject}->Get('Ticket::Frontend::ListType') eq 'list' ) {
+    if ( $Kernel::OM->Get('Kernel::Config')->Get('Ticket::Frontend::ListType') eq 'list' ) {
 
         # transform data from Hash in Array because of ordering in frontend by Queue name
         # it was a problem wit name like '(some_queue)'
@@ -306,10 +328,13 @@ sub AgentQueueListOption {
         return 'Need Data Ref in AgentQueueListOption()!';
     }
 
+    # get language object
+    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+
     # add suffix for correct sorting
     my $KeyNoQueue;
     my $ValueNoQueue;
-    my $MoveStr = $Self->{LanguageObject}->Get('Move');
+    my $MoveStr = $LanguageObject->Get('Move');
     my $ValueOfQueueNoKey .= "- " . $MoveStr . " -";
     DATA:
     for ( sort { $Data{$a} cmp $Data{$b} } keys %Data ) {
@@ -367,6 +392,9 @@ sub AgentQueueListOption {
                 }
             }
 
+            # get HTML utils object
+            my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
             if ( !$UsedData{$UpQueue} ) {
 
                 # integrate the not selectable parent and root queues of this queue
@@ -389,7 +417,7 @@ sub AgentQueueListOption {
                         my $DSpace               = '&nbsp;&nbsp;' x $Index;
                         my $OptionTitleHTMLValue = '';
                         if ($OptionTitle) {
-                            my $HTMLValue = $Self->{HTMLUtilsObject}->ToHTML(
+                            my $HTMLValue = $HTMLUtilsObject->ToHTML(
                                 String => $Queue[$Index],
                             );
                             $OptionTitleHTMLValue = ' title="' . $HTMLValue . '"';
@@ -410,7 +438,7 @@ sub AgentQueueListOption {
             my $String               = $Space . $Queue[-1];
             my $OptionTitleHTMLValue = '';
             if ($OptionTitle) {
-                my $HTMLValue = $Self->{HTMLUtilsObject}->ToHTML(
+                my $HTMLValue = $HTMLUtilsObject->ToHTML(
                     String => $Queue[-1],
                 );
                 $OptionTitleHTMLValue = ' title="' . $HTMLValue . '"';
@@ -449,7 +477,7 @@ sub AgentQueueListOption {
     $Param{MoveQueuesStrg} .= "</select>\n";
 
     if ( $Param{TreeView} ) {
-        my $TreeSelectionMessage = $Self->{LanguageObject}->Translate("Show Tree Selection");
+        my $TreeSelectionMessage = $LanguageObject->Translate("Show Tree Selection");
         $Param{MoveQueuesStrg}
             .= ' <a href="#" title="'
             . $TreeSelectionMessage
@@ -481,7 +509,7 @@ or just for including inline documents to upload cache
         TicketID           => 123,
         ArticleID          => 123,
         FormID             => $Self->{FormID},
-        UploadCacheObject   => $Self->{UploadCacheObject},
+        UploadCacheObject  => $Self->{UploadCacheObject},
         AttachmentsInclude => 0,
     );
 
@@ -500,13 +528,17 @@ sub ArticleQuote {
         }
     }
 
+    # get needed objects
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
     # body preparation for plain text processing
-    if ( $Self->{ConfigObject}->Get('Frontend::RichText') ) {
+    if ( $ConfigObject->Get('Frontend::RichText') ) {
 
         my $Body = '';
 
         # check for html body
-        my @ArticleBox = $Self->{TicketObject}->ArticleContentIndex(
+        my @ArticleBox = $TicketObject->ArticleContentIndex(
             TicketID                   => $Param{TicketID},
             StripPlainBodyAsAttachment => 3,
             UserID                     => $Self->{UserID},
@@ -523,7 +555,7 @@ sub ArticleQuote {
             # check if no html body exists
             last ARTICLE if !$ArticleTmp->{AttachmentIDOfHTMLBody};
 
-            my %AttachmentHTML = $Self->{TicketObject}->ArticleAttachment(
+            my %AttachmentHTML = $TicketObject->ArticleAttachment(
                 ArticleID => $ArticleTmp->{ArticleID},
                 FileID    => $ArticleTmp->{AttachmentIDOfHTMLBody},
                 UserID    => $Self->{UserID},
@@ -534,19 +566,22 @@ sub ArticleQuote {
             $Charset =~ s/(.+?);.*/$1/g;
 
             # convert html body to correct charset
-            $Body = $Self->{EncodeObject}->Convert(
+            $Body = $Kernel::OM->Get('Kernel::System::Encode')->Convert(
                 Text => $AttachmentHTML{Content},
                 From => $Charset,
                 To   => $Self->{UserCharset},
             );
 
+            # get HTML utils object
+            my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
             # add url quoting
-            $Body = $Self->{HTMLUtilsObject}->LinkQuote(
+            $Body = $HTMLUtilsObject->LinkQuote(
                 String => $Body,
             );
 
             # strip head, body and meta elements
-            $Body = $Self->{HTMLUtilsObject}->DocumentStrip(
+            $Body = $HTMLUtilsObject->DocumentStrip(
                 String => $Body,
             );
 
@@ -590,7 +625,7 @@ sub ArticleQuote {
                     }
 
                     # get whole attachment
-                    my %AttachmentPicture = $Self->{TicketObject}->ArticleAttachment(
+                    my %AttachmentPicture = $TicketObject->ArticleAttachment(
                         ArticleID => $Param{ArticleID},
                         FileID    => $AttachmentID,
                         UserID    => $Self->{UserID},
@@ -630,7 +665,7 @@ sub ArticleQuote {
                 next ATTACHMENT if !$Attachments{$AttachmentID}->{ContentID};
 
                 # get whole attachment
-                my %AttachmentPicture = $Self->{TicketObject}->ArticleAttachment(
+                my %AttachmentPicture = $TicketObject->ArticleAttachment(
                     ArticleID => $Param{ArticleID},
                     FileID    => $AttachmentID,
                     UserID    => $Self->{UserID},
@@ -685,7 +720,7 @@ sub ArticleQuote {
         # attach also other attachments on article forward
         if ( $Body && $Param{AttachmentsInclude} ) {
             for my $AttachmentID ( sort keys %NotInlineAttachments ) {
-                my %Attachment = $Self->{TicketObject}->ArticleAttachment(
+                my %Attachment = $TicketObject->ArticleAttachment(
                     ArticleID => $Param{ArticleID},
                     FileID    => $AttachmentID,
                     UserID    => $Self->{UserID},
@@ -703,7 +738,7 @@ sub ArticleQuote {
     }
 
     # as fallback use text body for quote
-    my %Article = $Self->{TicketObject}->ArticleGet(
+    my %Article = $TicketObject->ArticleGet(
         ArticleID     => $Param{ArticleID},
         DynamicFields => 0,
     );
@@ -719,21 +754,21 @@ sub ArticleQuote {
     }
     else {
         $Article{Body} = $Self->WrapPlainText(
-            MaxCharacters => $Self->{ConfigObject}->Get('Ticket::Frontend::TextAreaEmail') || 82,
+            MaxCharacters => $ConfigObject->Get('Ticket::Frontend::TextAreaEmail') || 82,
             PlainText => $Article{Body},
         );
     }
 
     # attach attachments
     if ( $Param{AttachmentsInclude} ) {
-        my %ArticleIndex = $Self->{TicketObject}->ArticleAttachmentIndex(
+        my %ArticleIndex = $TicketObject->ArticleAttachmentIndex(
             ArticleID                  => $Param{ArticleID},
             UserID                     => $Self->{UserID},
             StripPlainBodyAsAttachment => 3,
             Article                    => \%Article,
         );
         for my $Index ( sort keys %ArticleIndex ) {
-            my %Attachment = $Self->{TicketObject}->ArticleAttachment(
+            my %Attachment = $TicketObject->ArticleAttachment(
                 ArticleID => $Param{ArticleID},
                 FileID    => $Index,
                 UserID    => $Self->{UserID},
@@ -749,7 +784,7 @@ sub ArticleQuote {
     }
 
     # return body as html
-    if ( $Self->{ConfigObject}->Get('Frontend::RichText') ) {
+    if ( $ConfigObject->Get('Frontend::RichText') ) {
 
         $Article{Body} = $Self->Ascii2Html(
             Text           => $Article{Body},
@@ -790,16 +825,19 @@ sub TicketListShow {
     }
 
     # store latest view mode
-    $Self->{SessionObject}->UpdateSessionID(
+    $Kernel::OM->Get('Kernel::System::AuthSession')->UpdateSessionID(
         SessionID => $Self->{SessionID},
         Key       => 'UserTicketOverview' . $Env->{Action},
         Value     => $View,
     );
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
     # update preferences if needed
     my $Key = 'UserTicketOverview' . $Env->{Action};
-    if ( !$Self->{ConfigObject}->Get('DemoSystem') && $Self->{$Key} ne $View ) {
-        $Self->{UserObject}->SetPreferences(
+    if ( !$ConfigObject->Get('DemoSystem') && $Self->{$Key} ne $View ) {
+        $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
             UserID => $Self->{UserID},
             Key    => $Key,
             Value  => $View,
@@ -807,7 +845,7 @@ sub TicketListShow {
     }
 
     # check backends
-    my $Backends = $Self->{ConfigObject}->Get('Ticket::Frontend::Overview');
+    my $Backends = $ConfigObject->Get('Ticket::Frontend::Overview');
     if ( !$Backends ) {
         return $Env->{LayoutObject}->FatalError(
             Message => 'Need config option Ticket::Frontend::Overview',
@@ -825,7 +863,7 @@ sub TicketListShow {
         # try to find fallback, take first configured view mode
         KEY:
         for my $Key ( sort keys %{$Backends} ) {
-            $Self->{LogObject}->Log(
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
                 Message  => "No Config option found for view mode $View, took $Key instead!",
             );
@@ -835,7 +873,7 @@ sub TicketListShow {
     }
 
     # load overview backend module
-    if ( !$Self->{MainObject}->Require( $Backends->{$View}->{Module} ) ) {
+    if ( !$Kernel::OM->Get('Kernel::System::Main')->Require( $Backends->{$View}->{Module} ) ) {
         return $Env->{LayoutObject}->FatalError();
     }
     my $Object = $Backends->{$View}->{Module}->new( %{$Env} );
@@ -862,7 +900,7 @@ sub TicketListShow {
 
     # check start option, if higher then tickets available, set
     # it to the last ticket page (Thanks to Stefan Schmidt!)
-    my $StartHit = $Self->{ParamObject}->GetParam( Param => 'StartHit' ) || 1;
+    my $StartHit = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'StartHit' ) || 1;
 
     # get personal page shown count
     my $PageShownPreferencesKey = 'UserTicketOverview' . $View . 'PageShown';
@@ -871,7 +909,7 @@ sub TicketListShow {
 
     # get data selection
     my %Data;
-    my $Config = $Self->{ConfigObject}->Get('PreferencesGroups');
+    my $Config = $ConfigObject->Get('PreferencesGroups');
     if ( $Config && $Config->{$Group} && $Config->{$Group}->{Data} ) {
         %Data = %{ $Config->{$Group}->{Data} };
     }
@@ -1031,7 +1069,7 @@ sub TicketListShow {
                 my $PrefKeyColumns = 'UserFilterColumnsEnabled' . '-' . $Env->{Action};
 
                 # create extra needed objects
-                my $JSONObject = Kernel::System::JSON->new( %{$Self} );
+                my $JSONObject = $Kernel::OM->Get('Kernel::System::JSON');
 
                 # configure columns
                 my @ColumnsEnabled = @{ $Object->{ColumnsEnabled} };
@@ -1143,12 +1181,15 @@ sub TicketMetaItems {
         ClassTable => 'Flags',
     };
 
-    my %Ticket = $Self->{TicketObject}->TicketGet( TicketID => $Param{Ticket}->{TicketID} );
+    # get ticket object
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
+    my %Ticket = $TicketObject->TicketGet( TicketID => $Param{Ticket}->{TicketID} );
 
     # Show if new message is in there, but show archived tickets as read.
     my %TicketFlag;
     if ( $Ticket{ArchiveFlag} ne 'y' ) {
-        %TicketFlag = $Self->{TicketObject}->TicketFlagGet(
+        %TicketFlag = $TicketObject->TicketFlagGet(
             TicketID => $Param{Ticket}->{TicketID},
             UserID   => $Self->{UserID},
         );
@@ -1168,8 +1209,8 @@ sub TicketMetaItems {
         {
             $ShowMeta = 1;
         }
-        if ( !$ShowMeta && $Self->{ConfigObject}->Get('Ticket::Watcher') ) {
-            my %Watch = $Self->{TicketObject}->TicketWatchGet(
+        if ( !$ShowMeta && $Kernel::OM->Get('Kernel::Config')->Get('Ticket::Watcher') ) {
+            my %Watch = $TicketObject->TicketWatchGet(
                 TicketID => $Param{Ticket}->{TicketID},
             );
             if ( $Watch{ $Self->{UserID} } ) {
