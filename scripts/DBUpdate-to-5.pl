@@ -526,10 +526,10 @@ sub _MigrateConfigs {
         # update module location
         my $Module = $Setting->{$FilterTextModule}->{'Module'} // '';
 
-        if ( $Module !~ m{Kernel::Output::HTML::OutputFilter(\w+)} ) {
+        if ( $Module !~ m{Kernel::Output::HTML::OutputFilter::Text(\w+)} ) {
             next FILTERTEXTMODULE;
         }
-        $Module =~ s{Kernel::Output::HTML::OutputFilter(\w+)}{Kernel::Output::HTML::FilterText::$1}xmsg;
+        $Module =~ s{Kernel::Output::HTML::OutputFilter::Text(\w+)}{Kernel::Output::HTML::FilterText::$1}xmsg;
         $Setting->{$FilterTextModule}->{'Module'} = $Module;
 
         # set new setting,
