@@ -13,7 +13,6 @@ use warnings;
 
 our @ObjectDependencies = (
     'Kernel::Config',
-    'Kernel::Language',
 );
 
 =head1 NAME
@@ -56,20 +55,17 @@ sub DatepickerGetVacationDays {
         }
     }
 
-    # get language object
-    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
-
     # translate the vacation description if possible
     for my $Month ( sort keys %{$TimeVacationDays} ) {
         for my $Day ( sort keys %{ $TimeVacationDays->{$Month} } ) {
-            $TimeVacationDays->{$Month}->{$Day} = $LanguageObject->Translate( $TimeVacationDays->{$Month}->{$Day} );
+            $TimeVacationDays->{$Month}->{$Day} = $Self->{LanguageObject}->Translate( $TimeVacationDays->{$Month}->{$Day} );
         }
     }
 
     for my $Year ( sort keys %{$TimeVacationDaysOneTime} ) {
         for my $Month ( sort keys %{ $TimeVacationDaysOneTime->{$Year} } ) {
             for my $Day ( sort keys %{ $TimeVacationDaysOneTime->{$Year}->{$Month} } ) {
-                $TimeVacationDaysOneTime->{$Year}->{$Month}->{$Day} = $LanguageObject->Translate(
+                $TimeVacationDaysOneTime->{$Year}->{$Month}->{$Day} = $Self->{LanguageObject}->Translate(
                     $TimeVacationDaysOneTime->{$Year}->{$Month}->{$Day}
                 );
             }

@@ -23,7 +23,6 @@ our @ObjectDependencies = (
     'Kernel::System::AuthSession',
     'Kernel::System::User',
     'Kernel::System::Web::Request',
-    'Kernel::Language',
     'Kernel::System::JSON',
 );
 
@@ -51,7 +50,7 @@ sub AgentCustomerViewTable {
         $Self->FatalError( Message => 'Need Hash ref in Data param' );
     }
     elsif ( ref $Param{Data} eq 'HASH' && !%{ $Param{Data} } ) {
-        return $Kernel::OM->Get('Kernel::Language')->Translate('none');
+        return $Self->{LanguageObject}->Translate('none');
     }
 
     # add ticket params if given
@@ -328,13 +327,10 @@ sub AgentQueueListOption {
         return 'Need Data Ref in AgentQueueListOption()!';
     }
 
-    # get language object
-    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
-
     # add suffix for correct sorting
     my $KeyNoQueue;
     my $ValueNoQueue;
-    my $MoveStr = $LanguageObject->Get('Move');
+    my $MoveStr = $Self->{LanguageObject}->Get('Move');
     my $ValueOfQueueNoKey .= "- " . $MoveStr . " -";
     DATA:
     for ( sort { $Data{$a} cmp $Data{$b} } keys %Data ) {
@@ -477,7 +473,7 @@ sub AgentQueueListOption {
     $Param{MoveQueuesStrg} .= "</select>\n";
 
     if ( $Param{TreeView} ) {
-        my $TreeSelectionMessage = $LanguageObject->Translate("Show Tree Selection");
+        my $TreeSelectionMessage = $Self->{LanguageObject}->Translate("Show Tree Selection");
         $Param{MoveQueuesStrg}
             .= ' <a href="#" title="'
             . $TreeSelectionMessage
