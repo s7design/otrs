@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::LinkObjectTicket;
+package Kernel::Output::HTML::LinkObject::Ticket;
 
 use strict;
 use warnings;
@@ -32,7 +32,7 @@ our @ObjectDependencies = (
 
 =head1 NAME
 
-Kernel::Output::HTML::LinkObjectTicket - layout backend module
+Kernel::Output::HTML::LinkObject::Ticket - layout backend module
 
 =head1 SYNOPSIS
 
@@ -46,7 +46,7 @@ All layout functions of link object (ticket).
 
 create an object
 
-    $BackendObject = Kernel::Output::HTML::LinkObjectTicket->new(
+    $BackendObject = Kernel::Output::HTML::LinkObject::Ticket->new(
         UserLanguage => 'en',
         UserID       => 1,
     );
