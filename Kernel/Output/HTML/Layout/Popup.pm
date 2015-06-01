@@ -11,9 +11,7 @@ package Kernel::Output::HTML::Layout::Popup;
 use strict;
 use warnings;
 
-our @ObjectDependencies = (
-    'Kernel::System::Log',
-);
+our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 

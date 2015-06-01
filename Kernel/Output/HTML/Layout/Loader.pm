@@ -13,10 +13,7 @@ use warnings;
 
 use Kernel::System::Loader;
 
-our @ObjectDependencies = (
-    'Kernel::Config',
-    'Kernel::System::Log',
-);
+our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 
@@ -45,8 +42,6 @@ taking a list from the Loader::Agent::CommonCSS config item.
 
 sub LoaderCreateAgentCSSCalls {
     my ( $Self, %Param ) = @_;
-
-    $Self->{LoaderObject} ||= Kernel::System::Loader->new( %{$Self} );
 
     # get config object
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
@@ -161,8 +156,6 @@ taking a list from the Loader::Agent::CommonJS config item.
 sub LoaderCreateAgentJSCalls {
     my ( $Self, %Param ) = @_;
 
-    $Self->{LoaderObject} ||= Kernel::System::Loader->new( %{$Self} );
-
     #use Time::HiRes;
     #my $t0 = Time::HiRes::gettimeofday();
 
@@ -231,8 +224,6 @@ taking a list from the Loader::Customer::CommonCSS config item.
 
 sub LoaderCreateCustomerCSSCalls {
     my ( $Self, %Param ) = @_;
-
-    $Self->{LoaderObject} ||= Kernel::System::Loader->new( %{$Self} );
 
     # get config object
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
@@ -318,8 +309,6 @@ taking a list from the Loader::Customer::CommonJS config item.
 
 sub LoaderCreateCustomerJSCalls {
     my ( $Self, %Param ) = @_;
-
-    $Self->{LoaderObject} ||= Kernel::System::Loader->new( %{$Self} );
 
     #use Time::HiRes;
     #my $t0 = Time::HiRes::gettimeofday();
@@ -409,7 +398,7 @@ sub _HandleCSSList {
         }
 
         if ( $Param{DoMinify} && @FileList ) {
-            my $MinifiedFile = $Self->{LoaderObject}->MinifyFiles(
+            my $MinifiedFile = $Kernel::OM->Get('Kernel::System::Loader')->MinifyFiles(
                 List                 => \@FileList,
                 Type                 => 'CSS',
                 TargetDirectory      => "$Param{SkinHome}/$Param{SkinType}/$Skin/css-cache/",

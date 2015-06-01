@@ -13,18 +13,7 @@ use warnings;
 
 use Kernel::System::VariableCheck qw(:all);
 
-our @ObjectDependencies = (
-    'Kernel::Config',
-    'Kernel::System::Log',
-    'Kernel::System::Main',
-    'Kernel::System::HTMLUtils',
-    'Kernel::System::Ticket',
-    'Kernel::System::Encode',
-    'Kernel::System::AuthSession',
-    'Kernel::System::User',
-    'Kernel::System::Web::Request',
-    'Kernel::System::JSON',
-);
+our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 
@@ -167,7 +156,7 @@ sub AgentCustomerViewTable {
                         $Self->FatalDie();
                     }
 
-                    my $ValidObject    = Kernel::System::Valid->new( %{$Self} );
+                    my $ValidObject    = $Kernel::OM->Get('Kernel::System::Valid');
                     my @ValidIDs       = $ValidObject->ValidIDsGet();
                     my $CompanyIsValid = grep { $CompanyValidID == $_ } @ValidIDs;
 

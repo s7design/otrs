@@ -11,9 +11,7 @@ package Kernel::Output::HTML::Layout::Datepicker;
 use strict;
 use warnings;
 
-our @ObjectDependencies = (
-    'Kernel::Config',
-);
+our $ObjectManagerDisabled = 1;
 
 =head1 NAME
 
@@ -58,7 +56,8 @@ sub DatepickerGetVacationDays {
     # translate the vacation description if possible
     for my $Month ( sort keys %{$TimeVacationDays} ) {
         for my $Day ( sort keys %{ $TimeVacationDays->{$Month} } ) {
-            $TimeVacationDays->{$Month}->{$Day} = $Self->{LanguageObject}->Translate( $TimeVacationDays->{$Month}->{$Day} );
+            $TimeVacationDays->{$Month}->{$Day}
+                = $Self->{LanguageObject}->Translate( $TimeVacationDays->{$Month}->{$Day} );
         }
     }
 
