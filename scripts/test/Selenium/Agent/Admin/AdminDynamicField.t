@@ -12,15 +12,16 @@ use utf8;
 
 use vars (qw($Self));
 
-# get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $Selenium     = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# get selenium object
+my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
+        # get helper object
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # create and login test user
         my $Language      = 'de';
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups   => ['admin'],
@@ -33,14 +34,20 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
+        # get config object
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
+        # navigate to AdminDynamiFied screen
+        my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminDynamicField");
 
         # check overview AdminDynamicField
         $Selenium->find_element( "table",             'css' );
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
+
+        # get which browser is used for testing
+        my $TestBrowser = $ConfigObject->Get('SeleniumTestsConfig')->{browser_name};
 
         # check page
         for my $Type (
@@ -66,13 +73,15 @@ $Selenium->RunTest(
                 $Selenium->find_element( "#Name",                      'css' )->submit();
 
                 # check if test DynamicField show on AdminDynamicField screen
+                $Selenium->WaitFor( JavaScript => "return \$('.DynamicFieldsContent').length" );
                 $Self->True(
                     index( $Selenium->get_page_source(), $RandomID ) > -1,
-                    "$RandomID $Type DynamicField found on page",
+                    "$RandomID $ID $Type DynamicField found on page",
                 );
 
                 # go to new DynamicField again
-                $Selenium->find_element( $RandomID,                    'link_text' )->click();
+                $Selenium->find_element( $RandomID, 'link_text' )->click();
+                $Selenium->WaitFor( JavaScript => "return \$('#Label').length" );
                 $Selenium->find_element( "#Label",                     'css' )->clear();
                 $Selenium->find_element( "#Label",                     'css' )->send_keys( $RandomID . "-update" );
                 $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
@@ -80,6 +89,7 @@ $Selenium->RunTest(
 
                 # go to new DynamicField again after update and check values
                 $Selenium->find_element( $RandomID, 'link_text' )->click();
+                $Selenium->WaitFor( JavaScript => "return \$('#Name').length" );
 
                 # check new DynamicField values
                 $Self->Is(
@@ -98,13 +108,38 @@ $Selenium->RunTest(
                     "#ValidID stored value",
                 );
 
+                $Selenium->go_back();
+
                 # delete DynamicFields, check button for deleting Dynamic Field
-                $Selenium->get("${ScriptAlias}index.pl?Action=AdminDynamicField");
                 my $DynamicFieldID = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldGet(
                     Name => $RandomID
                 )->{ID};
 
-                my $CheckConfirmJS = <<"JAVASCRIPT";
+                # depending on browser use dirrefernt delete approach
+                if ( $TestBrowser eq 'firefox' ) {
+
+                    $Selenium->find_element(
+                        "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
+                    )->click();
+
+                    # check for opened confirm text
+                    my $LanguageObject = Kernel::Language->new(
+                        UserLanguage => $Language,
+                    );
+
+                    $Self->Is(
+                        $Selenium->get_alert_text(),
+                        $LanguageObject->Get(
+                            'Do you really want to delete this dynamic field? ALL associated data will be LOST!'
+                        ),
+                        'Check for opened confirm text',
+                    );
+
+                    $Selenium->accept_alert();
+                }
+                else {
+
+                    my $CheckConfirmJS = <<"JAVASCRIPT";
 (function () {
     var lastConfirm = undefined;
     window.confirm = function (message) {
@@ -118,26 +153,27 @@ $Selenium->RunTest(
     };
 }());
 JAVASCRIPT
+                    $Selenium->execute_script($CheckConfirmJS);
 
-                $Selenium->execute_script($CheckConfirmJS);
+                    $Selenium->find_element(
+                        "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
+                    )->click();
 
-                $Selenium->find_element(
-                    "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
-                )->click();
+                    my $LanguageObject = Kernel::Language->new(
+                        UserLanguage => $Language,
+                    );
 
-                my $LanguageObject = Kernel::Language->new(
-                    UserLanguage => $Language,
-                );
+                    $Self->Is(
+                        $Selenium->execute_script("return window.getLastConfirm()"),
+                        $LanguageObject->Get(
+                            'Do you really want to delete this dynamic field? ALL associated data will be LOST!'
+                        ),
+                        'Check for opened confirm text',
+                    );
+                }
 
-                $Self->Is(
-                    $Selenium->execute_script("return window.getLastConfirm()"),
-                    $LanguageObject->Get(
-                        'Do you really want to delete this dynamic field? ALL associated data will be LOST!'
-                    ),
-                    'Check for opened confirm text',
-                );
-
-                sleep 1;    # allow some time for field deletion
+                # allow some time for field deletion
+                $Selenium->WaitFor( JavaScript => "return !\$('#DynamicFieldID_$DynamicFieldID').length" );
 
                 $Selenium->refresh();
                 my $Success;
@@ -155,7 +191,7 @@ JAVASCRIPT
             # Make sure the cache is correct.
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => "DynamicField" );
         }
-        }
+    }
 );
 
 1;

@@ -12,15 +12,16 @@ use utf8;
 
 use vars (qw($Self));
 
-# get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $Selenium     = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+# get selenium object
+my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
+        # get helper object
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # create and login test user
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
         ) || die "Did not get test user";
@@ -31,6 +32,10 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
+        # get config object
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+        # navigate to AdminNotification screen
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminNotification");
 
@@ -43,7 +48,6 @@ $Selenium->RunTest(
 
         # test filter for Notification
         $Selenium->find_element( "#FilterNotification", 'css' )->send_keys("Agent::AddNote");
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element( "Agent::AddNote", 'link_text' )->is_displayed(),
@@ -62,7 +66,6 @@ $Selenium->RunTest(
 
         # clear test filter for Notification
         $Selenium->find_element( "#FilterNotification", 'css' )->clear();
-        sleep 1;
 
         # check defoult notification
         for my $Notification (
@@ -70,7 +73,10 @@ $Selenium->RunTest(
             )
         {
 
+            # wait for notification overview
+            $Selenium->WaitFor( JavaScript => "return \$('#Notifications').length" );
             $Selenium->find_element( "Agent::$Notification", 'link_text' )->click();
+            $Selenium->WaitFor( JavaScript => "return \$('#Subject').length" );
 
             # edit notification
             my $CurrentNotificationSubject = $Selenium->find_element( "#Subject", 'css' )->get_value();
@@ -94,7 +100,7 @@ $Selenium->RunTest(
 
         }
 
-        }
+    }
 );
 
 1;
