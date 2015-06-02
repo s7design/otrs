@@ -123,6 +123,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name", 'css' )->submit();
 
         # return to main window
+        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
 
         # get process id

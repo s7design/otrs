@@ -232,7 +232,8 @@ $Selenium->RunTest(
             "'New process ticket' button NOT available when no process is available",
         );
 
-# check if NavBarCustomerTicketProcess button is available when NavBarCustomerTicketProcess module is disabled and no process is available
+        # check if NavBarCustomerTicketProcess button is available
+        # when NavBarCustomerTicketProcess module is disabled and no process is available
         my $SysConfigObject             = $Kernel::OM->Get('Kernel::System::SysConfig');
         my %NavBarCustomerTicketProcess = $SysConfigObject->ConfigItemGet(
             Name => 'CustomerFrontend::NavBarModule###10-CustomerTicketProcesses',
@@ -261,6 +262,17 @@ $Selenium->RunTest(
             );
         }
 
+        # synchronize process after deleting test process
+        $Selenium->Login(
+            Type     => 'Agent',
+            User     => $TestUserLogin,
+            Password => $TestUserLogin,
+        );
+
+        # synchronize process after deleting test process
+        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
+
         # make sure the cache is correct.
         for my $Cache (
             qw (ProcessManagement_Activity ProcessManagement_ActivityDialog ProcessManagement_Transition ProcessManagement_TransitionAction )
@@ -270,7 +282,7 @@ $Selenium->RunTest(
                 Type => $Cache,
             );
         }
-        }
+    }
 );
 
 1;

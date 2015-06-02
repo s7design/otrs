@@ -144,7 +144,6 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Subject",                      'css' )->submit();
 
         # return to main window
-        $Selenium->close();
         $Selenium->switch_to_window( $Handles->[0] );
 
         # wait until main window has been reloaded
@@ -177,8 +176,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#QueueID option[value='3']", 'css' )->click();
         $Selenium->find_element( "#Subject",                   'css' )->submit();
 
-        # wait until return to AgentTicketZoom
-        # $Selenium->WaitFor(JavaScript => 'return $("#ArticleTree").length;');
+        # wait until return to AgentTicketZoom, if neccessary
+        $Selenium->WaitFor( JavaScript => 'return $("#ArticleTree").length;' );
 
         # check if we are at the end of test process ticket
         $Self->True(
