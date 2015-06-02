@@ -402,27 +402,10 @@ EOF
     $Self->{CustomTemplateDir}         = $ConfigObject->Get('CustomTemplateDir') . '/HTML/' . $Theme;
     $Self->{CustomStandardTemplateDir} = $ConfigObject->Get('CustomTemplateDir') . '/HTML/' . 'Standard';
 
-    # load sub layout files
+    # get main object
     my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
-    my $Dir = $ConfigObject->Get('TemplateDir') . '/HTML';
-    if ( -e $Dir ) {
-        my @Files = $MainObject->DirectoryRead(
-            Directory => $Dir,
-            Filter    => 'Layout*.pm',
-        );
-        for my $File (@Files) {
-            if ( $File !~ /Layout.pm$/ ) {
-                $File =~ s{\A.*\/(.+?).pm\z}{$1}xms;
-                my $ClassName = "Kernel::Output::HTML::$File";
-                if ( !$MainObject->RequireBaseClass($ClassName) ) {
-                    $Self->FatalError();
-                }
-            }
-        }
-    }
-
-    # load sub layout files from new directory
+    # load sub layout files
     my $NewDir = $ConfigObject->Get('TemplateDir') . '/HTML/Layout';
     if ( -e $NewDir ) {
         my @NewFiles = $MainObject->DirectoryRead(

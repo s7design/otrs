@@ -23,7 +23,7 @@ $Selenium->RunTest(
 
         # create and login test customer
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => ['admin', 'users'],
+            Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -73,7 +73,7 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[1] );
 
         # search for second created test ticket
-        $Selenium->find_element(".//*[\@id='SEARCH::TicketNumber']")->send_keys($TicketNumbers[1]);
+        $Selenium->find_element(".//*[\@id='SEARCH::TicketNumber']")->send_keys( $TicketNumbers[1] );
         $Selenium->find_element(".//*[\@id='SEARCH::TicketNumber']")->submit();
 
         # link created test tickets

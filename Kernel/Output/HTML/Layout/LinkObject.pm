@@ -404,7 +404,7 @@ sub LinkObjectTableCreateSimple {
 
     # check needed stuff
     if ( !$Param{LinkListWithData} || ref $Param{LinkListWithData} ne 'HASH' ) {
-        $Kernel::OM->Get('Kernel::System::Link')->Log(
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
             Message  => 'Need LinkListWithData!'
         );
@@ -682,7 +682,6 @@ sub _LinkObjectContentStringCreate {
 
     # load link core module
     my $LinkObject = $Kernel::OM->Get('Kernel::System::LinkObject');
-
 
     # load backend
     my $BackendObject = $Self->_LoadLinkObjectLayoutBackend(
