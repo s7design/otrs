@@ -50,9 +50,15 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name",        'css' )->submit();
 
         # click on Transitions dropdown and "Create New Transition"
+        $Selenium->WaitFor( JavaScript => "return \$('#ActivityFilter').length" );
         $Selenium->find_element( "Transitions", 'link_text' )->click();
+
+        # wait to toggle element
         sleep 1;
         $Selenium->find_element("//a[contains(\@href, \'Subaction=TransitionNew' )]")->click();
+
+        # wait until form has loaded, if neccessary
+        $Selenium->WaitFor( JavaScript => 'return $("#Name").length' );
 
         # switch to pop up window
         my $Handles = $Selenium->get_window_handles();
@@ -104,10 +110,9 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[0] );
 
         # check for created test Transition using filter on AdminProcessManagement screen
-        $Selenium->find_element( "Transitions", 'link_text' )->click();
-        sleep 1;
+        $Selenium->WaitFor( JavaScript => 'return $("#TransitionFilter").length' );
+        $Selenium->find_element( "Transitions",       'link_text' )->click();
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandom);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionRandom\"]")->is_displayed(),
@@ -184,10 +189,9 @@ $Selenium->RunTest(
 
         # check for edited test Transition using filter on AdminProcessManagement screen
         my $TransitionRandomEdit = $TransitionRandom . "edit";
-        $Selenium->find_element( "Transitions", 'link_text' )->click();
-        sleep 1;
+        $Selenium->WaitFor( JavaScript => 'return $("#TransitionFilter").length' );
+        $Selenium->find_element( "Transitions",       'link_text' )->click();
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandomEdit);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionRandomEdit\"]")->is_displayed(),
@@ -227,33 +231,42 @@ $Selenium->RunTest(
 
         # get process id and return to overview afterwards
         my $ProcessID = $Selenium->execute_script('return $("#ProcessDelete").data("id")') || undef;
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
 
-        # delete test Transition
-        my $Success = $DBObject->Do(
-            SQL => "DELETE FROM pm_transition WHERE id = $TransitionID",
+        # delete test transition
+        my $Success = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Transition')->TransitionDelete(
+            ID     => $TransitionID,
+            UserID => $TestUserID,
         );
+
         $Self->True(
             $Success,
-            "TransitionDelete - $TransitionRandomEdit",
+            "Transition is deleted - $TransitionID",
         );
 
-        # delete process
-        my $Delete = $DBObject->Do(
-            SQL => "DELETE FROM pm_process WHERE id = $ProcessID",
+        # delete test process
+        $Success = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process')->ProcessDelete(
+            ID     => $ProcessID,
+            UserID => $TestUserID,
         );
 
         $Self->True(
-            $Delete,
-            "Successfully deleted test process.",
+            $Success,
+            "Process is deleted - $ProcessID",
         );
 
-        # make sure the cache is correct
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-            Type => 'ProcessManagement_Transition',
-        );
+        # synchronize process after deleting test process
+        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
 
+        # make sure cache is correct
+        for my $Cache (
+            qw( ProcessManagement_Process ProcessManagement_Transition  )
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => $Cache );
         }
+
+    }
 
 );
 

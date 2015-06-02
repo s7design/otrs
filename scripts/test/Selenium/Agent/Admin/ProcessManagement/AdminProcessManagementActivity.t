@@ -48,7 +48,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name",        'css' )->send_keys($ProcessRandom);
         $Selenium->find_element( "#Description", 'css' )->send_keys("Selenium Test Process");
         $Selenium->find_element( "#Name",        'css' )->submit();
-        sleep 1;
+
+        # wait for Process create
+        $Selenium->WaitFor( JavaScript => "return \$('#ActivityFilter').length" );
 
         # create new test Activity
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ActivityNew' )]")->click();
@@ -81,14 +83,13 @@ $Selenium->RunTest(
         # input name field and submit
         $Selenium->find_element( "#Name", 'css' )->send_keys($ActivityRandom);
         $Selenium->find_element( "#Name", 'css' )->submit();
-        sleep 2;
 
         # switch back to main window
         $Selenium->switch_to_window( $Handles->[0] );
 
         # check for created test activity using filter on AdminProcessManagement screen
+        $Selenium->WaitFor( JavaScript => 'return $("#ActivityFilter").length' );
         $Selenium->find_element( "#ActivityFilter", 'css' )->send_keys($ActivityRandom);
-        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityRandom\"]")->is_displayed(),
@@ -120,40 +121,48 @@ $Selenium->RunTest(
 
         $Selenium->find_element( "#Name", 'css' )->send_keys("edit");
         $Selenium->find_element( "#Name", 'css' )->submit();
-        sleep 2;
 
         # return to main window
         $Selenium->switch_to_window( $Handles->[0] );
 
-        # get process id and return to overview afterwards
+        # get process id
         my $ProcessID = $Selenium->execute_script('return $("#ProcessDelete").data("id")') || undef;
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
 
-        # delete test ActivityDialog
-        my $Success = $DBObject->Do(
-            SQL => "DELETE FROM pm_activity WHERE id = $ActivityID",
+        # delete test activity
+        my $Success = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Activity')->ActivityDelete(
+            ID     => $ActivityID,
+            UserID => $TestUserID,
         );
+
         $Self->True(
             $Success,
-            "ActivityID - $ActivityRandom",
+            "Activity is deleted - $ActivityID",
         );
 
-        # delete process
-        my $Delete = $DBObject->Do(
-            SQL => "DELETE FROM pm_process WHERE id = $ProcessID",
+        # delete test process
+        $Success = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process')->ProcessDelete(
+            ID     => $ProcessID,
+            UserID => $TestUserID,
         );
 
         $Self->True(
-            $Delete,
-            "Successfully deleted test process.",
+            $Success,
+            "Process is deleted - $ProcessID",
         );
 
-        # make sure the cache is correct
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-            Type => 'ProcessManagement_Activity',
-        );
+        # synchronize process after deleting test process
+        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
 
+        # make sure cache is correct
+        for my $Cache (
+            qw(ProcessManagement_Activity ProcessManagement_Process )
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => $Cache );
         }
+
+    }
 );
 
 1;
