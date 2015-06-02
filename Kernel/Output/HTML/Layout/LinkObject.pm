@@ -853,7 +853,7 @@ sub _LoadLinkObjectLayoutBackend {
     return $Self->{Cache}->{LoadLinkObjectLayoutBackend}->{ $Param{Object} }
         if $Self->{Cache}->{LoadLinkObjectLayoutBackend}->{ $Param{Object} };
 
-    my $GenericModule = "Kernel::Output::HTML::LinkObject$Param{Object}";
+    my $GenericModule = "Kernel::Output::HTML::LinkObject::$Param{Object}";
 
     # load the backend module
     if ( !$Kernel::OM->Get('Kernel::System::Main')->Require($GenericModule) ) {
