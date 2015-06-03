@@ -108,38 +108,15 @@ $Selenium->RunTest(
                     "#ValidID stored value",
                 );
 
-                $Selenium->go_back();
+                $Selenium->get("${ScriptAlias}index.pl?Action=AdminDynamicField");
 
                 # delete DynamicFields, check button for deleting Dynamic Field
                 my $DynamicFieldID = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldGet(
                     Name => $RandomID
                 )->{ID};
 
-                # depending on browser use dirrefernt delete approach
-                if ( $TestBrowser eq 'firefox' ) {
-
-                    $Selenium->find_element(
-                        "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
-                    )->click();
-
-                    # check for opened confirm text
-                    my $LanguageObject = Kernel::Language->new(
-                        UserLanguage => $Language,
-                    );
-
-                    $Self->Is(
-                        $Selenium->get_alert_text(),
-                        $LanguageObject->Get(
-                            'Do you really want to delete this dynamic field? ALL associated data will be LOST!'
-                        ),
-                        'Check for opened confirm text',
-                    );
-
-                    $Selenium->accept_alert();
-                }
-                else {
-
-                    my $CheckConfirmJS = <<"JAVASCRIPT";
+                # click on delete icon
+                my $CheckConfirmJS = <<"JAVASCRIPT";
 (function () {
     var lastConfirm = undefined;
     window.confirm = function (message) {
@@ -153,29 +130,26 @@ $Selenium->RunTest(
     };
 }());
 JAVASCRIPT
-                    $Selenium->execute_script($CheckConfirmJS);
+                $Selenium->execute_script($CheckConfirmJS);
 
-                    $Selenium->find_element(
-                        "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
-                    )->click();
+                $Selenium->find_element(
+                    "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
+                )->click();
 
-                    my $LanguageObject = Kernel::Language->new(
-                        UserLanguage => $Language,
-                    );
+                my $LanguageObject = Kernel::Language->new(
+                    UserLanguage => $Language,
+                );
 
-                    $Self->Is(
-                        $Selenium->execute_script("return window.getLastConfirm()"),
-                        $LanguageObject->Get(
-                            'Do you really want to delete this dynamic field? ALL associated data will be LOST!'
-                        ),
-                        'Check for opened confirm text',
-                    );
-                }
+                $Self->Is(
+                    $Selenium->execute_script("return window.getLastConfirm()"),
+                    $LanguageObject->Get(
+                        'Do you really want to delete this dynamic field? ALL associated data will be LOST!'
+                    ),
+                    'Check for opened confirm text',
+                );
 
-                # allow some time for field deletion
-                $Selenium->WaitFor( JavaScript => "return !\$('#DynamicFieldID_$DynamicFieldID').length" );
+                $Selenium->get("${ScriptAlias}index.pl?Action=AdminDynamicField");
 
-                $Selenium->refresh();
                 my $Success;
                 eval {
                     $Success = $Selenium->find_element( $RandomID, 'link_text' )->is_displayed();

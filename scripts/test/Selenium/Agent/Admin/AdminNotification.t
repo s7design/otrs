@@ -48,6 +48,7 @@ $Selenium->RunTest(
 
         # test filter for Notification
         $Selenium->find_element( "#FilterNotification", 'css' )->send_keys("Agent::AddNote");
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element( "Agent::AddNote", 'link_text' )->is_displayed(),
@@ -74,9 +75,9 @@ $Selenium->RunTest(
         {
 
             # wait for notification overview
-            $Selenium->WaitFor( JavaScript => "return \$('#Notifications').length" );
+            $Selenium->WaitFor( JavaScript => 'return $("#Notifications").length' );
             $Selenium->find_element( "Agent::$Notification", 'link_text' )->click();
-            $Selenium->WaitFor( JavaScript => "return \$('#Subject').length" );
+            $Selenium->WaitFor( JavaScript => 'return $("#Subject").length' );
 
             # edit notification
             my $CurrentNotificationSubject = $Selenium->find_element( "#Subject", 'css' )->get_value();
