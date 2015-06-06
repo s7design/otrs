@@ -91,6 +91,9 @@ $Selenium->RunTest(
         $Selenium->WaitFor( JavaScript => 'return $("#ActivityFilter").length' );
         $Selenium->find_element( "#ActivityFilter", 'css' )->send_keys($ActivityRandom);
 
+        # wait for filter to kick in
+        sleep 1;
+
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityRandom\"]")->is_displayed(),
             "$ActivityRandom activity found on page",

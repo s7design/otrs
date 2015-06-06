@@ -114,6 +114,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "Transitions",       'link_text' )->click();
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandom);
 
+        # wait for filter to kick in
+        sleep 1;
+
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionRandom\"]")->is_displayed(),
             "$TransitionRandom transition found on page",
@@ -192,6 +195,9 @@ $Selenium->RunTest(
         $Selenium->WaitFor( JavaScript => 'return $("#TransitionFilter").length' );
         $Selenium->find_element( "Transitions",       'link_text' )->click();
         $Selenium->find_element( "#TransitionFilter", 'css' )->send_keys($TransitionRandomEdit);
+
+        # wait for filter to kick in
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionRandomEdit\"]")->is_displayed(),

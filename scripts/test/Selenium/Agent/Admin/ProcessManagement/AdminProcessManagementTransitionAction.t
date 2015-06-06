@@ -105,6 +105,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "Transition Actions",      'link_text' )->click();
         $Selenium->find_element( "#TransitionActionFilter", 'css' )->send_keys($TransitionActionRandom);
 
+        # wait for filter to kick in
+        sleep 1;
+
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionActionRandom\"]")->is_displayed(),
             "$TransitionActionRandom transition action found on page",
@@ -173,6 +176,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "Transition Actions", 'link_text' )->click();
 
         $Selenium->find_element( "#TransitionActionFilter", 'css' )->send_keys($TransitionActionRandomEdit);
+
+        # wait for filter to kick in
+        sleep 1;
 
         $Self->True(
             $Selenium->find_element("//*[text()=\"$TransitionActionRandomEdit\"]")->is_displayed(),

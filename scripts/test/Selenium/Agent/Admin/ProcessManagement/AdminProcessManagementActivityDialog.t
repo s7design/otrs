@@ -99,6 +99,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "Activity Dialogs",      'link_text' )->click();
         $Selenium->find_element( "#ActivityDialogFilter", 'css' )->send_keys($ActivityDialogRandom);
 
+        # wait for filter to kick in
+        sleep 1;
+
         $Self->True(
             $Selenium->find_element("//*[text()=\"$ActivityDialogRandom\"]")->is_displayed(),
             "$ActivityDialogRandom activity found on page",

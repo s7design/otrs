@@ -58,7 +58,7 @@ $Selenium->RunTest(
 
         # import test selenium scenario
         my $Location = $ConfigObject->Get('Home')
-            . "/development/samples/process/TestProcess.yml";
+            . "/scripts/test/sample/ProcessManagement/TestProcess.yml";
         $Selenium->find_element( "#FileUpload",                'css' )->send_keys($Location);
         $Selenium->find_element( "#OverwriteExistingEntities", 'css' )->click();
         $Selenium->find_element("//button[\@value='Upload process configuration'][\@type='submit']")->click();
@@ -140,7 +140,7 @@ $Selenium->RunTest(
         # check for inputed values as final step in first scenario
         $Self->True(
             index( $Selenium->get_page_source(), 'closed successful' ) > -1,
-            "Ticket open state found on page",
+            "Ticket closed successful state found on page",
         );
         $Self->True(
             index( $Selenium->get_page_source(), '5 very high' ) > -1,
