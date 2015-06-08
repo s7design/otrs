@@ -482,7 +482,7 @@ for my $Test (@Tests) {
     my $FileRef;
     if ( $Test->{ProcessFile} ) {
         $FileRef = $MainObject->FileRead(
-            Location => $Home . '/scripts/test/sample/ProcessManagement/TestProcess.yml/' . $Test->{ProcessFile},
+            Location => $Home . '/scripts/test/sample/ProcessManagement/' . $Test->{ProcessFile},
         );
         my $RandomID = $HelperObject->GetRandomID();
 
