@@ -559,14 +559,6 @@ dd {
     margin: 0px auto;
 }
 
-.Flag.Valid {
-    width: 17px;
-    height: 8px;
-    float: left;
-    cursor: unset;
-    margin: 5px 10px;
-}
-
 .Flag span {
     display: block;
     height: 100%;
@@ -575,11 +567,6 @@ dd {
     /* set a default color for priorities */
     background-color: #cdcdcd;
 }
-
-.Flag.Valid span {
-    cursor: unset;
-}
-
 
 .Flag span.Escalated {
     background-color:#ff505e;
@@ -611,18 +598,6 @@ dd {
 
 .Flag span.PriorityID-5 {
     background-color:#ff505e;
-}
-
-.Flag span.ValidID {
-    background-color: #8bef4d;
-}
-
-.Flag span.InvalidID {
-    background-color:#ff505e;
-}
-
-.Flag span.InvalidTmpID {
-    background-color:#ffaaaa;
 }
 
 /**
