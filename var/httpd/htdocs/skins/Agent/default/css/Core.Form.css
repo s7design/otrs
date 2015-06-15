@@ -209,17 +209,17 @@ button.Reset:active {
 
 
 /**
- * @subsection    GenericAgent ClearSelect
+ * @subsection    GenericAgent and Preferences ClearSelect
  */
 
-.GenericAgentClearSelect {
+.GenericAgentClearSelect, .PreferencesClearSelect {
     width: 16px;
     height: 16px;
     margin-left: 3px;
     color: #333;
 }
 
-.GenericAgentClearSelect span {
+.GenericAgentClearSelect span, .PreferencesClearSelect span {
     position: absolute;
     left: -9999px;
     top: -9999px;

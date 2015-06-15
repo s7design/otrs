@@ -127,3 +127,12 @@
     </div>
 </div>
 [% RenderBlockEnd("Body") %]
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+Core.Agent.Preferences.Init({
+    Localization: {
+        RemoveSelection: [% Translate("Remove selection") | JSON %]
+    }
+});
+//]]></script>
+[% END %]

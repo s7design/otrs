@@ -4493,6 +4493,9 @@ via the Preferences button after logging in.
                 <Description>Agent Preferences</Description>
                 <Title></Title>
                 <NavBarName>Preferences</NavBarName>
+                <Loader>
+                    <JavaScript>Core.Agent.Preferences.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
