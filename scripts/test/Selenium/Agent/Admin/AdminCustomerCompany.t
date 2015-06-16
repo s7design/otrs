@@ -84,7 +84,6 @@ $Selenium->RunTest(
 
         # create another test customer company for filter search test
         my $RandomID2 = $Helper->GetRandomID();
-
         $Selenium->find_element("//button[\@type='submit']")->click();
         $Selenium->find_element( "button.CallForAction", 'css' )->click();
         $Selenium->find_element( "#CustomerID",          'css' )->send_keys($RandomID2);
@@ -141,35 +140,35 @@ $Selenium->RunTest(
         $Selenium->find_element( "#CustomerCompanyComment",    'css' )->clear();
         $Selenium->find_element( "#CustomerID",                'css' )->submit();
 
+        # test search filter
+        $Selenium->find_element( "#Search", 'css' )->clear();
+        $Selenium->find_element( "#Search", 'css' )->send_keys($RandomID);
+        $Selenium->find_element( "#Search", 'css' )->submit();
+
+        # chack class of invalid customer user in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test Customer Company",
+        );
+
         # delete created test customer companies
-        if ($RandomID) {
+        for my $CustomerID ( $RandomID, $RandomID2 ) {
             my $Success = $DBObject->Do(
                 SQL  => "DELETE FROM customer_company WHERE customer_id = ?",
-                Bind => [ \$RandomID ],
+                Bind => [ \$CustomerID ],
             );
             $Self->True(
                 $Success,
-                "Deleted CustomerCompany - $RandomID",
+                "Deleted CustomerCompany - $CustomerID",
             );
         }
 
-        if ($RandomID2) {
-            my $Success = $DBObject->Do(
-                SQL  => "DELETE FROM customer_company WHERE customer_id = ?",
-                Bind => [ \$RandomID2 ],
-            );
-            $Self->True(
-                $Success,
-                "Deleted CustomerCompany - $RandomID2",
-            );
-        }
-
-        # Make sure the cache is correct.
+        # make sure the cache is correct.
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
             Type => 'CustomerCompany',
         );
 
-        }
+    }
 );
 
 1;
