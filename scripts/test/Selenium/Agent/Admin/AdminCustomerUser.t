@@ -49,7 +49,7 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        my $RandomID = $Helper->GetRandomID();
+        my $RandomID = 'TestCustomer' . $Helper->GetRandomID();
 
         # Also create a CustomerCompany so that it can be selected in the dropdown
         $Kernel::OM->Get('Kernel::System::CustomerCompany')->CustomerCompanyAdd(
@@ -65,7 +65,7 @@ $Selenium->RunTest(
             UserID                 => 1,
         ) || die "Could not create test CustomerCompany";
 
-        my $RandomID2 = $Helper->GetRandomID();
+        my $RandomID2 = 'TestCustomer' . $Helper->GetRandomID();
 
         # Also create a CustomerCompany so that it can be selected in the dropdown
         $Kernel::OM->Get('Kernel::System::CustomerCompany')->CustomerCompanyAdd(
@@ -139,11 +139,21 @@ $Selenium->RunTest(
         $Selenium->find_element( "#UserCustomerID option[value='$RandomID2']", 'css' )->click();
         $Selenium->find_element( "#UserFirstname",                             'css' )->submit();
 
+        # test search filter only for test Customer users
+        $Selenium->find_element( "#Search", 'css' )->clear();
+        $Selenium->find_element( "#Search", 'css' )->send_keys('TestCustomer');
+        $Selenium->find_element( "#Search", 'css' )->submit();
+
         # check for another customer user
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID2 ) > -1,
             "$RandomID2 found on page",
         );
+
+        # test search filter by customer user $RandomID
+        $Selenium->find_element( "#Search", 'css' )->clear();
+        $Selenium->find_element( "#Search", 'css' )->send_keys($RandomID);
+        $Selenium->find_element( "#Search", 'css' )->submit();
 
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID ) > -1,
@@ -207,7 +217,7 @@ $Selenium->RunTest(
             );
             $Self->True(
                 $Success,
-                "Deleted CustomerUser - $CustomerID",
+                "Deleted Customers - $CustomerID",
             );
 
             $Success = $DBObject->Do(

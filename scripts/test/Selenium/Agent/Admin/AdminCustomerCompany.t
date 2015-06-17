@@ -68,8 +68,7 @@ $Selenium->RunTest(
         );
 
         # create a real test customer company
-        my $RandomID = $Helper->GetRandomID();
-
+        my $RandomID = 'TestCustomerCompany' . $Helper->GetRandomID();
         $Selenium->find_element( "#CustomerID",                'css' )->send_keys($RandomID);
         $Selenium->find_element( "#CustomerCompanyName",       'css' )->send_keys($RandomID);
         $Selenium->find_element( "#ValidID option[value='1']", 'css' )->click();
@@ -83,12 +82,17 @@ $Selenium->RunTest(
         );
 
         # create another test customer company for filter search test
-        my $RandomID2 = $Helper->GetRandomID();
+        my $RandomID2 = 'TestCustomerCompany' . $Helper->GetRandomID();
         $Selenium->find_element("//button[\@type='submit']")->click();
         $Selenium->find_element( "button.CallForAction", 'css' )->click();
         $Selenium->find_element( "#CustomerID",          'css' )->send_keys($RandomID2);
         $Selenium->find_element( "#CustomerCompanyName", 'css' )->send_keys($RandomID2);
         $Selenium->find_element( "#CustomerID",          'css' )->submit();
+
+        # test search filter only for test Customer companies
+        $Selenium->find_element( "#Search", 'css' )->clear();
+        $Selenium->find_element( "#Search", 'css' )->send_keys('TestCustomerCompany');
+        $Selenium->find_element( "#Search", 'css' )->submit();
 
         # check for another customer company
         $Self->True(
@@ -96,7 +100,7 @@ $Selenium->RunTest(
             "$RandomID2 found on page",
         );
 
-        # test search filter
+        # test search filter by test customers $RandomID
         $Selenium->find_element( "#Search", 'css' )->clear();
         $Selenium->find_element( "#Search", 'css' )->send_keys($RandomID);
         $Selenium->find_element( "#Search", 'css' )->submit();
