@@ -69,11 +69,9 @@ $Selenium->RunTest(
         # create a real test queue
         my $RandomID = $Helper->GetRandomID();
 
-        $Selenium->find_element( "#Name",                         'css' )->send_keys($RandomID);
-        $Selenium->find_element( "#GroupID option[value='1']",    'css' )->click();
-        $Selenium->find_element( "#FollowUpID option[value='1']", 'css' )->click();
-
-        #$Selenium->find_element("#FollowUpLock[value='']", 'css')->click();
+        $Selenium->find_element( "#Name",                              'css' )->send_keys($RandomID);
+        $Selenium->find_element( "#GroupID option[value='1']",         'css' )->click();
+        $Selenium->find_element( "#FollowUpID option[value='1']",      'css' )->click();
         $Selenium->find_element( "#SalutationID option[value='1']",    'css' )->click();
         $Selenium->find_element( "#SystemAddressID option[value='1']", 'css' )->click();
         $Selenium->find_element( "#SignatureID option[value='1']",     'css' )->click();
@@ -151,9 +149,16 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $RandomID ) > -1,
             'New queue found on table'
         );
+
         $Selenium->find_element( "table",             'css' );
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
+
+        # check class of invalid Queue in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test Queue",
+        );
 
         # go to new state again
         $Selenium->find_element( $RandomID, 'link_text' )->click();
@@ -180,7 +185,7 @@ $Selenium->RunTest(
             "#Comment updated value",
         );
 
-        # Since there are no tickets that rely on our test queue, we can remove them again
+        # since there are no tickets that rely on our test queue, we can remove them again
         # from the DB.
         my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueLookup(
             Queue => $RandomID,
@@ -193,12 +198,12 @@ $Selenium->RunTest(
             "QueueDelete - $RandomID",
         );
 
-        # Make sure the cache is correct.
+        # make sure the cache is correct.
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
             Type => 'Queue',
         );
 
-        }
+    }
 );
 
 1;

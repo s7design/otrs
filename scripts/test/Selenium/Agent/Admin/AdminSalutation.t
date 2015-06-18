@@ -46,7 +46,6 @@ $Selenium->RunTest(
         );
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
-
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminSalutation");
 
         # check overview screen
@@ -146,6 +145,15 @@ $Selenium->RunTest(
             "#ValidID updated value",
         );
 
+        # go back to AdminSalutation overview screen
+        $Selenium->get("${ScriptAlias}index.pl?Action=AdminSalutation");
+
+        # chack class of invalid Salutation in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test Salutation",
+        );
+
         # Since there are no tickets that rely on our test Salutation, we can remove them
         # again from the DB.
         if ($SalutationRandomID) {
@@ -167,7 +175,7 @@ $Selenium->RunTest(
             Type => 'Salutation'
         );
 
-        }
+    }
 
 );
 
