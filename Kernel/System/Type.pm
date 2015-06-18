@@ -447,6 +447,49 @@ sub NameExistsCheck {
     }
     return 0;
 }
+
+=item TypeDelete()
+
+delete type by TypeID
+
+    my %Type = $TypeObject->TypeDelete(
+        ID => 123,
+    );
+
+Returns:
+
+    1 - successfully deleted
+    0 - not deleted ( with message )
+
+=cut
+
+sub TypeDelete {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    if ( !$Param{ID} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => 'Got no ID!',
+        );
+        return;
+    }
+
+    # delete database object
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+    return 0 if !$DBObject->Do(
+        SQL  => 'DELETE FROM ticket_type WHERE ID = ?',
+        Bind => [ \$Param{ID} ],
+    );
+
+    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+        Type => $Self->{CacheType},
+    );
+    return 1;
+
+}
+
 1;
 
 =back
