@@ -32,7 +32,6 @@ $Selenium->RunTest(
         );
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
-
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminState");
 
         $Self->True(
@@ -65,7 +64,7 @@ $Selenium->RunTest(
         );
 
         # create a real test state
-        my $RandomID = $Helper->GetRandomID();
+        my $RandomID = "State" . $Helper->GetRandomID();
 
         $Selenium->find_element( "#Name",                      'css' )->send_keys($RandomID);
         $Selenium->find_element( "#TypeID option[value='1']",  'css' )->click();
@@ -119,7 +118,9 @@ $Selenium->RunTest(
 
         # check class of invalid State in the overview table
         $Self->True(
-            $Selenium->find_element( "tr.Invalid", 'css' ),
+            $Selenium->execute_script(
+                "return \$('tr.Invalid td a:contains($RandomID)').length"
+            ),
             "There is a class 'Invalid' for test State",
         );
 

@@ -32,7 +32,6 @@ $Selenium->RunTest(
         );
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
-
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminPriority");
 
         $Self->True(
@@ -65,7 +64,7 @@ $Selenium->RunTest(
         );
 
         # create a real test priority
-        my $RandomID = $Helper->GetRandomID();
+        my $RandomID = "Priority" . $Helper->GetRandomID();
 
         $Selenium->find_element( "#Name",                      'css' )->send_keys($RandomID);
         $Selenium->find_element( "#ValidID option[value='1']", 'css' )->click();
@@ -100,7 +99,9 @@ $Selenium->RunTest(
 
         # check class of invalid Priority in the overview table
         $Self->True(
-            $Selenium->find_element( "tr.Invalid", 'css' ),
+            $Selenium->execute_script(
+                "return \$('tr.Invalid td a:contains($RandomID)').length"
+            ),
             "There is a class 'Invalid' for test Priority",
         );
 

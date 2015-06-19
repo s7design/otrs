@@ -34,7 +34,6 @@ $Selenium->RunTest(
         );
 
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
-
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminService");
 
         # check overview AdminService screen
@@ -74,6 +73,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Comment", 'css' )->send_keys($ServiceComment);
         $Selenium->find_element( "#Name",    'css' )->submit();
 
+        # wait to load overview screen
+        $Selenium->WaitFor( JavaScript => "return \$('.ActionList span:contains(Add service)').length" );
+
         # create second test Service
         $Selenium->find_element("//a[contains(\@href, \'ServiceEdit;ServiceID=NEW' )]")->click();
 
@@ -82,6 +84,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Name",    'css' )->send_keys($ServiceRandomID2);
         $Selenium->find_element( "#Comment", 'css' )->send_keys($ServiceComment);
         $Selenium->find_element( "#Name",    'css' )->submit();
+
+        # wait to load overview screen
+        $Selenium->WaitFor( JavaScript => "return \$('a.AsBlock:contains($ServiceRandomID)').length" );
 
         # check for created test Services on AdminService screen
         $Self->True(
@@ -131,7 +136,9 @@ $Selenium->RunTest(
 
         # check class of invalid Service in the overview table
         $Self->True(
-            $Selenium->find_element( "tr.Invalid", 'css' ),
+            $Selenium->execute_script(
+                "return \$('tr.Invalid td a:contains($ServiceRandomID)').length"
+            ),
             "There is a class 'Invalid' for test Service",
         );
 

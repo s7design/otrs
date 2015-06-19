@@ -59,7 +59,7 @@ $Selenium->RunTest(
         );
 
         # create a real test type
-        my $RandomID = $Helper->GetRandomID();
+        my $RandomID = "Type" . $Helper->GetRandomID();
 
         $Selenium->find_element( "#Name",                      'css' )->send_keys($RandomID);
         $Selenium->find_element( "#ValidID option[value='1']", 'css' )->click();
@@ -94,7 +94,9 @@ $Selenium->RunTest(
 
         # check class of invalid Type in the overview table
         $Self->True(
-            $Selenium->find_element( "tr.Invalid", 'css' ),
+            $Selenium->execute_script(
+                "return \$('tr.Invalid td a:contains($RandomID)').length"
+            ),
             "There is a class 'Invalid' for test Type",
         );
 
