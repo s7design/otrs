@@ -237,12 +237,12 @@ sub Run {
         $Output .= $LayoutObject->NavigationBar();
 
         # delete type
-        my $NewType = $TypeObject->TypeDelete(
+        my $Success = $TypeObject->TypeDelete(
             ID => $TypeID,
         );
 
         # add notify messages depending on success of delete action
-        if ($NewType) {
+        if ($Success) {
             $Output .= $LayoutObject->Notify( Info => 'Type is deleted!' );
         }
         else {

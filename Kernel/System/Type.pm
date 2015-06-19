@@ -452,7 +452,7 @@ sub NameExistsCheck {
 
 delete type by TypeID
 
-    my %Type = $TypeObject->TypeDelete(
+    my $Success = $TypeObject->TypeDelete(
         ID => 123,
     );
 
@@ -479,7 +479,7 @@ sub TypeDelete {
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
     return 0 if !$DBObject->Do(
-        SQL  => 'DELETE FROM ticket_type WHERE ID = ?',
+        SQL  => 'DELETE FROM ticket_type WHERE id = ?',
         Bind => [ \$Param{ID} ],
     );
 
