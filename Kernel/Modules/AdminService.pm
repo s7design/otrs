@@ -180,11 +180,11 @@ sub Run {
         $Output .= $LayoutObject->NavigationBar();
 
         # add type
-        my $NewType = $ServiceObject->ServiceDelete(
+        my $Success = $ServiceObject->ServiceDelete(
             %GetParam,
         );
 
-        if ($NewType) {
+        if ($Success) {
             $Output .= $LayoutObject->Notify( Info => 'Service is deleted!' );
         }
         else {
