@@ -112,7 +112,9 @@ $Selenium->RunTest(
 
         # check class of invalid AutoResponse in the overview table
         $Self->True(
-            $Selenium->find_element( "tr.Invalid", 'css' ),
+            $Selenium->execute_script(
+                "return \$('tr.Invalid td a:contains($RandomID2)').length"
+            ),
             "There is a class 'Invalid' for test AutoResponse",
         );
 

@@ -78,7 +78,7 @@ $Selenium->RunTest(
         );
 
         # create real test Salutation
-        my $SalutationRandomID = "salutation" . $Helper->GetRandomID();
+        my $SalutationRandomID = "Salutation" . $Helper->GetRandomID();
         my $SalutationRichText = "Dear <OTRS_OWNER_Userfirstname>>,\n\nThank you for your request.";
         my $SalutationComment  = "Selenium Salutation test";
 
@@ -150,11 +150,13 @@ $Selenium->RunTest(
 
         # chack class of invalid Salutation in the overview table
         $Self->True(
-            $Selenium->find_element( "tr.Invalid", 'css' ),
+            $Selenium->execute_script(
+                 "return \$('tr.Invalid td a:contains($SalutationRandomID)').length"
+            ),
             "There is a class 'Invalid' for test Salutation",
         );
 
-        # Since there are no tickets that rely on our test Salutation, we can remove them
+        # since there are no tickets that rely on our test Salutation, we can remove them
         # again from the DB.
         if ($SalutationRandomID) {
             $SalutationRandomID = $DBObject->Quote($SalutationRandomID);
