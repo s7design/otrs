@@ -117,6 +117,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Comment",                   'css' )->clear();
         $Selenium->find_element( "#Name",                      'css' )->submit();
 
+        # check class of invalid State in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test State",
+        );
+
         # check overview page
         $Self->True(
             index( $Selenium->get_page_source(), 'closed successful' ) > -1,
@@ -173,7 +179,7 @@ $Selenium->RunTest(
             Type => 'State',
         );
 
-        }
+    }
 );
 
 1;

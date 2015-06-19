@@ -104,6 +104,11 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
         $Selenium->find_element( "#Name",                      'css' )->submit();
 
+        # check class of invalid SLA in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test SLA",
+        );
         # check edited SLA values
         $Selenium->find_element( $SLARandomID, 'link_text' )->click();
 
@@ -139,7 +144,7 @@ $Selenium->RunTest(
             );
         }
 
-        }
+    }
 
 );
 

@@ -98,6 +98,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
         $Selenium->find_element( "#Name",                      'css' )->submit();
 
+        # check class of invalid Priority in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test Priority",
+        );
+
         # check overview page
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID ) > -1,

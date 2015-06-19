@@ -195,6 +195,9 @@ JAVASCRIPT
             'Check for .AddAll element',
         );
 
+        # set ACL to invalid
+        $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
+
         # delete test ACL from the database
         my $ACLObject = $Kernel::OM->Get('Kernel::System::ACL::DB::ACL');
         my $UserID    = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
@@ -221,6 +224,12 @@ JAVASCRIPT
         # wait to open overview page
         $Selenium->WaitFor( JavaScript => 'return $("#Filter").length' );
 
+        # check class of invalid ACL in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test ACL",
+        );
+
         # sync ACL information from database with the system configuration
         $Selenium->find_element("//a[contains(\@href, 'Action=AdminACL;Subaction=ACLDeploy' )]")->click();
 
@@ -229,7 +238,7 @@ JAVASCRIPT
             Type => 'ACLEditor_ACL',
         );
 
-        }
+    }
 );
 
 1;

@@ -171,6 +171,12 @@ $Selenium->RunTest(
         # go back to AdminNotificationEvent overview screen
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminNotificationEvent");
 
+        # check class of invalid NotificationEvent in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test NotificationEvent",
+        );
+
         # get NotificationEventID
         my %NotifEventID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationGet(
             Name => $NotifEventRandomID

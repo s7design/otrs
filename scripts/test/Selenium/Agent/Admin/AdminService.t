@@ -129,6 +129,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ValidID option[value='2']",           'css' )->click();
         $Selenium->find_element( "#Name",                                'css' )->submit();
 
+        # check class of invalid Service in the overview table
+        $Self->True(
+            $Selenium->find_element( "tr.Invalid", 'css' ),
+            "There is a class 'Invalid' for test Service",
+        );
+
         # check edited test Selenium values
         my $ServiceUpdatedRandomID2 = "$ServiceRandomID\::$ServiceRandomID2";
 
@@ -168,7 +174,7 @@ $Selenium->RunTest(
             Type => 'Service'
         );
 
-        }
+    }
 
 );
 

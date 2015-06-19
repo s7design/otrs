@@ -89,6 +89,12 @@ $Selenium->RunTest(
                 $Selenium->find_element( "#ValidID option[value='2']", 'css' )->click();
                 $Selenium->find_element( "#Name",                      'css' )->submit();
 
+                # check class of invalid DynamicField in the overview table
+                $Self->True(
+                    $Selenium->find_element( "tr.Invalid", 'css' ),
+                    "There is a class 'Invalid' for test DynamicField",
+                );
+
                 # go to new DynamicField again after update and check values
                 $Selenium->WaitFor( JavaScript => "return \$('.DynamicFieldsContent').length" );
                 $Selenium->find_element( $RandomID, 'link_text' )->click();
@@ -145,7 +151,7 @@ JAVASCRIPT
 
                 $Self->Is(
                     $Selenium->execute_script("return window.getLastConfirm()"),
-                    $LanguageObject->Get(
+                    $LanguageObject->Translate(
                         'Do you really want to delete this dynamic field? ALL associated data will be LOST!'
                     ),
                     'Check for opened confirm text',
