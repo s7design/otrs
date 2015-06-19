@@ -132,3 +132,13 @@ Core.Agent.Dashboard.InitStatsConfiguration($('#StatsSettingsBox[% Data.NamePref
 [% END %]
 </div>
 [% RenderBlockEnd("WidgetSettingsEnd") %]
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+Core.Agent.Stats.Init({
+    Localization: {
+        RemoveSelection: [% Translate("Remove selection") | JSON %]
+    }
+});
+//]]></script>
+[% END %]
+

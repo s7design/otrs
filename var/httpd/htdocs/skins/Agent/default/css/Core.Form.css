@@ -212,14 +212,14 @@ button.Reset:active {
  * @subsection    GenericAgent ClearSelect
  */
 
-.GenericAgentClearSelect {
+.GenericAgentClearSelect, .StatsClearSelect {
     width: 16px;
     height: 16px;
     margin-left: 3px;
     color: #333;
 }
 
-.GenericAgentClearSelect span {
+.GenericAgentClearSelect span, .StatsClearSelect span{
     position: absolute;
     left: -9999px;
     top: -9999px;

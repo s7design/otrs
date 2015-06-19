@@ -248,3 +248,12 @@ if ($('[name=StatID]').val() === 'new') {
         </div>
     </div>
 </div>
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+Core.Agent.Stats.Init({
+    Localization: {
+        RemoveSelection: [% Translate("Remove selection") | JSON %]
+    }
+});
+//]]></script>
+[% END %]

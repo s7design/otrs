@@ -175,3 +175,4 @@ $('#StartStatistic').bind('click', function (Event) {
         </div>
     </div>
 </div>
+
