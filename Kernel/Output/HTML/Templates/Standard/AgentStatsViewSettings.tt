@@ -141,4 +141,3 @@ Core.Agent.Stats.Init({
 });
 //]]></script>
 [% END %]
-
