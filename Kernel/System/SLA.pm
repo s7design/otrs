@@ -722,6 +722,48 @@ sub SLAPreferencesGet {
     return $Self->{PreferencesObject}->SLAPreferencesGet(@_);
 }
 
+=item SLADelete()
+
+delete type by SLAID
+
+    my $Success = $SLAObject->SLADelete(
+        ID => 123,
+    );
+
+Returns:
+
+    1 - successfully deleted
+    0 - not deleted ( with message )
+
+=cut
+
+sub SLADelete {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    if ( !$Param{SLAID} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => 'Got no ID!',
+        );
+        return;
+    }
+
+    # delete database object
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+    return 0 if !$DBObject->Do(
+        SQL  => 'DELETE FROM sla WHERE id = ?',
+        Bind => [ \$Param{SLAID} ],
+    );
+
+    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+        Type => $Self->{CacheType},
+    );
+    return 1;
+
+}
+
 1;
 
 =back

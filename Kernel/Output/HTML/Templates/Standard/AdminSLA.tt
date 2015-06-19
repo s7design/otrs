@@ -33,6 +33,17 @@
                         </a>
                     </li>
 [% RenderBlockEnd("ActionAdd") %]
+[% RenderBlockStart("ActionDelete") %]
+                    <li>
+
+                    [% IF Data.ValidID != 1 %]
+                        <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;SLAID=[% Data.SLAID | html %]" class="CallForAction Fullsize Center">
+                            <span><i class="fa fa fa-trash-o"></i>[% Translate("Delete invalid SLA") | html %]</span>
+                        </a>
+                    [% END %]
+
+                    </li>
+[% RenderBlockEnd("ActionDelete") %]
 
                 </ul>
             </div>
