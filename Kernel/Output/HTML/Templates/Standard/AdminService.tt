@@ -28,6 +28,17 @@
                         <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=ServiceEdit;ServiceID=NEW" class="CallForAction Fullsize Center"><span><i class="fa fa-plus-square"></i>[% Translate("Add service") | html %]</span></a>
                     </li>
 [% RenderBlockEnd("ActionAdd") %]
+[% RenderBlockStart("ActionDelete") %]
+                    <li>
+
+                    [% IF Data.ValidID != 1 %]
+                        <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;ServiceID=[% Data.ServiceID | html %]" class="CallForAction Fullsize Center">
+                            <span><i class="fa fa fa-trash-o"></i>[% Translate("Delete invalid service") | html %]</span>
+                        </a>
+                    [% END %]
+
+                    </li>
+[% RenderBlockEnd("ActionDelete") %]
                 </ul>
             </div>
 [% RenderBlockEnd("ActionList") %]
@@ -61,7 +72,7 @@
                         </tr>
 [% RenderBlockEnd("NoDataFoundMsg") %]
 [% RenderBlockStart("OverviewListRow") %]
-                        <tr>
+                        <tr [% IF Data.ValidID != 1 %]class="Invalid"[% END %]>
                             <td title="[% Data.Name | html %]">[% Data.LevelSpace | html %]<a class="AsBlock" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=ServiceEdit;ServiceID=[% Data.ServiceID | uri %]">[% Data.Name | truncate(80) | html %]</a></td>
                             <td title="[% Data.Comment | html %]">[% Data.Comment | truncate(20) | html %]</td>
                             <td>[% Translate(Data.Valid) | html %]</td>

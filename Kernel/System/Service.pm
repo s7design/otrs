@@ -1290,6 +1290,48 @@ sub GetAllCustomServices {
     return @ServiceIDs;
 }
 
+=item ServiceDelete()
+
+delete type by ServiceID
+
+    my $Success = $ServiceObject->ServiceDelete(
+        ServiceID => 123,
+    );
+
+Returns:
+
+    1 - successfully deleted
+    0 - not deleted ( with message )
+
+=cut
+
+sub ServiceDelete {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    if ( !$Param{ServiceID} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => 'Got no ID!',
+        );
+        return;
+    }
+
+    # delete database object
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+    return 0 if !$DBObject->Do(
+        SQL  => 'DELETE FROM service WHERE id = ?',
+        Bind => [ \$Param{ServiceID} ],
+    );
+
+    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+        Type => $Self->{CacheType},
+    );
+    return 1;
+
+}
+
 1;
 
 =back

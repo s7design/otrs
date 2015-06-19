@@ -171,6 +171,107 @@ sub Run {
     }
 
     # ------------------------------------------------------------ #
+    # delete
+    # ------------------------------------------------------------ #
+    elsif ( $Self->{Subaction} eq 'Delete' ) {
+        my %GetParam = ();
+        $GetParam{ServiceID} = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'ServiceID' );
+        my $Output = $LayoutObject->Header();
+        $Output .= $LayoutObject->NavigationBar();
+
+        # add type
+        my $NewType = $ServiceObject->ServiceDelete(
+            %GetParam,
+        );
+
+        if ($NewType) {
+            $Output .= $LayoutObject->Notify( Info => 'Service is deleted!' );
+        }
+        else {
+            $Output .= $LayoutObject->Notify(
+                Info     => 'Service is not deleted!',
+                Priority => 'Error',
+            );
+            $Output .= $LayoutObject->Notify(
+                Priority => 'Error',
+            );
+        }
+
+        # check if service is enabled to use it here
+        if ( !$ConfigObject->Get('Ticket::Service') ) {
+            $Output .= $LayoutObject->Notify(
+                Priority => 'Error',
+                Data     => $LayoutObject->{LanguageObject}->Translate( "Please activate %s first!", "Service" ),
+                Link =>
+                    $LayoutObject->{Baselink}
+                    . 'Action=AdminSysConfig;Subaction=Edit;SysConfigGroup=Ticket;SysConfigSubGroup=Core::Ticket#Ticket::Service',
+            );
+        }
+
+        # output overview
+        $LayoutObject->Block(
+            Name => 'Overview',
+            Data => { %Param, },
+        );
+
+        $LayoutObject->Block( Name => 'ActionList' );
+        $LayoutObject->Block( Name => 'ActionAdd' );
+
+        # output overview result
+        $LayoutObject->Block(
+            Name => 'OverviewList',
+            Data => { %Param, },
+        );
+
+        # get service list
+        my $ServiceList = $ServiceObject->ServiceListGet(
+            Valid  => 0,
+            UserID => $Self->{UserID},
+        );
+
+        # if there are any services defined, they are shown
+        if ( @{$ServiceList} ) {
+
+            # get valid list
+            my %ValidList = $Kernel::OM->Get('Kernel::System::Valid')->ValidList();
+
+            # sort the service list by long service name
+            @{$ServiceList} = sort { $a->{Name} . '::' cmp $b->{Name} . '::' } @{$ServiceList};
+
+            for my $ServiceData ( @{$ServiceList} ) {
+
+                # output row
+                $LayoutObject->Block(
+                    Name => 'OverviewListRow',
+                    Data => {
+                        %{$ServiceData},
+                        Valid => $ValidList{ $ServiceData->{ValidID} },
+                    },
+                );
+            }
+
+        }
+
+        # otherwise a no data found msg is displayed
+        else {
+            $LayoutObject->Block(
+                Name => 'NoDataFoundMsg',
+                Data => {},
+            );
+        }
+
+        # generate output
+        $Output .= $LayoutObject->Output(
+            TemplateFile => 'AdminService',
+            Data         => \%Param,
+        );
+        $Output .= $LayoutObject->Footer();
+
+        return $Output;
+
+    }
+
+    # ------------------------------------------------------------ #
     # service overview
     # ------------------------------------------------------------ #
     else {
@@ -319,6 +420,11 @@ sub _MaskNew {
     if ( $ServiceData{ServiceID} ne 'NEW' ) {
         $LayoutObject->Block(
             Name => 'HeaderEdit',
+            Data => {%ServiceData},
+        );
+
+        $LayoutObject->Block(
+            Name => 'ActionDelete',
             Data => {%ServiceData},
         );
     }
