@@ -73,7 +73,7 @@ $Selenium->RunTest(
 
         $Selenium->get("${ScriptAlias}index.pl?Action=AdminGenericAgent");
 
-        my $RandomID = $Helper->GetRandomID();
+        my $RandomID = "GenericAgent" . $Helper->GetRandomID();
 
         # check overview AdminGenericAgent
         $Selenium->find_element( "table",             'css' );
@@ -113,14 +113,6 @@ $Selenium->RunTest(
         $Selenium->find_element( "#TicketNumber", 'css' )->send_keys($TicketNumber);
         $Selenium->find_element( "#Profile",      'css' )->submit();
 
-        # # check class of invalid GenericAgent in the overview table
-        # $Self->True(
-        #     $Selenium->execute_script(
-        #         "return \$('tr.Invalid td:contains($RandomID)').length"
-        #     ),
-        #     "There is a class 'Invalid' for test GenericAgent",
-        # );
-
         # check if test job show on AdminGenericAgent
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID ) > -1,
@@ -146,6 +138,19 @@ $Selenium->RunTest(
 
         # execute test job
         $Selenium->find_element("//a[contains(\@href, \'Subaction=RunNow' )]")->click();
+
+        # set test job to invalid
+        $Selenium->find_element( $RandomID,                  'link_text' )->click();
+        $Selenium->find_element( "#Valid option[value='0']", 'css' )->click();
+        $Selenium->find_element( "#Profile",                 'css' )->submit();
+
+        # check class of invalid GenericAgent in the overview table
+        $Self->True(
+            $Selenium->execute_script(
+                "return \$('tr.Invalid td:contains($RandomID)').length"
+            ),
+            "There is a class 'Invalid' for test GenericAgent",
+        );
 
         # delete test job
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;Profile=$RandomID\' )]")->click();
