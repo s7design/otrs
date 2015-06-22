@@ -144,12 +144,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Valid option[value='0']", 'css' )->click();
         $Selenium->find_element( "#Profile",                 'css' )->submit();
 
-        # check class of invalid GenericAgent in the overview table
+        # check class of invalid generic job in the overview table
         $Self->True(
             $Selenium->execute_script(
                 "return \$('tr.Invalid td:contains($RandomID)').length"
             ),
-            "There is a class 'Invalid' for test GenericAgent",
+            "There is a class 'Invalid' for test generic job",
         );
 
         # delete test job
