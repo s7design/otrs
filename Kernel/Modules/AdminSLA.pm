@@ -192,6 +192,29 @@ sub Run {
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
 
+        if ( $Self->{Subaction} eq 'Delete' ) {
+            my $SLAID = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'SLAID' );
+
+            # delete type
+            my $Success = $Kernel::OM->Get('Kernel::System::SLA')->SLADelete(
+                SLAID => $SLAID,
+            );
+
+            # add notify messages depending on success of delete action
+            if ($Success) {
+                $Output .= $LayoutObject->Notify( Info => 'SLA is deleted!' );
+            }
+            else {
+                $Output .= $LayoutObject->Notify(
+                    Info     => 'SLA is not deleted!',
+                    Priority => 'Error',
+                );
+                $Output .= $LayoutObject->Notify(
+                    Priority => 'Error',
+                );
+            }
+        }
+
         # check if service is enabled to use it here
         if ( !$ConfigObject->Get('Ticket::Service') ) {
             $Output .= $LayoutObject->Notify(
@@ -426,6 +449,13 @@ sub _MaskNew {
         Name => 'SLAEdit',
         Data => {
             %Param,
+            %SLAData,
+        },
+    );
+
+    $LayoutObject->Block(
+        Name => 'ActionDelete',
+        Data => {
             %SLAData,
         },
     );
