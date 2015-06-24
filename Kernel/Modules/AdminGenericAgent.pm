@@ -1270,6 +1270,13 @@ sub _MaskRun {
         },
     );
 
+    my $RunLimit = $Kernel::OM->Get('Kernel::Config')->Get('Ticket::GenericAgentRunLimit');
+    if ( $Counter > $RunLimit ) {
+        $LayoutObject->Block(
+            Name => 'RunLimit',
+        );
+    }
+
     if (@TicketIDs) {
         $LayoutObject->Block(
             Name => 'ResultBlock',
