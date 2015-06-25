@@ -971,9 +971,9 @@ sub _GeneralDataGet {
         return;
     }
 
-    # get data list
+    # get data list just for valid
     my %DataList = $BackendObject->$FuctionName(
-        Valid  => 0,
+        Valid  => 1,
         UserID => $Param{UserID},
     );
 
