@@ -149,6 +149,7 @@ sub QueueFilterValuesGet {
         return $Self->_GeneralDataGet(
             ModuleName   => 'Kernel::System::Queue',
             FunctionName => 'QueueList',
+            Valid        => 1,
             UserID       => $Param{UserID},
         );
     }
@@ -924,6 +925,29 @@ sub DynamicFieldFilterValuesGet {
     return \%Data;
 }
 
+=begin Internal:
+
+=item _GeneralDataGet()
+
+get data list
+
+    my $Values = $ColumnFilterObject->_GeneralDataGet(
+            ModuleName   => 'Kernel::System::Object',
+            FunctionName => 'FunctionNameList',
+            Valid        => 0,     # optional, defaults to 0
+            UserID       => $Param{UserID},
+    );
+
+    returns
+
+    $Values = {
+        1 => 'ValueA',
+        2 => 'ValueB',
+        3 => 'ValueC'
+    };
+
+=cut
+
 sub _GeneralDataGet {
     my ( $Self, %Param ) = @_;
 
@@ -971,9 +995,11 @@ sub _GeneralDataGet {
         return;
     }
 
-    # get data list just for valid
+    my $Valid = $Param{Valid} // 0;
+
+    # get data list
     my %DataList = $BackendObject->$FuctionName(
-        Valid  => 1,
+        Valid  => $Valid,
         UserID => $Param{UserID},
     );
 
@@ -1031,6 +1057,10 @@ sub _TicketIDStringGet {
     return $TicketIDString;
 }
 
+1;
+
+=end Internal:
+
 =back
 
 =head1 TERMS AND CONDITIONS
@@ -1042,5 +1072,3 @@ the enclosed file COPYING for license information (AGPL). If you
 did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
-
-1;
