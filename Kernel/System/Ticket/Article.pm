@@ -2743,6 +2743,17 @@ sub SendAgentNotification {
         DynamicFields => 0,
     );
 
+    # get create permission groups
+    my %UserGroups = $Kernel::OM->Get('Kernel::System::Group')->GroupMemberList(
+        UserID => $Param{RecipientID},
+        Type   => 'ro',
+        Result => 'HASH',
+    );
+    my $GroupID = $Kernel::OM->Get('Kernel::System::Queue')->GetQueueGroupID( QueueID => $Ticket{QueueID} );
+
+    # check if the user have the permissions to read a ticket on a determined queue
+    return 1 if !$UserGroups{$GroupID};
+
     if (
         $Ticket{StateType} eq 'closed' &&
         $Param{Type} eq 'NewTicket'
