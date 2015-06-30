@@ -149,7 +149,6 @@ sub QueueFilterValuesGet {
         return $Self->_GeneralDataGet(
             ModuleName   => 'Kernel::System::Queue',
             FunctionName => 'QueueList',
-            Valid        => 1,
             UserID       => $Param{UserID},
         );
     }
@@ -934,7 +933,6 @@ get data list
     my $Values = $ColumnFilterObject->_GeneralDataGet(
             ModuleName   => 'Kernel::System::Object',
             FunctionName => 'FunctionNameList',
-            Valid        => 0,     # optional, defaults to 0
             UserID       => $Param{UserID},
     );
 
@@ -995,11 +993,9 @@ sub _GeneralDataGet {
         return;
     }
 
-    my $Valid = $Param{Valid} // 0;
-
     # get data list
     my %DataList = $BackendObject->$FuctionName(
-        Valid  => $Valid,
+        Valid  => 1,
         UserID => $Param{UserID},
     );
 
