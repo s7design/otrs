@@ -49,12 +49,6 @@ $Selenium->RunTest(
             Value => 0
         );
 
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'PDF',
-            Value => 0
-        );
-
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users', 'stats' ],
@@ -215,9 +209,19 @@ $Selenium->RunTest(
         # delete test stats
         # click on delete button
         $Selenium->find_element(
-            "//a[contains(\@href, \'Action=AgentStats;Subaction=Delete;StatID=$StatsIDLast\' )]" )->click();
+            "//a[contains(\@href, \'Action=AgentStats;Subaction=Delete;StatID=$StatsIDLast\' )]"
+        )->click();
 
         $Selenium->find_element("//button[\@value='Yes'][\@type='submit']")->click();
+
+        # sort descending stats by ID
+        $Selenium->get("${ScriptAlias}index.pl?Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1");
+
+        # check if stats is deleted
+        $Self->True(
+            index( $Selenium->get_page_source(), $StatsValues{Title} ) == -1,
+            "$StatsValues{Title} is deleted"
+        );
 
         # delete created test tickets
         for my $TicketID (@TicketIDs) {
