@@ -13,38 +13,13 @@ use utf8;
 use vars (qw($Self));
 
 # get selenium object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Selenium' => {
-        Verbose => 1,
-        }
-);
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 0,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
-        # get sys config object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
-        # do not check service and type
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Service',
-            Value => 0
-        );
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Type',
-            Value => 0
-        );
 
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -95,30 +70,39 @@ $Selenium->RunTest(
 
             # check edit link
             $Self->True(
-                $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=Edit;StatID=$StatID\' )]"),
+                $Selenium->find_element(
+                    "//a[contains(\@href, \'Action=AgentStatistics;Subaction=Edit;StatID=$StatID\' )]"
+                ),
                 "There is Edit link.",
             );
 
             # check export link
             $Self->True(
-                $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=ExportAction;StatID=$StatID\' )]"),
+                $Selenium->find_element(
+                    "//a[contains(\@href, \'Action=AgentStatistics;Subaction=ExportAction;StatID=$StatID\' )]"
+                ),
                 "There is Export link.",
             );
 
             # check delete link
             $Self->True(
-                $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=DeleteAction;StatID=$StatID\' )]"),
+                $Selenium->find_element(
+                    "//a[contains(\@href, \'Action=AgentStatistics;Subaction=DeleteAction;StatID=$StatID\' )]"
+                ),
                 "There is Delete link.",
             );
 
             # check view link
             $Self->True(
-                $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=View;StatID=$StatID\' )]"),
+                $Selenium->find_element(
+                    "//a[contains(\@href, \'Action=AgentStatistics;Subaction=View;StatID=$StatID\' )]"
+                ),
                 "There is View link.",
             );
 
             # go to view screen of statistics
-            $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=View;StatID=$StatID\' )]")->click();
+            $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=View;StatID=$StatID\' )]")
+                ->click();
 
             # check 'Go to overview' link on the view screen
             $Self->True(
@@ -128,7 +112,9 @@ $Selenium->RunTest(
 
             # check edit link on the view screen
             $Self->True(
-                $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=Edit;StatID=$StatID\' )]"),
+                $Selenium->find_element(
+                    "//a[contains(\@href, \'Action=AgentStatistics;Subaction=Edit;StatID=$StatID\' )]"
+                ),
                 "There is Edit link.",
             );
 
