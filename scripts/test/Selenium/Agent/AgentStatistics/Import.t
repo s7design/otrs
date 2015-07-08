@@ -19,6 +19,11 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::System::UnitTest::Helper' => {
+                RestoreSystemConfiguration => 1,
+            },
+        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create test user and login
@@ -31,6 +36,90 @@ $Selenium->RunTest(
             User     => $TestUserLogin,
             Password => $TestUserLogin,
         );
+
+        my $Config = {
+
+            # Service data
+            Services => [
+                { Name => "TestService - " . $Helper->GetRandomID() },
+                { Name => "TestService - " . $Helper->GetRandomID() },
+            ],
+
+            # SLA data
+            SLAs => [
+                {
+                    Name => "TestSLA - " . $Helper->GetRandomID(),
+                },
+                {
+                    Name => "TestSLA - " . $Helper->GetRandomID(),
+                },
+            ],
+        };
+
+        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Service',
+            Value => 1,
+        );
+
+        # get service object
+        my $ServiceObject = $Kernel::OM->Get('Kernel::System::Service');
+        my @ServiceIDs;
+
+        # add Services
+        my %ServicesNameToID;
+        SERVICE:
+        for my $Service ( @{ $Config->{Services} } ) {
+
+            next SERVICE if !$Service;
+            next SERVICE if !%{$Service};
+
+            my $ServiceID = $ServiceObject->ServiceAdd(
+                %{$Service},
+                ValidID => 1,
+                UserID  => 1,
+            );
+
+            $Self->True(
+                $ServiceID,
+                "Service $ServiceID has been created."
+            );
+
+            # add service as defalut service for all customers
+            $ServiceObject->CustomerUserServiceMemberAdd(
+                CustomerUserLogin => '<DEFAULT>',
+                ServiceID         => $ServiceID,
+                Active            => 1,
+                UserID            => 1,
+            );
+
+            push @ServiceIDs, $ServiceID;
+        }
+
+        # get SLA object
+        my $SLAObject = $Kernel::OM->Get('Kernel::System::SLA');
+        my @SLAIDs;
+
+        # add SLAs and connect them with the Services
+        SLA:
+        for my $SLA ( @{ $Config->{SLAs} } ) {
+
+            next SLA if !$SLA;
+            next SLA if !%{$SLA};
+
+            my $SLAID = $SLAObject->SLAAdd(
+                %{$SLA},
+                ValidID => 1,
+                UserID  => 1,
+            );
+
+            $Self->True(
+                $SLAID,
+                "SLA $SLAID has been created."
+            );
+
+            push @SLAIDs, $SLAID;
+        }
 
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentStatistics;Subaction=Import");
@@ -59,7 +148,7 @@ $Selenium->RunTest(
 
         # navigate to AgentStatistics Overview screen
         $Selenium->get(
-            "${ScriptAlias}index.pl?Action=AgentStatistics;Subaction=Overview;"
+            "${ScriptAlias}index.pl?Action=AgentStatistics;Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1;"
         );
 
         # get stats object
@@ -133,7 +222,13 @@ $Selenium->RunTest(
         # check Restrictions configuration dialog
         $Selenium->find_element( ".EditRestrictions",                                       'css' )->click();
         $Selenium->find_element( "#EditDialog select option[value='RestrictionsQueueIDs']", 'css' )->click();
-        $Selenium->find_element( "#DialogButton1",                                          'css' )->click();
+
+        # wait for load selected Restriction - QueueIDs
+        $Selenium->WaitFor( JavaScript => 'return $("#RestrictionsQueueIDs").length;' );
+
+        # add restriction per Queue - Junk
+        $Selenium->find_element( "#EditDialog #RestrictionsQueueIDs option[value='3']", 'css' )->click();
+        $Selenium->find_element( "#DialogButton1",                                      'css' )->click();
 
         # save and finish edit
         $Selenium->find_element("//button[\@name='SaveAndFinish'][\@type='submit']")->click();
@@ -147,6 +242,9 @@ $Selenium->RunTest(
     };
 }());
 JAVASCRIPT
+
+        # sort decreasing by StatsID
+        $Selenium->find_element("//a[contains(\@href, \'Direction=DESC;OrderBy=ID;StartHit=1\' )]")->click();
 
         $Selenium->execute_script($CheckConfirmJS);
 
@@ -163,8 +261,55 @@ JAVASCRIPT
             "Test statistic is deleted - $StatsIDLast "
         );
 
+        # get DB object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+        # clean up test data
+        for my $SLAID (@SLAIDs) {
+            my $Success = $DBObject->Do(
+                SQL => "DELETE FROM service_sla WHERE sla_id = $SLAID",
+            );
+            $Self->True(
+                $Success,
+                "ServiceSla - $SLAID",
+            );
+
+            $Success = $DBObject->Do(
+                SQL => "DELETE FROM sla WHERE id = $SLAID",
+            );
+            $Self->True(
+                $Success,
+                "SLADelete - $SLAID",
+            );
+        }
+
+        for my $ServiceID (@ServiceIDs) {
+            my $Success = $DBObject->Do(
+                SQL => "DELETE FROM service_customer_user WHERE service_id = $ServiceID",
+            );
+            $Self->True(
+                $Success,
+                "ServiceCustomerUser deleted - $ServiceID",
+            );
+
+            $Success = $DBObject->Do(
+                SQL => "DELETE FROM service WHERE id = $ServiceID",
+            );
+            $Self->True(
+                $Success,
+                "Deleted Service - $ServiceID",
+            );
+        }
+
         # make sure the cache is correct.
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => "Stats" );
+        for my $Cache (
+            qw (Service SLA Stats)
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
     }
 );
 
