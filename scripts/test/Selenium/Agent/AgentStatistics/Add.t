@@ -43,13 +43,17 @@ $Selenium->RunTest(
             # service data
             Services => [
                 { Name => "TestService - " . $Helper->GetRandomID() },
-                { Name => "TestService - ". $Helper->GetRandomID() },
+                { Name => "TestService - " . $Helper->GetRandomID() },
             ],
 
             # SLA data
             SLAs => [
-                {   Name         => "TestSLA - " . $Helper->GetRandomID(),},
-                {   Name         => "TestSLA - " . $Helper->GetRandomID(),},
+                {
+                    Name => "TestSLA - " . $Helper->GetRandomID(),
+                },
+                {
+                    Name => "TestSLA - " . $Helper->GetRandomID(),
+                },
             ],
         };
 
@@ -67,12 +71,11 @@ $Selenium->RunTest(
         my $SLAObject = $Kernel::OM->Get('Kernel::System::SLA');
         my @SLAIDs;
 
-
-        for (1..5) {
+        for ( 1 .. 5 ) {
 
             # add test Services
             my $ServiceID = $ServiceObject->ServiceAdd(
-                Name => "TestService - " . $Helper->GetRandomID(),
+                Name    => "TestService - " . $Helper->GetRandomID(),
                 ValidID => 1,
                 UserID  => 1,
             );
@@ -90,13 +93,13 @@ $Selenium->RunTest(
                 UserID            => 1,
             );
 
-            push @ServiceIDs,$ServiceID;
+            push @ServiceIDs, $ServiceID;
 
             # add test SLAs
             my $SLAID = $SLAObject->SLAAdd(
-                Name => "TestSLA - " . $Helper->GetRandomID(),
-                ValidID    => 1,
-                UserID     => 1,
+                Name    => "TestSLA - " . $Helper->GetRandomID(),
+                ValidID => 1,
+                UserID  => 1,
             );
 
             $Self->True(
@@ -104,7 +107,7 @@ $Selenium->RunTest(
                 "SLA $SLAID has been created."
             );
 
-            push @SLAIDs,$SLAID;
+            push @SLAIDs, $SLAID;
 
         }
 
@@ -136,39 +139,39 @@ $Selenium->RunTest(
 
         my @Tests = (
             {
-                Title  => 'Statistic DynamicMatrix' . $Helper->GetRandomID(),
-                Object => 'Kernel::System::Stats::Dynamic::Ticket',
-                Type => 'DynamicMatrix',
-                XAxis => 'XAxisServiceIDs',
-                YAxis => 'YAxisSLAIDs',
-                RestrictionID => 'RestrictionsQueueIDs',
+                Title            => 'Statistic DynamicMatrix' . $Helper->GetRandomID(),
+                Object           => 'Kernel::System::Stats::Dynamic::Ticket',
+                Type             => 'DynamicMatrix',
+                XAxis            => 'XAxisServiceIDs',
+                YAxis            => 'YAxisSLAIDs',
+                RestrictionID    => 'RestrictionsQueueIDs',
                 Restrictionvalue => 3,
             },
             {
-                Title => 'Statistic - TicketAccountedTime' . $Helper->GetRandomID(),
-                Object => 'Kernel::System::Stats::Dynamic::TicketAccountedTime',
-                Type => 'DynamicList',
-                XAxis => 'XAxisServiceIDs',
-                YAxis => 'YAxisSLAIDs',
-                RestrictionID => 'RestrictionsKindsOfReporting',
+                Title            => 'Statistic - TicketAccountedTime' . $Helper->GetRandomID(),
+                Object           => 'Kernel::System::Stats::Dynamic::TicketAccountedTime',
+                Type             => 'DynamicList',
+                XAxis            => 'XAxisServiceIDs',
+                YAxis            => 'YAxisSLAIDs',
+                RestrictionID    => 'RestrictionsKindsOfReporting',
                 Restrictionvalue => 'TotalTime',
             },
             {
-                Title => 'Statistic - TicketSolutionResponseTime' . $Helper->GetRandomID(),
-                Object => 'Kernel::System::Stats::Dynamic::TicketSolutionResponseTime',
-                Type => 'DynamicList',
-                XAxis => 'XAxisServiceIDs',
-                YAxis => 'YAxisSLAIDs',
-                RestrictionID => 'RestrictionsKindsOfReporting',
+                Title            => 'Statistic - TicketSolutionResponseTime' . $Helper->GetRandomID(),
+                Object           => 'Kernel::System::Stats::Dynamic::TicketSolutionResponseTime',
+                Type             => 'DynamicList',
+                XAxis            => 'XAxisServiceIDs',
+                YAxis            => 'YAxisSLAIDs',
+                RestrictionID    => 'RestrictionsKindsOfReporting',
                 Restrictionvalue => 'SolutionAverageAllOver',
             },
             {
-                Title => 'Statistic - TicketList' . $Helper->GetRandomID(),
-                Object => 'Kernel::System::Stats::Dynamic::TicketList',
-                Type => 'DynamicList',
-                YAxis => 'YAxisOrderBy',
-                OrderBy => 'TicketNumber',
-                RestrictionID => 'RestrictionsServiceIDs',
+                Title            => 'Statistic - TicketList' . $Helper->GetRandomID(),
+                Object           => 'Kernel::System::Stats::Dynamic::TicketList',
+                Type             => 'DynamicList',
+                YAxis            => 'YAxisOrderBy',
+                OrderBy          => 'TicketNumber',
+                RestrictionID    => 'RestrictionsServiceIDs',
                 Restrictionvalue => $ServiceIDs[0],
             },
 
@@ -176,27 +179,27 @@ $Selenium->RunTest(
 
         my @StatsFormat = (
             {
-                Format        => 'Print',
+                Format         => 'Print',
                 PreviewContent => 'PreviewContentPrint',
             },
             {
-                Format        => 'D3::StackedAreaChart',
+                Format         => 'D3::StackedAreaChart',
                 PreviewContent => 'PreviewContentStackedArea',
 
             },
             {
-                Format        => 'D3::MultiLineChart',
+                Format         => 'D3::MultiLineChart',
                 PreviewContent => 'PreviewContentLine',
             },
             {
-                Format        => 'D3::MultiBarChart',
+                Format         => 'D3::MultiBarChart',
                 PreviewContent => 'PreviewContentBar',
             },
 
         );
 
         # add new statistics
-        for my $StatsData ( @Tests ){
+        for my $StatsData (@Tests) {
 
             # go to add statsistics screen
             $Selenium->find_element("//a[contains(\@href, \'Action=AgentStatistics;Subaction=Add\' )]")->click();
@@ -208,43 +211,46 @@ $Selenium->RunTest(
             my $Description = 'Description ' . $StatsData->{Title};
 
             # set velues for new statistics - General Specifications
-            $Selenium->find_element( "#Title",'css' )->send_keys( $StatsData->{Title} );
-            $Selenium->find_element( "#Description",'css' )->send_keys($Description);
+            $Selenium->find_element( "#Title",       'css' )->send_keys( $StatsData->{Title} );
+            $Selenium->find_element( "#Description", 'css' )->send_keys($Description);
             $Selenium->find_element( "#ObjectModule option[value='$StatsData->{Object}']", 'css' )->click();
             $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->click();
 
             $Selenium->WaitFor( JavaScript => 'return $(".EditXAxis").length' );
 
             # check X-axis configuration dialog
-            $Selenium->find_element( ".EditXAxis",                                         'css' )->click();
-            if( $StatsData->{Object} ne 'Kernel::System::Stats::Dynamic::TicketList' ){
+            $Selenium->find_element( ".EditXAxis", 'css' )->click();
+            if ( $StatsData->{Object} ne 'Kernel::System::Stats::Dynamic::TicketList' ) {
                 $Selenium->find_element( "#EditDialog select option[value='$StatsData->{XAxis}']", 'css' )->click();
             }
-            $Selenium->find_element( "#DialogButton1",                                     'css' )->click();
+            $Selenium->find_element( "#DialogButton1", 'css' )->click();
 
             # check Y-axis configuration dialog
-            $Selenium->find_element( ".EditYAxis",                                     'css' )->click();
+            $Selenium->find_element( ".EditYAxis",                                             'css' )->click();
             $Selenium->find_element( "#EditDialog select option[value='$StatsData->{YAxis}']", 'css' )->click();
 
-            if( $StatsData->{Object} eq 'Kernel::System::Stats::Dynamic::TicketList' ){
+            if ( $StatsData->{Object} eq 'Kernel::System::Stats::Dynamic::TicketList' ) {
 
                 # wait for load selected Restriction
                 $Selenium->WaitFor( JavaScript => "return \$('#$StatsData->{YAxis}').length;" );
 
                 # select order by option
-                $Selenium->find_element( "#EditDialog #$StatsData->{YAxis} option[value='$StatsData->{OrderBy}']", 'css' )->click();
+                $Selenium->find_element( "#EditDialog #$StatsData->{YAxis} option[value='$StatsData->{OrderBy}']",
+                    'css' )->click();
             }
-            $Selenium->find_element( "#DialogButton1",                                 'css' )->click();
+            $Selenium->find_element( "#DialogButton1", 'css' )->click();
 
             # check Restrictions configuration dialog
-            $Selenium->find_element( ".EditRestrictions",                                       'css' )->click();
+            $Selenium->find_element( ".EditRestrictions",                                              'css' )->click();
             $Selenium->find_element( "#EditDialog select option[value='$StatsData->{RestrictionID}']", 'css' )->click();
 
             # wait for load selected Restriction
             $Selenium->WaitFor( JavaScript => "return \$('#$StatsData->{RestrictionID}').length;" );
 
             # add restriction
-            $Selenium->find_element( "#EditDialog #$StatsData->{RestrictionID} option[value='$StatsData->{Restrictionvalue}']", 'css' )->click();
+            $Selenium->find_element(
+                "#EditDialog #$StatsData->{RestrictionID} option[value='$StatsData->{Restrictionvalue}']", 'css' )
+                ->click();
             $Selenium->find_element( "#DialogButton1", 'css' )->click();
 
             # change preview format to Print
@@ -254,7 +260,7 @@ $Selenium->RunTest(
                 "Print format is displayed",
             );
 
-            for my $StatsFormat ( @StatsFormat ){
+            for my $StatsFormat (@StatsFormat) {
 
                 # change preview format
                 $Selenium->find_element("//button[contains(\@data-format, \'$StatsFormat->{Format}')]")->click();
@@ -278,7 +284,8 @@ $Selenium->RunTest(
 JAVASCRIPT
 
             # sort decreasing by StatsID
-            $Selenium->find_element( "//a[contains(\@href, \'Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1\' )]" )->click();
+            $Selenium->find_element(
+                "//a[contains(\@href, \'Subaction=Overview;Direction=DESC;OrderBy=ID;StartHit=1\' )]")->click();
 
             # get stats object
             $Kernel::OM->ObjectParamAdd(
@@ -313,7 +320,8 @@ JAVASCRIPT
             $Selenium->WaitFor( JavaScript => 'return $(".Dialog:visible").length === 0;' );
 
             $Self->True(
-                index( $Selenium->get_page_source(), "Action=AgentStatistics;Subaction=Edit;StatID=$StatsIDLast" ) == -1,
+                index( $Selenium->get_page_source(), "Action=AgentStatistics;Subaction=Edit;StatID=$StatsIDLast" )
+                    == -1,
                 "StatsData statistic is deleted - $StatsData->{Title} "
             );
 
@@ -323,7 +331,7 @@ JAVASCRIPT
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # clean up test data
-        for my $SLAID ( @SLAIDs ) {
+        for my $SLAID (@SLAIDs) {
             my $Success = $DBObject->Do(
                 SQL => "DELETE FROM service_sla WHERE sla_id = $SLAID",
             );
@@ -341,10 +349,10 @@ JAVASCRIPT
             );
         }
 
-        for my $ServiceID ( @ServiceIDs ) {
+        for my $ServiceID (@ServiceIDs) {
             my $Success = $DBObject->Do(
-                    SQL => "DELETE FROM service_customer_user WHERE service_id = $ServiceID",
-                );
+                SQL => "DELETE FROM service_customer_user WHERE service_id = $ServiceID",
+            );
             $Self->True(
                 $Success,
                 "ServiceCustomerUser deleted - $ServiceID",
