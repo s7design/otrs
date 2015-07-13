@@ -96,7 +96,7 @@ $Selenium->RunTest(
                 "Test widget 'User Profile' found on screen"
             );
             $Self->True(
-                index( $Selenium->get_page_source(), $LanguageObject->Translate('Email Settings') ) > -1,
+                index( $Selenium->get_page_source(), $LanguageObject->Translate('Notification Settings') ) > -1,
                 "Test widget 'Email Settings' found on screen"
             );
             $Self->True(
