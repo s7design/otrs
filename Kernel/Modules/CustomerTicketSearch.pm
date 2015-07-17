@@ -723,9 +723,10 @@ sub Run {
             for my $TicketID (@ViewableTicketIDs) {
 
                 # get first article data
-                my %Data = $TicketObject->ArticleFirstArticle(
+                my %Data = $TicketObject->ArticleLastCustomerArticle(
                     TicketID      => $TicketID,
-                    DynamicFields => 1,
+                    Extended      => 1,
+                    DynamicFields => 0,
                 );
 
                 if ( !%Data ) {
@@ -734,6 +735,7 @@ sub Run {
                     %Data = $TicketObject->TicketGet(
                         TicketID      => $TicketID,
                         DynamicFields => 1,
+                        UserID        => $Self->{UserID},
                     );
 
                     # set missing information
@@ -766,12 +768,6 @@ sub Run {
                     User => $Data{Owner},
                 );
 
-                # get age
-                $Data{Age} = $LayoutObject->CustomerAge(
-                    Age   => $Data{Age},
-                    Space => ' '
-                );
-
                 # customer info string
                 $UserInfo{CustomerName} = '(' . $UserInfo{CustomerName} . ')'
                     if ( $UserInfo{CustomerName} );
@@ -781,8 +777,9 @@ sub Run {
                     $Data{Created},
                     'DateFormat',
                 );
-                my $Owner    = "$Info{Owner} ($Info{UserFullname})";
+
                 my $Customer = "$Data{CustomerID} $Data{CustomerName}";
+
 
                 my @PDFRow;
                 push @PDFRow,  $Data{TicketNumber};
@@ -791,7 +788,6 @@ sub Run {
                 push @PDFRow,  $Data{Subject};
                 push @PDFRow,  $Data{State};
                 push @PDFRow,  $Data{Queue};
-                push @PDFRow,  $Owner;
                 push @PDFRow,  $Customer;
                 push @PDFData, \@PDFRow;
 
@@ -827,10 +823,8 @@ sub Run {
                 $CellData->[0]->[4]->{Font}    = 'ProportionalBold';
                 $CellData->[0]->[5]->{Content} = $LayoutObject->{LanguageObject}->Translate('Queue');
                 $CellData->[0]->[5]->{Font}    = 'ProportionalBold';
-                $CellData->[0]->[6]->{Content} = $LayoutObject->{LanguageObject}->Translate('Owner');
+                $CellData->[0]->[6]->{Content} = $LayoutObject->{LanguageObject}->Translate('CustomerID');
                 $CellData->[0]->[6]->{Font}    = 'ProportionalBold';
-                $CellData->[0]->[7]->{Content} = $LayoutObject->{LanguageObject}->Translate('CustomerID');
-                $CellData->[0]->[7]->{Font}    = 'ProportionalBold';
 
                 # create the content array
                 my $CounterRow = 1;

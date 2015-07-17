@@ -832,12 +832,6 @@ sub Run {
                     User => $Data{Owner},
                 );
 
-                # get age
-                $Data{Age} = $LayoutObject->CustomerAge(
-                    Age   => $Data{Age},
-                    Space => ' '
-                );
-
                 # customer info string
                 $UserInfo{CustomerName} = '(' . $UserInfo{CustomerName} . ')'
                     if ( $UserInfo{CustomerName} );
