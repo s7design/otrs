@@ -820,7 +820,7 @@ Core.UI.InputFields = (function (TargetNS) {
                         .attr('tabindex', '-1');
 
                     // Set left offset if in Customer interface
-                    if (Core.Debug.CheckDependency('Core.UI.InputFields', 'Core.Customer', 'Core.Customer', true)) {
+                    if (Core.Customer) {
                         $ContainerObj.css('left', $SearchObj.offset().left + 'px');
                     }
 
