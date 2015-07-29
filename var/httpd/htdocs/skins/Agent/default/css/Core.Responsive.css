@@ -1087,11 +1087,6 @@
         font-size: 0.8em;
     }
     
-    div.InputField_Selection div.Text,
-    div.InputField_Selection div.Remove a {
-        padding: 3px 4px;
-    }
-    
     div.InputField_More {
         top: 8px;
     }
