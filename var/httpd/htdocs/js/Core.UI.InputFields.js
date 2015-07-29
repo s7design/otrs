@@ -36,7 +36,8 @@ Core.UI.InputFields = (function (TargetNS) {
         ErrorClass: 'Error',
         ServerErrorClass: 'ServerError',
         FadeDuration: 150,
-        SelectionNotAvailable: ' -'
+        SelectionNotAvailable: ' -',
+        ResizeEvent: 'onorientationchange' in window ? 'orientationchange' : 'resize'
     };
 
     /**
@@ -1434,6 +1435,16 @@ Core.UI.InputFields = (function (TargetNS) {
                     else {
                         $SearchObj.removeClass(Config.ServerErrorClass);
                     }
+                });
+
+                // Handle window resize event
+                $(window).on(Config.ResizeEvent + '.InputField', function () {
+
+                    // Set width of search field to that of the select field
+                    $SelectObj.show();
+                    SelectWidth = $SelectObj.outerWidth();
+                    $SelectObj.hide();
+                    $SearchObj.width(SelectWidth);
                 });
             }
         });

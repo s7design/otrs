@@ -28,7 +28,7 @@ div.InputField_InputContainer {
 
 .InputField_Search,
 .InputField_Autocomplete {
-    min-width: 200px;
+    min-width: 190px;
 }
 
 #ToolBar .InputField_Search,
