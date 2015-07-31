@@ -73,7 +73,7 @@ Core.UI.InputFields = (function (TargetNS) {
                 $ShowTreeObj = $SelectObj.next('.ShowTreeSelection');
 
             if ($SelectObj.data('modernized')) {
-                $SearchObj.parents('.InputField_InputContainer')
+                $SearchObj.parents('.InputField_Container')
                     .blur()
                     .remove();
                 $SelectObj.show();
@@ -334,21 +334,21 @@ Core.UI.InputFields = (function (TargetNS) {
 
     /**
      * @private
-     * @name HideList
+     * @name HideSelectList
      * @memberof Core.UI.InputFields
      * @param {jQueryObject} $SelectObj - Original select field
      * @param {JQueryObject} $InputContainerObj - Container for associated input field
      * @param {JQueryObject} $SearchObj - Search input field
-     * @param {JQueryObject} $ContainerObj - Main container
+     * @param {JQueryObject} $ListContainerObj - List container
      * @param {JQueryObject} $TreeContainerObj - Container for jsTree list
      * @description
      *      Remove complete jsTree list and action buttons.
      */
-    function HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ContainerObj, $TreeContainerObj) {
+    function HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ListContainerObj, $TreeContainerObj) {
 
         // Remove jsTree if it exists
-        if ($ContainerObj && $TreeContainerObj) {
-            $ContainerObj.fadeOut(Config.FadeDuration, function () {
+        if ($ListContainerObj && $TreeContainerObj) {
+            $ListContainerObj.fadeOut(Config.FadeDuration, function () {
                 $TreeContainerObj.find('.jstree')
                     .jstree('destroy')
                     .remove();
@@ -654,6 +654,7 @@ Core.UI.InputFields = (function (TargetNS) {
             var $ToolbarContainerObj,
                 $InputContainerObj,
                 $TreeContainerObj,
+                $ListContainerObj,
                 $ContainerObj,
                 $ToolbarObj,
                 $SearchObj,
@@ -698,8 +699,13 @@ Core.UI.InputFields = (function (TargetNS) {
                     TreeView = true;
                 }
 
+                // Create main container
+                $ContainerObj = $('<div />').insertBefore($SelectObj);
+                $ContainerObj.addClass('InputField_Container')
+                    .attr('tabindex', '-1');
+
                 // Container for input field
-                $InputContainerObj = $('<div />').insertBefore($SelectObj);
+                $InputContainerObj = $('<div />').appendTo($ContainerObj);
                 $InputContainerObj.addClass('InputField_InputContainer');
 
                 // Deduce ID of original field
@@ -815,18 +821,13 @@ Core.UI.InputFields = (function (TargetNS) {
                     $InputContainerObj.find('.InputField_Selection').remove();
                     $InputContainerObj.find('.InputField_More').remove();
 
-                    // Create main container
-                    $ContainerObj = $('<div />').insertAfter($InputContainerObj);
-                    $ContainerObj.addClass('InputField_Container')
+                    // Create list container
+                    $ListContainerObj = $('<div />').insertAfter($InputContainerObj);
+                    $ListContainerObj.addClass('InputField_ListContainer')
                         .attr('tabindex', '-1');
 
-                    // Set left offset if in Customer interface
-                    if (Core.Customer) {
-                        $ContainerObj.css('left', $SearchObj.offset().left + 'px');
-                    }
-
                     // Create container for jsTree code
-                    $TreeContainerObj = $('<div />').appendTo($ContainerObj);
+                    $TreeContainerObj = $('<div />').appendTo($ListContainerObj);
                     $TreeContainerObj.addClass('InputField_TreeContainer')
                         .attr('tabindex', '-1');
 
@@ -917,7 +918,7 @@ Core.UI.InputFields = (function (TargetNS) {
 
                         setTimeout(function () {
                             if (!Focused) {
-                                HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ContainerObj, $TreeContainerObj);
+                                HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ListContainerObj, $TreeContainerObj);
                             }
                         }, 50);
                     })
@@ -928,7 +929,7 @@ Core.UI.InputFields = (function (TargetNS) {
 
                         setTimeout(function () {
                             if (!Focused) {
-                                HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ContainerObj, $TreeContainerObj);
+                                HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ListContainerObj, $TreeContainerObj);
                             }
                         }, 50);
                     })
@@ -1054,7 +1055,7 @@ Core.UI.InputFields = (function (TargetNS) {
                             case 65:
                                 if (Event.ctrlKey || Event.metaKey) {
                                     Event.preventDefault();
-                                    $ContainerObj.find('.InputField_SelectAll')
+                                    $ListContainerObj.find('.InputField_SelectAll')
                                         .click();
                                 }
                                 break;
@@ -1063,7 +1064,7 @@ Core.UI.InputFields = (function (TargetNS) {
                             case 68:
                                 if (Event.ctrlKey || Event.metaKey) {
                                     Event.preventDefault();
-                                    $ContainerObj.find('.InputField_ClearAll')
+                                    $ListContainerObj.find('.InputField_ClearAll')
                                         .click();
                                 }
                                 break;
@@ -1072,7 +1073,7 @@ Core.UI.InputFields = (function (TargetNS) {
                             case 70:
                                 if (Event.ctrlKey || Event.metaKey) {
                                     Event.preventDefault();
-                                    $ContainerObj.find('.InputField_Filters')
+                                    $ListContainerObj.find('.InputField_Filters')
                                         .click();
                                 }
                                 break;
@@ -1106,7 +1107,7 @@ Core.UI.InputFields = (function (TargetNS) {
 
                         setTimeout(function () {
                             if (!Focused) {
-                                HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ContainerObj, $TreeContainerObj);
+                                HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ListContainerObj, $TreeContainerObj);
                             }
                         }, 50);
                     });
@@ -1116,7 +1117,7 @@ Core.UI.InputFields = (function (TargetNS) {
                         .appendTo($TreeContainerObj)
                         .show();
 
-                    $ToolbarContainerObj = $('<div />').appendTo($ContainerObj);
+                    $ToolbarContainerObj = $('<div />').appendTo($ListContainerObj);
                     $ToolbarContainerObj.addClass('InputField_ToolbarContainer')
                         .attr('tabindex', '-1')
                         .width($TreeContainerObj.width());
@@ -1350,7 +1351,7 @@ Core.UI.InputFields = (function (TargetNS) {
 
                     });
 
-                    $ContainerObj.fadeIn(Config.FadeDuration);
+                    $ListContainerObj.fadeIn(Config.FadeDuration);
                 })
 
                 // Out of focus handler removes complete jsTree and action buttons
@@ -1358,7 +1359,7 @@ Core.UI.InputFields = (function (TargetNS) {
                     Focused = null;
                     setTimeout(function () {
                         if (!Focused) {
-                            HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ContainerObj, $TreeContainerObj);
+                            HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ListContainerObj, $TreeContainerObj);
                         }
                     }, 50);
                     Core.Form.ErrorTooltips.HideTooltip();
@@ -1398,7 +1399,7 @@ Core.UI.InputFields = (function (TargetNS) {
                             if (Event.ctrlKey || Event.metaKey) {
                                 if (!Searching) {
                                     Event.preventDefault();
-                                    $ContainerObj.find('.InputField_SelectAll')
+                                    $ListContainerObj.find('.InputField_SelectAll')
                                         .click();
                                 }
                             }
@@ -1408,7 +1409,7 @@ Core.UI.InputFields = (function (TargetNS) {
                         case 68:
                             if (Event.ctrlKey || Event.metaKey) {
                                 Event.preventDefault();
-                                $ContainerObj.find('.InputField_ClearAll')
+                                $ListContainerObj.find('.InputField_ClearAll')
                                     .click();
                             }
                             break;
@@ -1417,7 +1418,7 @@ Core.UI.InputFields = (function (TargetNS) {
                         case 70:
                             if (Event.ctrlKey || Event.metaKey) {
                                 Event.preventDefault();
-                                $ContainerObj.find('.InputField_Filters')
+                                $ListContainerObj.find('.InputField_Filters')
                                     .click();
                             }
                             break;

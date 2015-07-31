@@ -1061,9 +1061,13 @@
 
     /* Input Fields */
     
-    div.InputField_InputContainer {
+    div.InputField_Container {
         width: 90%;
         margin-right: 10px;
+    }
+
+    div.InputField_InputContainer {
+        width: 100%;
     }
     
     div.InputField_InputContainer input.InputField_Search {
@@ -1072,7 +1076,7 @@
         width: 100% !important;
     }
     
-    div.InputField_Container {
+    div.InputField_ListContainer {
         margin-top: -1px;
     }
     
