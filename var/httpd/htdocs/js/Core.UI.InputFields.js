@@ -1094,6 +1094,23 @@ Core.UI.InputFields = (function (TargetNS) {
                         }
                     });
 
+                    // Prevent loss of focus when using scrollbar
+                    $TreeContainerObj.on('focus.InputField', function () {
+                        if (!SkipFocus) {
+                            Focused = this;
+                        } else {
+                            SkipFocus = false;
+                        }
+                    }).on('blur.jstree', function () {
+                        Focused = null;
+
+                        setTimeout(function () {
+                            if (!Focused) {
+                                HideSelectList($SelectObj, $InputContainerObj, $SearchObj, $ContainerObj, $TreeContainerObj);
+                            }
+                        }, 50);
+                    });
+
                     // Append tree code to the container and show it
                     $TreeObj
                         .appendTo($TreeContainerObj)
