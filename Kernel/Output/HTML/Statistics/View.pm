@@ -758,6 +758,7 @@ sub XAxisWidget {
             }
         }
 
+        my $Multiple = ( $ObjectAttribute->{Block} eq 'MultiSelectField' ) ? 1 : 0;
         if ( $ObjectAttribute->{Block} eq 'SelectField' ) {
             $ObjectAttribute->{Block} = 'MultiSelectField';
         }
@@ -768,7 +769,7 @@ sub XAxisWidget {
             $BlockData{SelectField} = $LayoutObject->BuildSelection(
                 Data           => $ObjectAttribute->{Values},
                 Name           => 'XAxis' . $ObjectAttribute->{Element},
-                Multiple       => 1,
+                Multiple       => $Multiple,
                 Size           => 5,
                 Class          => "Modernize $DFTreeClass",
                 SelectedID     => $ObjectAttribute->{SelectedValues},
@@ -848,6 +849,7 @@ sub YAxisWidget {
             }
         }
 
+        my $Multiple = ( $ObjectAttribute->{Block} eq 'MultiSelectField' ) ? 1 : 0;
         if ( $ObjectAttribute->{Block} eq 'SelectField' ) {
             $ObjectAttribute->{Block} = 'MultiSelectField';
         }
@@ -858,7 +860,7 @@ sub YAxisWidget {
             $BlockData{SelectField} = $LayoutObject->BuildSelection(
                 Data           => $ObjectAttribute->{Values},
                 Name           => 'YAxis' . $ObjectAttribute->{Element},
-                Multiple       => 1,
+                Multiple       => $Multiple,
                 Size           => 5,
                 Class          => "Modernize $DFTreeClass",
                 SelectedID     => $ObjectAttribute->{SelectedValues},
@@ -977,6 +979,7 @@ sub RestrictionsWidget {
             $ObjectAttribute->{SelectedValues} = undef;
         }
 
+        my $Multiple = ( $ObjectAttribute->{Block} eq 'MultiSelectField' ) ? 1 : 0;
         if (
             $ObjectAttribute->{Block} eq 'MultiSelectField'
             || $ObjectAttribute->{Block} eq 'SelectField'
@@ -988,7 +991,7 @@ sub RestrictionsWidget {
             $BlockData{SelectField} = $LayoutObject->BuildSelection(
                 Data           => $ObjectAttribute->{Values},
                 Name           => 'Restrictions' . $ObjectAttribute->{Element},
-                Multiple       => 1,
+                Multiple       => $Multiple,
                 Size           => 5,
                 Class          => "Modernize $DFTreeClass",
                 SelectedID     => $ObjectAttribute->{SelectedValues},
