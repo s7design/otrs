@@ -2000,6 +2000,7 @@ sub _ColumnAndRowTranslation {
                     $Element->{Translation}
                     && $Element->{Block} ne 'Time'
                     && !$Element->{SortIndividual}
+                    && $Element->{Element} ne 'SortSequence'
                     )
                 {
                     $Sort{$Use} = 1;
