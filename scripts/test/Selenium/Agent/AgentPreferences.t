@@ -22,6 +22,15 @@ $Selenium->RunTest(
 
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # get sysconfig object
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Service',
+            Value => 1,
+        );
+
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['users'],
         ) || die "Did not get test user";
@@ -77,7 +86,8 @@ $Selenium->RunTest(
         {
             # change AgentPreference language
             $Selenium->execute_script(
-                "\$('#UserLanguage').val('$Language').trigger('redraw.InputField').trigger('change');");
+                "\$('#UserLanguage').val('$Language').trigger('redraw.InputField').trigger('change');"
+            );
             $Selenium->find_element("//button[\@id='UserLanguageUpdate'][\@type='submit']")->click();
 
             # check edited language value
