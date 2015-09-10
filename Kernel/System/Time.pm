@@ -570,7 +570,13 @@ sub WorkingTime {
             }
         }
 
-        # reduce time => go to next day 00:00:00
+        # reduce time => go to next day 12:00:00
+        # go to next day 12:00:00 instead of 00:00:00
+        # because of switching to/from daylight saving time,
+        # $CTime00 will be set to 00:00:00 in next loop
+        # see bug http://bugs.otrs.org/show_bug.cgi?id=11152
+        # There is the issue only in time zone
+        # which have ending time from 00:00:00 to 23:00:00
         $Param{StartTime} = $Self->Date2SystemTime(
             Year   => $Year,
             Month  => $Month,
@@ -578,7 +584,8 @@ sub WorkingTime {
             Hour   => 23,
             Minute => 59,
             Second => 59,
-        ) + 1;
+        ) + 12 * 60 * 60 + 1;
+
     }
     return $Counted;
 }
