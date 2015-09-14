@@ -515,13 +515,29 @@ sub WorkingTime {
     $BYear  += 1900;
     $BMonth += 1;
     my $BDate = "$BYear-$BMonth-$BDay";
+    my $NextDay;
 
     while ( $Param{StartTime} < $Param{StopTime} ) {
+
         my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WDay ) = localtime $Param{StartTime};       ## no critic
         $Year  += 1900;
         $Month += 1;
         my $CDate   = "$Year-$Month-$Day";
         my $CTime00 = $Param{StartTime} - ( ( $Hour * 60 + $Min ) * 60 + $Sec );                  # 00:00:00
+
+        # compensate for switching to/from daylight saving time
+        # in case daylight saving time from 00:00:00 turned backward 1 hour to 23:00:00
+        if ( $NextDay && $Hour == 23 ) {
+            $Param{StartTime} += 3600;
+            $CTime00 = $Param{StartTime};
+
+            # get $Year, $Month, $Day for $CDate
+            # there is needed next day, but $Day++ would be wrong in case it was end of month
+            ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WDay ) = localtime $Param{StartTime} + 1;
+            $Year  += 1900;
+            $Month += 1;
+            $CDate = "$Year-$Month-$Day";
+        }
 
         # count nothing because of vacation
         if (
@@ -570,13 +586,7 @@ sub WorkingTime {
             }
         }
 
-        # reduce time => go to next day 12:00:00
-        # go to next day 12:00:00 instead of 00:00:00
-        # because of switching to/from daylight saving time,
-        # $CTime00 will be set to 00:00:00 in next loop
-        # see bug http://bugs.otrs.org/show_bug.cgi?id=11152
-        # There is the issue only in time zone
-        # which have ending time from 00:00:00 to 23:00:00
+        # reduce time => go to next day 00:00:00
         $Param{StartTime} = $Self->Date2SystemTime(
             Year   => $Year,
             Month  => $Month,
@@ -584,7 +594,10 @@ sub WorkingTime {
             Hour   => 23,
             Minute => 59,
             Second => 59,
-        ) + 12 * 60 * 60 + 1;
+        ) + 1;
+
+        # it will be used for checking daylight saving time
+        $NextDay = 1;
 
     }
     return $Counted;
