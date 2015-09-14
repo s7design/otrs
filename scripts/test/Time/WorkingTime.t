@@ -17,123 +17,137 @@ use vars (qw($Self));
 
 my @Tests = (
     {
-        Name         => 'UTC',
+        Name              => 'UTC',
         TimeStampUTCStart => '2015-02-17 12:00:00',
         TimeStampUTCStop  => '2015-05-19 12:00:00',
-        ServerTZ     => 'UTC',
-        Result       => '57600',    # 90 days
+        ServerTZ          => 'UTC',
+        Result            => '7776000',               # 90 days
     },
     {
-        Name         => 'Europe/Berlin ( Daylight Saving Time UTC+1 => UTC+2 )',
+        Name              => 'Europe/Berlin ( Daylight Saving Time UTC+1 => UTC+2 )',
         TimeStampUTCStart => '2015-02-17 12:00:00',
         TimeStampUTCStop  => '2015-05-19 12:00:00',
-        ServerTZ     => 'Europe/Berlin',
-        Result       => '21600',    # 90 days and 1h
+        ServerTZ          => 'Europe/Berlin',
+        Result            => '7779600',                                                 # 90 days and 1h
     },
     {
-        Name         => 'UTC',
+        Name              => 'UTC',
         TimeStampUTCStart => '2015-02-21 22:00:00',
         TimeStampUTCStop  => '2015-02-22 04:00:00',
-        ServerTZ     => 'UTC',
-        Result       => '21600',    # 6h
+        ServerTZ          => 'UTC',
+        Result            => '21600',                                                   # 6h
     },
     {
-        Name         => 'America/Sao_Paulo - end DST from 00 to 23  ( UTC-2 => UTC-3 )',
+        Name              => 'America/Sao_Paulo - end DST from 00 to 23  ( UTC-2 => UTC-3 )',
         TimeStampUTCStart => '2015-02-21 22:00:00',
         TimeStampUTCStop  => '2015-02-22 04:00:00',
-        ServerTZ     => 'America/Sao_Paulo',
-        Result       => '18000',    # 5h
+        ServerTZ          => 'America/Sao_Paulo',
+        Result            => '18000',                                                           # 5h
     },
     {
-        Name         => 'Europe/Berlin',
+        Name              => 'Europe/Berlin',
         TimeStampUTCStart => '2015-02-21 22:00:00',
         TimeStampUTCStop  => '2015-02-22 04:00:00',
-        ServerTZ     => 'Europe/Berlin',
-        Result       => '21600',    # 6h
+        ServerTZ          => 'Europe/Berlin',
+        Result            => '21600',                                                           # 6h
     },
     {
-        Name         => 'UTC with min and sec',
+        Name              => 'UTC with min and sec',
         TimeStampUTCStart => '2015-02-20 22:10:05',
         TimeStampUTCStop  => '2015-02-25 04:30:20',
-        ServerTZ     => 'UTC',
-        Result       => '368415',    # 4 days 06:20:15.
+        ServerTZ          => 'UTC',
+        Result            => '368415',                                                          # 4 days 06:20:15.
     },
     {
-        Name         => 'America/Sao_Paulo - end DST from 00 to 23 - with min and sec',
+        Name              => 'America/Sao_Paulo - end DST from 00 to 23 - with min and sec',
         TimeStampUTCStart => '2015-02-20 22:10:05',
         TimeStampUTCStop  => '2015-02-25 04:30:20',
-        ServerTZ     => 'America/Sao_Paulo',
-        Result       => '364815',    # 4 days 05:20:15.
+        ServerTZ          => 'America/Sao_Paulo',
+        Result            => '364815',                                                          # 4 days 05:20:15.
     },
     {
-        Name         => 'Europe/Berlin with min and sec',
+        Name              => 'Europe/Berlin with min and sec',
         TimeStampUTCStart => '2015-02-20 22:10:05',
         TimeStampUTCStop  => '2015-02-25 04:30:20',
-        ServerTZ     => 'Europe/Berlin',
-        Result       => '368415',    # 4 days 06:20:15.
+        ServerTZ          => 'Europe/Berlin',
+        Result            => '368415',                                                          # 4 days 06:20:15.
     },
     {
-        Name         => 'UTC',
+        Name              => 'UTC',
         TimeStampUTCStart => '2015-10-17 22:00:00',
         TimeStampUTCStop  => '2015-10-18 04:00:00',
-        ServerTZ     => 'UTC',
-        Result       => '21600',    # 6h
+        ServerTZ          => 'UTC',
+        Result            => '21600',                                                           # 6h
     },
     {
-        Name         => 'America/Sao_Paulo - start DST from 00 to 01 ( UTC-3 => UTC-2 )',
+        Name              => 'America/Sao_Paulo - start DST from 00 to 01 ( UTC-3 => UTC-2 )',
         TimeStampUTCStart => '2015-10-17 22:00:00',
         TimeStampUTCStop  => '2015-10-18 04:00:00',
-        ServerTZ     => 'America/Sao_Paulo',
-        Result       => '25200',    # 7h
+        ServerTZ          => 'America/Sao_Paulo',
+        Result            => '25200',                                                            # 7h
     },
     {
-        Name         => 'Europe/Berlin',
+        Name              => 'Europe/Berlin',
         TimeStampUTCStart => '2015-10-17 22:00:00',
         TimeStampUTCStop  => '2015-10-18 04:00:00',
-        ServerTZ     => 'Europe/Berlin',
-        Result       => '21600',    # 6h
+        ServerTZ          => 'Europe/Berlin',
+        Result            => '21600',                                                            # 6h
     },
     {
-        Name         => 'UTC',
+        Name              => 'UTC',
         TimeStampUTCStart => '2015-03-21 12:00:00',
         TimeStampUTCStop  => '2015-03-22 12:00:00',
-        ServerTZ     => 'UTC',
-        Result       => '86400',    # 24h
+        ServerTZ          => 'UTC',
+        Result            => '86400',                                                            # 24h
     },
     {
-        Name         => 'America/Asuncion -Paraguay - end DST from 00 to 23  ( UTC-3 => UTC-4 )' ,
+        Name              => 'America/Asuncion -Paraguay - end DST from 00 to 23  ( UTC-3 => UTC-4 )',
         TimeStampUTCStart => '2015-03-21 12:00:00',
         TimeStampUTCStop  => '2015-03-22 12:00:00',
-        ServerTZ     => 'America/Asuncion',
-        Result       => '82800',    # 24h
+        ServerTZ          => 'America/Asuncion',
+        Result            => '82800',                                                                    # 24h
     },
     {
-        Name         => 'UTC',
+        Name              => 'UTC',
         TimeStampUTCStart => '2015-09-21 12:00:00',
         TimeStampUTCStop  => '2015-09-22 04:00:00',
-        ServerTZ     => 'UTC',
-        Result       => '57600',    # 16h
+        ServerTZ          => 'UTC',
+        Result            => '57600',                                                                    # 16h
     },
     {
-        Name         => 'Asia/Tehran - end DST from 00 to 23  ( UTC+3:30 => UTC+4:30 )' ,
+        Name              => 'Asia/Tehran - end DST from 00 to 23  ( UTC+3:30 => UTC+4:30 )',
         TimeStampUTCStart => '2015-09-21 12:00:00',
         TimeStampUTCStop  => '2015-09-22 04:00:00',
-        ServerTZ     => 'Asia/Tehran',
-        Result       => '54000',    # 15h
+        ServerTZ          => 'Asia/Tehran',
+        Result            => '54000',                                                                    # 15h
     },
     {
-        Name         => 'UTC',
+        Name              => 'UTC',
         TimeStampUTCStart => '2015-03-21 12:00:00',
         TimeStampUTCStop  => '2015-03-22 04:00:00',
-        ServerTZ     => 'UTC',
-        Result       => '57600',    # 16h
+        ServerTZ          => 'UTC',
+        Result            => '57600',                                                                    # 16h
     },
     {
-        Name         => 'Asia/Tehran - end DST from 00 to 01  ( UTC+4:30 => UTC+3:30 )' ,
+        Name              => 'Asia/Tehran - end DST from 00 to 01  ( UTC+4:30 => UTC+3:30 )',
         TimeStampUTCStart => '2015-03-21 12:00:00',
         TimeStampUTCStop  => '2015-03-22 04:00:00',
-        ServerTZ     => 'Asia/Tehran',
-        Result       => '61200',    # 17h
+        ServerTZ          => 'Asia/Tehran',
+        Result            => '61200',                                                                    # 17h
+    },
+    {
+        Name              => 'UTC',
+        TimeStampUTCStart => '2015-01-21 12:00:00',
+        TimeStampUTCStop  => '2015-04-22 04:00:00',
+        ServerTZ          => 'UTC',
+        Result            => '7833600',               # 90 days and 16h
+    },
+    {
+        Name              => 'Australia/Sydney - end DST from 00 to 01  ( UTC+11 => UTC+10 )',
+        TimeStampUTCStart => '2015-01-21 12:00:00',
+        TimeStampUTCStop  => '2015-04-22 04:00:00',
+        ServerTZ          => 'Asia/Tehran',
+        Result            => '7837200',                                                          # 90 days and 17h
     },
 );
 
@@ -214,7 +228,7 @@ for my $Test (@Tests) {
         "$Test->{Name} ($Test->{ServerTZ}) working time from $Start to $Stop: $WorkingTime",
     );
 
-     $HelperObject->FixedTimeUnset();
+    $HelperObject->FixedTimeUnset();
 }
 
 1;
