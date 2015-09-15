@@ -437,13 +437,14 @@ sub _MaskUpdate {
         Class       => 'Modernize',
     );
     $JobData{NewOwnerStrg} = $LayoutObject->BuildSelection(
-        Data        => \%ShownUsers,
-        Name        => 'NewOwnerID',
-        Size        => 5,
-        Multiple    => 0,
-        Translation => 0,
-        SelectedID  => $JobData{NewOwnerID},
-        Class       => 'Modernize',
+        Data         => \%ShownUsers,
+        Name         => 'NewOwnerID',
+        Size         => 5,
+        Multiple     => 0,
+        Translation  => 0,
+        SelectedID   => $JobData{NewOwnerID},
+        Class        => 'Modernize',
+        PossibleNone => 1,
     );
     my %Hours;
     for my $Number ( 0 .. 23 ) {
@@ -512,11 +513,12 @@ sub _MaskUpdate {
                 Action => $Self->{Action},
             ),
         },
-        Name       => 'NewStateID',
-        Size       => 5,
-        Multiple   => 0,
-        SelectedID => $JobData{NewStateID},
-        Class      => 'Modernize',
+        Name         => 'NewStateID',
+        Size         => 5,
+        Multiple     => 0,
+        SelectedID   => $JobData{NewStateID},
+        Class        => 'Modernize',
+        PossibleNone => 1,
     );
     $JobData{NewPendingTimeTypeStrg} = $LayoutObject->BuildSelection(
         Data => [
@@ -573,6 +575,7 @@ sub _MaskUpdate {
         TreeView       => $TreeView,
         OnChangeSubmit => 0,
         Class          => 'Modernize',
+        PossibleNone   => 1,
     );
 
     # get priority object
@@ -598,11 +601,12 @@ sub _MaskUpdate {
                 Action => $Self->{Action},
             ),
         },
-        Name       => 'NewPriorityID',
-        Size       => 5,
-        Multiple   => 0,
-        SelectedID => $JobData{NewPriorityID},
-        Class      => 'Modernize',
+        Name         => 'NewPriorityID',
+        Size         => 5,
+        Multiple     => 0,
+        SelectedID   => $JobData{NewPriorityID},
+        Class        => 'Modernize',
+        PossibleNone => 1,
     );
 
     # get time option
@@ -722,11 +726,12 @@ sub _MaskUpdate {
                 Action => $Self->{Action},
             ),
         },
-        Name       => 'NewLockID',
-        Size       => 3,
-        Multiple   => 0,
-        SelectedID => $JobData{NewLockID},
-        Class      => 'Modernize',
+        Name         => 'NewLockID',
+        Size         => 3,
+        Multiple     => 0,
+        SelectedID   => $JobData{NewLockID},
+        Class        => 'Modernize',
+        PossibleNone => 1,
     );
 
     # Show server errors if ticket selection contains stop words
@@ -809,14 +814,15 @@ sub _MaskUpdate {
             Data => \%JobData,
         );
         $JobData{NewTypesStrg} = $LayoutObject->BuildSelection(
-            Data        => \%Type,
-            Name        => 'NewTypeID',
-            SelectedID  => $JobData{NewTypeID},
-            Sort        => 'AlphanumericValue',
-            Size        => 3,
-            Multiple    => 0,
-            Translation => 0,
-            Class       => 'Modernize',
+            Data         => \%Type,
+            Name         => 'NewTypeID',
+            SelectedID   => $JobData{NewTypeID},
+            Sort         => 'AlphanumericValue',
+            Size         => 3,
+            Multiple     => 0,
+            Translation  => 0,
+            Class        => 'Modernize',
+            PossibleNone => 1,
         );
         $LayoutObject->Block(
             Name => 'NewTicketType',
@@ -846,15 +852,16 @@ sub _MaskUpdate {
             Class       => 'Modernize',
         );
         $JobData{NewServicesStrg} = $LayoutObject->BuildSelection(
-            Data        => \%NewService,
-            Name        => 'NewServiceID',
-            SelectedID  => $JobData{NewServiceID},
-            Size        => 5,
-            Multiple    => 0,
-            TreeView    => $TreeView,
-            Translation => 0,
-            Max         => 200,
-            Class       => 'Modernize',
+            Data         => \%NewService,
+            Name         => 'NewServiceID',
+            SelectedID   => $JobData{NewServiceID},
+            Size         => 5,
+            Multiple     => 0,
+            TreeView     => $TreeView,
+            Translation  => 0,
+            Max          => 200,
+            Class        => 'Modernize',
+            PossibleNone => 1,
         );
         my %SLA = $Kernel::OM->Get('Kernel::System::SLA')->SLAList(
             UserID => $Self->{UserID},
@@ -871,15 +878,16 @@ sub _MaskUpdate {
             Class       => 'Modernize',
         );
         $JobData{NewSLAsStrg} = $LayoutObject->BuildSelection(
-            Data        => \%SLA,
-            Name        => 'NewSLAID',
-            SelectedID  => $JobData{NewSLAID},
-            Sort        => 'AlphanumericValue',
-            Size        => 5,
-            Multiple    => 0,
-            Translation => 0,
-            Max         => 200,
-            Class       => 'Modernize',
+            Data         => \%SLA,
+            Name         => 'NewSLAID',
+            SelectedID   => $JobData{NewSLAID},
+            Sort         => 'AlphanumericValue',
+            Size         => 5,
+            Multiple     => 0,
+            Translation  => 0,
+            Max          => 200,
+            Class        => 'Modernize',
+            PossibleNone => 1,
         );
         $LayoutObject->Block(
             Name => 'TicketService',
@@ -903,13 +911,14 @@ sub _MaskUpdate {
             Class       => 'Modernize',
         );
         $JobData{NewResponsibleStrg} = $LayoutObject->BuildSelection(
-            Data        => \%ShownUsers,
-            Name        => 'NewResponsibleID',
-            Size        => 5,
-            Multiple    => 0,
-            Translation => 0,
-            SelectedID  => $JobData{NewResponsibleID},
-            Class       => 'Modernize',
+            Data         => \%ShownUsers,
+            Name         => 'NewResponsibleID',
+            Size         => 5,
+            Multiple     => 0,
+            Translation  => 0,
+            SelectedID   => $JobData{NewResponsibleID},
+            Class        => 'Modernize',
+            PossibleNone => 1,
         );
         $LayoutObject->Block(
             Name => 'TicketResponsible',

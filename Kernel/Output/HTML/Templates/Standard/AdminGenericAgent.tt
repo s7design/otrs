@@ -664,7 +664,8 @@ Core.Agent.Admin.GenericAgent.Init({
 
                         <label for="NewPendingTime">[% Translate("Pending date") | html %]:</label>
                         <div class="Field">
-                            <input type="text" name="NewPendingTime" id="NewPendingTime" value="[% Data.NewPendingTime | html %]" class="W10pc"/>
+                            <input type="text" name="NewPendingTime" id="NewPendingTime" value="[% Data.NewPendingTime | html %]" class="W10pc Validate_TimeUnits"/>
+                            <div id="NewPendingTimeError" class="TooltipErrorMessage"><p>[% Translate("Invalid time!") | html %]</p></div>
                             [% Data.NewPendingTimeTypeStrg %]
                         </div>
                         <div class="Clear"></div>
@@ -763,7 +764,8 @@ Core.Agent.Admin.GenericAgent.Init({
 
                         <label for="NewNoteTimeUnits">[% Translate("Time units") | html %] [% Translate(Config("Ticket::Frontend::TimeUnits")) | html %]:</label>
                         <div class="Field">
-                            <input type="text" name="NewNoteTimeUnits" id="NewNoteTimeUnits" value="[% Data.NewNoteTimeUnits | html %]" class="W20pc"/>
+                            <input type="text" name="NewNoteTimeUnits" id="NewNoteTimeUnits" value="[% Data.NewNoteTimeUnits | html %]" class="W20pc Validate_TimeUnits"/>
+                            <div id="NewNoteTimeUnitsError" class="TooltipErrorMessage"><p>[% Translate("Invalid time!") | html %]</p></div>
                         </div>
                         <div class="Clear"></div>
                     </fieldset>

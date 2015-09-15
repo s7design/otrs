@@ -289,6 +289,7 @@ sub AgentQueueListOption {
             SelectedID    => $Param{SelectedID} || $Param{SelectedIDRefArray} || '',
             SelectedValue => $Param{Selected},
             Translation   => 0,
+            PossibleNone  => $Param{PossibleNone},
         );
         return $Param{MoveQueuesStrg};
     }
@@ -301,6 +302,11 @@ sub AgentQueueListOption {
         . '" class="'
         . $Class
         . "\" $Size $Multiple $OnChangeSubmit>\n";
+
+    if ( $Param{PossibleNone} ) {
+        $Param{MoveQueuesStrg} .= '<option value="">-</option>' . "\n";
+    }
+
     my %UsedData;
     my %Data;
 
