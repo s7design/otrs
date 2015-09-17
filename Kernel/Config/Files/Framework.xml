@@ -142,7 +142,7 @@
                 <Item Key="ca">Catal&amp;agrave;</Item>
                 <Item Key="cs">Czech (&amp;#x010c;esky)</Item>
                 <Item Key="da">Dansk</Item>
-                <Item Key="de">Deutsch</Item>
+                <Item Key="de">German (Deutsch)</Item>
                 <Item Key="en">English (United States)</Item>
                 <Item Key="en_CA">English (Canada)</Item>
                 <Item Key="en_GB">English (United Kingdom)</Item>
@@ -158,7 +158,7 @@
                 <Item Key="gl">Galego</Item>
                 <Item Key="he">Hebrew (עִבְרִית)</Item>
                 <Item Key="hi">Hindi</Item>
-                <Item Key="hr">Hrvatski</Item>
+                <Item Key="hr">Croatian (Hrvatski)</Item>
                 <Item Key="hu">Magyar</Item>
                 <Item Key="it">Italiano</Item>
                 <Item Key="ja">Japanese (&amp;#x65e5;&amp;#x672c;&amp;#x8a9e;)</Item>

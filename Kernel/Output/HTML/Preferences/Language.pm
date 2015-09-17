@@ -37,12 +37,14 @@ sub Param {
 
     # get config object
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     my $DefaultUsedLanguages = $ConfigObject->Get('DefaultUsedLanguages');
     my %Languages;
     LANGUAGE_ID:
     for my $LanguageID ( sort keys %{ $DefaultUsedLanguages // {} } ) {
-        my $Text           = $DefaultUsedLanguages->{$LanguageID};
+        my $Text = $LayoutObject->{LanguageObject}->Translate( $DefaultUsedLanguages->{$LanguageID} );
+
         my $LanguageObject = Kernel::Language->new(
             UserLanguage => $LanguageID,
         );
@@ -52,7 +54,7 @@ sub Param {
         # Mark all languages with < 25% coverage as "in process" (not for en_ variants).
         if ( defined $Completeness && $Completeness < 0.25 && $LanguageID !~ m{^en_}smx ) {
             $Text
-                .= ' ' . $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{LanguageObject}->Translate('(in process)');
+                .= ' ' . $LayoutObject->{LanguageObject}->Translate('(in process)');
         }
         $Languages{$LanguageID} = $Text;
     }
@@ -67,7 +69,7 @@ sub Param {
             HTMLQuote  => 0,
             SelectedID => $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'UserLanguage' )
                 || $Param{UserData}->{UserLanguage}
-                || $Kernel::OM->Get('Kernel::Output::HTML::Layout')->{UserLanguage}
+                || $LayoutObject->{UserLanguage}
                 || $ConfigObject->Get('DefaultLanguage'),
             Block => 'Option',
             Class => 'Modernize',
