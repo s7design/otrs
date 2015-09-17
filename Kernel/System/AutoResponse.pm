@@ -15,6 +15,7 @@ our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::Log',
     'Kernel::System::SystemAddress',
+    'Kernel::System::Valid',
 );
 
 =head1 NAME
@@ -253,6 +254,7 @@ get a hash with data from Auto Response and it's corresponding System Address
     my %QueueAddressData = $AutoResponseObject->AutoResponseGetByTypeQueueID(
         QueueID => 3,
         Type    => 'auto reply/new ticket',
+        Valid   => 1    # optional
     );
 
 Return example:
@@ -295,16 +297,29 @@ sub AutoResponseGetByTypeQueueID {
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
+    # build valid id string
+    my $ValidIDsString;
+    if ( $Param{Valid} ) {
+        $ValidIDsString = join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet();
+    }
+    else {
+        my %ValidList = $Kernel::OM->Get('Kernel::System::Valid')->ValidList();
+        my @ValidIDs  = sort keys %ValidList;
+        $ValidIDsString = join ', ', @ValidIDs;
+    }
+
     # SQL query
     return if !$DBObject->Prepare(
         SQL => '
-            SELECT ar.text0, ar.text1, ar.content_type, ar.system_address_id
+            SELECT ar.text0, ar.text1, ar.content_type, ar.system_address_id, ar.id, ar.valid_id
             FROM auto_response_type art, auto_response ar, queue_auto_response qar
-            WHERE qar.queue_id = ?
+            WHERE ar.valid_id IN (?)
+                AND qar.queue_id = ?
                 AND art.id = ar.type_id
                 AND qar.auto_response_id = ar.id
                 AND art.name = ?',
         Bind => [
+            \$ValidIDsString,
             \$Param{QueueID},
             \$Param{Type},
         ],
