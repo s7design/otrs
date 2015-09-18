@@ -22,6 +22,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-05-19 12:00:00',
         ServerTZ          => 'UTC',
         Result            => '7776000',               # 90 days
+        ResultTime        => '90 days',
     },
     {
         Name              => 'Europe/Berlin ( Daylight Saving Time UTC+1 => UTC+2 )',
@@ -29,6 +30,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-05-19 12:00:00',
         ServerTZ          => 'Europe/Berlin',
         Result            => '7779600',                                                 # 90 days and 1h
+        ResultTime        => '90 days and 1h',
     },
     {
         Name              => 'UTC',
@@ -36,6 +38,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-02-22 04:00:00',
         ServerTZ          => 'UTC',
         Result            => '21600',                                                   # 6h
+        ResultTime        => '6h',
     },
     {
         Name              => 'America/Sao_Paulo - end DST from 00 to 23  ( UTC-2 => UTC-3 )',
@@ -43,34 +46,23 @@ my @Tests = (
         TimeStampUTCStop  => '2015-02-22 04:00:00',
         ServerTZ          => 'America/Sao_Paulo',
         Result            => '18000',                                                           # 5h
-    },
-    {
-        Name              => 'Europe/Berlin',
-        TimeStampUTCStart => '2015-02-21 22:00:00',
-        TimeStampUTCStop  => '2015-02-22 04:00:00',
-        ServerTZ          => 'Europe/Berlin',
-        Result            => '21600',                                                           # 6h
+        ResultTime        => '5h',
     },
     {
         Name              => 'UTC with min and sec',
         TimeStampUTCStart => '2015-02-20 22:10:05',
         TimeStampUTCStop  => '2015-02-25 04:30:20',
         ServerTZ          => 'UTC',
-        Result            => '368415',                                                          # 4 days 06:20:15.
+        Result            => '368415',                                                          # 4 days 06:20:15
+        ResultTime        => '4 days 06:20:15',
     },
     {
         Name              => 'America/Sao_Paulo - end DST from 00 to 23 - with min and sec',
         TimeStampUTCStart => '2015-02-20 22:10:05',
         TimeStampUTCStop  => '2015-02-25 04:30:20',
         ServerTZ          => 'America/Sao_Paulo',
-        Result            => '364815',                                                          # 4 days 05:20:15.
-    },
-    {
-        Name              => 'Europe/Berlin with min and sec',
-        TimeStampUTCStart => '2015-02-20 22:10:05',
-        TimeStampUTCStop  => '2015-02-25 04:30:20',
-        ServerTZ          => 'Europe/Berlin',
-        Result            => '368415',                                                          # 4 days 06:20:15.
+        Result            => '364815',                                                          # 4 days 05:20:15
+        ResultTime        => '4 days 05:20:15',
     },
     {
         Name              => 'UTC',
@@ -78,6 +70,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-10-18 04:00:00',
         ServerTZ          => 'UTC',
         Result            => '21600',                                                           # 6h
+        ResultTime        => '6h',
     },
     {
         Name              => 'America/Sao_Paulo - start DST from 00 to 01 ( UTC-3 => UTC-2 )',
@@ -85,13 +78,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-10-18 04:00:00',
         ServerTZ          => 'America/Sao_Paulo',
         Result            => '25200',                                                            # 7h
-    },
-    {
-        Name              => 'Europe/Berlin',
-        TimeStampUTCStart => '2015-10-17 22:00:00',
-        TimeStampUTCStop  => '2015-10-18 04:00:00',
-        ServerTZ          => 'Europe/Berlin',
-        Result            => '21600',                                                            # 6h
+        ResultTime        => '7h',
     },
     {
         Name              => 'UTC',
@@ -99,13 +86,15 @@ my @Tests = (
         TimeStampUTCStop  => '2015-03-22 12:00:00',
         ServerTZ          => 'UTC',
         Result            => '86400',                                                            # 24h
+        ResultTime        => '24h',
     },
     {
         Name              => 'America/Asuncion -Paraguay - end DST from 00 to 23  ( UTC-3 => UTC-4 )',
         TimeStampUTCStart => '2015-03-21 12:00:00',
         TimeStampUTCStop  => '2015-03-22 12:00:00',
         ServerTZ          => 'America/Asuncion',
-        Result            => '82800',                                                                    # 24h
+        Result            => '82800',                                                                    # 23h
+        ResultTime        => '23h',
     },
     {
         Name              => 'UTC',
@@ -113,6 +102,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-09-22 04:00:00',
         ServerTZ          => 'UTC',
         Result            => '57600',                                                                    # 16h
+        ResultTime        => '16h',
     },
     {
         Name              => 'Asia/Tehran - end DST from 00 to 23  ( UTC+3:30 => UTC+4:30 )',
@@ -120,6 +110,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-09-22 04:00:00',
         ServerTZ          => 'Asia/Tehran',
         Result            => '54000',                                                                    # 15h
+        ResultTime        => '15h',
     },
     {
         Name              => 'UTC',
@@ -127,6 +118,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-03-22 04:00:00',
         ServerTZ          => 'UTC',
         Result            => '57600',                                                                    # 16h
+        ResultTime        => '16h',
     },
     {
         Name              => 'Asia/Tehran - end DST from 00 to 01  ( UTC+4:30 => UTC+3:30 )',
@@ -134,6 +126,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-03-22 04:00:00',
         ServerTZ          => 'Asia/Tehran',
         Result            => '61200',                                                                    # 17h
+        ResultTime        => '17h',
     },
     {
         Name              => 'UTC',
@@ -141,6 +134,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-04-22 04:00:00',
         ServerTZ          => 'UTC',
         Result            => '7833600',               # 90 days and 16h
+        ResultTime        => '90 days and 16h',
     },
     {
         Name              => 'Australia/Sydney - end DST from 00 to 01  ( UTC+11 => UTC+10 )',
@@ -148,6 +142,7 @@ my @Tests = (
         TimeStampUTCStop  => '2015-04-22 04:00:00',
         ServerTZ          => 'Asia/Tehran',
         Result            => '7837200',                                                          # 90 days and 17h
+        ResultTime        => '90 days and 17h',
     },
 );
 
@@ -225,7 +220,7 @@ for my $Test (@Tests) {
     $Self->Is(
         $WorkingTime,
         $Test->{Result},
-        "$Test->{Name} ($Test->{ServerTZ}) working time from $Start to $Stop: $WorkingTime",
+        "$Test->{Name} ($Test->{ServerTZ}) working time from $Start to $Stop: $WorkingTime ($Test->{ResultTime})",
     );
 
     $HelperObject->FixedTimeUnset();
