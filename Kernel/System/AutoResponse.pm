@@ -254,7 +254,6 @@ get a hash with data from Auto Response and it's corresponding System Address
     my %QueueAddressData = $AutoResponseObject->AutoResponseGetByTypeQueueID(
         QueueID => 3,
         Type    => 'auto reply/new ticket',
-        Valid   => 1    # optional
     );
 
 Return example:
