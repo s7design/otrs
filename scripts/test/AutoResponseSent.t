@@ -303,12 +303,14 @@ for my $Ticket (@TicketIDs) {
 my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
 # delete ticket loop-protection
+my $SendTo = $DBObject->Quote('test@localunittest.com');
 $Success = $DBObject->Do(
-    SQL => 'DELETE FROM ticket_loop_protection WHERE sent_to = "test@localunittest.com"',
+    SQL  => 'DELETE FROM ticket_loop_protection WHERE sent_to = ?',
+    Bind => [ \$SendTo ],
 );
 $Self->True(
     $Success,
-    'Ticket_loop_protection for test@localunittest.com - deleted',
+    "Ticket_loop_protection for $SendTo - deleted",
 );
 
 # delete auto-response queue relation
