@@ -249,7 +249,6 @@ sub AgentPreferencesForm {
 
             my %Preference = %{ $ConfigObject->{PreferencesGroups}->{$Group} };
             next PRIO if !$Preference{Active};
-            next PRIO if ( $Preference{Label} eq 'My Services' && !$ConfigObject->Get('Ticket::Service') );
 
             # load module
             my $Module = $Preference{Module} || 'Kernel::Output::HTML::Preferences::Generic';
