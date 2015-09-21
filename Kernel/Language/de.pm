@@ -31,6 +31,10 @@ sub Data {
 
     $Self->{Translation} = {
 
+        'German (Deutsch)' => 'Deutsch',
+        'English (Canada)' => 'Engleski (Kanada)',
+        'Croatian (Hrvatski)' => 'Kroatisch (Hrvatski)',
+
         # Template: AAABase
         'Yes' => 'Ja',
         'No' => 'Nein',
