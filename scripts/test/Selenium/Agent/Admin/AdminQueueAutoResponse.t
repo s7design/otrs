@@ -19,7 +19,19 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::System::UnitTest::Helper' => {
+                RestoreSystemConfiguration => 1,
+            },
+        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
+        # enable FilterQueuesWithoutAutoResponse filter
+        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'FilterQueuesWithoutAutoResponses',
+            Value => 1,
+        );
 
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -48,6 +60,9 @@ $Selenium->RunTest(
             $QueueID,
             "Created Queue - $QueueRandomID",
         );
+
+        # get system address object
+        my $SystemAddressObject = $Kernel::OM->Get('Kernel::System::SystemAddress');
 
         # add test system address
         my $SystemAddressObject   = $Kernel::OM->Get('Kernel::System::SystemAddress');
@@ -232,6 +247,21 @@ $Selenium->RunTest(
             $Index++;
 
         }
+
+        # click 'Go to overview'
+        $Selenium->find_element("//a[contains(\@href, 'Action=AdminQueueAutoResponse' )]")->click();
+
+        # test QueuesWithoutAutoResponse filter
+        $Selenium->find_element("//a[contains(\@href, 'Filter=QueuesWithoutAutoResponses' )]")->click();
+
+        # verify filter excluded test queue from the list
+        $Self->True(
+            index( $Selenium->get_page_source(), $QueueRandomID ) == -1,
+            "$QueueRandomID not found on screen with QueuesWithoutAutoResponses filter on"
+        );
+
+        # get DB object
+        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
         # since there are no tickets that rely on our test QueueAutoResponse,
         # we can remove test queue, system address and auto response from the DB

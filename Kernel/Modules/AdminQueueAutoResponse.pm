@@ -31,6 +31,7 @@ sub Run {
     $Param{ID} = $ParamObject->GetParam( Param => 'ID' ) || '';
     $Param{Action} = $ParamObject->GetParam( Param => 'Action' )
         || 'AdminQueueAutoResponse';
+    $Param{Filter} = $ParamObject->GetParam( Param => 'Filter' ) || '';
 
     my $LayoutObject       = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $QueueObject        = $Kernel::OM->Get('Kernel::System::Queue');
@@ -128,7 +129,28 @@ sub Run {
         $Output .= $LayoutObject->NavigationBar();
 
         # get queue data
-        my %QueueData = $QueueObject->QueueList( Valid => 1 );
+        my %QueueData;
+        my $QueueHeader;
+        my $FilterQueuesWithoutAutoResponses
+            = $Kernel::OM->Get('Kernel::Config')->Get("FilterQueuesWithoutAutoResponses") || 0;
+
+        # filter queues without auto responses
+        if (
+            $FilterQueuesWithoutAutoResponses
+            && $Param{Filter} eq 'QueuesWithoutAutoResponses'
+            )
+        {
+
+            %QueueData = $AutoResponseObject->AutoResponseWithoutQueue();
+
+            # use appropriate header
+            $QueueHeader = 'Queues ( without auto responses )';
+
+        }
+        else {
+            %QueueData = $QueueObject->QueueList( Valid => 1 );
+            $QueueHeader = 'Queues';
+        }
 
         $LayoutObject->Block(
             Name => 'Overview',
@@ -137,7 +159,23 @@ sub Run {
 
         $LayoutObject->Block( Name => 'FilterQueues' );
         $LayoutObject->Block( Name => 'FilterAutoResponses' );
-        $LayoutObject->Block( Name => 'OverviewResult' );
+        if ($FilterQueuesWithoutAutoResponses) {
+
+            $LayoutObject->Block( Name => 'ActionList' );
+
+            if ( $Param{Filter} eq 'QueuesWithoutAutoResponses' ) {
+                $LayoutObject->Block( Name => 'ShowAllQueues' );
+            }
+            else {
+                $LayoutObject->Block( Name => 'QueuesWithoutAutoResponses' );
+            }
+        }
+        $LayoutObject->Block(
+            Name => 'OverviewResult',
+            Data => {
+                QueueHeader => $QueueHeader,
+                }
+        );
 
         # if there are any queues, they are shown
         if (%QueueData) {
