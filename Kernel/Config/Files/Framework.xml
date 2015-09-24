@@ -132,56 +132,110 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="DefaultUsedLanguages" Required="1" Valid="1">
-        <Description Translatable="1">Defines all the languages that are available to the application. The Key/Content pair links the front-end display name to the appropriate language PM file. The "Key" value should be the base-name of the PM file (i.e. de.pm is the file, then de is the "Key" value). The "Content" value should be the display name for the front-end. Specify any own-defined language here (see the developer documentation http://otrs.github.io/doc/ for more infomation). Please remember to use the HTML equivalents for non-ASCII characters (i.e. for the German oe = o umlaut, it is necessary to use the &amp;ouml; symbol).</Description>
+        <Description Translatable="1">Defines all the languages that are available to the application. Specify only English names of languages here. The Key/Content pair links the front-end display name to the appropriate language PM file. The "Key" value should be the base-name of the PM file (i.e. de.pm is the file, then de is the "Key" value). The "Content" value should be the display name for the front-end.</Description>
         <Group>Framework</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
             <Hash>
                 <Item Key="ar_SA">Arabic (Saudi Arabia)</Item>
-                <Item Key="bg">Bulgarian (&amp;#x0411;&amp;#x044a;&amp;#x043b;&amp;#x0433;&amp;#x0430;&amp;#x0440;&amp;#x0441;&amp;#x043a;&amp;#x0438;)</Item>
-                <Item Key="ca">Catal&amp;agrave;</Item>
-                <Item Key="cs">Czech (&amp;#x010c;esky)</Item>
-                <Item Key="da">Dansk</Item>
-                <Item Key="de">Deutsch</Item>
+                <Item Key="bg">Bulgarian</Item>
+                <Item Key="ca">Catalan</Item>
+                <Item Key="cs">Czech</Item>
+                <Item Key="da">Danish</Item>
+                <Item Key="de">German</Item>
                 <Item Key="en">English (United States)</Item>
                 <Item Key="en_CA">English (Canada)</Item>
                 <Item Key="en_GB">English (United Kingdom)</Item>
+                <Item Key="es">Spanish</Item>
+                <Item Key="es_CO">Spanish (Colombia)</Item>
+                <Item Key="es_MX">Spanish (Mexico)</Item>
+                <Item Key="et">Estonian</Item>
+                <Item Key="el">Greek</Item>
+                <Item Key="fa">Persian</Item>
+                <Item Key="fi">Finnish</Item>
+                <Item Key="fr">French</Item>
+                <Item Key="fr_CA">French (Canada)</Item>
+                <Item Key="gl">Galician</Item>
+                <Item Key="he">Hebrew</Item>
+                <Item Key="hi">Hindi</Item>
+                <Item Key="hr">Croatian</Item>
+                <Item Key="hu">Hungarian</Item>
+                <Item Key="it">Italian</Item>
+                <Item Key="ja">Japanese</Item>
+                <Item Key="lt">Lithuanian</Item>
+                <Item Key="lv">Latvian</Item>
+                <Item Key="ms">Malay</Item>
+                <Item Key="nl">Nederlands</Item>
+                <Item Key="nb_NO">Norwegian</Item>
+                <Item Key="pt_BR">Portuguese (Brasil)</Item>
+                <Item Key="pt">Portuguese</Item>
+                <Item Key="pl">Polish</Item>
+                <Item Key="ru">Russian</Item>
+                <Item Key="sl">Slovenian</Item>
+                <Item Key="sr_Latn">Serbian Latin</Item>
+                <Item Key="sr_Cyrl">Serbian Cyrillic</Item>
+                <Item Key="sk_SK">Slovak</Item>
+                <Item Key="sv">Swedish</Item>
+                <Item Key="sw">Swahili</Item>
+                <Item Key="tr">Turkish</Item>
+                <Item Key="uk">Ukrainian</Item>
+                <Item Key="vi_VN">Vietnam</Item>
+                <Item Key="zh_CN">Chinese (Sim.)</Item>
+                <Item Key="zh_TW">Chinese (Tradi.)</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="DefaultUsedLanguagesNative" Required="1" Valid="1">
+<Description Translatable="1">Defines all the languages that are available to the application. Specify only native names of languages here. Specify any own-defined language here (see the developer documentation http://otrs.github.io/doc/ for more infomation). Please remember to use the HTML equivalents for non-ASCII characters (i.e. for the German oe = o umlaut, it is necessary to use the ö symbol). The Key/Content pair links the front-end display name to the appropriate language PM file. The "Key" value should be the base-name of the PM file (i.e. de.pm is the file, then de is the "Key" value). The "Content" value should be the display name for the front-end.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="ar_SA">&amp;#1575;&amp;#1604;&amp;#1593;&amp;#1614;&amp;#1585;&amp;#1614;&amp;#1576;&amp;#1616;&amp;#1610;&amp;#1577;&amp;#8206;</Item>
+                <Item Key="bg">&amp;#x0411;&amp;#x044a;&amp;#x043b;&amp;#x0433;&amp;#x0430;&amp;#x0440;&amp;#x0441;&amp;#x043a;&amp;#x0438;</Item>
+                <Item Key="ca">Catal&amp;agrave;</Item>
+                <Item Key="cs">&amp;#x010c;esky</Item>
+                <Item Key="da">Dansk</Item>
+                <Item Key="de">Deutsch</Item>
+                <Item Key="en"></Item>
+                <Item Key="en_CA"></Item>
+                <Item Key="en_GB"></Item>
                 <Item Key="es">Espa&amp;ntilde;ol</Item>
                 <Item Key="es_CO">Espa&amp;ntilde;ol (Colombia)</Item>
                 <Item Key="es_MX">Espa&amp;ntilde;ol (M&amp;eacute;xico)</Item>
                 <Item Key="et">Eesti</Item>
-                <Item Key="el">Greek (&amp;#x0395;&amp;#x03bb;&amp;#x03bb;&amp;#x03b7;&amp;#x03bd;&amp;#x03b9;&amp;#x03ba;&amp;#x03ac;)</Item>
-                <Item Key="fa">Persian (&amp;#x0641;&amp;#x0627;&amp;#x0631;&amp;#x0633;&amp;#x0649;)</Item>
+                <Item Key="el">&amp;#x0395;&amp;#x03bb;&amp;#x03bb;&amp;#x03b7;&amp;#x03bd;&amp;#x03b9;&amp;#x03ba;&amp;#x03ac;</Item>
+                <Item Key="fa">&amp;#x0641;&amp;#x0627;&amp;#x0631;&amp;#x0633;&amp;#x0649;</Item>
                 <Item Key="fi">Suomi</Item>
                 <Item Key="fr">Fran&amp;ccedil;ais</Item>
                 <Item Key="fr_CA">Fran&amp;ccedil;ais (Canada)</Item>
                 <Item Key="gl">Galego</Item>
-                <Item Key="he">Hebrew (עִבְרִית)</Item>
-                <Item Key="hi">Hindi</Item>
+                <Item Key="he">ִבְרִית</Item>
+                <Item Key="hi"></Item>
                 <Item Key="hr">Hrvatski</Item>
                 <Item Key="hu">Magyar</Item>
                 <Item Key="it">Italiano</Item>
-                <Item Key="ja">Japanese (&amp;#x65e5;&amp;#x672c;&amp;#x8a9e;)</Item>
+                <Item Key="ja">&amp;#x65e5;&amp;#x672c;&amp;#x8a9e;</Item>
                 <Item Key="lt">Lietuvi&#371; kalba</Item>
                 <Item Key="lv">Latvijas</Item>
-                <Item Key="ms">Malay</Item>
-                <Item Key="nl">Nederlands</Item>
+                <Item Key="ms">Melayu</Item>
+                <Item Key="nl">Nederlandse</Item>
                 <Item Key="nb_NO">Norsk bokm&amp;aring;l</Item>
                 <Item Key="pt_BR">Portugu&amp;ecirc;s Brasileiro</Item>
                 <Item Key="pt">Portugu&amp;ecirc;s</Item>
                 <Item Key="pl">Polski</Item>
-                <Item Key="ru">Russian (&amp;#x0420;&amp;#x0443;&amp;#x0441;&amp;#x0441;&amp;#x043a;&amp;#x0438;&amp;#x0439;)</Item>
-                <Item Key="sl">Slovenian (Sloven&#x0161;&#x010d;ina)</Item>
-                <Item Key="sr_Latn">Serbian Latin (Srpski)</Item>
-                <Item Key="sr_Cyrl">Serbian Cyrillic (&#1089;&#1088;&#1087;&#1089;&#1082;&#1080;)</Item>
-                <Item Key="sk_SK">Slovak (Sloven&amp;#x010d;ina)</Item>
+                <Item Key="ru">&amp;#x0420;&amp;#x0443;&amp;#x0441;&amp;#x0441;&amp;#x043a;&amp;#x0438;&amp;#x0439;</Item>
+                <Item Key="sl">Sloven&#x0161;&#x010d;ina</Item>
+                <Item Key="sr_Latn">Srpski</Item>
+                <Item Key="sr_Cyrl">&#1089;&#1088;&#1087;&#1089;&#1082;&#1080;</Item>
+                <Item Key="sk_SK">Sloven&amp;#x010d;ina</Item>
                 <Item Key="sv">Svenska</Item>
-                <Item Key="sw">Swahili</Item>
+                <Item Key="sw"></Item>
                 <Item Key="tr">T&amp;uuml;rk&amp;ccedil;e</Item>
-                <Item Key="uk">Ukrainian (&amp;#x0423;&amp;#x043a;&amp;#x0440;&amp;#x0430;&amp;#x0457;&amp;#x043d;&amp;#x0441;&amp;#x044c;&amp;#x043a;&amp;#x0430;)</Item>
-                <Item Key="vi_VN">Vietnam (Vi&amp;#x0246;t Nam)</Item>
-                <Item Key="zh_CN">Chinese (Sim.) (&amp;#x7b80;&amp;#x4f53;&amp;#x4e2d;&amp;#x6587;)</Item>
-                <Item Key="zh_TW">Chinese (Tradi.) (&amp;#x6b63;&amp;#x9ad4;&amp;#x4e2d;&amp;#x6587;)</Item>
+                <Item Key="uk">&amp;#x0423;&amp;#x043a;&amp;#x0440;&amp;#x0430;&amp;#x0457;&amp;#x043d;&amp;#x0441;&amp;#x044c;&amp;#x043a;&amp;#x0430;</Item>
+                <Item Key="vi_VN">Vi&amp;#x0246;t Nam</Item>
+                <Item Key="zh_CN">&amp;#x7b80;&amp;#x4f53;&amp;#x4e2d;&amp;#x6587;</Item>
+                <Item Key="zh_TW">&amp;#x6b63;&amp;#x9ad4;&amp;#x4e2d;&amp;#x6587;</Item>
             </Hash>
         </Setting>
     </ConfigItem>
