@@ -11,6 +11,8 @@ package Kernel::Output::HTML::Preferences::OutOfOffice;
 use strict;
 use warnings;
 
+use Kernel::Language qw(Translatable);
+
 our @ObjectDependencies = (
     'Kernel::Output::HTML::Layout',
     'Kernel::System::Web::Request',
@@ -146,10 +148,10 @@ sub Run {
             );
         }
 
-        $Self->{Message} = 'Preferences updated successfully!';
+        $Self->{Message} = Translatable('Preferences updated successfully!');
     }
     else {
-        $Self->{Error} = "Start date shouldn't be defined after End date!";
+        $Self->{Error} = Translatable('Please specify an end date that is after the start date.');
         return;
     }
 

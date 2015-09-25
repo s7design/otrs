@@ -74,7 +74,7 @@ $Selenium->RunTest(
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("body").length' );
 
         # check for error message on screen
-        my $ErrorMessage = "Start date shouldn't be defined after End date!";
+        my $ErrorMessage = "Please specify an end date that is after the start date.";
         $Self->True(
             index( $Selenium->get_page_source(), $ErrorMessage ) > -1,
             'Agent preference out of office time - not updated'
