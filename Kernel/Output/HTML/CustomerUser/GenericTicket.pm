@@ -54,8 +54,14 @@ sub Run {
         States => {
             Object => 'Kernel::System::State',
             Return => 'StateIDs',
-            Input  => '',
-            Method => '',
+            Input  => 'State',
+            Method => 'StateLookup',
+        },
+        StateType => {
+            Object => 'Kernel::System::State',
+            Return => 'StateIDs',
+            Input  => 'StateType',
+            Method => 'StateGetStatesByType',
         },
         Priorities => {
             Object => 'Kernel::System::Priority',
@@ -96,17 +102,58 @@ sub Run {
             next STRING if !$Kernel::OM->Get('Kernel::System::Main')->Require( $Lookup{$Key}->{Object} );
             my $Object = $Lookup{$Key}->{Object}->new( %{$Self} );
             my $Method = $Lookup{$Key}->{Method};
-            $Value = $Object->$Method( $Lookup{$Key}->{Input} => $Value );
+            if ( $Key eq 'StateType' ) {
+
+                my @ViewableStateOpen = $Object->$Method(
+                    Type   => 'Viewable',
+                    Result => "ID"
+                );
+
+                my @ViewableState;
+                if ( $Value eq 'Open' ) {
+                    @ViewableState = @ViewableStateOpen;
+                }
+                elsif ( $Value eq 'Closed' ) {
+                    my %StateList = $Object->StateList( UserID => $Self->{UserID} );
+                    for my $Item ( sort keys %StateList ) {
+                        if ( !grep ( { $_ eq $Item } @ViewableStateOpen ) ) {
+                            push @ViewableState, $Item;
+                        }
+                    }
+                }
+                else {
+                    @ViewableState = $Object->$Method(
+                        $Lookup{$Key}->{Input} => $Value,
+                        Result                 => "ID"
+                    );
+                }
+                $Value = \@ViewableState;
+            }
+            else {
+                $Value = $Object->$Method( $Lookup{$Key}->{Input} => $Value );
+            }
             $Key = $Lookup{$Key}->{Return};
         }
 
         # build link and search attributes
         if ( $Key =~ /IDs$/ ) {
-            if ( !$TicketSearch{$Key} ) {
-                $TicketSearch{$Key} = [$Value];
+            if ( !ref $Value ) {
+                if ( !$TicketSearch{$Key} ) {
+                    $TicketSearch{$Key} = [$Value];
+                }
+                else {
+                    push @{ $TicketSearch{$Key} }, $Value;
+                }
             }
             else {
-                push @{ $TicketSearch{$Key} }, $Value;
+                for my $State ( @{$Value} ) {
+                    if ( !$TicketSearch{$Key} ) {
+                        $TicketSearch{$Key} = [$State];
+                    }
+                    else {
+                        push @{ $TicketSearch{$Key} }, $State;
+                    }
+                }
             }
         }
         elsif ( !defined $TicketSearch{$Key} ) {

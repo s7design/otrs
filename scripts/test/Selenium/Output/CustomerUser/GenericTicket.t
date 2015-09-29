@@ -82,8 +82,31 @@ $Selenium->RunTest(
         );
         my $CustomerID = $CustomerIDs[0];
 
-        # get ticket object
+        # get needed objects
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+        my $StateObject  = $Kernel::OM->Get('Kernel::System::State');
+
+        # get states
+        my @ClosedViewableState;
+        my @OpenViewableState = $StateObject->StateGetStatesByType(
+            Type   => 'Viewable',
+            Result => "ID"
+        );
+
+        my %StateList = $StateObject->StateList( UserID => 1 );
+        my $TicketLinkClose = '';
+
+        for my $Item ( sort keys %StateList ) {
+            if ( !grep ( { $_ eq $Item } @OpenViewableState ) ) {
+                push @ClosedViewableState, $Item;
+                $TicketLinkClose .= "StateIDs=$Item;"
+            }
+        }
+
+        my $TicketLinkOpen = '';
+        for my $Item (@OpenViewableState) {
+            $TicketLinkOpen .= "StateIDs=$Item;";
+        }
 
         # create test data parameteres
         my %TicketData = (
@@ -92,14 +115,14 @@ $Selenium->RunTest(
                 TicketCount   => '',
                 TicketNumbers => [],
                 TicketIDs     => [],
-                TicketLink    => 'StateType=Open',
+                TicketLink    => $TicketLinkOpen,
             },
             'Closed' => {
                 TicketState   => 'closed successful',
                 TicketCount   => '',
                 TicketNumbers => [],
                 TicketIDs     => [],
-                TicketLink    => 'StateType=Closed',
+                TicketLink    => $TicketLinkClose,
             },
         );
 
@@ -154,7 +177,7 @@ $Selenium->RunTest(
 
             # click on link
             $Selenium->find_element(
-                "//a[contains(\@href, \'$TicketData{$TestLinks}->{TicketLink};CustomerUserLogin=$TestCustomerUserLogin' )]"
+                "//a[contains(\@href, \'$TicketData{$TestLinks}->{TicketLink}CustomerUserLogin=$TestCustomerUserLogin' )]"
             )->click();
 
             $Selenium->WaitFor( WindowCount => 2 );
@@ -173,6 +196,18 @@ $Selenium->RunTest(
                     "TicketNumber $CheckTicketNumbers - found on screen"
                 );
             }
+
+            # click on 'change search option'
+            $Selenium->find_element(
+                "//a[contains(\@href, \'AgentTicketSearch;Subaction=LoadProfile' )]"
+            )->click();
+
+            # link open in new window switch to it
+            $Handles = $Selenium->get_window_handles();
+            $Selenium->switch_to_window( $Handles->[2] );
+
+            # verify state search attributes are shown in search screen, see bug #10853
+            $Selenium->find_element( "#StateIDs", 'css' );
 
             # close current window and return to original
             $Selenium->close();
