@@ -1155,22 +1155,9 @@ sub AgentMove {
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
     # Widget Ticket Actions
-    if (
-        ( $ConfigObject->Get('Ticket::Type') && $Config->{TicketType} )
-        ||
-        ( $ConfigObject->Get('Ticket::Service')     && $Config->{Service} )     ||
-        ( $ConfigObject->Get('Ticket::Responsible') && $Config->{Responsible} ) ||
-        $Config->{Title} ||
-        $Config->{Queue} ||
-        $Config->{Owner} ||
-        $Config->{State} ||
-        $Config->{Priority}
-        )
-    {
-        $LayoutObject->Block(
-            Name => 'WidgetTicketActions',
-        );
-    }
+    $LayoutObject->Block(
+        Name => 'WidgetTicketActions',
+    );
 
     my %Data       = %{ $Param{MoveQueues} };
     my %MoveQueues = %Data;
