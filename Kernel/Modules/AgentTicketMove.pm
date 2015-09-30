@@ -247,7 +247,7 @@ sub Run {
         $FormID = $UploadCacheObject->FormIDCreate();
     }
 
-    # ajax update
+    # Ajax update
     if ( $Self->{Subaction} eq 'AJAXUpdate' ) {
         my $ElementChanged = $ParamObject->GetParam( Param => 'ElementChanged' ) || '';
 
@@ -270,7 +270,7 @@ sub Run {
             QueueID  => $GetParam{DestQueueID} || 1,
         );
 
-        # update Dynamc Fields Possible Values via AJAX
+        # update Dynamic Fields Possible Values via AJAX
         my @DynamicFieldAJAX;
 
         # cycle trough the activated Dynamic Fields for this screen
@@ -288,7 +288,7 @@ sub Run {
                 DynamicFieldConfig => $DynamicFieldConfig,
             );
 
-            # convert possible values key => value to key => key for ACLs usign a Hash slice
+            # convert possible values key => value to key => key for ACLs using a Hash slice
             my %AclData = %{$PossibleValues};
             @AclData{ keys %AclData } = keys %AclData;
 
@@ -338,7 +338,7 @@ sub Run {
 
         my @TemplateAJAX;
 
-        # update ticket body and attachements if needed.
+        # update ticket body and attachments if needed.
         if ( $ElementChanged eq 'StandardTemplateID' ) {
             my @TicketAttachments;
             my $TemplateText;
@@ -484,7 +484,7 @@ sub Run {
         );
     }
 
-    # create html strings for all dynamic fields
+    # create HTML strings for all dynamic fields
     my %DynamicFieldHTML;
 
     # cycle trough the activated Dynamic Fields for this screen
@@ -509,7 +509,7 @@ sub Run {
             # check if field has PossibleValues property in its configuration
             if ( IsHashRefWithData($PossibleValues) ) {
 
-                # convert possible values key => value to key => key for ACLs usign a Hash slice
+                # convert possible values key => value to key => key for ACLs using a Hash slice
                 my %AclData = %{$PossibleValues};
                 @AclData{ keys %AclData } = keys %AclData;
 
@@ -545,7 +545,7 @@ sub Run {
             $Value = $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} };
         }
 
-        # get field html
+        # get field HTML
         $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } =
             $DynamicFieldBackendObject->EditFieldRender(
             DynamicFieldConfig   => $DynamicFieldConfig,
@@ -657,7 +657,7 @@ sub Run {
                 # check if field has PossibleValues property in its configuration
                 if ( IsHashRefWithData($PossibleValues) ) {
 
-                    # convert possible values key => value to key => key for ACLs usign a Hash slice
+                    # convert possible values key => value to key => key for ACLs using a Hash slice
                     my %AclData = %{$PossibleValues};
                     @AclData{ keys %AclData } = keys %AclData;
 
@@ -709,7 +709,7 @@ sub Run {
                 }
             }
 
-            # get field html
+            # get field HTML
             $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } = $DynamicFieldBackendObject->EditFieldRender(
                 DynamicFieldConfig   => $DynamicFieldConfig,
                 PossibleValuesFilter => $PossibleValuesFilter,
@@ -925,7 +925,7 @@ sub Run {
             );
         }
 
-        # set pending time on pendig state
+        # set pending time on pending state
         elsif ( $StateData{TypeName} =~ /^pending/i ) {
 
             # set pending time
@@ -1068,7 +1068,7 @@ sub Run {
         for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
-            # set the object ID (TicketID or ArticleID) depending on the field configration
+            # set the object ID (TicketID or ArticleID) depending on the field configuration
             my $ObjectID = $DynamicFieldConfig->{ObjectType} eq 'Article' ? $ArticleID : $Self->{TicketID};
 
             # set the value
@@ -1319,7 +1319,7 @@ sub AgentMove {
             $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} }
         );
 
-        # get the html strings form $Param
+        # get the HTML strings form $Param
         my $DynamicFieldHTML = $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} };
 
         $LayoutObject->Block(
@@ -1374,7 +1374,7 @@ sub AgentMove {
             Data => {%Param},
         );
 
-        # fillup configured default vars
+        # fill up configured default vars
         if ( $Param{Body} eq '' && $Config->{Body} ) {
             $Param{Body} = $LayoutObject->Output(
                 Template => $Config->{Body},
