@@ -20,6 +20,7 @@ our @ObjectDependencies = (
     'Kernel::System::State',
     'Kernel::System::Type',
     'Kernel::System::Web::Request',
+    'Kernel::System::Ticket',
 );
 
 =head1 NAME
@@ -57,7 +58,7 @@ sub new {
         $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
     }
 
-    # We need our own LayoutObject instance to avoid blockdata collisions
+    # We need our own LayoutObject instance to avoid block data collisions
     #   with the main page.
     $Self->{LayoutObject} = Kernel::Output::HTML::Layout->new( %{$Self} );
 
@@ -185,6 +186,11 @@ sub TableCreateComplex {
             $CssClass = 'StrikeThrough';
         }
 
+        my $CleanedSubject = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSubjectClean(
+            TicketNumber => $Ticket->{TicketNumber},
+            Subject      => $Ticket->{Title},
+        );
+
         my @ItemColumns = (
             {
                 Type    => 'Link',
@@ -197,9 +203,8 @@ sub TableCreateComplex {
                 CssClass => $CssClass,
             },
             {
-                Type      => 'Text',
-                Content   => $Ticket->{Title},
-                MaxLength => 50,
+                Type    => 'Text',
+                Content => $CleanedSubject,
             },
             {
                 Type    => 'Text',
