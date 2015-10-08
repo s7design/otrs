@@ -1945,7 +1945,6 @@ sub TicketQueueSet {
                     RecipientID           => $UserID,
                     CustomerMessageParams => {
                         Queue => $Queue,
-                        Body  => $Param{Comment} || '',
                     },
                     TicketID => $Param{TicketID},
                     UserID   => $Param{UserID},
@@ -4557,7 +4556,6 @@ sub TicketOwnerSet {
                 RecipientID           => $Param{NewUserID},
                 CustomerMessageParams => {
                     %Param,
-                    Body => $Param{Comment} || '',
                 },
                 TicketID => $Param{TicketID},
                 UserID   => $Param{UserID},
@@ -4774,7 +4772,7 @@ sub TicketResponsibleSet {
             $Self->SendAgentNotification(
                 Type                  => 'ResponsibleUpdate',
                 RecipientID           => $Param{NewUserID},
-                CustomerMessageParams => \%Param,
+                CustomerMessageParams => {},
                 TicketID              => $Param{TicketID},
                 UserID                => $Param{UserID},
             );
