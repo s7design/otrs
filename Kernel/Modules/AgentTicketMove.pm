@@ -1154,11 +1154,6 @@ sub AgentMove {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    # Widget Ticket Actions
-    $LayoutObject->Block(
-        Name => 'WidgetTicketActions',
-    );
-
     my %Data       = %{ $Param{MoveQueues} };
     my %MoveQueues = %Data;
     my %UsedData;
