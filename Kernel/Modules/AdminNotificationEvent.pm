@@ -1035,7 +1035,6 @@ sub _Edit {
 
     LANGUAGEID:
     for my $LanguageID (@LanguageIDs) {
-        next LANGUAGEID if !defined $DefaultUsedLanguages{$LanguageID};
 
         # format the content according to the content type
         if ( $Param{RichText} ) {
