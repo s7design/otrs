@@ -1169,11 +1169,6 @@ sub AgentMove {
         $TreeView = 1;
     }
 
-    # widget Ticket Actions
-    $Self->{LayoutObject}->Block(
-        Name => 'WidgetTicketActions',
-    );
-
     my %Data       = %{ $Param{MoveQueues} };
     my %MoveQueues = %Data;
     my %UsedData;
