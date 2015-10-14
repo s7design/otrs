@@ -1756,7 +1756,9 @@ sub _Mask {
             Filters      => {
                 OldOwners => {
                     Name   => $LayoutObject->{LanguageObject}->Translate('Previous Owner'),
-                    Values => \%OldOwnersShown,
+                    Values => $Self->_GetOldOwners(
+                        QueueID => $Ticket{QueueID},
+                    ),
                 },
             },
         );
@@ -2505,10 +2507,9 @@ sub _GetOldOwners {
         my $Counter = 1;
         USER:
         for my $User ( reverse @OldUserInfo ) {
-
             next USER if $UserHash{ $User->{UserID} };
 
-            $UserHash{ $User->{UserID} } = "$Counter: $User->{UserFullname}";
+            $UserHash{ $User->{UserID} } = "$Counter: $User->{UserFullname}" . ( $User->{OutOfOfficeMessage} || '' );
             $Counter++;
         }
     }
