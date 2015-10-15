@@ -120,6 +120,15 @@ sub GroupAdd {
         }
     }
 
+    # check group name
+    if ( $Param{Name} =~ m{ : }xms ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Can't add group! Don't use : (colon) in group name!",
+        );
+        return;
+    }
+
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
