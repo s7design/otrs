@@ -26,6 +26,7 @@
     border: 1px solid #ccc;
     border-bottom: 1px solid #bbb;
     margin-right: 15px;
+    vertical-align: top;
 }
 
 .BigButtons li a {
@@ -33,6 +34,7 @@
     padding: 20px;
     display: block;
     width: 150px;
+    min-height: 110px;
 	background: #eee;
     cursor: pointer;
     transition: all ease-in 0.2s;
