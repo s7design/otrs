@@ -75,10 +75,50 @@ sub Run {
         DynamicFields => 1,
     );
 
+    # get ACL restrictions
+    my %PossibleActions;
+    my $Counter = 0;
+
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    # get all registered Actions
+    if ( ref $ConfigObject->Get('CustomerFrontend::Module') eq 'HASH' ) {
+
+        my %Actions = %{ $ConfigObject->Get('CustomerFrontend::Module') };
+
+        # only use those Actions that starts with Customer
+        %PossibleActions = map { ++$Counter => $_ }
+            grep { substr( $_, 0, length 'Customer' ) eq 'Customer' }
+            sort keys %Actions;
+    }
+
+    my $ACL = $TicketObject->TicketAcl(
+        Data          => \%PossibleActions,
+        Action        => $Self->{Action},
+        TicketID      => $Self->{TicketID},
+        ReturnType    => 'Action',
+        ReturnSubType => '-',
+        UserID        => $Self->{UserID},
+    );
+
+    my %AclAction = %PossibleActions;
+    if ($ACL) {
+        %AclAction = $TicketObject->TicketAclActionData();
+    }
+
+    # check if ACL restrictions exist
+    my %AclActionLookup = reverse %AclAction;
+
+    # show error screen if ACL prohibits this action
+    if ( !$AclActionLookup{ $Self->{Action} } ) {
+        return $LayoutObject->NoPermission( WithHeader => 'yes' );
+    }
+
     # strip html and ascii attachments of content
     my $StripPlainBodyAsAttachment = 1;
 
-    # check if rich text is enabled, if not only stip ascii attachments
+    # check if rich text is enabled, if not only strip ascii attachments
     if ( !$LayoutObject->{BrowserRichText} ) {
         $StripPlainBodyAsAttachment = 2;
     }
@@ -102,7 +142,6 @@ sub Run {
     # get Dynamic fields from ParamObject
     my %DynamicFieldValues;
 
-    my $ConfigObject               = $Kernel::OM->Get('Kernel::Config');
     my $Config                     = $ConfigObject->Get("Ticket::Frontend::$Self->{Action}");
     my $FollowUpDynamicFieldFilter = $Config->{FollowUpDynamicField};
 
@@ -467,7 +506,7 @@ sub Run {
                 if ( $ValidationResult->{ServerError} ) {
                     $Error{ $DynamicFieldConfig->{Name} } = ' ServerError';
 
-                    # make FollowUp visible to correcly show the error
+                    # make FollowUp visible to correctly show the error
                     $GetParam{FollowUpVisible} = 'Visible';
                 }
             }
@@ -831,6 +870,7 @@ sub Run {
         TicketState   => $Ticket{State},
         TicketStateID => $Ticket{StateID},
         %GetParam,
+        AclAction        => \%AclAction,
         DynamicFieldHTML => \%DynamicFieldHTML,
     );
 
@@ -883,6 +923,9 @@ sub _Mask {
 
     my $ParamObject       = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $UploadCacheObject = $Kernel::OM->Get('Kernel::System::Web::UploadCache');
+
+    my %AclAction       = %{ $Param{AclAction} };
+    my %AclActionLookup = reverse %AclAction;
 
     $Param{FormID} = $Self->{FormID};
 
@@ -1210,7 +1253,7 @@ sub _Mask {
 
     my $BackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
-    # reduce the dynamic fields to only the ones that are desinged for customer interface
+    # reduce the dynamic fields to only the ones that are designed for customer interface
     my @CustomerDynamicFields;
     DYNAMICFIELD:
     for my $DynamicFieldConfig ( @{$FollowUpDynamicField} ) {
@@ -1368,7 +1411,11 @@ sub _Mask {
     }
 
     # print option
-    if ( $ConfigObject->Get('CustomerFrontend::Module')->{CustomerTicketPrint} ) {
+    if (
+        $ConfigObject->Get('CustomerFrontend::Module')->{CustomerTicketPrint}
+        && $AclActionLookup{CustomerTicketPrint}
+        )
+    {
         $LayoutObject->Block(
             Name => 'Print',
             Data => \%Param,
@@ -1470,7 +1517,7 @@ sub _Mask {
         for my $DynamicFieldConfig ( @{$DynamicField} ) {
             next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
 
-            # skip the dynamic field if is not desinged for customer interface
+            # skip the dynamic field if is not designed for customer interface
             my $IsCustomerInterfaceCapable = $BackendObject->HasBehavior(
                 DynamicFieldConfig => $DynamicFieldConfig,
                 Behavior           => 'IsCustomerInterfaceCapable',
