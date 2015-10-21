@@ -88,6 +88,17 @@
             </Option>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Ticket::NewArticleIgnoreCurrentAgent" Required="1" Valid="1">
+        <Description Translatable="1">Ignore article flag for articles created by current logged agent.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Core::Ticket</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0" Translatable="1">No</Item>
+                <Item Key="1" Translatable="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Ticket::ChangeOwnerToEveryone" Required="1" Valid="1">
         <Description Translatable="1">Changes the owner of tickets to everyone (useful for ASP). Normally only agent with rw permissions in the queue of the ticket will be shown.</Description>
         <Group>Ticket</Group>

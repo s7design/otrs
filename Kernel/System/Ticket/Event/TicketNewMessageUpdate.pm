@@ -67,7 +67,18 @@ sub Run {
             DynamicFields => 0,
         );
 
-        if ( %Article && $Article{SenderType} eq 'agent' ) {
+        my $IgnoreCurrentAgent = $Kernel::OM->Get('Kernel::Config')->Get('Ticket::NewArticleIgnoreCurrentAgent')
+            && $Article{CreatedBy} eq $Param{UserID};
+
+        if ( %Article && $Article{SenderType} eq 'agent' || $IgnoreCurrentAgent ) {
+
+            # set the seen flag to 1 for the agent who updated the ticket
+            $TicketObject->TicketFlagSet(
+                TicketID => $Param{Data}->{TicketID},
+                Key      => 'Seen',
+                Value    => 1,
+                UserID   => $Param{UserID},
+            );
 
             # set the seen flag to 1 for the agent who created the article
             $TicketObject->ArticleFlagSet(
