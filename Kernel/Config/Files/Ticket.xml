@@ -1410,6 +1410,14 @@
             <String Regex="^[0-9]$">5</String>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Ticket::Frontend::Overview::TicketShownLimit" Required="1" Valid="1">
+        <Description Translatable="1">Set the limit of tickets that will be shown in view screens.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Frontend::Agent::TicketOverview</SubGroup>
+        <Setting>
+            <String Regex="^[0-9]{1,6}$">10000</String>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Ticket::Frontend::Overview::PreviewArticleTypeExpanded" Required="0" Valid="0">
         <Description Translatable="1">Defines wich article type should be expanded when entering the overview. If nothing defined, latest article will be expanded.</Description>
         <Group>Ticket</Group>

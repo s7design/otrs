@@ -230,7 +230,7 @@ sub Run {
 
     # do shown tickets lookup
     my $Limit = $ParamObject->GetParam( Param => 'Limit' ) || 2000;
-    my $OriginalLimit = 10_000;
+    my $OriginalLimit = $ConfigObject->Get("Ticket::Frontend::Overview::TicketShownLimit") || 10_000;
 
     my $ElementChanged = $ParamObject->GetParam( Param => 'ElementChanged' ) || '';
     my $HeaderColumn = $ElementChanged;
