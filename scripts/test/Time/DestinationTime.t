@@ -28,7 +28,7 @@ my @Tests = (
         Name            => 'UTC',
         TimeStampStart  => '2015-02-17 12:00:00',
         ServerTZ        => 'UTC',
-        Time            => '7776000',                                                         # 90 days
+        Time            => 60 * 60 * 24 * 90,                                               # 90 days
         TimeDate        => '90 days',
         DestinationTime => '2015-05-19 12:00:00',
     },
@@ -36,15 +36,15 @@ my @Tests = (
         Name            => 'Europe/Berlin ( Daylight Saving Time UTC+1 => UTC+2 )',
         TimeStampStart  => '2015-02-17 12:00:00',
         ServerTZ        => 'Europe/Berlin',
-        Time            => '7779600',
-        TimeDate        => '90 days and 1h',                                                  # 90 days and 1h
+        Time            => 60 * 60 * 24 * 90 + 60 * 60,
+        TimeDate        => '90 days and 1h',                                                   # 90 days and 1h
         DestinationTime => '2015-05-19 13:00:00',
     },
     {
         Name            => 'UTC',
         TimeStampStart  => '2015-02-21 22:00:00',
         ServerTZ        => 'UTC',
-        Time            => '21600',                                                           # 6h
+        Time            => 60 * 60 * 6,                                                        # 6h
         TimeDate        => '6h',
         DestinationTime => '2015-02-22 04:00:00',
     },
@@ -52,7 +52,7 @@ my @Tests = (
         Name            => 'America/Sao_Paulo - end DST from 00 to 23  ( UTC-2 => UTC-3 )',
         TimeStampStart  => '2015-02-21 22:00:00',
         ServerTZ        => 'America/Sao_Paulo',
-        Time            => '18000',                                                           # 5h
+        Time            => 60 * 60 * 5,                                                        # 5h
         TimeDate        => '5h',
         DestinationTime => '2015-02-22 02:00:00',
     },
@@ -60,15 +60,15 @@ my @Tests = (
         Name            => 'UTC with min and sec',
         TimeStampStart  => '2015-02-20 22:10:05',
         ServerTZ        => 'UTC',
-        Time            => '368415',                                                          # 4 days 06:20:15
+        Time            => 60 * 60 * 24 * 4 + 60 * 60 * 6 + 60 * 20 + 15,                      # 4 days 06:20:15
         TimeDate        => '4 days 06:20:15',
         DestinationTime => '2015-02-25 04:30:20',
     },
     {
-        Name            => 'America/Sao_Paulo - end DST from 00 to 23 - with min and sec',
+        Name            => 'America/Sao_Paulo - end DST from 00 to 23 - with min and sec ( UTC-2 => UTC-3 )',
         TimeStampStart  => '2015-02-21 22:10:05',
         ServerTZ        => 'America/Sao_Paulo',
-        Time            => '364815',                                                          # 4 days 05:20:15
+        Time            => 60 * 60 * 24 * 4 + 60 * 60 * 5 + 60 * 20 + 15,                      # 4 days 05:20:15
         TimeDate        => '4 days 05:20:15',
         DestinationTime => '2015-02-26 02:30:20',
     },
@@ -76,15 +76,15 @@ my @Tests = (
         Name            => 'UTC',
         TimeStampStart  => '2015-10-17 22:00:00',
         ServerTZ        => 'UTC',
-        Time            => '21600',                                                           # 6h
-        TimeDate        => '6',
+        Time            => 60 * 60 * 6,                                                        # 6h
+        TimeDate        => '6h',
         DestinationTime => '2015-10-18 04:00:00',
     },
     {
         Name            => 'America/Sao_Paulo - start DST from 00 to 01 ( UTC-3 => UTC-2 )',
         TimeStampStart  => '2015-10-17 22:00:00',
         ServerTZ        => 'America/Sao_Paulo',
-        Time            => '25200',                                                            # 7h
+        Time            => 60 * 60 * 7,                                                        # 7h
         TimeDate        => '7h',
         DestinationTime => '2015-10-18 06:00:00',
     },
@@ -92,7 +92,7 @@ my @Tests = (
         Name            => 'UTC',
         TimeStampStart  => '2015-03-21 12:00:00',
         ServerTZ        => 'UTC',
-        Time            => '86400',                                                            # 24h
+        Time            => 60 * 60 * 24,                                                       # 24h
         TimeDate        => '24h',
         DestinationTime => '2015-03-22 12:00:00',
     },
@@ -100,7 +100,7 @@ my @Tests = (
         Name            => 'UTC',
         TimeStampStart  => '2015-09-21 12:00:00',
         ServerTZ        => 'UTC',
-        Time            => '57600',                                                            # 16h
+        Time            => 60 * 60 * 16,                                                       # 16h
         TimeDate        => '16h',
         DestinationTime => '2015-09-22 04:00:00',
     },
@@ -108,7 +108,7 @@ my @Tests = (
         Name            => 'Asia/Tehran - end DST from 00 to 23  ( UTC+3:30 => UTC+4:30 )',
         TimeStampStart  => '2015-09-21 12:00:00',
         ServerTZ        => 'Asia/Tehran',
-        Time            => '54000',                                                            # 15h
+        Time            => 60 * 60 * 15,                                                       # 15h
         TimeDate        => '15h',
         DestinationTime => '2015-09-22 02:00:00',
     },
@@ -116,7 +116,7 @@ my @Tests = (
         Name            => 'UTC',
         TimeStampStart  => '2015-03-21 12:00:00',
         ServerTZ        => 'UTC',
-        Time            => '57600',                                                            # 16h
+        Time            => 60 * 60 * 16,                                                       # 16h
         TimeDate        => '16h',
         DestinationTime => '2015-03-22 04:00:00',
     },
@@ -124,7 +124,7 @@ my @Tests = (
         Name            => 'Asia/Tehran - end DST from 00 to 01  ( UTC+4:30 => UTC+3:30 )',
         TimeStampStart  => '2015-03-21 12:00:00',
         ServerTZ        => 'Asia/Tehran',
-        Time            => '61200',                                                            # 17h
+        Time            => 60 * 60 * 17,                                                       # 17h
         TimeDate        => '17h',
         DestinationTime => '2015-03-22 06:00:00',
     },
@@ -132,7 +132,7 @@ my @Tests = (
         Name            => 'UTC',
         TimeStampStart  => '2015-01-21 12:00:00',
         ServerTZ        => 'UTC',
-        Time            => '7833600',                                                          # 90 days and 16h
+        Time            => 60 * 60 * 24 * 90 + 60 * 60 * 16,                                   # 90 days and 16h
         TimeDate        => '90 days and 16h',
         DestinationTime => '2015-04-22 04:00:00',
     },
@@ -140,14 +140,14 @@ my @Tests = (
         Name            => 'Australia/Sydney - end DST from 00 to 01  ( UTC+11 => UTC+10 )',
         TimeStampStart  => '2015-01-21 12:00:00',
         ServerTZ        => 'Asia/Tehran',
-        Time            => '7837200',                                                          # 90 days and 17h
+        Time            => 60 * 60 * 24 * 90 + 60 * 60 * 17,                                   # 90 days and 17h
         TimeDate        => '90 days and 17h',
         DestinationTime => '2015-04-22 06:00:00',
     },
 );
 
-# Use a calendar with the same business hours for every day so that the UT runs correctly
-#   on every day of the week and outside usual business hours.
+# use a calendar with the same business hours for every day so that the UT runs correctly
+# on every day of the week and outside usual business hours
 my %Week;
 my @Days = qw(Sun Mon Tue Wed Thu Fri Sat);
 for my $Day (@Days) {
@@ -168,7 +168,7 @@ for my $Test (@Tests) {
     # set the server time zone
     local $ENV{TZ} = $Test->{ServerTZ};
 
-    # Convert UTC timestamp to system time and set it.
+    # convert UTC timestamp to system time and set it
     $Test->{TimeStampStart} =~ m/(\d{4})-(\d{1,2})-(\d{1,2})\s(\d{1,2}):(\d{1,2}):(\d{1,2})/;
 
     my $TimeStart = Time::Local::timegm(
@@ -179,7 +179,7 @@ for my $Test (@Tests) {
         $TimeStart,
     );
 
-    # Set OTRS time zone to arbitrary value to make sure it is ignored.
+    # set OTRS time zone to arbitrary value to make sure it is ignored
     $ConfigObject->Set(
         Key   => 'TimeZone',
         Value => int rand 20 - 10,

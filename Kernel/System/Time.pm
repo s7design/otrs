@@ -682,7 +682,7 @@ sub DestinationTime {
     );
 
     my $LoopCounter;
-    my $NextDay;
+    my $DayLightSaving;
 
     LOOP:
     while ( $Param{Time} > 1 ) {
@@ -696,7 +696,7 @@ sub DestinationTime {
 
         # compensate for switching to/from daylight saving time
         # in case daylight saving time from 00:00:00 turned backward 1 hour to 23:00:00
-        if ( $NextDay && $Hour == 23 ) {
+        if ( $DayLightSaving && $Hour == 23 ) {
             $CTime += 3600;
             $CTime00 = $CTime;
 
@@ -771,7 +771,7 @@ sub DestinationTime {
         if ( $NewCTime != $CTime00 + 24 * 60 * 60 ) {
             my $Diff = $NewCTime - $CTime00 - 24 * 60 * 60;
             $DestinationTime += $Diff;
-            $NextDay = 1;
+            $DayLightSaving = 1;
         }
 
         # Set next loop time to 00:00:00 of next day.
