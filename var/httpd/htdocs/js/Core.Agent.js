@@ -494,11 +494,6 @@ Core.Agent = (function (TargetNS) {
         var NavigationBarWidth = 0,
             NewContainerWidth;
 
-        // navigation resizing only possible in ScreenXL mode
-        if (!$('body').hasClass('Visible-ScreenXL')) {
-            return;
-        }
-
         // set the original width (from css) of #NavigationContainer to have it available later
         if (!$('#NavigationContainer').attr('data-original-width')) {
             $('#NavigationContainer').attr('data-original-width', parseInt(parseInt($('#NavigationContainer').css('width'), 10) / $('body').width() * 100, 10) + '%');

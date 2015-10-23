@@ -198,6 +198,7 @@ Core.Agent.Responsive = (function (TargetNS) {
 
         // re-add toolbar to header
         $('#ToolBar').detach().prependTo('#Header');
+        $('#Logo').detach().prependTo('#Header');
 
         // reset field widths
         $('.FormScreen select').each(function() {
