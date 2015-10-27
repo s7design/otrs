@@ -1990,7 +1990,10 @@ sub _SearchParamsGet {
             =~ /^(StateType|StateTypeIDs|Queues|QueueIDs|Types|TypeIDs|States|StateIDs|Priorities|PriorityIDs|Services|ServiceIDs|SLAs|SLAIDs|Locks|LockIDs|OwnerIDs|ResponsibleIDs|WatchUserIDs|ArchiveFlags)$/
             )
         {
-            if ( $Value =~ m{,}smx ) {
+            if ( $Key eq 'StateType' && $Value =~ /Open|Close/ ) {
+                $TicketSearch{$Key} = $Value;
+            }
+            elsif ( $Value =~ m{,}smx ) {
                 push @{ $TicketSearch{$Key} }, split( /,/, $Value );
             }
             else {
