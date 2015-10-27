@@ -48,9 +48,14 @@ sub Param {
     LANGUAGEID:
     for my $LanguageID ( sort keys %DefaultUsedLanguages ) {
 
+        next LANGUAGEID if !$DefaultUsedLanguages{$LanguageID};
+
+        # next language if there is not set native name of language
+        next LANGUAGEID if !$DefaultUsedLanguagesNative{$LanguageID};
+
         # get texts in native and default language
         my $Text        = $DefaultUsedLanguagesNative{$LanguageID} || '';
-        my $TextEnglish = $DefaultUsedLanguages{$LanguageID};
+        my $TextEnglish = $DefaultUsedLanguages{$LanguageID}       || '';
 
         # translate to current user's language
         my $TextTranslated =
@@ -60,13 +65,13 @@ sub Param {
             $Text .= ' - ' . $TextTranslated;
         }
 
+        # next language if there is not set English nor native name of language.
+        next LANGUAGEID if !$Text;
+
         my $LanguageObject = Kernel::Language->new(
             UserLanguage => $LanguageID,
         );
         next LANGUAGEID if !$LanguageObject;
-
-        # next language if there is not set English nor native name of language.
-        next LANGUAGEID if !$Text;
 
         my $Completeness = $LanguageObject->{Completeness};
 

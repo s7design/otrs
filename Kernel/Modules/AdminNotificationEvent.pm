@@ -1038,9 +1038,14 @@ sub _Edit {
     LANGUAGEID:
     for my $LanguageID ( sort keys %DefaultUsedLanguages ) {
 
+        next LANGUAGEID if !$DefaultUsedLanguages{$LanguageID};
+
+        # next language if there is not set native name of language
+        next LANGUAGEID if !$DefaultUsedLanguagesNative{$LanguageID};
+
         # get texts in native and default language
         my $Text        = $DefaultUsedLanguagesNative{$LanguageID} || '';
-        my $TextEnglish = $DefaultUsedLanguages{$LanguageID};
+        my $TextEnglish = $DefaultUsedLanguages{$LanguageID}       || '';
 
         # translate to current user's language
         my $TextTranslated =
