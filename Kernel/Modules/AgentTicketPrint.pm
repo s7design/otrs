@@ -30,10 +30,11 @@ sub Run {
 
     # get ticket object
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
 
     my $Output;
     my $QueueID = $TicketObject->TicketQueueID( TicketID => $Self->{TicketID} );
-    my $ArticleID = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => 'ArticleID' );
+    my $ArticleID = $ParamObject->GetParam( Param => 'ArticleID' );
 
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
@@ -291,8 +292,9 @@ sub Run {
 
     # output articles
     $Self->_PDFOutputArticles(
-        PageData    => \%Page,
-        ArticleData => \@ArticleBox,
+        PageData      => \%Page,
+        ArticleData   => \@ArticleBox,
+        ArticleNumber => $ParamObject->GetParam( Param => 'ArticleNumber' ),
     );
 
     # get ticket object
@@ -972,7 +974,14 @@ sub _PDFOutputArticles {
             Y    => -6,
         );
 
-        my $ArticleNumber = $ZoomExpandSort eq 'reverse' ? $ArticleCount - $ArticleCounter + 1 : $ArticleCounter;
+        # get article number
+        my $ArticleNumber;
+        if ( $Param{ArticleNumber} ) {
+            $ArticleNumber = $Param{ArticleNumber};
+        }
+        else {
+            $ArticleNumber = $ZoomExpandSort eq 'reverse' ? $ArticleCount - $ArticleCounter + 1 : $ArticleCounter;
+        }
 
         # article number tag
         $PDFObject->Text(
