@@ -487,7 +487,7 @@ sub AutoResponseListByType {
 
 get a list of the Auto Response for Queue by Type
 
-    my %AutoResponseIDForQueueByType = $AutoResponseObject->AutoResponseIDForQueueByType(
+    my $AutoResponseID = $AutoResponseObject->AutoResponseIDForQueueByType(
         TypeID    => 1,
         QueueID   => 2,
     );
