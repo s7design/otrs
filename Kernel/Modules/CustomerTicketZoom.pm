@@ -1732,7 +1732,7 @@ sub _Mask {
         )
         && (
             ( $FollowUpPossible !~ /(new ticket|reject)/i && $State{TypeName} =~ /^close/i )
-            || $State{TypeName} !~ /^close/i
+            || $State{TypeName} !~ /^close|merged/i
         )
         )
     {
