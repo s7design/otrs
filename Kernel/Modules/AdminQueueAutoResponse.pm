@@ -27,7 +27,6 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     my $ParamObject = $Kernel::OM->Get('Kernel::System::Web::Request');
-    my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
     my $Output      = '';
     $Param{ID} = $ParamObject->GetParam( Param => 'ID' ) || '';
     $Param{Action} = $ParamObject->GetParam( Param => 'Action' )
