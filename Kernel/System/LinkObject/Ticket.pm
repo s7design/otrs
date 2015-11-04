@@ -291,7 +291,7 @@ sub ObjectSearch {
     my @TicketIDs = $TicketObject->TicketSearch(
         %{ $Param{SearchParams} },
         %Search,
-        Limit               => 50,
+        Limit => $Kernel::OM->Get('Kernel::Config')->Get('LinkObject::TicketLinkSearchLimit') || 50,
         Result              => 'ARRAY',
         ConditionInline     => 1,
         ContentSearchPrefix => '*',

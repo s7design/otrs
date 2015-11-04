@@ -10115,6 +10115,14 @@ Thanks for your help!
             </Array>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="LinkObject::TicketLinkSearchLimit" Required="0" Valid="1">
+        <Description Translatable="1">Maximum number of tickets to be displayed in the result of a search in AgentLinkObject.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Core::LinkObject</SubGroup>
+        <Setting>
+            <String Regex="^[0-9]{1,5}$">50</String>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Stats::DynamicObjectRegistration###Ticket" Required="0" Valid="1">
         <Description Translatable="1">Module to generate ticket statistics.</Description>
         <Group>Ticket</Group>
