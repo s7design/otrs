@@ -18,8 +18,9 @@ our @ObjectDependencies = (
 );
 
 # get needed objects
-my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
-my $TimeObject  = $Kernel::OM->Get('Kernel::System::Time');
+my $GroupObject  = $Kernel::OM->Get('Kernel::System::Group');
+my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
+my $HelperObject = Kernel::System::UnitTest::Helper->new();
 
 #
 # Group tests
@@ -30,6 +31,8 @@ my %GroupIDByGroupName      = (
     'test-group-' . $GroupNameRandomPartBase . '-2' => undef,
     'test-group-' . $GroupNameRandomPartBase . '-3' => undef,
 );
+
+$HelperObject->BeginWork();
 
 # try to add groups
 for my $GroupName ( sort keys %GroupIDByGroupName ) {
@@ -48,6 +51,18 @@ for my $GroupName ( sort keys %GroupIDByGroupName ) {
         $GroupIDByGroupName{$GroupName} = $GroupID;
     }
 }
+
+# try to add group with name which contain column ":"
+my $GroupID = $GroupObject->GroupAdd(
+    Name    => "GroupName:test",
+    ValidID => 1,
+    UserID  => 1,
+);
+
+$Self->False(
+    $GroupID,
+    'Test group is not added - ' . "GroupName:test",
+);
 
 # try to add already added groups
 for my $GroupName ( sort keys %GroupIDByGroupName ) {
@@ -137,7 +152,7 @@ $GroupIDByGroupName{$ChangedGroupName} = $GroupIDToChange;
 delete $GroupIDByGroupName{$GroupNameToChange};
 
 # try to add group with previous name
-my $GroupID = $GroupObject->GroupAdd(
+$GroupID = $GroupObject->GroupAdd(
     Name    => $GroupNameToChange,
     ValidID => 1,
     UserID  => 1,
@@ -169,7 +184,20 @@ GROUPNAME:
 for my $GroupName ( sort keys %GroupIDByGroupName ) {
     next GROUPNAME if !$GroupIDByGroupName{$GroupName};
 
+    # try to update group with name which contain column ":"
     my $GroupUpdate = $GroupObject->GroupUpdate(
+        ID      => $GroupIDByGroupName{$GroupName},
+        Name    => $GroupName . ":test",
+        ValidID => 1,
+        UserID  => 1,
+    );
+
+    $Self->False(
+        $GroupUpdate,
+        'Test group is not updated - ' . $GroupName,
+    );
+
+    $GroupUpdate = $GroupObject->GroupUpdate(
         ID      => $GroupIDByGroupName{$GroupName},
         Name    => $GroupName,
         ValidID => 2,
@@ -180,6 +208,9 @@ for my $GroupName ( sort keys %GroupIDByGroupName ) {
         $GroupUpdate,
         'GroupUpdate() to set group ' . $GroupName . ' to invalid',
     );
+
 }
+
+$HelperObject->Rollback();
 
 1;

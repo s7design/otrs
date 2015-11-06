@@ -251,6 +251,15 @@ sub GroupUpdate {
         }
     }
 
+    # check group name
+    if ( $Param{Name} =~ m{ : }xms ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Can't update group! Don't use : (colon) in group name!",
+        );
+        return;
+    }
+
     # set default value
     $Param{Comment} ||= '';
 
