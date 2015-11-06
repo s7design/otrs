@@ -35,6 +35,13 @@ $Selenium->RunTest(
             Value => 'Simple',
         );
 
+        # set Ticket::SubjectSize
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::SubjectSize',
+            Value => '60',
+        );
+
         # create and login test customer
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
@@ -141,9 +148,12 @@ $Selenium->RunTest(
             Value => 'Complex',
         );
 
-        # update test ticket title to more then 50 characters
+        # update test ticket title to more then 50 characters (there is 65)
         my $LongTicketTitle = 'This is long test ticket title with more then 50 characters in it';
-        my $Success         = $TicketObject->TicketTitleUpdate(
+
+        # Ticket::SubjectSize is set to 60 at the beginning of test
+        my $ShortTitle = substr( $LongTicketTitle, 0, 57 ) . "...";
+        my $Success = $TicketObject->TicketTitleUpdate(
             Title    => $LongTicketTitle,
             TicketID => $TicketIDs[1],
             UserID   => 1,
@@ -179,9 +189,16 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Subaction=LinkDelete;' )]")->click();
 
         # check for long ticket title in LinkDelete screen
+        # this one is displayed on hover
         $Self->True(
-            index( $Selenium->get_page_source(), $LongTicketTitle ) > -1,
-            "$LongTicketTitle - found in LinkDelete screen",
+            index( $Selenium->get_page_source(), "title=\"$LongTicketTitle\"" ) > -1,
+            "\"title=$LongTicketTitle\" - found in LinkDelete screen - which is displayed on hover",
+        );
+
+        # check for short ticket title in LinkDelete screen
+        $Self->True(
+            index( $Selenium->get_page_source(), $ShortTitle ) > -1,
+            "$ShortTitle - found in LinkDelete screen",
         );
 
         # delete created test tickets

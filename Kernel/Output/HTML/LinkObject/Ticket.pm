@@ -20,7 +20,6 @@ our @ObjectDependencies = (
     'Kernel::System::State',
     'Kernel::System::Type',
     'Kernel::System::Web::Request',
-    'Kernel::System::Ticket',
 );
 
 =head1 NAME
@@ -186,11 +185,6 @@ sub TableCreateComplex {
             $CssClass = 'StrikeThrough';
         }
 
-        my $CleanedSubject = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSubjectClean(
-            TicketNumber => $Ticket->{TicketNumber},
-            Subject      => $Ticket->{Title},
-        );
-
         my @ItemColumns = (
             {
                 Type    => 'Link',
@@ -203,8 +197,9 @@ sub TableCreateComplex {
                 CssClass => $CssClass,
             },
             {
-                Type    => 'Text',
-                Content => $CleanedSubject,
+                Type      => 'Text',
+                Content   => $Ticket->{Title},
+                MaxLength => $Kernel::OM->Get('Kernel::Config')->Get('Ticket::SubjectSize') || 50,
             },
             {
                 Type    => 'Text',
