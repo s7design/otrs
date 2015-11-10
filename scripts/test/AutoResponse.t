@@ -14,9 +14,9 @@ use vars (qw($Self));
 
 use Kernel::System::UnitTest::Helper;
 
-my $HelperObject = Kernel::System::UnitTest::Helper->new();
-
-$HelperObject->BeginWork();
+my $HelperObject = Kernel::System::UnitTest::Helper->new(
+    RestoreDatabase => 1,
+);
 
 # get needed objects
 my $AutoResponseObject  = $Kernel::OM->Get('Kernel::System::AutoResponse');
@@ -272,7 +272,5 @@ for my $TypeID ( sort keys %AutoResponseType ) {
     );
 
 }
-
-$HelperObject->Rollback();
 
 1;
