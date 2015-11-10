@@ -264,6 +264,7 @@ Return example:
         'Subject'         => 'New ticket has been created! (RE: <OTRS_CUSTOMER_SUBJECT[24]>)',
         'ContentType'     => 'text/plain',
         'SystemAddressID' => '1',
+        'AutoResponseID'  => '1'
 
         #System Address Data
         'ID'              => '1',
@@ -299,7 +300,7 @@ sub AutoResponseGetByTypeQueueID {
     # SQL query
     return if !$DBObject->Prepare(
         SQL => "
-            SELECT ar.text0, ar.text1, ar.content_type, ar.system_address_id
+            SELECT ar.text0, ar.text1, ar.content_type, ar.system_address_id, ar.id
             FROM auto_response_type art, auto_response ar, queue_auto_response qar
             WHERE ar.valid_id IN ( ${\(join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet())} )
                 AND qar.queue_id = ?
@@ -320,6 +321,7 @@ sub AutoResponseGetByTypeQueueID {
         $Data{Subject}         = $Row[1];
         $Data{ContentType}     = $Row[2] || 'text/plain';
         $Data{SystemAddressID} = $Row[3];
+        $Data{AutoResponseID}  = $Row[4];
     }
 
     # return if no auto response is configured
@@ -443,58 +445,6 @@ sub AutoResponseTypeList {
     }
 
     return %Data;
-}
-
-=item AutoResponseIDForQueueByType()
-
-get a list of the Auto Response for Queue by Type
-
-    my $AutoResponseID = $AutoResponseObject->AutoResponseIDForQueueByType(
-        TypeID    => 1,
-        QueueID   => 2,
-    );
-
-Return example:
-
-    $AutoResponseID = 1
-
-=cut
-
-sub AutoResponseIDForQueueByType {
-    my ( $Self, %Param ) = @_;
-
-    # check needed stuff
-    for my $Needed (qw(TypeID QueueID)) {
-        if ( !$Param{$Needed} ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Need $Needed!"
-            );
-            return;
-        }
-    }
-
-    # get database object
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
-    # create sql
-    my $SQL = "SELECT ar.id FROM auto_response ar, auto_response_type art, queue_auto_response qar "
-        . "WHERE art.id = ? AND ar.type_id = art.id AND qar.queue_id = ? "
-        . "AND qar.auto_response_id = ar.id";
-
-    # select
-    return if !$DBObject->Prepare(
-        SQL   => $SQL,
-        Bind  => [ \$Param{TypeID}, \$Param{QueueID} ],
-        Limit => 1,
-    );
-
-    my $AutoResponseID;
-    while ( my @Row = $DBObject->FetchrowArray() ) {
-        $AutoResponseID = $Row[0];
-    }
-
-    return $AutoResponseID;
 }
 
 =item AutoResponseQueue()

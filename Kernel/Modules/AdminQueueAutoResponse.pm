@@ -69,14 +69,14 @@ sub Run {
             );
 
             # get selected Auto Responses for appropriate Auto Responses type and Queue
-            my $AutoResponseID = $AutoResponseObject->AutoResponseIDForQueueByType(
+            my %AutoResponseData = $AutoResponseObject->AutoResponseGetByTypeQueueID(
                 QueueID => $Param{ID},
-                TypeID  => $TypeID,
+                Type    => $TypeResponsesData{$TypeID},
             );
 
             $Param{DataStrg} = $LayoutObject->BuildSelection(
                 Name         => "IDs_$TypeID",
-                SelectedID   => $AutoResponseID || '',
+                SelectedID   => $AutoResponseData{AutoResponseID} || '',
                 Data         => \%AutoResponseListByType,
                 Size         => 1,
                 PossibleNone => 1,

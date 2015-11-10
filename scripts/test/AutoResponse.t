@@ -48,10 +48,10 @@ $Self->True(
 );
 
 # add system address
-my $SystemAddressNameRand0 = 'unittest' . int rand 1000000;
-my $SystemAddressID        = $SystemAddressObject->SystemAddressAdd(
-    Name     => $SystemAddressNameRand0 . '@example.com',
-    Realname => $SystemAddressNameRand0,
+my $SystemAddressNameRand = 'unittest' . int rand 1000000;
+my $SystemAddressID       = $SystemAddressObject->SystemAddressAdd(
+    Name     => $SystemAddressNameRand . '@example.com',
+    Realname => $SystemAddressNameRand,
     ValidID  => 1,
     QueueID  => $QueueID,
     Comment  => 'Some Comment',
@@ -152,27 +152,24 @@ for my $TypeID ( sort keys %AutoResponseType ) {
         'AutoResponseQueue()',
     );
 
-    my $QueueAutoResponseID = $AutoResponseObject->AutoResponseIDForQueueByType(
-        TypeID  => $TypeID,
-        QueueID => $QueueID,
-    );
-    $Self->True(
-        $QueueAutoResponseID == $AutoResponseID,
-        'AutoResponseIDForQueueByType()',
-    );
-
-    my %Address = $AutoResponseObject->AutoResponseGetByTypeQueueID(
+    my %AutoResponseData = $AutoResponseObject->AutoResponseGetByTypeQueueID(
         QueueID => $QueueID,
         Type    => $AutoResponseType{$TypeID},
     );
+
     $Self->Is(
-        $Address{Address} || '',
-        $SystemAddressNameRand0 . '@example.com',
+        $AutoResponseData{AutoResponseID},
+        $AutoResponseID,
+        'AutoResponseGetByTypeQueueID() - AutoResponseID',
+    );
+    $Self->Is(
+        $AutoResponseData{Address} || '',
+        $SystemAddressNameRand . '@example.com',
         'AutoResponseGetByTypeQueueID() - Address',
     );
     $Self->Is(
-        $Address{Realname} || '',
-        $SystemAddressNameRand0,
+        $AutoResponseData{Realname} || '',
+        $SystemAddressNameRand,
         'AutoResponseGetByTypeQueueID() - Realname',
     );
 
