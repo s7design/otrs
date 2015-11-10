@@ -132,14 +132,14 @@ for my $TypeID ( sort keys %AutoResponseType ) {
         'AutoResponseList() - test Auto Response is in the list.',
     );
 
-    my %AutoResponseListByType = $AutoResponseObject->AutoResponseListByType(
+    my %AutoResponseListByType = $AutoResponseObject->AutoResponseList(
         TypeID => $TypeID,
         Valid  => 1,
     );
     $List = grep { $_ eq $AutoResponseID } keys %AutoResponseList;
     $Self->True(
         $List,
-        'AutoResponseListByType() - test Auto Response is in the list.',
+        'AutoResponseList() by AutoResponseTypeID (AutoResponseTypeID) - test Auto Response is in the list.',
     );
 
     my $AutoResponseQueue = $AutoResponseObject->AutoResponseQueue(
@@ -174,25 +174,6 @@ for my $TypeID ( sort keys %AutoResponseType ) {
         $Address{Realname} || '',
         $SystemAddressNameRand0,
         'AutoResponseGetByTypeQueueID() - Realname',
-    );
-
-    my @GetAutoResponseData = $AutoResponseObject->GetAutoResponseData();
-    my @AutoResponseData = grep { $_->{ID} eq $AutoResponseID } @GetAutoResponseData;
-
-    $Self->Is(
-        $AutoResponseData[0]->{ID} || '',
-        $AutoResponseID,
-        'GetAutoResponseData() - ID',
-    );
-    $Self->Is(
-        $AutoResponseData[0]->{Type} || '',
-        $AutoResponseType{$TypeID},
-        'GetAutoResponseData() - Type',
-    );
-    $Self->Is(
-        $AutoResponseData[0]->{Name} || '',
-        $AutoResponseNameRand,
-        'GetAutoResponseData() - Name',
     );
 
     $AutoResponseQueue = $AutoResponseObject->AutoResponseQueue(
@@ -265,6 +246,7 @@ for my $TypeID ( sort keys %AutoResponseType ) {
     );
 
     %AutoResponseList = $AutoResponseObject->AutoResponseList( Valid => 0 );
+
     $List = grep { $_ eq $AutoResponseID } keys %AutoResponseList;
     $Self->True(
         $List,

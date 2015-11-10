@@ -64,9 +64,8 @@ sub Run {
         for my $TypeID ( sort keys %TypeResponsesData ) {
 
             # get all valid Auto Responses data for appropriate Auto Responses type
-            my %AutoResponseListByType = $AutoResponseObject->AutoResponseListByType(
+            my %AutoResponseListByType = $AutoResponseObject->AutoResponseList(
                 TypeID => $TypeID,
-                Valid  => 1,
             );
 
             # get selected Auto Responses for appropriate Auto Responses type and Queue
@@ -143,7 +142,6 @@ sub Run {
         # if there are any queues, they are shown
         if (%QueueData) {
             for ( sort { $QueueData{$a} cmp $QueueData{$b} } keys %QueueData ) {
-
                 $LayoutObject->Block(
                     Name => 'Item',
                     Data => {
@@ -164,15 +162,26 @@ sub Run {
             );
         }
 
-        # get Auto Response data
-        my @ResponseData = $AutoResponseObject->GetAutoResponseData();
+        # get valid Auto Response IDs
+        my @AutoResponse = keys { $AutoResponseObject->AutoResponseList() };
 
         # if there are any auto responses, they are shown
-        if (@ResponseData) {
-            for my $ResponseDataItem (@ResponseData) {
+        if (@AutoResponse) {
+            for my $AutoResponseID (@AutoResponse) {
+
+                my %Data = $AutoResponseObject->AutoResponseGet(
+                    ID => $AutoResponseID,
+                );
+
+                my %ResponseDataItem = (
+                    ID   => $Data{ID},
+                    Type => $Data{Type},
+                    Name => $Data{Name},
+                );
+
                 $LayoutObject->Block(
                     Name => 'ItemList',
-                    Data => $ResponseDataItem,
+                    Data => \%ResponseDataItem,
                 );
             }
         }

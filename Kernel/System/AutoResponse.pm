@@ -342,15 +342,16 @@ sub AutoResponseGetByTypeQueueID {
 get a list of the Auto Responses
 
     my %AutoResponse = $AutoResponseObject->AutoResponseList(
-        Valid => 0,     # (optional) default 0
+        Valid   => 1,                 # (optional) default 1
+        TypeID  => 1,                 # (optional) Auto Response type ID
     );
 
 Return example:
 
     %AutoResponse = (
-        '1' => 'default reply (after new ticket has been created) ( 1 )',
-        '2' => 'default reject (after follow up and rejected of a closed ticket) ( 2 )',
-        '3' => 'default follow up (after a ticket follow up has been added) ( 3 )',
+        '1' => 'default reply (after new ticket has been created)',
+        '2' => 'default reject (after follow up and rejected of a closed ticket)',
+        '3' => 'default follow up (after a ticket follow up has been added)',
     );
 
 =cut
@@ -361,19 +362,38 @@ sub AutoResponseList {
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
+    my $Valid = $Param{Valid} // 1;
+
     # create sql
-    my $SQL = 'SELECT id, name FROM auto_response ';
-    if ( $Param{Valid} ) {
+    my $SQL = "SELECT ar.id, ar.name FROM auto_response ar, auto_response_type art";
+    if ($Valid) {
         $SQL
-            .= "WHERE valid_id IN ( ${\(join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet())} )";
+            .= " WHERE ar.valid_id IN ( ${\(join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet())} )";
     }
 
-    # select
-    return if !$DBObject->Prepare( SQL => $SQL );
-
     my %Data;
+
+    # if there is TypeID, select only AutoResponses by that AutoResponse type
+    if ( defined $Param{TypeID} ) {
+        $SQL .= " AND art.id = ? AND ar.type_id = art.id";
+
+        # select
+        return if !$DBObject->Prepare(
+            SQL  => $SQL,
+            Bind => [ \$Param{TypeID} ],
+        );
+
+    }
+    else {
+
+        # select
+        return if !$DBObject->Prepare(
+            SQL => $SQL,
+        );
+    }
+
     while ( my @Row = $DBObject->FetchrowArray() ) {
-        $Data{ $Row[0] } = "$Row[1] ( $Row[0] )";
+        $Data{ $Row[0] } = $Row[1];
     }
 
     return %Data;
@@ -402,7 +422,7 @@ Return example:
 sub AutoResponseTypeList {
     my ( $Self, %Param ) = @_;
 
-    my $Valid = $Param{Valid} || 1;
+    my $Valid = $Param{Valid} // 1;
 
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
@@ -416,64 +436,6 @@ sub AutoResponseTypeList {
 
     # select
     return if !$DBObject->Prepare( SQL => $SQL );
-
-    my %Data;
-    while ( my @Row = $DBObject->FetchrowArray() ) {
-        $Data{ $Row[0] } = $Row[1];
-    }
-
-    return %Data;
-}
-
-=item AutoResponseListByType()
-
-get a list of the Auto Response by Type
-
-    my %AutoResponseListByType = $AutoResponseObject->AutoResponseListByType(
-        TypeID  => 1,
-        Valid   => 1,     # (optional) default 1
-    );
-
-Return example:
-
-    %AutoResponseListByType = (
-        '1' => 'default follow up (after a ticket follow up has been added)',
-        '2' => 'auto reject',
-        '3' => 'auto follow up',
-    );
-
-=cut
-
-sub AutoResponseListByType {
-    my ( $Self, %Param ) = @_;
-
-    # check needed stuff
-    if ( !$Param{TypeID} ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
-            Priority => 'error',
-            Message  => "Need TypeID!",
-        );
-        return;
-    }
-
-    my $Valid = $Param{Valid} || 1;
-
-    # get database object
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
-    # create sql
-    my $SQL = "SELECT ar.id, ar.name FROM auto_response ar, auto_response_type art
-                WHERE art.id = ? AND ar.type_id = art.id";
-    if ($Valid) {
-        $SQL
-            .= " AND ar.valid_id IN ( ${\(join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet())} )";
-    }
-
-    # select
-    return if !$DBObject->Prepare(
-        SQL  => $SQL,
-        Bind => [ \$Param{TypeID} ],
-    );
 
     my %Data;
     while ( my @Row = $DBObject->FetchrowArray() ) {
@@ -533,61 +495,6 @@ sub AutoResponseIDForQueueByType {
     }
 
     return $AutoResponseID;
-}
-
-=item GetAutoResponseData()
-
-get a list of the Auto Response for Queue by Type
-
-    my @GetAutoResponseData = $AutoResponseObject->GetAutoResponseData();
-
-Return example:
-
-    @GetAutoResponseData =
-    (
-          {
-            'ID' => '1',
-            'Type' => 'auto reply',
-            'Name' => 'default reply (after new ticket has been created)'
-          }
-          {
-            'ID' => '2',
-            'Type' => 'auto reject',
-            'Name' => 'default reject (after follow-up and rejected of a closed ticket)'
-          },
-       # ...
-    );
-
-=cut
-
-sub GetAutoResponseData {
-    my ( $Self, %Param ) = @_;
-
-    # get database object
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
-    # create sql
-    my $SQL = "SELECT ar.name, art.name, ar.id FROM "
-        . " auto_response ar, auto_response_type art, valid "
-        . " WHERE ar.type_id = art.id "
-        . " AND ar.valid_id = valid.id "
-        . " AND ar.valid_id IN ( ${\(join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet())} )"
-        . " ORDER BY ar.name ASC"
-        ;
-
-    # select
-    return if !$DBObject->Prepare( SQL => $SQL );
-
-    my @ResponseData;
-    while ( my @Row = $DBObject->FetchrowArray() ) {
-        my %AutoResponseData;
-        $AutoResponseData{Name} = $Row[0];
-        $AutoResponseData{Type} = $Row[1];
-        $AutoResponseData{ID}   = $Row[2];
-        push( @ResponseData, \%AutoResponseData );
-    }
-
-    return @ResponseData;
 }
 
 =item AutoResponseQueue()
