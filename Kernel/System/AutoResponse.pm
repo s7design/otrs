@@ -374,25 +374,19 @@ sub AutoResponseList {
     }
 
     my %Data;
+    my @Bind;
 
     # if there is TypeID, select only AutoResponses by that AutoResponse type
     if ( defined $Param{TypeID} ) {
         $SQL .= " AND art.id = ? AND ar.type_id = art.id";
-
-        # select
-        return if !$DBObject->Prepare(
-            SQL  => $SQL,
-            Bind => [ \$Param{TypeID} ],
-        );
-
+        push @Bind, \$Param{TypeID};
     }
-    else {
 
-        # select
-        return if !$DBObject->Prepare(
-            SQL => $SQL,
-        );
-    }
+    # select
+    return if !$DBObject->Prepare(
+        SQL  => $SQL,
+        Bind => \@Bind,
+    );
 
     while ( my @Row = $DBObject->FetchrowArray() ) {
         $Data{ $Row[0] } = $Row[1];

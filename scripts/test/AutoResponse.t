@@ -63,24 +63,49 @@ $Self->True(
 );
 
 my %AutoResponseType = $AutoResponseObject->AutoResponseTypeList(
-    Valid => 1,    # (optional) default 1
+    Valid => 1,
 );
 
 for my $TypeID ( sort keys %AutoResponseType ) {
 
-    # add auto response
     my $AutoResponseNameRand = 'unittest' . int rand 1000000;
-    my $AutoResponseID       = $AutoResponseObject->AutoResponseAdd(
-        Name        => $AutoResponseNameRand,
-        Subject     => 'Some Subject',
-        Response    => 'Some Response',
-        Comment     => 'Some Comment',
-        AddressID   => $SystemAddressID,
-        TypeID      => $TypeID,
-        ContentType => 'text/plain',
-        ValidID     => 1,
-        UserID      => 1,
+
+    my %Tests = (
+        Created => {
+            Name        => $AutoResponseNameRand,
+            Subject     => 'Some Subject - updated',
+            Response    => 'Some Response - updated',
+            Comment     => 'Some Comment - updated',
+            AddressID   => $SystemAddressID,
+            TypeID      => $TypeID,
+            ContentType => 'text/plain',
+            ValidID     => 1,
+        },
+        Updated => {
+            Name        => $AutoResponseNameRand . ' - updated',
+            Subject     => 'Some Subject - updated',
+            Response    => 'Some Response - updated',
+            Comment     => 'Some Comment - updated',
+            AddressID   => $SystemAddressID,
+            TypeID      => $TypeID,
+            ContentType => 'text/html',
+            ValidID     => 2,
+        },
+        ExpextedData => {
+            AutoResponseID => '',
+            Address        => $SystemAddressNameRand . '@example.com',
+            Realname       => $SystemAddressNameRand,
+            }
     );
+
+    # add auto response
+    my $AutoResponseID = $AutoResponseObject->AutoResponseAdd(
+        UserID => 1,
+        %{ $Tests{Created} },
+    );
+
+    # this will be used later to test function AutoResponseGetByTypeQueueID()
+    $Tests{ExpextedData}{AutoResponseID} = $AutoResponseID;
 
     $Self->True(
         $AutoResponseID,
@@ -89,41 +114,13 @@ for my $TypeID ( sort keys %AutoResponseType ) {
 
     my %AutoResponse = $AutoResponseObject->AutoResponseGet( ID => $AutoResponseID );
 
-    $Self->Is(
-        $AutoResponse{Name} || '',
-        $AutoResponseNameRand,
-        'AutoResponseGet() - Name',
-    );
-    $Self->Is(
-        $AutoResponse{Subject} || '',
-        'Some Subject',
-        'AutoResponseGet() - Subject',
-    );
-    $Self->Is(
-        $AutoResponse{Response} || '',
-        'Some Response',
-        'AutoResponseGet() - Response',
-    );
-    $Self->Is(
-        $AutoResponse{Comment} || '',
-        'Some Comment',
-        'AutoResponseGet() - Comment',
-    );
-    $Self->Is(
-        $AutoResponse{ContentType} || '',
-        'text/plain',
-        'AutoResponseGet() - ContentType',
-    );
-    $Self->Is(
-        $AutoResponse{AddressID} || '',
-        $SystemAddressID,
-        'AutoResponseGet() - AddressID',
-    );
-    $Self->Is(
-        $AutoResponse{ValidID} || '',
-        1,
-        'AutoResponseGet() - ValidID',
-    );
+    for my $Item ( sort keys %{ $Tests{Created} } ) {
+        $Self->Is(
+            $AutoResponse{$Item} || '',
+            $Tests{Created}{$Item},
+            "AutoResponseGet() - $Item",
+        );
+    }
 
     my %AutoResponseList = $AutoResponseObject->AutoResponseList( Valid => 1 );
     my $List = grep { $_ eq $AutoResponseID } keys %AutoResponseList;
@@ -157,21 +154,13 @@ for my $TypeID ( sort keys %AutoResponseType ) {
         Type    => $AutoResponseType{$TypeID},
     );
 
-    $Self->Is(
-        $AutoResponseData{AutoResponseID},
-        $AutoResponseID,
-        'AutoResponseGetByTypeQueueID() - AutoResponseID',
-    );
-    $Self->Is(
-        $AutoResponseData{Address} || '',
-        $SystemAddressNameRand . '@example.com',
-        'AutoResponseGetByTypeQueueID() - Address',
-    );
-    $Self->Is(
-        $AutoResponseData{Realname} || '',
-        $SystemAddressNameRand,
-        'AutoResponseGetByTypeQueueID() - Realname',
-    );
+    for my $Item (qw/AutoResponseID Address Realname/) {
+        $Self->Is(
+            $AutoResponseData{$Item} || '',
+            $Tests{ExpextedData}{$Item},
+            "AutoResponseGetByTypeQueueID() - $Item",
+        );
+    }
 
     $AutoResponseQueue = $AutoResponseObject->AutoResponseQueue(
         QueueID         => $QueueID,
@@ -180,16 +169,9 @@ for my $TypeID ( sort keys %AutoResponseType ) {
     );
 
     my $AutoResponseUpdate = $AutoResponseObject->AutoResponseUpdate(
-        ID          => $AutoResponseID,
-        Name        => $AutoResponseNameRand . '1',
-        Subject     => 'Some Subject1',
-        Response    => 'Some Response1',
-        Comment     => 'Some Comment1',
-        AddressID   => $SystemAddressID,
-        TypeID      => $TypeID,
-        ContentType => 'text/html',
-        ValidID     => 2,
-        UserID      => 1,
+        ID     => $AutoResponseID,
+        UserID => 1,
+        %{ $Tests{Updated} },
     );
 
     $Self->True(
@@ -199,41 +181,13 @@ for my $TypeID ( sort keys %AutoResponseType ) {
 
     %AutoResponse = $AutoResponseObject->AutoResponseGet( ID => $AutoResponseID );
 
-    $Self->Is(
-        $AutoResponse{Name} || '',
-        $AutoResponseNameRand . '1',
-        'AutoResponseGet() - Name',
-    );
-    $Self->Is(
-        $AutoResponse{Subject} || '',
-        'Some Subject1',
-        'AutoResponseGet() - Subject',
-    );
-    $Self->Is(
-        $AutoResponse{Response} || '',
-        'Some Response1',
-        'AutoResponseGet() - Response',
-    );
-    $Self->Is(
-        $AutoResponse{Comment} || '',
-        'Some Comment1',
-        'AutoResponseGet() - Comment',
-    );
-    $Self->Is(
-        $AutoResponse{ContentType} || '',
-        'text/html',
-        'AutoResponseGet() - ContentType',
-    );
-    $Self->Is(
-        $AutoResponse{AddressID} || '',
-        $SystemAddressID,
-        'AutoResponseGet() - AddressID',
-    );
-    $Self->Is(
-        $AutoResponse{ValidID} || '',
-        2,
-        'AutoResponseGet() - ValidID',
-    );
+    for my $Item ( sort keys %{ $Tests{Created} } ) {
+        $Self->Is(
+            $AutoResponse{$Item} || '',
+            $Tests{Updated}{$Item},
+            "AutoResponseGet() - $Item",
+        );
+    }
 
     %AutoResponseList = $AutoResponseObject->AutoResponseList( Valid => 1 );
     $List = grep { $_ eq $AutoResponseID } keys %AutoResponseList;
@@ -249,7 +203,6 @@ for my $TypeID ( sort keys %AutoResponseType ) {
         $List,
         'AutoResponseList() - test Auto Response is in the list of all Auto Responses.',
     );
-
 }
 
 1;
