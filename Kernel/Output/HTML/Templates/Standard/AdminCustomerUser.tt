@@ -141,8 +141,10 @@
 [% RenderBlockStart("HeaderEdit") %]
                 <h2>[% Translate("Edit Customer User") | html %]</h2>
 [% RenderBlockEnd("HeaderEdit") %]
+                [% IF Config(Data.Source).ReadOnly == 1 || Config(Data.Source).Module == 'Kernel::System::CustomerUser::LDAP' %]
+                <h2><span class="Warning">[% Translate("This customer backend is read only!") | html %]</span></h2>
+                [% END %]
             </div>
-
             <div class="Content">
                 <form action="[% Env("CGIHandle") %]" enctype="multipart/form-data" method="post" name="compose" class="Validate PreventMultipleSubmits">
                     <input type="hidden" name="Action" value="[% Env("Action") %]"/>
@@ -248,8 +250,10 @@
 [% RenderBlockEnd("Password") %]
 [% RenderBlockEnd("Item") %]
                         <div class="Field SpacingTop">
+                            [% IF Config(Data.Source).ReadOnly != 1 && Config(Data.Source).Module == 'Kernel::System::CustomerUser::DB' %]
                             <button class="Primary CallForAction" type="submit" value="[% Translate("Submit") | html %]"><span>[% Translate("Submit") | html %]</span></button>
-                            [% Translate("or") | html %]
+                                [% Translate("or") | html %]
+                            [% END %]
                             <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Nav=[% Data.Nav | uri %]">[% Translate("Cancel") | html %]</a>
                         </div>
                         <div class="Clear"></div>
