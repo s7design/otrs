@@ -4554,9 +4554,13 @@ sub TicketOwnerSet {
             $Self->SendAgentNotification(
                 Type                  => 'OwnerUpdate',
                 RecipientID           => $Param{NewUserID},
-                CustomerMessageParams => \%Param,
-                TicketID              => $Param{TicketID},
-                UserID                => $Param{UserID},
+                CustomerMessageParams => {
+                    %Param,
+                    Body    => $Param{Comment} || '',
+                    Subject => $Param{Subject} || '',
+                },
+                TicketID => $Param{TicketID},
+                UserID   => $Param{UserID},
             );
         }
     }

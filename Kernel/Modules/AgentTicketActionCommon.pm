@@ -676,6 +676,7 @@ sub Run {
                     UserID    => $Self->{UserID},
                     NewUserID => $GetParam{OldOwnerID},
                     Comment   => $BodyText,
+                    Subject   => $GetParam{Subject},
                 );
                 $UnlockOnAway = 0;
 
@@ -695,6 +696,7 @@ sub Run {
                     UserID    => $Self->{UserID},
                     NewUserID => $GetParam{NewOwnerID},
                     Comment   => $BodyText,
+                    Subject   => $GetParam{Subject},
                 );
                 $UnlockOnAway = 0;
 
