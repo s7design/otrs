@@ -154,6 +154,9 @@ $('.MasterAction').bind('click', function (Event) {
                             </label>
                             <div class="Field">
                                 <input type="text" name="[% Data.Name | html %]" id="[% Data.Name | html %]" value="[% Data.Value | html %]" class="W50pc [% Data.RequiredClass %] [% Data.InvalidField %] [% Data.Action | html %]" maxlength="200" [% Data.ReadOnlyType %]/>
+                                [% IF Data.Name == 'CustomerCompanyURL' %]
+                                    <div class="FieldExplanation">Example: http://some.example.com</div>
+                                [% END %]
 [% RenderBlockStart("PreferencesGenericInputRequired") %]
                                 <div id="[% Data.Name | html %]Error" class="TooltipErrorMessage">
                                     <p>[% Translate("This field is required.") | html %]</p>
