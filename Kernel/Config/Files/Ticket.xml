@@ -1919,7 +1919,7 @@
         <Setting>
             <Option SelectedID="">
                 <Item Key="0" Translatable="1">No</Item>
-                <Item Key="1" Translatable="1">Yes</Item>
+                <Item Key="Sortable" Translatable="1">Yes</Item>
             </Option>
         </Setting>
     </ConfigItem>

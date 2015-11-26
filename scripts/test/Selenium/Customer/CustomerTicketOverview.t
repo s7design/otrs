@@ -47,6 +47,13 @@ $Selenium->RunTest(
             Value => 0
         );
 
+        # enable CustomerTicketOverviewSortable
+        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Frontend::CustomerTicketOverviewSortable',
+            Value => 'Sortable',
+        );
+
         # create test customer user and login
         my $TestUserLogin = $Helper->TestCustomerUserCreate(
             Groups => ['admin'],
@@ -100,6 +107,15 @@ $Selenium->RunTest(
             "Ticket with ticket number $TicketNumber is found on screen with All filter"
         );
 
+        # check if there is the header of overview table for sorting tickets
+        $Self->Is(
+            $Selenium->execute_script(
+                "return \$('#MainBox').hasClass('Sortable')"
+            ),
+            '1',
+            'There is the header of overview table for sorting tickets.',
+        );
+
         # check Close filter on CustomerTicketOverview screen
         # there is only one created ticket, and it should not be on screen with Close filter
         $Selenium->find_element(
@@ -115,6 +131,27 @@ $Selenium->RunTest(
         $Self->False(
             $Success,
             "Ticket with ticket number $TicketNumber is not found on screen with Close filter"
+        );
+
+        # disable CustomerTicketOverviewSortable
+        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Frontend::CustomerTicketOverviewSortable',
+            Value => 0
+        );
+
+        # check All filter on CustomerTicketOverview screen
+        $Selenium->find_element(
+            "//a[contains(\@href, \'Action=CustomerTicketOverview;Subaction=MyTickets;Filter=All' )]"
+        )->click();
+
+        # check if there is not the header of overview table for sorting tickets
+        $Self->Is(
+            $Selenium->execute_script(
+                "return \$('#MainBox').hasClass('Sortable')"
+            ),
+            '0',
+            'There is not the header of overview table for sorting tickets.',
         );
 
         # clean up test data from the DB
