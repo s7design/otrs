@@ -233,8 +233,7 @@ dd {
  */
 
 .ErrorBox,
-.SuccessBox,
-.WarningBox {
+.SuccessBox {
     display: block;
     padding: 5px 8px 4px;
     cursor: default;
@@ -243,22 +242,6 @@ dd {
 .ErrorBox {
     color: #FFF;
     background: #D41111;
-}
-
-.WarningBox {
-    color: #555;
-    background: #FFDD50;
-}
-
-.WarningBox.WithIcon {
-    position: relative;
-    padding-left: 25px;
-}
-
-.WarningBox.WithIcon > i {
-    position: absolute;
-    left: 10px;
-    top: 6px;
 }
 
 .SuccessBox {
@@ -1175,7 +1158,7 @@ iframe.PopupIframe {
         display: none !important;
     }
 
-    .ErrorBox, .SuccessBox, .WarningBox {
+    .ErrorBox, .SuccessBox {
         margin: 0px 0px 20px 0px;
         line-height: 150%;
     }

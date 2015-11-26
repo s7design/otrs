@@ -169,7 +169,7 @@ X-OTRS-Login: [% Env("Baselink") %]
 
 [% RenderBlockStart("LoginBox") %]
             <div id="LoginBox">
-                <div class="Center Spacing [% IF Data.MessageType == 'Success' %]SuccessBox[% ELSE %]ErrorBox[% END %]"><span>[% Data.Message | html %]</span></div>
+                <div class="Center Spacing [% IF Data.MessageType == 'Success' %]SuccessBox[% ELSIF Data.MessageType == 'Error' %]ErrorBox[% END %]"><span>[% Data.Message | html %]</span></div>
                 <div class="WidgetSimple">
                     <div class="Header">
                         <h2 class="Center">[% Translate("Welcome to %s", Config("ProductName")) | html %]</h2>
