@@ -30,13 +30,13 @@ sub Run {
 
     my @Expired = $Kernel::OM->Get('Kernel::System::AuthSession')->GetExpiredSessionIDs();
 
-    $Self->Print("<yellow>Deleting expired sessions...</yellow>\n");
+    $Self->Print("<yellow>List of expired sessions...</yellow>\n");
 
     for my $SessionID ( @{ $Expired[0] } ) {
         $Self->Print("  $SessionID\n");
     }
 
-    $Self->Print("<yellow>Deleting idle sessions...</yellow>\n");
+    $Self->Print("<yellow>List of idle sessions...</yellow>\n");
 
     for my $SessionID ( @{ $Expired[1] } ) {
         $Self->Print("  $SessionID\n");
