@@ -22,7 +22,7 @@ $Selenium->RunTest(
 
         # create and login test user
         my $TestUserLogin = $Helper->TestUserCreate(
-            Groups => ['admin'],
+            Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
 
         $Selenium->Login(
@@ -31,19 +31,82 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # create test customer
+        # get test user ID
+        my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
+            UserLogin => $TestUserLogin,
+        );
+
+        # create test customer user
         my $TestCustomerUserLogin = $Helper->TestCustomerUserCreate(
-            Groups => ['admin'],
-        ) || die "Did not get test user";
+            Groups => [ 'admin', 'users' ],
+        ) || die "Did not get test customer user";
+
+        # get test customer user ID
+        my @CustomerIDs = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerIDs(
+            User => $TestCustomerUserLogin,
+        );
+        my $CustomerID = $CustomerIDs[0];
+
+        # get needed objects
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
+        # create test data parameteres
+        my %TicketData = (
+            'Open' => {
+                TicketState   => 'open',
+                TicketCount   => '',
+                TicketNumbers => [],
+                TicketIDs     => [],
+                TicketLink    => 'Open',
+            },
+            'Closed' => {
+                TicketState   => 'closed successful',
+                TicketCount   => '',
+                TicketNumbers => [],
+                TicketIDs     => [],
+                TicketLink    => 'Closed',
+            },
+        );
+
+        # create open and closed tickets
+        for my $TicketCreate ( sort keys %TicketData ) {
+            for my $TestTickets ( 1 .. 5 ) {
+                my $TicketNumber = $TicketObject->TicketCreateNumber();
+                my $TicketID     = $TicketObject->TicketCreate(
+                    TN           => $TicketNumber,
+                    Title        => 'Selenium Test Ticket',
+                    Queue        => 'Raw',
+                    Lock         => 'unlock',
+                    Priority     => '3 normal',
+                    State        => $TicketData{$TicketCreate}->{TicketState},
+                    CustomerID   => $CustomerID,
+                    CustomerUser => $TestCustomerUserLogin,
+                    OwnerID      => $TestUserID,
+                    UserID       => $TestUserID,
+                );
+                $Self->True(
+                    $TicketID,
+                    "$TicketCreate - ticket TicketID $TicketID - created - TN $TicketNumber",
+                );
+                push @{ $TicketData{$TicketCreate}->{TicketIDs} },     $TicketID;
+                push @{ $TicketData{$TicketCreate}->{TicketNumbers} }, $TicketNumber;
+            }
+            my $TicketCount = $TicketObject->TicketSearch(
+                Result     => 'Count',
+                StateType  => $TicketCreate,
+                CustomerID => $CustomerID,
+                UserID     => $TestUserID,
+            );
+            $TicketData{$TicketCreate}->{TicketCount} = $TicketCount;
+        }
 
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentCustomerInformationCenter");
-        sleep 1;
 
         # input search parameters
         $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerID", 'css' )
             ->send_keys($TestCustomerUserLogin);
-        sleep 1;
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length' );
         $Selenium->find_element("//*[text()='$TestCustomerUserLogin']")->click();
 
         # check customer information center page
@@ -72,6 +135,64 @@ $Selenium->RunTest(
             "Setting for toggle widgets found on page",
         );
 
+        # test links in Company Status widget
+        for my $TestLinks ( sort keys %TicketData ) {
+
+            # click on link
+            $Selenium->find_element(
+                "//a[contains(\@href, \'Subaction=Search;StateType=$TicketData{$TestLinks}->{TicketLink};CustomerID=$TestCustomerUserLogin' )]"
+            )->click();
+
+            # wait until page has loaded, if neccessary
+            $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("body").length' );
+
+            # check for test ticket numbers on search screen
+            for my $CheckTicketNumbers ( @{ $TicketData{$TestLinks}->{TicketNumbers} } ) {
+                $Self->True(
+                    index( $Selenium->get_page_source(), $CheckTicketNumbers ) > -1,
+                    "TicketNumber $CheckTicketNumbers - found on screen"
+                );
+            }
+
+            # click on 'Change search option'
+            $Selenium->find_element(
+                "//a[contains(\@href, \'AgentTicketSearch;Subaction=LoadProfile' )]"
+            )->click();
+
+            # link open in new window switch to it
+            my $Handles = $Selenium->get_window_handles();
+            $Selenium->switch_to_window( $Handles->[1] );
+
+            # verify state search attributes are shown in search screen, see bug #10853
+            $Selenium->find_element( "#StateIDs", 'css' );
+
+            # close current window and return to original
+            $Selenium->switch_to_window( $Handles->[0] );
+
+            # open CIC again for the next test case
+            $Selenium->get(
+                "${ScriptAlias}index.pl?Action=AgentCustomerInformationCenter;CustomerID=$TestCustomerUserLogin");
+
+        }
+
+        # delete created test tickets
+        for my $TicketState ( sort keys %TicketData ) {
+            for my $TicketID ( @{ $TicketData{$TicketState}->{TicketIDs} } ) {
+
+                my $Success = $TicketObject->TicketDelete(
+                    TicketID => $TicketID,
+                    UserID   => $TestUserID,
+                );
+
+                $Self->True(
+                    $Success,
+                    "Delete ticket - $TicketID"
+                );
+            }
+        }
+
+        # make sure cache is correct
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
     }
 );
 

@@ -82,7 +82,7 @@ $Selenium->RunTest(
         );
         my $CustomerID = $CustomerIDs[0];
 
-        # get ticket object
+        # get needed objects
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # create test data parameteres
@@ -92,14 +92,14 @@ $Selenium->RunTest(
                 TicketCount   => '',
                 TicketNumbers => [],
                 TicketIDs     => [],
-                TicketLink    => 'StateType=Open',
+                TicketLink    => 'Open',
             },
             'Closed' => {
                 TicketState   => 'closed successful',
                 TicketCount   => '',
                 TicketNumbers => [],
                 TicketIDs     => [],
-                TicketLink    => 'StateType=Closed',
+                TicketLink    => 'Closed',
             },
         );
 
@@ -173,6 +173,18 @@ $Selenium->RunTest(
                     "TicketNumber $CheckTicketNumbers - found on screen"
                 );
             }
+
+            # click on 'Change search option'
+            $Selenium->find_element(
+                "//a[contains(\@href, \'AgentTicketSearch;Subaction=LoadProfile' )]"
+            )->click();
+
+            # link open in new window switch to it
+            $Handles = $Selenium->get_window_handles();
+            $Selenium->switch_to_window( $Handles->[2] );
+
+            # verify state search attributes are shown in search screen, see bug #10853
+            $Selenium->find_element( "#StateIDs", 'css' );
 
             # close current window and return to original
             $Selenium->close();
