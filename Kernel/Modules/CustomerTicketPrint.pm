@@ -62,12 +62,12 @@ sub Run {
     my %PossibleActions = ( 1 => $Self->{Action} );
 
     my $ACL = $TicketObject->TicketAcl(
-        Data          => \%PossibleActions,
-        Action        => $Self->{Action},
-        TicketID      => $Self->{TicketID},
-        ReturnType    => 'Action',
-        ReturnSubType => '-',
-        UserID        => $Self->{UserID},
+        Data           => \%PossibleActions,
+        Action         => $Self->{Action},
+        TicketID       => $Self->{TicketID},
+        ReturnType     => 'Action',
+        ReturnSubType  => '-',
+        CustomerUserID => $Self->{UserID},
     );
     my %AclAction = $TicketObject->TicketAclActionData();
 
