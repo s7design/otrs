@@ -50,7 +50,7 @@ $Selenium->RunTest(
         # get needed objects
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-        # create test data parameteres
+        # create test data parameters
         my %TicketData = (
             'Open' => {
                 TicketState   => 'open',
@@ -143,7 +143,7 @@ $Selenium->RunTest(
                 "//a[contains(\@href, \'Subaction=Search;StateType=$TicketData{$TestLinks}->{TicketLink};CustomerID=$TestCustomerUserLogin' )]"
             )->click();
 
-            # wait until page has loaded, if neccessary
+            # wait until page has loaded, if necessary
             $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("body").length' );
 
             # check for test ticket numbers on search screen

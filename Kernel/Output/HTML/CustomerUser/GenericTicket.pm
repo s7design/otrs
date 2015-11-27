@@ -123,7 +123,7 @@ sub Run {
         }
     }
 
-    # build url
+    # build URL
 
     # note:
     # "special characters" in customer id have to be escaped, so that DB::QueryCondition works
@@ -156,7 +156,7 @@ sub Run {
 
     my $StateObject = $Kernel::OM->Get('Kernel::System::State');
 
-    # replace StateType to StateIDs for the count numbers in customer informations links
+    # replace StateType to StateIDs for the count numbers in customer information links
     if ( $TicketSearch{StateType} ) {
         my @StateIDs;
 

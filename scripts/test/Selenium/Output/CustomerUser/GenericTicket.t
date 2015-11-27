@@ -85,7 +85,7 @@ $Selenium->RunTest(
         # get needed objects
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-        # create test data parameteres
+        # create test data parameters
         my %TicketData = (
             'Open' => {
                 TicketState   => 'open',
@@ -139,7 +139,7 @@ $Selenium->RunTest(
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
         $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketData{Open}->{TicketIDs}->[0]");
 
-        # wait until page has loaded, if neccessary
+        # wait until page has loaded, if necessary
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("body").length' );
 
         # test CustomerUserGenericTicket module
@@ -163,7 +163,7 @@ $Selenium->RunTest(
             my $Handles = $Selenium->get_window_handles();
             $Selenium->switch_to_window( $Handles->[1] );
 
-            # wait until page has loaded, if neccessary
+            # wait until page has loaded, if necessary
             $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("body").length' );
 
             # check for test ticket numbers on search screen
