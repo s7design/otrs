@@ -26,6 +26,7 @@ $Selenium->RunTest(
         );
         my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
         my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # enable customer group support
         $SysConfigObject->ConfigItemUpdate(
@@ -38,6 +39,35 @@ $Selenium->RunTest(
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
+
+        # create and login test customer
+        my $TestCustomerUserLogin = $Helper->TestCustomerUserCreate(
+        ) || die "Did not get test customer user";
+
+        my @TicketIDs;
+        my @TicketNumbers;
+
+        for my $TestTickets ( 1 .. 5 ) {
+            my $TicketNumber = $TicketObject->TicketCreateNumber();
+            my $TicketID     = $TicketObject->TicketCreate(
+                TN           => $TicketNumber,
+                Title        => 'Selenium Test Ticket',
+                Queue        => 'Raw',
+                Lock         => 'unlock',
+                Priority     => '3 normal',
+                State        => 'open',
+                CustomerID   => $TestCustomerUserLogin,
+                CustomerUser => $TestCustomerUserLogin,
+                OwnerID      => 1,
+                UserID       => 1,
+            );
+            $Self->True(
+                $TicketID,
+                "Ticket is created - $TicketID, $TicketNumber ",
+            );
+            push @TicketIDs,     $TicketID;
+            push @TicketNumbers, $TicketNumber;
+        }
 
         $Selenium->Login(
             Type     => 'Agent',
@@ -72,13 +102,10 @@ $Selenium->RunTest(
         )->click();
 
         my $ConfigGroupElement = $Selenium->find_element(
-            "//input[\@name='CustomerFrontend::Module###CustomerTicketOverview#NavBar3#Group[]']");
+            "//input[\@name='CustomerFrontend::Module###CustomerTicketOverview#NavBar3#Group[]']"
+        );
         $ConfigGroupElement->send_keys($GroupName);
         $ConfigGroupElement->submit();
-
-        # create and login test customer
-        my $TestCustomerUserLogin = $Helper->TestCustomerUserCreate(
-        ) || die "Did not get test customer user";
 
         $Selenium->Login(
             Type     => 'Customer',
@@ -132,6 +159,14 @@ $Selenium->RunTest(
             "Customer fatal error message - not found",
         );
 
+        # check for test ticket numbers on search screen
+        for my $CheckTicketNumbers (@TicketNumbers) {
+            $Self->True(
+                index( $Selenium->get_page_source(), $CheckTicketNumbers ) > -1,
+                "TicketNumber $CheckTicketNumbers - found on screen"
+            );
+        }
+
         # delete test created group
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
         $Success = $DBObject->Do(
@@ -153,6 +188,30 @@ $Selenium->RunTest(
             $Success,
             "$GroupName - deleted",
         );
+
+        # delete created test tickets
+        for my $TicketID (@TicketIDs) {
+
+            my $Success = $TicketObject->TicketDelete(
+                TicketID => $TicketID,
+                UserID   => 1,
+            );
+
+            $Self->True(
+                $Success,
+                "Delete ticket - $TicketID"
+            );
+        }
+
+        # make sure the cache is correct
+        for my $Cache (
+            qw (Ticket CustomerGroup Group )
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
     }
 );
 
