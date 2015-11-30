@@ -73,7 +73,6 @@ $Selenium->RunTest(
 
         # create test customer user
         my $TestCustomerUserLogin = $Helper->TestCustomerUserCreate(
-            Groups => [ 'admin', 'users' ],
         ) || die "Did not get test customer user";
 
         # get test customer user ID

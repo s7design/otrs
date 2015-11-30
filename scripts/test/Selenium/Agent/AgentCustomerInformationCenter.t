@@ -38,7 +38,6 @@ $Selenium->RunTest(
 
         # create test customer user
         my $TestCustomerUserLogin = $Helper->TestCustomerUserCreate(
-            Groups => [ 'admin', 'users' ],
         ) || die "Did not get test customer user";
 
         # get test customer user ID
@@ -171,7 +170,8 @@ $Selenium->RunTest(
 
             # open CIC again for the next test case
             $Selenium->get(
-                "${ScriptAlias}index.pl?Action=AgentCustomerInformationCenter;CustomerID=$TestCustomerUserLogin");
+                "${ScriptAlias}index.pl?Action=AgentCustomerInformationCenter;CustomerID=$TestCustomerUserLogin"
+            );
 
         }
 
