@@ -30,12 +30,6 @@
 [% Translate("4 high") | html %]
 [% Translate("5 very high") | html %]
 
-[% Translate("auto follow up") | html %]
-[% Translate("auto reject") | html %]
-[% Translate("auto remove") | html %]
-[% Translate("auto reply") | html %]
-[% Translate("auto reply/new ticket") | html %]
-
 # Templates
 [% Translate("Create") | html %]
 [% Translate("Answer") | html %]

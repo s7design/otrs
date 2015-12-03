@@ -11,6 +11,8 @@ package Kernel::System::AutoResponse;
 use strict;
 use warnings;
 
+use Kernel::Language qw(Translatable);
+
 our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::Log',
@@ -420,6 +422,12 @@ Return example:
 
 sub AutoResponseTypeList {
     my ( $Self, %Param ) = @_;
+
+    Translatable('auto reply');
+    Translatable('auto reject');
+    Translatable('auto follow up');
+    Translatable('auto reply/new ticket');
+    Translatable('auto remove');
 
     my $Valid = $Param{Valid} // 1;
 
