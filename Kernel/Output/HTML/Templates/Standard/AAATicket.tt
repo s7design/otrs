@@ -6,44 +6,9 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-[% Translate("email-external") | html %]
-[% Translate("email-internal") | html %]
-[% Translate("note-external") | html %]
-[% Translate("note-internal") | html %]
-[% Translate("note-report") | html %]
-[% Translate("phone") | html %]
-[% Translate("sms") | html %]
-[% Translate("webrequest") | html %]
-
-[% Translate("lock") | html %]
-[% Translate("unlock") | html %]
-
-[% Translate("very low") | html %]
-[% Translate("low") | html %]
-[% Translate("normal") | html %]
-[% Translate("high") | html %]
-[% Translate("very high") | html %]
-
-[% Translate("1 very low") | html %]
-[% Translate("2 low") | html %]
-[% Translate("3 normal") | html %]
-[% Translate("4 high") | html %]
-[% Translate("5 very high") | html %]
-
-[% Translate("auto follow up") | html %]
-[% Translate("auto reject") | html %]
-[% Translate("auto remove") | html %]
-[% Translate("auto reply") | html %]
-[% Translate("auto reply/new ticket") | html %]
 
 # Templates
-[% Translate("Create") | html %]
-[% Translate("Answer") | html %]
-[% Translate("Forward") | html %]
-[% Translate("Phone call") | html %]
 
-[% Translate("Ticket \"%s\" created!") | html %]
-[% Translate("Ticket Number") | html %]
 [% Translate("Ticket Object") | html %]
 [% Translate("No such Ticket Number \"%s\"! Can't link it!") | html %]
 [% Translate("You don't have write access to this ticket.") | html %]
