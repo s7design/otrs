@@ -356,12 +356,18 @@ Return example:
         '1' => 'default reply (after new ticket has been created)',
         '2' => 'default reject (after follow up and rejected of a closed ticket)',
         '3' => 'default follow up (after a ticket follow up has been added)',
+        '4' => 'default reject/new ticket created (after closed follow-up with new ticket creation)',
     );
 
 =cut
 
 sub AutoResponseList {
     my ( $Self, %Param ) = @_;
+
+    Translatable('default reply (after new ticket has been created)');
+    Translatable('default reject (after follow up and rejected of a closed ticket)');
+    Translatable('default follow up (after a ticket follow up has been added)');
+    Translatable('default reject/new ticket created (after closed follow-up with new ticket creation)');
 
     # get database object
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');

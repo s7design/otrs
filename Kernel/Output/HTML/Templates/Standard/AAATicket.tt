@@ -15,21 +15,6 @@
 [% Translate("sms") | html %]
 [% Translate("webrequest") | html %]
 
-[% Translate("lock") | html %]
-[% Translate("unlock") | html %]
-
-[% Translate("very low") | html %]
-[% Translate("low") | html %]
-[% Translate("normal") | html %]
-[% Translate("high") | html %]
-[% Translate("very high") | html %]
-
-[% Translate("1 very low") | html %]
-[% Translate("2 low") | html %]
-[% Translate("3 normal") | html %]
-[% Translate("4 high") | html %]
-[% Translate("5 very high") | html %]
-
 # Templates
 [% Translate("Create") | html %]
 [% Translate("Answer") | html %]

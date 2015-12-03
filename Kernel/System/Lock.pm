@@ -11,6 +11,8 @@ package Kernel::System::Lock;
 use strict;
 use warnings;
 
+use Kernel::Language qw(Translatable);
+
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Cache',
@@ -206,6 +208,10 @@ Returns:
 
 sub LockList {
     my ( $Self, %Param ) = @_;
+
+    Translatable('unlock');
+    Translatable('lock');
+    Translatable('lock-tmp');
 
     # check needed stuff
     if ( !$Param{UserID} ) {

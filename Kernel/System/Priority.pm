@@ -66,10 +66,26 @@ return a priority list as hash
         Valid => 0,
     );
 
+Returns:
+
+    %List = (
+        1 => '1 very low',
+        2 => '2 low',
+        3 => '3 normal',
+        4 => '4 high',
+        5 => '5 very high',
+    );
+
 =cut
 
 sub PriorityList {
     my ( $Self, %Param ) = @_;
+
+    Translatable('1 very low');
+    Translatable('2 low');
+    Translatable('3 normal');
+    Translatable('4 high');
+    Translatable('5 very high');
 
     # check valid param
     if ( !defined $Param{Valid} ) {
