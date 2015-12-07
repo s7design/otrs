@@ -5716,7 +5716,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###1-Ticket::AgentTicketQueue" Required="0" Valid="0">
-        <Description Translatable="1">Toolbar Item for a shortcut.</Description>
+        <Description Translatable="1">Toolbar Item for a shortcut. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5733,7 +5733,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###2-Ticket::AgentTicketStatus" Required="0" Valid="0">
-        <Description Translatable="1">Toolbar Item for a shortcut.</Description>
+        <Description Translatable="1">Toolbar Item for a shortcut. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5750,7 +5750,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###3-Ticket::AgentTicketEscalation" Required="0" Valid="0">
-        <Description Translatable="1">Toolbar Item for a shortcut.</Description>
+        <Description Translatable="1">Toolbar Item for a shortcut. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5767,7 +5767,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###4-Ticket::AgentTicketPhone" Required="0" Valid="0">
-        <Description Translatable="1">Toolbar Item for a shortcut.</Description>
+        <Description Translatable="1">Toolbar Item for a shortcut. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5784,7 +5784,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###5-Ticket::AgentTicketEmail" Required="0" Valid="0">
-        <Description Translatable="1">Toolbar Item for a shortcut.</Description>
+        <Description Translatable="1">Toolbar Item for a shortcut. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5801,7 +5801,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###6-Ticket::AgentTicketProcess" Required="0" Valid="0">
-        <Description Translatable="1">Toolbar Item for a shortcut.</Description>
+        <Description Translatable="1">Toolbar Item for a shortcut. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5818,7 +5818,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###7-Ticket::TicketResponsible" Required="0" Valid="1">
-        <Description Translatable="1">Agent interface notification module to see the number of tickets an agent is responsible for.</Description>
+        <Description Translatable="1">Agent interface notification module to see the number of tickets an agent is responsible for. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5838,7 +5838,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###8-Ticket::TicketWatcher" Required="0" Valid="1">
-        <Description Translatable="1">Agent interface notification module to see the number of watched tickets.</Description>
+        <Description Translatable="1">Agent interface notification module to see the number of watched tickets. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5858,7 +5858,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###9-Ticket::TicketLocked" Required="0" Valid="1">
-        <Description Translatable="1">Agent interface notification module to see the number of locked tickets.</Description>
+        <Description Translatable="1">Agent interface notification module to see the number of locked tickets. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5881,7 +5881,7 @@
     the standard link module
     -->
     <ConfigItem Name="Frontend::ToolBarModule###10-Ticket::AgentTicketService" Required="0" Valid="0">
-        <Description Translatable="1">Agent interface notification module to see the number of tickets in My Services.</Description>
+        <Description Translatable="1">Agent interface notification module to see the number of tickets in My Services. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5894,7 +5894,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###11-Ticket::TicketSearchProfile" Required="0" Valid="0">
-        <Description Translatable="1">Agent interface module to access search profiles via nav bar.</Description>
+        <Description Translatable="1">Agent interface module to access search profiles via nav bar. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5909,7 +5909,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###12-Ticket::TicketSearchFulltext" Required="0" Valid="0">
-        <Description Translatable="1">Agent interface module to access fulltext search via nav bar.</Description>
+        <Description Translatable="1">Agent interface module to access fulltext search via nav bar. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5925,7 +5925,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###13-CICSearchCustomerID" Required="0" Valid="0">
-        <Description Translatable="1">Agent interface module to access CIC search via nav bar.</Description>
+        <Description Translatable="1">Agent interface module to access CIC search via nav bar. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
@@ -5941,7 +5941,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::ToolBarModule###14-CICSearchCustomerUser" Required="0" Valid="0">
-        <Description Translatable="1">Agent interface module to access CIC search via nav bar.</Description>
+        <Description Translatable="1">Agent interface module to access CIC search via nav bar. Additional access control to show or not show this link can be done by using Key "Group" and Content like "rw:group1;move_into:group2".</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::ToolBarModule</SubGroup>
         <Setting>
