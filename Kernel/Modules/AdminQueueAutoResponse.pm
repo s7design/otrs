@@ -11,6 +11,8 @@ package Kernel::Modules::AdminQueueAutoResponse;
 use strict;
 use warnings;
 
+use Kernel::Language qw(Translatable);
+
 our $ObjectManagerDisabled = 1;
 
 sub new {
@@ -131,25 +133,20 @@ sub Run {
         # get queue data
         my %QueueData;
         my $QueueHeader;
-        my $FilterQueuesWithoutAutoResponses
-            = $Kernel::OM->Get('Kernel::Config')->Get("FilterQueuesWithoutAutoResponses") || 0;
 
         # filter queues without auto responses
-        if (
-            $FilterQueuesWithoutAutoResponses
-            && $Param{Filter} eq 'QueuesWithoutAutoResponses'
-            )
+        if ( $Param{Filter} eq 'QueuesWithoutAutoResponses' )
         {
 
             %QueueData = $AutoResponseObject->AutoResponseWithoutQueue();
 
             # use appropriate header
-            $QueueHeader = 'Queues ( without auto responses )';
+            $QueueHeader = Translatable('Queues ( without auto responses )');
 
         }
         else {
             %QueueData = $QueueObject->QueueList( Valid => 1 );
-            $QueueHeader = 'Queues';
+            $QueueHeader = Translatable('Queues');
         }
 
         $LayoutObject->Block(
@@ -159,17 +156,15 @@ sub Run {
 
         $LayoutObject->Block( Name => 'FilterQueues' );
         $LayoutObject->Block( Name => 'FilterAutoResponses' );
-        if ($FilterQueuesWithoutAutoResponses) {
+        $LayoutObject->Block( Name => 'ActionList' );
 
-            $LayoutObject->Block( Name => 'ActionList' );
-
-            if ( $Param{Filter} eq 'QueuesWithoutAutoResponses' ) {
-                $LayoutObject->Block( Name => 'ShowAllQueues' );
-            }
-            else {
-                $LayoutObject->Block( Name => 'QueuesWithoutAutoResponses' );
-            }
+        if ( $Param{Filter} eq 'QueuesWithoutAutoResponses' ) {
+            $LayoutObject->Block( Name => 'ShowAllQueues' );
         }
+        else {
+            $LayoutObject->Block( Name => 'QueuesWithoutAutoResponses' );
+        }
+
         $LayoutObject->Block(
             Name => 'OverviewResult',
             Data => {

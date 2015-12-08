@@ -364,11 +364,12 @@ sub AutoResponseWithoutQueue {
 
     # SQL query
     return if !$DBObject->Prepare(
-        SQL => "SELECT q.id, q.name, q.valid_id "
-            . "FROM queue q "
-            . "LEFT OUTER JOIN queue_auto_response qar on q.id = qar.queue_id "
-            . "WHERE qar.queue_id IS NULL "
-            . "AND q.valid_id IN ( ${\(join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet())})"
+        SQL =>
+            'SELECT q.id, q.name
+             FROM queue q
+             LEFT OUTER JOIN queue_auto_response qar on q.id = qar.queue_id
+             WHERE qar.queue_id IS NULL '
+            . "AND q.valid_id IN (${\(join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet())})"
     );
 
     # fetch the result

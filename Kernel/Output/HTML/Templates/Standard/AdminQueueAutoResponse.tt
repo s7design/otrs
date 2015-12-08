@@ -26,12 +26,12 @@
 [% RenderBlockEnd("ActionOverview") %]
 [% RenderBlockStart("QueuesWithoutAutoResponses") %]
                     <li>
-                        <a href="[% Env("Baselink") %]Action=AdminQueueAutoResponse;Filter=QueuesWithoutAutoResponses" class="CallForAction Fullsize Center"><span><i class="fa fa-filter"></i>[% Translate("Queues without auto responses") | html %]</span></a>
+                        <a href="[% Env("Baselink") %]Action=AdminQueueAutoResponse;Filter=QueuesWithoutAutoResponses" title="[% Translate("This filter allow you to show queues without auto responses") | html %]" class="CallForAction Fullsize Center"><span><i class="fa fa-filter"></i>[% Translate("Queues without auto responses") | html %]</span></a>
                     </li>
 [% RenderBlockEnd("QueuesWithoutAutoResponses") %]
 [% RenderBlockStart("ShowAllQueues") %]
                     <li>
-                        <a href="[% Env("Baselink") %]Action=AdminQueueAutoResponse" class="CallForAction Fullsize Center"><span><i class="fa fa-filter"></i>[% Translate("Show all queues") | html %]</span></a>
+                        <a href="[% Env("Baselink") %]Action=AdminQueueAutoResponse" title="[% Translate("This filter allow you to show all queues") | html %]" class="CallForAction Fullsize Center"><span><i class="fa fa-filter"></i>[% Translate("Show all queues") | html %]</span></a>
                     </li>
 [% RenderBlockEnd("ShowAllQueues") %]
                 </ul>
