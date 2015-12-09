@@ -30,6 +30,8 @@ use lib dirname($Bin) . '/Custom';
 use File::stat;
 use Digest::MD5;
 
+use Kernel::Language qw(Translatable);
+
 our @ObjectDependencies = ();
 
 sub LoadDefaults {
@@ -1399,6 +1401,9 @@ via the Preferences button after logging in.
 
     # CustomerUser
     # (customer user database backend and settings)
+    Translatable("Mr.");
+    Translatable("Mrs.");
+
     $Self->{CustomerUser} = {
         Name   => 'Database Backend',
         Module => 'Kernel::System::CustomerUser::DB',
