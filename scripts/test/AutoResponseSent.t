@@ -37,30 +37,42 @@ my @Tests = (
         AutoResponseType   => 'auto reply',
         TicketState        => 'open',
         ArticleType        => 'phone',
+        ArticleBody        => 'UnitTest body',
+        OrigHeaderBody     => 'UnitTest body',
+        AutoResponseBody   => 'UnitTest AutoResponse reply',
     },
     {
         Subject            => 'AutoResponse Follow Up',
-        FollowUpID         => 1,                          # Queue follow up option 'possible'
+        FollowUpID         => 1,                                   # Queue follow up option 'possible'
         AutoResponseTypeID => 3,
         AutoResponseType   => 'auto follow up',
         TicketState        => 'open',
         ArticleType        => 'webrequest',
+        ArticleBody        => 'UnitTest body',
+        OrigHeaderBody     => 'UnitTest body',
+        AutoResponseBody   => 'UnitTest AutoResponse follow up',
     },
     {
         Subject            => 'AutoResponse Reject',
-        FollowUpID         => 2,                          # Queue follow up option 'rejected'
+        FollowUpID         => 2,                                   # Queue follow up option 'rejected'
         AutoResponseTypeID => 2,
         AutoResponseType   => 'auto reject',
         TicketState        => 'closed successful',
         ArticleType        => 'webrequest',
+        ArticleBody        => 'UnitTest body',
+        OrigHeaderBody     => 'UnitTest body',
+        AutoResponseBody   => 'UnitTest AutoResponse reject',
     },
     {
         Subject            => 'AutoResponse Reply/New Ticket',
-        FollowUpID         => 3,                                 # Queue follow up option 'new ticket'
+        FollowUpID         => 3,                                            # Queue follow up option 'new ticket'
         AutoResponseTypeID => 4,
         AutoResponseType   => 'auto reply/new ticket',
         TicketState        => 'closed successful',
         ArticleType        => 'webrequest',
+        ArticleBody        => 'UnitTest body',
+        OrigHeaderBody     => 'UnitTest body',
+        AutoResponseBody   => 'UnitTest AutoResponse reply / new ticket',
     },
     {
         Subject            => 'AutoResponse Remove',
@@ -68,6 +80,28 @@ my @Tests = (
         AutoResponseType   => 'auto remove',
         TicketState        => 'removed',
         ArticleType        => 'webrequest',
+        ArticleBody        => 'UnitTest body',
+        OrigHeaderBody     => 'UnitTest body',
+        AutoResponseBody   => 'UnitTest AutoResponse remove',
+    },
+
+    # test auto response <OTRS_CUSTOMER_BODY[n]> tag for HTML article see bug #9837
+    {
+        Subject            => 'АutoResponse OTRS_CUSTOMER Body and Subject tags in HTML article',
+        AutoResponseTypeID => 1,
+        AutoResponseType   => 'auto reply',
+        TicketState        => 'open',
+        ArticleType        => 'webrequest',
+        ArticleBody =>
+            '<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/></head>
+                                <body style="font-family:Geneva,Helvetica,Arial,sans-serif; font-size: 12px;"><a href="http://www.localhost.com" target="_blank">This is test text with link</a>
+                               </body></html>',
+        OrigHeaderBody => '[1]This is test text with link
+
+[1] http://www.localhost.com
+',
+        AutoResponseBody    => '<OTRS_CUSTOMER_SUBJECT[30]> <OTRS_CUSTOMER_BODY[10]>',
+        AutoResponseWithTag => 1,
     },
 );
 
@@ -115,7 +149,7 @@ for my $Test (@Tests) {
         Name        => $AutoResponseName,
         ValidID     => 1,
         Subject     => $Test->{Subject},
-        Response    => 'UnitTest AutoResponse response',
+        Response    => $Test->{AutoResponseBody},
         ContentType => 'text/plain',
         AddressID   => 1,
         TypeID      => $Test->{AutoResponseTypeID},
@@ -164,20 +198,19 @@ for my $Test (@Tests) {
         Subject          => 'UnitTest article one',
         From             => '"test" <test@localunittest.com>',
         To               => $QueueName,
-        Body             => 'UnitTest body',
+        Body             => $Test->{ArticleBody},
         Charset          => 'utf-8',
-        MimeType         => 'text/plain',
+        MimeType         => 'text/html',
         HistoryType      => 'PhoneCallCustomer',
         HistoryComment   => 'Some free text!',
         UserID           => 1,
         UnlockOnAway     => 1,
         AutoResponseType => $Test->{AutoResponseType},
-        OrigHeader => {
+        OrigHeader       => {
             From    => '"test" <test@localunittest.com>',
             To      => $QueueName,
             Subject => 'UnitTest article one',
-            Body    => 'UnitTest body',
-
+            Body    => $Test->{OrigHeaderBody},
         },
         Queue => $QueueName,
     );
@@ -194,6 +227,25 @@ for my $Test (@Tests) {
         "Test $Count : Emails fetched from backend - AutoResponse $Test->{AutoResponseType} sent",
     );
 
+    # test auto response <OTRS_CUSTOMER_BODY[n]> tag for HTML article see bug #9837
+    if ( $Test->{AutoResponseWithTag} ) {
+        $Self->True(
+            (
+                ${ $Emails->[0]->{Body} }
+                    =~ /<a href="http:\/\/www.localhost.com" target="_blank">This is test text with link<\/a>/
+            ),
+            "Test $Count : <OTRS_CUSTOMER_BODY[n]> tag for AutoResponse - replaced successfully for HTML article",
+        );
+
+        $Self->True(
+            (
+                ${ $Emails->[0]->{Body} }
+                    =~ /UnitTest article one/
+            ),
+            "Test $Count : <OTRS_CUSTOMER_SUBJECT[n]> tag for AutoResponse - replaced successfully for HTML article",
+        );
+    }
+
     # clean up test email backend again
     $Success = $TestEmailObject->CleanUp();
     $Self->True(
@@ -208,7 +260,7 @@ for my $Test (@Tests) {
 
     # test if auto-response get activated once it's invalid
     # see bug bug#11481
-    # set test AutoResponse on ivalid
+    # set test AutoResponse on invalid
     $Success = $AutoResponseObject->AutoResponseUpdate(
         ID          => $AutoResponseID,
         Name        => $AutoResponseName,
@@ -259,7 +311,7 @@ for my $Test (@Tests) {
         UserID           => 1,
         UnlockOnAway     => 1,
         AutoResponseType => $Test->{AutoResponseType},
-        OrigHeader => {
+        OrigHeader       => {
             From    => '"test" <test@localunittest.com>',
             To      => $QueueName,
             Subject => 'UnitTest article two',

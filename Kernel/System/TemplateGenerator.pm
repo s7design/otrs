@@ -117,10 +117,13 @@ sub Salutation {
         ID => $Queue{SalutationID},
     );
 
+    # get HTMLUtils object
+    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
     # do text/plain to text/html convert
     if ( $Self->{RichText} && $Salutation{ContentType} =~ /text\/plain/i ) {
         $Salutation{ContentType} = 'text/html';
-        $Salutation{Text}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+        $Salutation{Text}        = $HTMLUtilsObject->ToHTML(
             String => $Salutation{Text},
         );
     }
@@ -128,7 +131,7 @@ sub Salutation {
     # do text/html to text/plain convert
     if ( !$Self->{RichText} && $Salutation{ContentType} =~ /text\/html/i ) {
         $Salutation{ContentType} = 'text/plain';
-        $Salutation{Text}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToAscii(
+        $Salutation{Text}        = $HTMLUtilsObject->ToAscii(
             String => $Salutation{Text},
         );
     }
@@ -144,7 +147,7 @@ sub Salutation {
 
     # add urls
     if ( $Self->{RichText} ) {
-        $SalutationText = $Kernel::OM->Get('Kernel::System::HTMLUtils')->LinkQuote(
+        $SalutationText = $HTMLUtilsObject->LinkQuote(
             String => $SalutationText,
         );
     }
@@ -228,10 +231,13 @@ sub Signature {
         ID => $Queue{SignatureID},
     );
 
+    # get HTMLUtils object
+    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
     # do text/plain to text/html convert
     if ( $Self->{RichText} && $Signature{ContentType} =~ /text\/plain/i ) {
         $Signature{ContentType} = 'text/html';
-        $Signature{Text}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+        $Signature{Text}        = $HTMLUtilsObject->ToHTML(
             String => $Signature{Text},
         );
     }
@@ -239,7 +245,7 @@ sub Signature {
     # do text/html to text/plain convert
     if ( !$Self->{RichText} && $Signature{ContentType} =~ /text\/html/i ) {
         $Signature{ContentType} = 'text/plain';
-        $Signature{Text}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToAscii(
+        $Signature{Text}        = $HTMLUtilsObject->ToAscii(
             String => $Signature{Text},
         );
     }
@@ -256,7 +262,7 @@ sub Signature {
 
     # add urls
     if ( $Self->{RichText} ) {
-        $SignatureText = $Kernel::OM->Get('Kernel::System::HTMLUtils')->LinkQuote(
+        $SignatureText = $HTMLUtilsObject->LinkQuote(
             String => $SignatureText,
         );
     }
@@ -386,6 +392,9 @@ sub Template {
         ID => $Param{TemplateID},
     );
 
+    # get HTMLUtils object
+    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
     # do text/plain to text/html convert
     if (
         $Self->{RichText}
@@ -394,7 +403,7 @@ sub Template {
         )
     {
         $Template{ContentType} = 'text/html';
-        $Template{Template}    = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+        $Template{Template}    = $HTMLUtilsObject->ToHTML(
             String => $Template{Template},
         );
     }
@@ -407,7 +416,7 @@ sub Template {
         )
     {
         $Template{ContentType} = 'text/plain';
-        $Template{Template}    = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToAscii(
+        $Template{Template}    = $HTMLUtilsObject->ToAscii(
             String => $Template{Template},
         );
     }
@@ -549,11 +558,105 @@ sub AutoResponse {
         DynamicFields => 0,
     );
 
-    for (qw(From To Cc Subject Body)) {
-        if ( !$Param{OrigHeader}->{$_} ) {
-            $Param{OrigHeader}->{$_} = $Article{$_} || '';
+    for my $Text (qw(From To Cc Subject Body)) {
+        if ( !$Param{OrigHeader}->{$Text} ) {
+            $Param{OrigHeader}->{$Text} = $Article{$Text} || '';
         }
-        chomp $Param{OrigHeader}->{$_};
+        chomp $Param{OrigHeader}->{$Text};
+    }
+
+    # get ID for customer articles
+    my $CustomerArticleID = $Article{ArticleID} || '';
+
+    # flag to see if an HTMLBody for Customer is present
+    my $CustomerHTMLBodyPresent = 0;
+
+    # get articles for later use
+    my @ArticleBox = $TicketObject->ArticleContentIndex(
+        TicketID                   => $Param{TicketID},
+        DynamicFields              => 0,
+        UserID                     => $Param{UserID},
+        StripPlainBodyAsAttachment => 2,
+    );
+
+    # get HTMLUtils object
+    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
+    if ( $Self->{RichText} ) {
+        ARTICLEBOX:
+        for my $ArticleItem ( reverse @ArticleBox ) {
+
+            if ( $CustomerArticleID ne $ArticleItem->{ArticleID} ) {
+                next ARTICLEBOX;
+            }
+
+            if ( $ArticleItem->{AttachmentIDOfHTMLBody} ) {
+
+                # get a attachment
+                my %Data = $TicketObject->ArticleAttachment(
+                    ArticleID => $ArticleItem->{ArticleID},
+                    FileID    => $ArticleItem->{AttachmentIDOfHTMLBody},
+                    UserID    => $Param{UserID},
+                );
+
+                # get charset and convert content to internal charset
+                my $Charset;
+                if ( $Data{ContentType} =~ m/.+?charset=("|'|)(.+)/ig ) {
+                    $Charset = $2;
+                    $Charset =~ s/"|'//g;
+                }
+                if ( !$Charset ) {
+                    $Charset = 'us-ascii';
+                    $Data{ContentType} .= '; charset="us-ascii"';
+                }
+
+                # convert charset
+                if ($Charset) {
+                    $Data{Content} = $Kernel::OM->Get('Kernel::System::Encode')->Convert(
+                        Text => $Data{Content},
+                        From => $Charset,
+                        To   => 'utf-8',
+                    );
+
+                    # replace charset in content
+                    $Data{ContentType} =~ s/\Q$Charset\E/utf-8/gi;
+                    $Data{Content} =~ s/(charset=("|'|))\Q$Charset\E/$1utf-8/gi;
+                }
+
+                $Data{Content} =~ s/&amp;/&/g;
+                $Data{Content} =~ s/&lt;/</g;
+                $Data{Content} =~ s/&gt;/>/g;
+                $Data{Content} =~ s/&quot;/"/g;
+
+                # strip head, body and meta elements
+                my $HTMLBody = $HTMLUtilsObject->DocumentStrip(
+                    String => $Data{Content},
+                );
+
+                if ( $CustomerArticleID eq $ArticleItem->{ArticleID} ) {
+
+                    # set HTML body for customer article
+                    $Param{OrigHeader}->{HTMLBody} = $HTMLBody;
+
+                    # set flag for customer HTML body
+                    $CustomerHTMLBodyPresent = 1;
+                }
+            }
+        }
+    }
+
+    # convert values to HTML to get correct line breaks etc.
+    if ( $AutoResponse{ContentType} =~ m{text\/html} && $CustomerHTMLBodyPresent ) {
+        KEY:
+        for my $Key ( sort keys %{ $Param{OrigHeader} || {} } ) {
+            next KEY if !$Param{OrigHeader}->{$Key};
+
+            # convert HTMLBody to HTML is not needed
+            next KEY if $Key eq 'HTMLBody';
+            $Param{OrigHeader}->{$Key} = $HTMLUtilsObject->ToHTML(
+                String => $Param{OrigHeader}->{$Key},
+            );
+        }
     }
 
     # format body (only if longer than 86 chars)
@@ -577,9 +680,9 @@ sub AutoResponse {
     }
 
     # fill up required attributes
-    for (qw(Subject Body)) {
-        if ( !$Param{OrigHeader}->{$_} ) {
-            $Param{OrigHeader}->{$_} = "No $_";
+    for my $Text (qw(Subject Body)) {
+        if ( !$Param{OrigHeader}->{$Text} ) {
+            $Param{OrigHeader}->{$Text} = "No $Text";
         }
     }
 
@@ -594,7 +697,7 @@ sub AutoResponse {
     # do text/plain to text/html convert
     if ( $Self->{RichText} && $AutoResponse{ContentType} =~ /text\/plain/i ) {
         $AutoResponse{ContentType} = 'text/html';
-        $AutoResponse{Text}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+        $AutoResponse{Text}        = $HTMLUtilsObject->ToHTML(
             String => $AutoResponse{Text},
         );
     }
@@ -602,7 +705,7 @@ sub AutoResponse {
     # do text/html to text/plain convert
     if ( !$Self->{RichText} && $AutoResponse{ContentType} =~ /text\/html/i ) {
         $AutoResponse{ContentType} = 'text/plain';
-        $AutoResponse{Text}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToAscii(
+        $AutoResponse{Text}        = $HTMLUtilsObject->ToAscii(
             String => $AutoResponse{Text},
         );
     }
@@ -665,11 +768,11 @@ sub AutoResponse {
     # add urls and verify to be full html document
     if ( $Self->{RichText} ) {
 
-        $AutoResponse{Text} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->LinkQuote(
+        $AutoResponse{Text} = $HTMLUtilsObject->LinkQuote(
             String => $AutoResponse{Text},
         );
 
-        $AutoResponse{Text} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->DocumentComplete(
+        $AutoResponse{Text} = $HTMLUtilsObject->DocumentComplete(
             Charset => 'utf-8',
             String  => $AutoResponse{Text},
         );
@@ -771,6 +874,9 @@ sub NotificationEvent {
         StripPlainBodyAsAttachment => 2,
     );
 
+    # get HTMLUtils object
+    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
     if ( $Self->{RichText} ) {
         ARTICLEBOX:
         for my $ArticleItem ( reverse @ArticleBox ) {
@@ -818,7 +924,7 @@ sub NotificationEvent {
                 $Data{Content} =~ s/&quot;/"/g;
 
                 # strip head, body and meta elements
-                my $HTMLBody = $Kernel::OM->Get('Kernel::System::HTMLUtils')->DocumentStrip(
+                my $HTMLBody = $HTMLUtilsObject->DocumentStrip(
                     String => $Data{Content},
                 );
 
@@ -837,9 +943,6 @@ sub NotificationEvent {
             }
         }
     }
-
-    # get  HTMLUtils object
-    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
 
     # set the accounted time as part of the articles information
     ARTICLE:
@@ -951,7 +1054,7 @@ sub NotificationEvent {
     # do text/plain to text/html convert
     if ( $Self->{RichText} && $Notification{ContentType} =~ /text\/plain/i ) {
         $Notification{ContentType} = 'text/html';
-        $Notification{Body}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+        $Notification{Body}        = $HTMLUtilsObject->ToHTML(
             String => $Notification{Body},
         );
     }
@@ -959,7 +1062,7 @@ sub NotificationEvent {
     # do text/html to text/plain convert
     if ( !$Self->{RichText} && $Notification{ContentType} =~ /text\/html/i ) {
         $Notification{ContentType} = 'text/plain';
-        $Notification{Body}        = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToAscii(
+        $Notification{Body}        = $HTMLUtilsObject->ToAscii(
             String => $Notification{Body},
         );
     }
@@ -1002,7 +1105,7 @@ sub NotificationEvent {
     # add URLs and verify to be full HTML document
     if ( $Self->{RichText} ) {
 
-        $Notification{Body} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->LinkQuote(
+        $Notification{Body} = $HTMLUtilsObject->LinkQuote(
             String => $Notification{Body},
         );
     }
@@ -1134,6 +1237,9 @@ sub _Replace {
         $Param{Text} =~ s/(?:$Tag)($Keys)$End/$H{ lc $1 }/ieg;
     };
 
+    # get HTMLUtils object
+    my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
+
     # get recipient data and replace it with <OTRS_...
     $Tag = $Start . 'OTRS_';
 
@@ -1147,7 +1253,7 @@ sub _Replace {
             ATTRIBUTE:
             for my $Attribute ( sort keys %Recipient ) {
                 next ATTRIBUTE if !$Recipient{$Attribute};
-                $Recipient{$Attribute} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+                $Recipient{$Attribute} = $HTMLUtilsObject->ToHTML(
                     String => $Recipient{$Attribute},
                 );
             }
@@ -1178,7 +1284,7 @@ sub _Replace {
             ATTRIBUTE:
             for my $Attribute ( sort keys %Owner ) {
                 next ATTRIBUTE if !$Owner{$Attribute};
-                $Owner{$Attribute} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+                $Owner{$Attribute} = $HTMLUtilsObject->ToHTML(
                     String => $Owner{$Attribute},
                 );
             }
@@ -1209,7 +1315,7 @@ sub _Replace {
             ATTRIBUTE:
             for my $Attribute ( sort keys %Responsible ) {
                 next ATTRIBUTE if !$Responsible{$Attribute};
-                $Responsible{$Attribute} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+                $Responsible{$Attribute} = $HTMLUtilsObject->ToHTML(
                     String => $Responsible{$Attribute},
                 );
             }
@@ -1235,7 +1341,7 @@ sub _Replace {
         ATTRIBUTE:
         for my $Attribute ( sort keys %CurrentUser ) {
             next ATTRIBUTE if !$CurrentUser{$Attribute};
-            $CurrentUser{$Attribute} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+            $CurrentUser{$Attribute} = $HTMLUtilsObject->ToHTML(
                 String => $CurrentUser{$Attribute},
             );
         }
@@ -1259,7 +1365,7 @@ sub _Replace {
         ATTRIBUTE:
         for my $Attribute ( sort keys %Ticket ) {
             next ATTRIBUTE if !$Ticket{$Attribute};
-            $Ticket{$Attribute} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+            $Ticket{$Attribute} = $HTMLUtilsObject->ToHTML(
                 String => $Ticket{$Attribute},
             );
         }
@@ -1378,7 +1484,7 @@ sub _Replace {
             for my $Attribute ( sort keys %Data ) {
                 next ATTRIBUTE if !$Data{$Attribute};
 
-                $Data{$Attribute} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+                $Data{$Attribute} = $HTMLUtilsObject->ToHTML(
                     String => $Data{$Attribute},
                 );
             }
@@ -1429,7 +1535,7 @@ sub _Replace {
                     my $CharactersPerLine = $ConfigObject->Get('Notification::CharactersPerLine') || 80;
                     my $CharactersLong = $Line * $CharactersPerLine; # 80 is a fixed value for testing, it should change
 
-                    $NewOldBody = $Kernel::OM->Get('Kernel::System::HTMLUtils')->HTMLTruncate(
+                    $NewOldBody = $HTMLUtilsObject->HTMLTruncate(
                         String   => $Data{HTMLBody},
                         Chars    => $CharactersLong,
                         Ellipsis => '...',
@@ -1476,7 +1582,7 @@ sub _Replace {
 
                     # add quote
                     $NewOldBody = "<blockquote type=\"cite\">$NewOldBody</blockquote>";
-                    $NewOldBody = $Kernel::OM->Get('Kernel::System::HTMLUtils')->DocumentCleanup(
+                    $NewOldBody = $HTMLUtilsObject->DocumentCleanup(
                         String => $NewOldBody,
                     );
                 }
@@ -1570,7 +1676,7 @@ sub _Replace {
             ATTRIBUTE:
             for my $Attribute ( sort keys %CustomerUser ) {
                 next ATTRIBUTE if !$CustomerUser{$Attribute};
-                $CustomerUser{$Attribute} = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToHTML(
+                $CustomerUser{$Attribute} = $HTMLUtilsObject->ToHTML(
                     String => $CustomerUser{$Attribute},
                 );
             }
