@@ -2054,17 +2054,7 @@ sub _TimeScaleBuildSelection {
             Year     => Translatable('year(s)'),
         },
         Sort           => 'IndividualKey',
-        SortIndividual => [
-            Translatable('Second'),
-            Translatable('Minute'),
-            Translatable('Hour'),
-            Translatable('Day'),
-            Translatable('Week'),
-            Translatable('Month'),
-            Translatable('Quarter'),
-            Translatable('HalfYear'),
-            Translatable('Year')
-        ],
+        SortIndividual => [ 'Second', 'Minute', 'Hour', 'Day', 'Week', 'Month', 'Quarter', 'HalfYear', 'Year' ],
     );
 
     # special time scale handling
