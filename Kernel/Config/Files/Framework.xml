@@ -625,8 +625,8 @@
         <SubGroup>Core::LinkObject</SubGroup>
         <Setting>
             <Array>
-                <Item Translatable="1">Normal</Item>
-                <Item Translatable="1">ParentChild</Item>
+                <Item>Normal</Item>
+                <Item>ParentChild</Item>
             </Array>
         </Setting>
     </ConfigItem>
