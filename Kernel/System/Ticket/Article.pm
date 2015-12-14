@@ -1666,9 +1666,14 @@ sub ArticleGet {
     }
 
     # get type
-    $Ticket{Type} = $Kernel::OM->Get('Kernel::System::Type')->TypeLookup(
-        TypeID => $Ticket{TypeID} || 1,
-    );
+    if ( defined $Ticket{TypeID} ) {
+        $Ticket{Type} = $Kernel::OM->Get('Kernel::System::Type')->TypeLookup(
+            TypeID => $Ticket{TypeID}
+        );
+    }
+    else {
+        $Ticket{Type} = $Kernel::OM->Get('Kernel::Config')->Get('Ticket::Type::Default');
+    }
 
     # get user object
     my $UserObject = $Kernel::OM->Get('Kernel::System::User');

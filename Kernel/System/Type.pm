@@ -12,6 +12,7 @@ use strict;
 use warnings;
 
 our @ObjectDependencies = (
+    'Kernel::Config',
     'Kernel::System::Cache',
     'Kernel::System::DB',
     'Kernel::System::Log',
@@ -272,6 +273,20 @@ sub TypeUpdate {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
             Message  => "A type with name '$Param{Name}' already exists!"
+        );
+        return;
+    }
+
+    my %Type = $Self->TypeGet(
+        ID => $Param{ID},
+    );
+
+    # check if the type is set as a default ticket type
+    if ( $Kernel::OM->Get('Kernel::Config')->Get('Ticket::Type::Default') eq $Type{Name} )
+    {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "The ticket type is set as a default ticket type, so it cannot be changed!"
         );
         return;
     }
