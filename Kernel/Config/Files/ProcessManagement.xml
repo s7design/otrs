@@ -365,7 +365,7 @@
         <Group>ProcessManagement</Group>
         <SubGroup>Frontend::Agent::Ticket::ViewProcess</SubGroup>
         <Setting>
-            <Option SelectedID="0">
+            <Option SelectedID="1">
                 <Item Key="0" Translatable="1">No</Item>
                 <Item Key="1" Translatable="1">Yes</Item>
             </Option>
