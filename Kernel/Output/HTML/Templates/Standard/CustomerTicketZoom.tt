@@ -193,11 +193,7 @@
                     <li><span class="Key">[% Data.Hook | html %]:</span> <span>[% Data.TicketNumber | html %]</span></li>
 
 [% RenderBlockStart("Type") %]
-                    <li>
-                        <span class="Key">[% Translate("Type") | html %]:</span>
-                        <span title="[% Data.Type | html %]">[% Data.Type | html %]</span>
-                        [% IF Data.Valid != 1 %] - <em class="ErrorNote">[% Translate("Note: Type is invalid!") | html %]</em> [% END %]
-                    </li>
+                    <li><span class="Key">[% Translate("Type") | html %]:</span> <span title="[% Data.Type | html %]">[% Data.Type | html %]</span></li>
 [% RenderBlockEnd("Type") %]
 [% RenderBlockStart("Service") %]
                     <li><span class="Key">[% Translate("Service") | html %]:</span> <span title="[% Translate(Data.Service) | html %]">[% Translate(Data.Service) | html %]</span></li>

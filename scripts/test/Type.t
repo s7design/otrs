@@ -206,11 +206,8 @@ $Self->False(
     "NameExistsCheck() - Another type \'$TypeNameRand0\' for ID=$TypeID does not exists!",
 );
 
-# get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-# configure auth backend to db
-$ConfigObject->Set(
+# set Ticket::Type::Default config item
+$Kernel::OM->Get('Kernel::Config')->Set(
     Key   => 'Ticket::Type::Default',
     Value => $TypeSecondName,
 );
