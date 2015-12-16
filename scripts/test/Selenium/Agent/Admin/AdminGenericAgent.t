@@ -54,7 +54,8 @@ $Selenium->RunTest(
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         # create test tickets
-        my $TestTicketTitle = 'TestTicketGenericAgent';
+        my $TestTicketRandomID = $Helper->GetRandomID();
+        my $TestTicketTitle    = "Test Ticket $TestTicketRandomID Generic Agent";
         my @TicketNumbers;
         for ( 1 .. 20 ) {
 
@@ -99,8 +100,9 @@ $Selenium->RunTest(
         $Selenium->execute_script('$(".WidgetSimple.Collapsed .WidgetAction.Toggle a").click();');
 
         # create test job
+        my $GenericTicketSearch = "*Ticket $TestTicketRandomID Generic*";
         $Selenium->find_element( "#Profile", 'css' )->send_keys($RandomID);
-        $Selenium->find_element( "#Title",   'css' )->send_keys($TestTicketTitle);
+        $Selenium->find_element( "#Title",   'css' )->send_keys($GenericTicketSearch);
         $Selenium->find_element( "#Profile", 'css' )->submit();
 
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("i.fa-trash-o").length' );

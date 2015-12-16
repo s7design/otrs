@@ -453,9 +453,11 @@ sub JobRun {
             %Tickets = $TicketObject->TicketSearch(
                 %Job,
                 %DynamicFieldSearchParameters,
-                ConditionInline => 1,
-                Limit           => $Param{Limit} || $RunLimit,
-                UserID          => $Param{UserID},
+                ConditionInline     => 1,
+                Limit               => $Param{Limit} || $RunLimit,
+                ContentSearchPrefix => '*',
+                ContentSearchSuffix => '*',
+                UserID              => $Param{UserID},
             );
         }
         elsif ( ref $Job{Queue} eq 'ARRAY' ) {
