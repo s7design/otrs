@@ -3104,4 +3104,20 @@ DefaultValue: ''
         <Data Key="change_time">current_timestamp</Data>
     </Insert>
 
+<!-- a fake data insert element for customer user in reason of translation custom column name
+
+    <Insert Table="customer_user">
+        <Data Key="office" Translatable="1">Office</Data>
+        <Data Key="phone" Translatable="1">Phone</Data>
+        <Data Key="fax" Translatable="1">Fax</Data>
+        <Data Key="mobile" Translatable="1">Mobile</Data>
+        <Data Key="street" Translatable="1">Street</Data>
+        <Data Key="zip" Translatable="1">Zip</Data>
+        <Data Key="city" Translatable="1">City</Data>
+        <Data Key="country" Translatable="1">Country</Data>
+        <Data Key="location" Translatable="1">Location</Data>
+        <Data Key="comments" Translatable="1">Edit the system configuration settings.</Data>
+    </Insert>
+-->
+
 </database>
