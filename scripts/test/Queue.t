@@ -16,9 +16,16 @@ use Kernel::System::VariableCheck qw(:all);
 
 # get needed objects
 my $ConfigObject           = $Kernel::OM->Get('Kernel::Config');
-my $HelperObject           = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
 my $QueueObject            = $Kernel::OM->Get('Kernel::System::Queue');
+
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 my $QueueRand = 'Some::Queue' . int( rand(1000000) );
 my $QueueID   = $QueueObject->QueueAdd(
@@ -647,39 +654,6 @@ for my $Test (@Tests) {
     }
 }
 
-# cleanup
-my $Success = $StandardTemplateObject->StandardTemplateDelete(
-    ID => $TemplateID,
-);
-
-$Self->True(
-    $Success,
-    "StandardTemplateDelete() for QueueStandardTemplateMemeberAdd() | with True",
-);
-
-# Since there are no tickets that rely on our test queues, we can remove them again
-# from the DB.
-for my $ID (@IDs) {
-    my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-        SQL => "DELETE FROM queue_preferences WHERE queue_id = $ID",
-    );
-    $Self->True(
-        $Success,
-        "QueueDelete preferences - $ID",
-    );
-
-    $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-        SQL => "DELETE FROM queue WHERE id = $ID",
-    );
-    $Self->True(
-        $Success,
-        "QueueDelete - $ID",
-    );
-}
-
-# Make sure the cache is correct.
-$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-    Type => 'Queue',
-);
+# Cleanup is done by RestoreDatabase.
 
 1;
