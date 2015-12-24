@@ -1702,11 +1702,18 @@ sub Run {
             }
         }
 
-        # convert Signature to ASCII, if RichText is on
-        if ( $LayoutObject->{BrowserRichText} ) {
+        # select mandatory fields if there is only one value
+        my @DestKeys = keys %{$NewTos};
+        $Dest = $DestKeys[0] if scalar @DestKeys == 1;
 
-            #            $Signature = $Kernel::OM->Get('Kernel::System::HTMLUtils')->ToAscii( String => $Signature, );
-        }
+        my @ServicesKeys = keys %{$Services};
+        $GetParam{ServiceID} = $ServicesKeys[0] if scalar @ServicesKeys == 1;
+
+        my @SLAKeys = keys %{$SLAs};
+        $GetParam{SLAID} = $SLAKeys[0] if scalar @SLAKeys == 1;
+
+        my @TypeKeys = keys %{$Types};
+        $GetParam{TypeID} = $TypeKeys[0] if scalar @TypeKeys == 1;
 
         my $JSON = $LayoutObject->BuildSelectionJSON(
             [
