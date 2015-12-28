@@ -73,23 +73,13 @@ $Selenium->RunTest(
         }
 
         # import test selenium process
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminProcessManagement");
         my $Location = $ConfigObject->Get('Home')
             . "/scripts/test/sample/ProcessManagement/TestProcess.yml";
         $Selenium->find_element( "#FileUpload",                      'css' )->send_keys($Location);
-        $Selenium->find_element( "#OverwriteExistingEntitiesImport", 'css' )->click();
-        $Selenium->find_element("//button[\@value='Upload process configuration'][\@type='submit']")->click();
-
-        # wait until page has loaded, if neccessary
-        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("body").length' );
-
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
-
-        # wait until page has loaded, if neccessary
-        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("body").length' );
-
-        # Sleep a little bit to allow mod_perl to pick up the changed config files.
-        sleep 3;
+        $Selenium->find_element( "#OverwriteExistingEntitiesImport", 'css' )->VerifiedClick();
+        $Selenium->find_element("//button[\@value='Upload process configuration'][\@type='submit']")->VerifiedClick();
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
 
         # get process list
         my $List = $ProcessObject->ProcessList(
@@ -122,11 +112,13 @@ $Selenium->RunTest(
             UserID       => $TestUserID,
         );
 
-        # go to test created ticket zoom
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
+        $Self->True(
+            $TicketID,
+            "Ticket is created - $TicketID"
+        );
 
-        # Sleep a little bit to allow mod_perl to pick up the changed configuration files.
-        sleep 3;
+        # go to test created ticket zoom
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
         # check if process enroll is available for test ticket
         $Self->True(
@@ -225,14 +217,11 @@ $Selenium->RunTest(
             "Process deleted - $Process->{Name},",
         );
 
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
-        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->click();
-
-        # Sleep a little bit to allow mod_perl to pick up the changed configuration files.
-        sleep 3;
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminProcessManagement");
+        $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
 
         # go to test created ticket zoom
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
         # check if process enroll is not available for test ticket
         $Self->True(

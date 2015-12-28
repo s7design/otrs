@@ -87,10 +87,10 @@ $Selenium->RunTest(
 
         # go to status open view, overview small
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketStatusView");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketStatusView");
 
         # set filter to test queue
-        $Selenium->find_element("//a[contains(\@title, \'Queue, filter not active\' )]")->click();
+        $Selenium->find_element("//a[contains(\@title, \'Queue, filter not active\' )]")->VerifiedClick();
         $Selenium->WaitFor(
             JavaScript =>
                 "return typeof(\$) === 'function' && \$('#ColumnFilterQueue option[value=\"$QueueID\"]').length;"
@@ -107,11 +107,10 @@ $Selenium->RunTest(
         $Selenium->execute_script(
             "\$('#UserTicketOverviewSmallPageShown').val('10').trigger('redraw.InputField').trigger('change');"
         );
-        $Selenium->find_element( "#DialogButton1", 'css' )->click();
-        $Selenium->WaitFor( JavaScript => "return typeof(\$) === 'function' && \$('div#OverviewBody').length" );
+        $Selenium->find_element( "#DialogButton1", 'css' )->VerifiedClick();
 
         # sort by ticket number, order up
-        $Selenium->find_element("//a[contains(\@title, \'TicketNumber\' )]")->click();
+        $Selenium->find_element("//a[contains(\@title, \'TicketNumber\' )]")->VerifiedClick();
 
         # check for ticket with highest ticket number on first 1st page and verifty that ticket
         # with lowest ticket number number is not present
@@ -125,8 +124,7 @@ $Selenium->RunTest(
         );
 
         # switch to 2nd page to test pagination
-        $Selenium->find_element( "#AgentTicketStatusViewPage2", 'css' )->click();
-        $Selenium->WaitFor( JavaScript => "return typeof(\$) === 'function' && \$('div#OverviewBody').length" );
+        $Selenium->find_element( "#AgentTicketStatusViewPage2", 'css' )->VerifiedClick();
 
         # check for ticket with lowest ticket number
         $Self->True(
@@ -143,7 +141,7 @@ $Selenium->RunTest(
         );
 
         # remove all filters
-        $Selenium->find_element( "li.ContextSettings.RemoveFilters a", 'css' )->click();
+        $Selenium->find_element( "li.ContextSettings.RemoveFilters a", 'css' )->VerifiedClick();
 
         # delete created test tickets
         my $Success;
