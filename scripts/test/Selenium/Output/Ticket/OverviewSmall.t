@@ -19,13 +19,9 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 0,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
@@ -73,11 +69,17 @@ $Selenium->RunTest(
                 Lock         => 'unlock',
                 Priority     => '3 normal',
                 State        => 'new',
-                CustomerID   => '123465',
+                CustomerID   => 'TestCustomer',
                 CustomerUser => 'customer@example.com',
                 OwnerID      => $TestUserID,
                 UserID       => $TestUserID,
             );
+
+            $Self->True(
+                $TicketID,
+                "Ticket is created - $TicketID"
+            );
+
             push @TicketIDs,     $TicketID;
             push @TicketNumbers, $TicketNumber;
         }
@@ -131,10 +133,9 @@ $Selenium->RunTest(
             index( $Selenium->get_page_source(), $SortTicketNumbers[14] ) > -1,
             "$SortTicketNumbers[14] - found on screen"
         );
-
-        # test if filters are still stored
         $Selenium->refresh();
 
+        # test if filters are still stored
         $Self->True(
             index( $Selenium->get_page_source(), $SortTicketNumbers[14] ) > -1,
             "$SortTicketNumbers[14] - found on screen"

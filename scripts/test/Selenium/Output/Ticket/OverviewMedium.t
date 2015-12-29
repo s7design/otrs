@@ -44,7 +44,7 @@ $Selenium->RunTest(
             Value => \%SortOverview,
         );
 
-        # create and log in test user
+        # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
@@ -92,7 +92,7 @@ $Selenium->RunTest(
                 Lock         => 'unlock',
                 Priority     => '3 normal',
                 State        => 'new',
-                CustomerID   => '123465',
+                CustomerID   => 'TestCustomer',
                 CustomerUser => 'customer@example.com',
                 OwnerID      => $TestUserID,
                 UserID       => $TestUserID,
