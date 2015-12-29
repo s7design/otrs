@@ -44,7 +44,7 @@ $Selenium->RunTest(
             Value => \%SortOverview,
         );
 
-        # create and log in test useer
+        # create and log in test user
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
         ) || die "Did not get test user";
@@ -133,7 +133,7 @@ $Selenium->RunTest(
         );
         $Selenium->find_element( "#DialogButton1", 'css' )->VerifiedClick();
 
-        # check for ticket with lowest ticket number on first 1st page and verifty that ticket
+        # check for ticket with lowest ticket number on first 1st page and verify that ticket
         # with highest ticket number number is not present
         $Self->True(
             index( $Selenium->get_page_source(), $SortTicketNumbers[0] ) > -1,

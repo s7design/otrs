@@ -112,7 +112,7 @@ $Selenium->RunTest(
         # sort by ticket number, order up
         $Selenium->find_element("//a[contains(\@title, \'TicketNumber\' )]")->VerifiedClick();
 
-        # check for ticket with highest ticket number on first 1st page and verifty that ticket
+        # check for ticket with highest ticket number on first 1st page and verify that ticket
         # with lowest ticket number number is not present
         $Self->True(
             index( $Selenium->get_page_source(), $SortTicketNumbers[0] ) > -1,
