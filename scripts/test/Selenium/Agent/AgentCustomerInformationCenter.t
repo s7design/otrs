@@ -18,9 +18,10 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
+        # get helper object
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # create and login test user
+        # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
         ) || die "Did not get test user";
@@ -36,15 +37,17 @@ $Selenium->RunTest(
             Groups => ['admin'],
         ) || die "Did not get test user";
 
+        # get script alias
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentCustomerInformationCenter");
-        sleep 1;
+
+        # navigate to AdminCustomerInformationCenter screen
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentCustomerInformationCenter");
 
         # input search parameters
         $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerID", 'css' )
             ->send_keys($TestCustomerUserLogin);
-        sleep 1;
-        $Selenium->find_element("//*[text()='$TestCustomerUserLogin']")->click();
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length' );
+        $Selenium->find_element("//*[text()='$TestCustomerUserLogin']")->VerifiedClick();
 
         # check customer information center page
         $Self->True(
@@ -72,7 +75,7 @@ $Selenium->RunTest(
             "Setting for toggle widgets found on page",
         );
 
-        }
+    }
 );
 
 1;

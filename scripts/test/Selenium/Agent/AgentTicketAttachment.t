@@ -15,21 +15,21 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
-        # get helper object
+        # get needed objects
         $Kernel::OM->ObjectParamAdd(
             'Kernel::System::UnitTest::Helper' => {
                 RestoreSystemConfiguration => 1,
             },
         );
-        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
-        $Kernel::OM->Get('Kernel::Config')->Set(
+        # disable check email addresses
+        $ConfigObject->Set(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
-
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
         # do not check RichText
         $SysConfigObject->ConfigItemUpdate(
@@ -68,8 +68,11 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-        $Selenium->get("${ScriptAlias}index.pl?Action=AgentTicketPhone");
+        # get script alias
+        my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
+
+        # navigate to AgentTicketPhone screen
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketPhone");
 
         # get test user ID
         my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
@@ -77,8 +80,8 @@ $Selenium->RunTest(
         );
 
         # add test customer for testing
-        my $TestCustomer = 'Customer' . $Helper->GetRandomID();
-        my $UserLogin    = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+        my $TestCustomer       = 'Customer' . $Helper->GetRandomID();
+        my $TestCustomerUserID = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
             Source         => 'CustomerUser',
             UserFirstname  => $TestCustomer,
             UserLastname   => $TestCustomer,
@@ -88,13 +91,17 @@ $Selenium->RunTest(
             ValidID        => 1,
             UserID         => $TestUserID,
         );
+        $Self->True(
+            $TestCustomerUserID,
+            "CustomerUserAdd - $TestCustomerUserID",
+        );
 
         # create test phone ticket with attachment
         my $AutoCompleteString = "\"$TestCustomer $TestCustomer\" <$TestCustomer\@localhost.com> ($TestCustomer)";
         my $TicketSubject      = "Selenium Ticket";
         my $TicketBody         = "Selenium body test";
         my $AttachmentName     = "StdAttachment-Test1.txt";
-        my $Location           = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+        my $Location           = $ConfigObject->Get('Home')
             . "/scripts/test/sample/StdAttachment/$AttachmentName";
         $Selenium->find_element( "#FromCustomer", 'css' )->send_keys($TestCustomer);
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length' );
@@ -107,13 +114,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#RichText",   'css' )->send_keys($TicketBody);
         $Selenium->find_element( "#FileUpload", 'css' )->send_keys($Location);
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#AttachmentDeleteButton1").length' );
-        $Selenium->find_element( "#Subject", 'css' )->submit();
+        $Selenium->find_element( "#Subject", 'css' )->VerifiedSubmit();
 
-        # wait until ticket is created
-        $Selenium->WaitFor( JavaScript => "return typeof(\$) === 'function' && \$('form').length" );
+        # get ticket object
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # search for new created ticket on AgentTicketZoom screen
-        my ( $TicketID, $TicketNumber ) = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
+        my ( $TicketID, $TicketNumber ) = $TicketObject->TicketSearch(
             Result         => 'HASH',
             Limit          => 1,
             CustomerUserID => $TestCustomer,
@@ -126,15 +133,13 @@ $Selenium->RunTest(
         );
 
         # go to ticket zoom page of created test ticket
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom' )]")->VerifiedClick();
 
         # check if attachment exists
         $Self->True(
             $Selenium->find_element("//*[text()=\"$AttachmentName\"]"),
             "$AttachmentName is found on page",
         );
-
-        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # get article id
         my @ArticleIDs = $TicketObject->ArticleIndex(
@@ -178,12 +183,12 @@ $Selenium->RunTest(
             "Delete customer user - $TestCustomer",
         );
 
-        # make sure the cache is correct.
+        # make sure the cache is correct
         for my $Cache (qw( Ticket CustomerUser )) {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => $Cache );
         }
 
-        }
+    }
 );
 
 1;
