@@ -202,6 +202,9 @@ $Selenium->RunTest(
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminProcessManagement");
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
 
+        # sleep a little bit to allow mod_perl to pick up the changed config files
+        sleep 3;
+
         # check if NavBarAgentTicketProcess button is not available when no process is available
         $Selenium->refresh();
         $Self->True(
@@ -220,6 +223,9 @@ $Selenium->RunTest(
             Key   => 'Frontend::NavBarModule###1-TicketProcesses',
             Value => \%NavBarAgentTicketProcess,
         );
+
+        # sleep a little bit to allow mod_perl to pick up the changed config files
+        sleep 3;
 
         $Selenium->refresh();
         $Self->True(

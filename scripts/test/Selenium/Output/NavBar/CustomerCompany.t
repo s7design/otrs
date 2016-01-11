@@ -58,6 +58,9 @@ $Selenium->RunTest(
             "NavBar 'Customer Administration' button NOT available when frontend AdminCustomerCompany module is disabled",
         );
 
+        # sleep a little bit to allow mod_perl to pick up the changed config files
+        sleep 1;
+
         # enable frontend AdminCustomerCompany module
         $SysConfigObject->ConfigItemReset(
             Name => 'Frontend::Module###AdminCustomerCompany',
