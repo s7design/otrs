@@ -58,9 +58,8 @@ $Selenium->RunTest(
 
         # create test ticket
         my $TicketID = $TicketObject->TicketCreate(
-            Title => 'Selenium ticket',
-            Queue => 'Raw',
-            ,
+            Title        => 'Selenium ticket',
+            Queue        => 'Raw',
             Lock         => 'unlock',
             Priority     => '3 normal',
             State        => 'new',
