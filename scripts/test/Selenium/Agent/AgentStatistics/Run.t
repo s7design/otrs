@@ -96,6 +96,9 @@ $Selenium->RunTest(
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
 
+        # wait for loading statistic data
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#download-svg").length' );
+
         $Self->True(
             index( $Selenium->get_page_source(), $StatsValues{Title} ) > -1,
             "Title of stats is found - $StatsValues{Title} "
