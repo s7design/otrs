@@ -119,7 +119,6 @@ $Selenium->RunTest(
             ValidID        => 1,
             UserID         => $TestUserID,
         );
-
         $Self->True(
             $TestCustomerUserID,
             "CustomerUserAdd - $TestCustomerUserID",
@@ -135,8 +134,12 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketForward;TicketID=$TicketID;' )]")->click();
 
         # switch to forward window
+        $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#ToCustomer").length' );
 
         # check AgentTicketFoward page
         for my $ID (
@@ -160,9 +163,8 @@ $Selenium->RunTest(
 
         $Selenium->find_element( "#ToCustomer", 'css' )->submit();
 
-        $Selenium->WaitFor( WindowCount => 1 );
-
         # return back to AgentTicketZoom
+        $Selenium->WaitFor( WindowCount => 1 );
         $Selenium->switch_to_window( $Handles->[0] );
 
         # navigate to AgentTicketHistory of created test ticket

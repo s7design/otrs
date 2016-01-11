@@ -91,8 +91,12 @@ $Selenium->RunTest(
 
         # go to history view to verify results
         $Selenium->find_element("//*[text()='History']")->click();
+        $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".CancelClosePopup").length' );
 
         $Self->True(
             index( $Selenium->get_page_source(), 'Locked ticket.' ) > -1,

@@ -75,8 +75,12 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketMerge;TicketID=$TicketIDs[0]' )]")->click();
 
         # switch to merge window
+        $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#MainTicketNumber").length' );
 
         # check page
         for my $ID (
@@ -111,6 +115,7 @@ $Selenium->RunTest(
         );
         $Selenium->close();
 
+        $Selenium->WaitFor( WindowCount => 1 );
         $Selenium->switch_to_window( $Handles->[0] );
 
         # force sub menus to be visible in order to be able to click one of the links
@@ -119,8 +124,12 @@ $Selenium->RunTest(
         # click on merge
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketMerge;TicketID=$TicketIDs[0]' )]")->click();
 
+        $Selenium->WaitFor( WindowCount => 2 );
         $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#MainTicketNumber").length' );
 
         # go back to merge screen and clear ticket number input
         $Selenium->find_element( "#MainTicketNumber", 'css' )->clear();
@@ -130,6 +139,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#submitRichText",   'css' )->click();
 
         # return back to zoom view and click on history and switch to its view
+        $Selenium->WaitFor( WindowCount => 1 );
         $Selenium->switch_to_window( $Handles->[0] );
 
         # force sub menus to be visible in order to be able to click one of the links
@@ -137,8 +147,12 @@ $Selenium->RunTest(
 
         $Selenium->find_element("//*[text()='History']")->click();
 
+        $Selenium->WaitFor( WindowCount => 2 );
         $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".CancelClosePopup").length' );
 
         # confirm merge action
         my $MergeMsg = "Merged Ticket ($TicketNumbers[0]/$TicketIDs[0]) to ($TicketNumbers[1]/$TicketIDs[1])";

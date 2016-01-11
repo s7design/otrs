@@ -26,7 +26,7 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # enable change owner to everyone feature
+        # set to change queue for ticket in a new window
         $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
             Key   => 'Ticket::Frontend::MoveType',
@@ -73,8 +73,12 @@ $Selenium->RunTest(
         # click on 'Move' and switch window
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketMove;TicketID=$TicketID' )]")->click();
 
+        $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#DestQueueID").length' );
 
         # check page
         for my $ID (
@@ -90,6 +94,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "#submitRichText", 'css' )->click();
 
         # return back to zoom view and click on history and switch to its view
+        $Selenium->WaitFor( WindowCount => 1 );
         $Selenium->switch_to_window( $Handles->[0] );
 
         # force sub menus to be visible in order to be able to click one of the links
@@ -97,8 +102,12 @@ $Selenium->RunTest(
 
         $Selenium->find_element("//*[text()='History']")->click();
 
+        $Selenium->WaitFor( WindowCount => 2 );
         $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".CancelClosePopup").length' );
 
         # confirm ticket move action
         my $MoveMsg = "Ticket moved into Queue \"Misc\" (4) from Queue \"Raw\" (2).";

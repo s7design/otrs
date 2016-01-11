@@ -123,8 +123,12 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketPlain' )]")->click();
 
         # switch to plain window
+        $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
         $Selenium->switch_to_window( $Handles->[1] );
+
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".CancelClosePopup").length' );
 
         # check for values in AgentTicketPlain screen
         $Self->True(
@@ -142,6 +146,7 @@ $Selenium->RunTest(
 
         # close plain view window
         $Selenium->find_element( ".CancelClosePopup", 'css' )->click();
+        $Selenium->WaitFor( WindowCount => 1 );
         $Selenium->switch_to_window( $Handles->[0] );
 
         # delete created test ticket
