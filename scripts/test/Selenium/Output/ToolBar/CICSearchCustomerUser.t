@@ -26,23 +26,26 @@ $Selenium->RunTest(
         );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        $Kernel::OM->Get('Kernel::Config')->Set(
+        # get config object
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+        $ConfigObject->Set(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
 
         # enable tool bar CICSearchCustomerUser
         my %CICSearchCustomerUser = (
-            Block       => "ToolBarCICSearchCustomerUser",
-            CSS         => "Core.Agent.Toolbar.CICSearch.css",
-            Description => "Customer user search",
-            Module      => "Kernel::Output::HTML::ToolBar::Generic",
-            Name        => "Customer user search",
-            Priority    => "1990040",
-            Size        => "10",
+            Block       => 'ToolBarCICSearchCustomerUser',
+            CSS         => 'Core.Agent.Toolbar.CICSearch.css',
+            Description => 'Customer user search',
+            Module      => 'Kernel::Output::HTML::ToolBar::Generic',
+            Name        => 'Customer user search',
+            Priority    => '1990040',
+            Size        => '10',
         );
 
-        $Kernel::OM->Get('Kernel::Config')->Set(
+        $ConfigObject->Set(
             Key   => 'Frontend::ToolBarModule###14-Ticket::CICSearchCustomerUser',
             Value => \%CICSearchCustomerUser,
         );
@@ -70,8 +73,8 @@ $Selenium->RunTest(
         );
 
         # create test company
-        my $TestCustomerID    = $Helper->GetRandomID() . "CID";
-        my $TestCompanyName   = "Company" . $Helper->GetRandomID();
+        my $TestCustomerID    = $Helper->GetRandomID() . 'CID';
+        my $TestCompanyName   = 'Company' . $Helper->GetRandomID();
         my $CustomerCompanyID = $Kernel::OM->Get('Kernel::System::CustomerCompany')->CustomerCompanyAdd(
             CustomerID             => $TestCustomerID,
             CustomerCompanyName    => $TestCompanyName,
@@ -133,6 +136,16 @@ $Selenium->RunTest(
             $Success,
             "Deleted CustomerUser - $CustomerID",
         );
+
+        # make sure the cache is correct
+        for my $Cache (
+            qw (CustomerCompany CustomerUser)
+            )
+        {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
 
     }
 );
