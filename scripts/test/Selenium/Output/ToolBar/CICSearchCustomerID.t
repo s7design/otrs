@@ -88,6 +88,11 @@ $Selenium->RunTest(
             UserID                 => $TestUserID,
         );
 
+        $Self->True(
+            $CustomerCompanyID,
+            "CustomerCompany is created - ID $CustomerCompanyID",
+        );
+
         # create test customer
         my $TestCustomerLogin = 'Customer' . $Helper->GetRandomID();
         my $CustomerID        = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
@@ -99,6 +104,11 @@ $Selenium->RunTest(
             UserEmail      => $TestCustomerLogin . '@localhost.com',
             ValidID        => 1,
             UserID         => $TestUserID,
+        );
+
+        $Self->True(
+            $CustomerID,
+            "CustomerUser is created - ID $CustomerID",
         );
 
         # get ticket object
@@ -126,7 +136,7 @@ $Selenium->RunTest(
         );
         $Self->True(
             $Success,
-            "Deleted CustomerCompany - $CustomerCompanyID",
+            "CustomerCompany is deleted - ID $CustomerCompanyID",
         );
 
         # delete test customer
@@ -136,7 +146,7 @@ $Selenium->RunTest(
         );
         $Self->True(
             $Success,
-            "Deleted CustomerUser - $CustomerID",
+            "CustomerUser is deleted - ID $CustomerID",
         );
 
         # make sure the cache is correct
