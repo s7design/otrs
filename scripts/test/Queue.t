@@ -166,6 +166,22 @@ $Self->True(
     'QueueUpdate() - a real scenario from AdminQueue.pm',
 );
 
+# check follow-up value for test queue
+my %FollowUpOptionList = reverse $QueueObject->GetFollowUpOptionList( Valid => 1 );
+my $FollowUpOption = $QueueObject->GetFollowUpOption( QueueID => $QueueID );
+
+for my $FollowUp ( 'possible', 'reject', 'new ticket' ) {
+    $Self->True(
+        exists $FollowUpOptionList{$FollowUp},
+        "Follow-up list contains the follow-up \'$FollowUp\ - ID $FollowUpOptionList{$FollowUp}'",
+    );
+}
+
+$Self->True(
+    exists $FollowUpOptionList{$FollowUpOption} && $FollowUpOptionList{$FollowUpOption} == 1,
+    "Follow-up list contains the follow-up \'$FollowUpOption\' of the queue $QueueID",
+);
+
 my $QueueUpdate1Name = $QueueRand . '1',;
 my $QueueUpdate1     = $QueueObject->QueueUpdate(
     QueueID             => $QueueID,
