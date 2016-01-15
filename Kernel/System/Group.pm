@@ -346,39 +346,55 @@ sub GroupList {
     );
     return %{$Cache} if $Cache;
 
-    # create the valid list
-    my $ValidIDs = join ', ', $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet();
+    # get valid ids
+    my @ValidIDs = $Kernel::OM->Get('Kernel::System::Valid')->ValidIDsGet();
 
-    # build SQL
-    my $SQL = 'SELECT id, name FROM groups';
+    # get group data list
+    my %GroupDataList = $Self->GroupDataList();
 
-    # add WHERE statement
-    if ($Valid) {
-        $SQL .= ' WHERE valid_id IN (' . $ValidIDs . ')';
+    my %GroupListValid;
+    my %GroupListAll;
+    KEY:
+    for my $Key ( sort keys %GroupDataList ) {
+
+        next KEY if !$Key;
+
+        # add group to the list of all groups
+        $GroupListAll{$Key} = $GroupDataList{$Key}->{Name};
+
+        my $Match;
+        VALIDID:
+        for my $ValidID (@ValidIDs) {
+
+            next VALIDID if $ValidID ne $GroupDataList{$Key}->{ValidID};
+
+            $Match = 1;
+
+            last VALIDID;
+        }
+
+        next KEY if !$Match;
+
+        # add group to the list of valid groups
+        $GroupListValid{$Key} = $GroupDataList{$Key}->{Name};
     }
 
-    # get database object
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-
-    # get group data from database
-    return if !$DBObject->Prepare(
-        SQL => $SQL,
-    );
-
-    # fetch the result
-    my %GroupList;
-    while ( my @Row = $DBObject->FetchrowArray() ) {
-        $GroupList{ $Row[0] } = $Row[1];
-    }
-
+    # set cache
     $CacheObject->Set(
         Type  => 'Group',
-        Key   => $CacheKey,
+        Key   => 'GroupList::0',
         TTL   => 60 * 60 * 24 * 20,
-        Value => \%GroupList,
+        Value => \%GroupListAll,
+    );
+    $CacheObject->Set(
+        Type  => 'Group',
+        Key   => 'GroupList::1',
+        TTL   => 60 * 60 * 24 * 20,
+        Value => \%GroupListValid,
     );
 
-    return %GroupList;
+    return %GroupListValid if $Valid;
+    return %GroupListAll;
 }
 
 =item GroupDataList()
@@ -2830,3 +2846,4 @@ the enclosed file COPYING for license information (AGPL). If you
 did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
 
 =cut
+
