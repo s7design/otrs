@@ -144,7 +144,66 @@ JAVASCRIPT
             'Alert message shows up correctly',
         );
 
-        # delete notificatio entry again
+        # update test notification so it's not mandatory anymore
+        my $Success = $NotificationEventObject->NotificationUpdate(
+            ID   => $NotificationID,
+            Name => 'NotificationTest' . $RandomID,
+            Data => {
+                Events          => ['TicketQueueUpdate'],
+                VisibleForAgent => ['1'],
+                Transports      => ['Email'],
+            },
+            Message => {
+                en => {
+                    Subject     => 'Subject',
+                    Body        => 'Body',
+                    ContentType => 'text/html',
+                },
+            },
+            ValidID => 1,
+            UserID  => 1,
+        );
+        $Self->True(
+            $Success,
+            "Updated test notification - $NotificationID",
+        );
+
+        # refresh screen
+        $Selenium->VerifiedRefresh();
+
+        # test bug #11813 ( http://bugs.otrs.org/show_bug.cgi?id=11813 )
+        # 'Changing agent email address disables his notifications preferences'
+        # get test notification checkbox value
+        $Self->Is(
+            $Selenium->find_element( "//input[\@id='Notification-" . $NotificationID . "-Email-checkbox']" )
+                ->get_value(),
+            1,
+            'Test notification is enabled',
+        );
+
+        # navigate to AdminUser screen for test user
+        # get test user ID
+        my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
+            UserLogin => $TestUserLogin,
+        );
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminUser;Subaction=Change;UserID=$TestUserID;Search=");
+
+        # update test user email address
+        $Selenium->find_element( "#UserEmail", 'css' )->send_keys('update');
+        $Selenium->find_element( "#UserEmail", 'css' )->VerifiedSubmit();
+
+        # navigate back to AgentPreference screen
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentPreferences");
+
+        # verify that notification checkbox value did not change after updating test user email
+        $Self->Is(
+            $Selenium->find_element( "//input[\@id='Notification-" . $NotificationID . "-Email-checkbox']" )
+                ->get_value(),
+            1,
+            'Test notification is enabled after updating user email',
+        );
+
+        # delete notification entry again
         my $SuccesDelete = $NotificationEventObject->NotificationDelete(
             ID     => $NotificationID,
             UserID => 1,
