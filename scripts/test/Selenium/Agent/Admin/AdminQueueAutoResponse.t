@@ -65,7 +65,6 @@ $Selenium->RunTest(
         my $SystemAddressObject = $Kernel::OM->Get('Kernel::System::SystemAddress');
 
         # add test system address
-        my $SystemAddressObject   = $Kernel::OM->Get('Kernel::System::SystemAddress');
         my $SystemAddressRandomID = "sysadd" . $Helper->GetRandomID();
         my $SystemAddressID       = $SystemAddressObject->SystemAddressAdd(
             Name     => $SystemAddressRandomID . '@example.com',
@@ -249,10 +248,10 @@ $Selenium->RunTest(
         }
 
         # click 'Go to overview'
-        $Selenium->find_element("//a[contains(\@href, 'Action=AdminQueueAutoResponse' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, 'Action=AdminQueueAutoResponse' )]")->VerifiedClick();
 
         # test QueuesWithoutAutoResponse filter
-        $Selenium->find_element("//a[contains(\@href, 'Filter=QueuesWithoutAutoResponses' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, 'Filter=QueuesWithoutAutoResponses' )]")->VerifiedClick();
 
         # verify filter excluded test queue from the list
         $Self->True(
@@ -265,8 +264,7 @@ $Selenium->RunTest(
 
         # since there are no tickets that rely on our test QueueAutoResponse,
         # we can remove test queue, system address and auto response from the DB
-        my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-        my $Success  = $DBObject->Do(
+        my $Success = $DBObject->Do(
             SQL => "DELETE FROM queue_auto_response WHERE queue_id = $QueueID",
         );
         $Self->True(
