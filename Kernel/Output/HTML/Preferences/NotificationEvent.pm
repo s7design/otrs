@@ -241,7 +241,12 @@ sub Run {
 
     my %UserNotificationTransport;
     my %MandatoryFulfilled;
+
+    NOTIFICATIONTRANSPORT:
     for my $Identifier (@IdentifierList) {
+
+        next NOTIFICATIONTRANSPORT if !defined $ParamObject->GetParam( Param => $Identifier->{Name} );
+
         $UserNotificationTransport{ $Identifier->{Name} } = $ParamObject->GetParam( Param => $Identifier->{Name} ) || 0;
 
         # check if this is a mandatory notification and this transport is selected
@@ -263,12 +268,13 @@ sub Run {
         }
     }
 
-    my $Value = $Kernel::OM->Get('Kernel::System::JSON')->Encode(
-        Data => \%UserNotificationTransport,
-    );
-
     # update user preferences
-    if ( !$ConfigObject->Get('DemoSystem') ) {
+    if ( !$ConfigObject->Get('DemoSystem') && IsHashRefWithData( \%UserNotificationTransport ) ) {
+
+        my $Value = $Kernel::OM->Get('Kernel::System::JSON')->Encode(
+            Data => \%UserNotificationTransport,
+        );
+
         $UserObject->SetPreferences(
             UserID => $Param{UserData}->{UserID},
             Key    => 'NotificationTransport',
