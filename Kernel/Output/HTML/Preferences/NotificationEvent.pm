@@ -247,7 +247,7 @@ sub Run {
 
         next NOTIFICATIONTRANSPORT if !defined $ParamObject->GetParam( Param => $Identifier->{Name} );
 
-        $UserNotificationTransport{ $Identifier->{Name} } = $ParamObject->GetParam( Param => $Identifier->{Name} ) || 0;
+        $UserNotificationTransport{ $Identifier->{Name} } = $ParamObject->GetParam( Param => $Identifier->{Name} );
 
         # check if this is a mandatory notification and this transport is selected
         if ( $UserNotificationTransport{ $Identifier->{Name} } == 1 ) {
