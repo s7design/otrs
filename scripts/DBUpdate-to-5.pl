@@ -1339,33 +1339,45 @@ sub _MigrateConfigs {
     print "...done.\n";
     print "--- Preferences group modules...";
 
-    # Preferences groups
-    $Setting = $ConfigObject->Get('PreferencesGroups');
+    # Preferences Modules
+    my @PreferencesGroupTypes = (
+        {
+            Path => 'PreferencesGroups',
+        },
+        {
+            Path => 'CustomerPreferencesGroups',
+        },
+    );
 
-    PREFERENCEMODULE:
-    for my $PreferenceModule ( sort keys %{$Setting} ) {
+    for my $Type (@PreferencesGroupTypes) {
 
-        # update module location
-        my $Module = $Setting->{$PreferenceModule}->{'Module'};
-        if ( $Module !~ m{Kernel::Output::HTML::Preferences(\w+)} ) {
-            next PREFERENCEMODULE;
+        $Setting = $ConfigObject->Get( $Type->{Path} );
+
+        PREFERENCEMODULE:
+        for my $PreferenceModule ( sort keys %{$Setting} ) {
+
+            # update module location
+            my $Module = $Setting->{$PreferenceModule}->{'Module'};
+            if ( $Module !~ m{Kernel::Output::HTML::Preferences(\w+)} ) {
+                next PREFERENCEMODULE;
+            }
+
+            $Module =~ s{Kernel::Output::HTML::Preferences(\w+)}{Kernel::Output::HTML::Preferences::$1}xmsg;
+            $Setting->{$PreferenceModule}->{'Module'} = $Module;
+
+            # set new setting
+            my $Success = $SysConfigObject->ConfigItemUpdate(
+                Valid => 1,
+                Key   => $Type->{Path} . '###' . $PreferenceModule,
+                Value => $Setting->{$PreferenceModule},
+            );
         }
-
-        $Module =~ s{Kernel::Output::HTML::Preferences(\w+)}{Kernel::Output::HTML::Preferences::$1}xmsg;
-        $Setting->{$PreferenceModule}->{'Module'} = $Module;
-
-        # set new setting,
-        my $Success = $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'PreferencesGroups###' . $PreferenceModule,
-            Value => $Setting->{$PreferenceModule},
-        );
     }
 
     print "...done.\n";
     print "--- SLA/Service/Queue preference modules...";
 
-    # SLA, Service and Queue preferences
+    # SLA, Service and Queue Preferences modules
     for my $Type (qw(SLA Service Queue)) {
 
         $Setting = $ConfigObject->Get( $Type . 'Preferences' );
@@ -1395,33 +1407,45 @@ sub _MigrateConfigs {
     print "...done.\n";
     print "--- Article pre view modules...";
 
-    # Article pre view modules
-    $Setting = $ConfigObject->Get('Ticket::Frontend::ArticlePreViewModule');
+    # Article View Modules
+    my @ArticleViews = (
+        {
+            Path => 'Ticket::Frontend::ArticleViewModule',
+        },
+        {
+            Path => 'Ticket::Frontend::ArticlePreViewModule',
+        },
+    );
 
-    ARTICLEMODULE:
-    for my $ArticlePreViewModule ( sort keys %{$Setting} ) {
+    for my $Type (@ArticleViews) {
 
-        # update module location
-        my $Module = $Setting->{$ArticlePreViewModule}->{'Module'};
-        if ( $Module !~ m{Kernel::Output::HTML::ArticleCheck(\w+)} ) {
-            next ARTICLEMODULE;
+        $Setting = $ConfigObject->Get( $Type->{Path} );
+
+        ARTICLEMODULE:
+        for my $ArticleViewModule ( sort keys %{$Setting} ) {
+
+            # update module location
+            my $Module = $Setting->{$ArticleViewModule}->{'Module'};
+            if ( $Module !~ m{Kernel::Output::HTML::ArticleCheck(\w+)} ) {
+                next ARTICLEMODULE;
+            }
+
+            $Module =~ s{Kernel::Output::HTML::ArticleCheck(\w+)}{Kernel::Output::HTML::ArticleCheck::$1}xmsg;
+            $Setting->{$ArticleViewModule}->{'Module'} = $Module;
+
+            # set new setting,
+            my $Success = $SysConfigObject->ConfigItemUpdate(
+                Valid => 1,
+                Key   => $Type->{Path} . '###' . $ArticleViewModule,
+                Value => $Setting->{$ArticleViewModule},
+            );
         }
-
-        $Module =~ s{Kernel::Output::HTML::ArticleCheck(\w+)}{Kernel::Output::HTML::ArticleCheck::$1}xmsg;
-        $Setting->{$ArticlePreViewModule}->{'Module'} = $Module;
-
-        # set new setting,
-        my $Success = $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Frontend::ArticlePreViewModule###' . $ArticlePreViewModule,
-            Value => $Setting->{$ArticlePreViewModule},
-        );
     }
 
     print "...done.\n";
     print "--- NavBar menu modules...";
 
-    # NavBar menu modules
+    # NavBar Menu Modules
     my @NavBarTypes = (
         {
             Path => 'Frontend::NavBarModule',
@@ -1460,7 +1484,7 @@ sub _MigrateConfigs {
     print "...done.\n";
     print "--- NavBar ModuleAdmin modules...";
 
-    # NavBar module admin
+    # NavBar Module Admin
     $Setting = $ConfigObject->Get('Frontend::Module');
 
     MODULEADMIN:
@@ -1485,7 +1509,7 @@ sub _MigrateConfigs {
     print "...done.\n";
     print "--- Dashboard modules...";
 
-    # Dashboard modules
+    # Dashboard Modules
     my @DashboardTypes = (
         {
             Path => 'DashboardBackend',
@@ -1523,7 +1547,7 @@ sub _MigrateConfigs {
     print "...done.\n";
     print "--- Customer user generic modules...";
 
-    # customer user generic module
+    # Customer User Generic Module
     $Setting = $ConfigObject->Get('Frontend::CustomerUser::Item');
 
     CUSTOMERUSERGENERICMODULE:
@@ -1556,7 +1580,7 @@ sub _MigrateConfigs {
     print "...done.\n";
     print "--- FilterText modules...";
 
-    # output filter module
+    # Output Filter Module
     $Setting = $ConfigObject->Get('Frontend::Output::FilterText');
 
     FILTERTEXTMODULE:
@@ -1582,7 +1606,7 @@ sub _MigrateConfigs {
     print "...done.\n";
     print "--- Notify modules...";
 
-    # Notify modules
+    # Notify Modules
     my @NotifyTypes = (
         {
             Path => 'Frontend::NotifyModule',
