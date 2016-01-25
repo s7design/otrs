@@ -1340,18 +1340,9 @@ sub _MigrateConfigs {
     print "--- Preferences group modules...";
 
     # Preferences Modules
-    my @PreferencesGroupTypes = (
-        {
-            Path => 'PreferencesGroups',
-        },
-        {
-            Path => 'CustomerPreferencesGroups',
-        },
-    );
+    for my $Type (qw(PreferencesGroups CustomerPreferencesGroups)) {
 
-    for my $Type (@PreferencesGroupTypes) {
-
-        $Setting = $ConfigObject->Get( $Type->{Path} );
+        $Setting = $ConfigObject->Get( $Type );
 
         PREFERENCEMODULE:
         for my $PreferenceModule ( sort keys %{$Setting} ) {
@@ -1368,7 +1359,7 @@ sub _MigrateConfigs {
             # set new setting
             my $Success = $SysConfigObject->ConfigItemUpdate(
                 Valid => 1,
-                Key   => $Type->{Path} . '###' . $PreferenceModule,
+                Key   => $Type . '###' . $PreferenceModule,
                 Value => $Setting->{$PreferenceModule},
             );
         }
@@ -1408,18 +1399,9 @@ sub _MigrateConfigs {
     print "--- Article pre view modules...";
 
     # Article View Modules
-    my @ArticleViews = (
-        {
-            Path => 'Ticket::Frontend::ArticleViewModule',
-        },
-        {
-            Path => 'Ticket::Frontend::ArticlePreViewModule',
-        },
-    );
+    for my $Type (qw(Ticket::Frontend::ArticleViewModule Ticket::Frontend::ArticlePreViewModule)) {
 
-    for my $Type (@ArticleViews) {
-
-        $Setting = $ConfigObject->Get( $Type->{Path} );
+        $Setting = $ConfigObject->Get( $Type );
 
         ARTICLEMODULE:
         for my $ArticleViewModule ( sort keys %{$Setting} ) {
@@ -1436,7 +1418,7 @@ sub _MigrateConfigs {
             # set new setting,
             my $Success = $SysConfigObject->ConfigItemUpdate(
                 Valid => 1,
-                Key   => $Type->{Path} . '###' . $ArticleViewModule,
+                Key   => $Type . '###' . $ArticleViewModule,
                 Value => $Setting->{$ArticleViewModule},
             );
         }
@@ -1446,18 +1428,9 @@ sub _MigrateConfigs {
     print "--- NavBar menu modules...";
 
     # NavBar Menu Modules
-    my @NavBarTypes = (
-        {
-            Path => 'Frontend::NavBarModule',
-        },
-        {
-            Path => 'CustomerFrontend::NavBarModule',
-        },
-    );
+    for my $Type (qw(Frontend::NavBarModule CustomerFrontend::NavBarModule)) {
 
-    for my $Type (@NavBarTypes) {
-
-        $Setting = $ConfigObject->Get( $Type->{Path} );
+        $Setting = $ConfigObject->Get( $Type );
 
         NAVBARMODULE:
         for my $NavBarModule ( sort keys %{$Setting} ) {
@@ -1475,7 +1448,7 @@ sub _MigrateConfigs {
             # set new setting,
             my $Success = $SysConfigObject->ConfigItemUpdate(
                 Valid => 1,
-                Key   => $Type->{Path} . '###' . $NavBarModule,
+                Key   => $Type . '###' . $NavBarModule,
                 Value => $Setting->{$NavBarModule},
             );
         }
@@ -1510,18 +1483,9 @@ sub _MigrateConfigs {
     print "--- Dashboard modules...";
 
     # Dashboard Modules
-    my @DashboardTypes = (
-        {
-            Path => 'DashboardBackend',
-        },
-        {
-            Path => 'AgentCustomerInformationCenter::Backend',
-        },
-    );
+    for my $Type (qw(DashboardBackend AgentCustomerInformationCenter::Backend)) {
 
-    for my $Type (@DashboardTypes) {
-
-        $Setting = $ConfigObject->Get( $Type->{Path} );
+        $Setting = $ConfigObject->Get( $Type );
 
         DASHBOARDMODULE:
         for my $DashboardModule ( sort keys %{$Setting} ) {
@@ -1538,7 +1502,7 @@ sub _MigrateConfigs {
             # set new setting,
             my $Success = $SysConfigObject->ConfigItemUpdate(
                 Valid => 1,
-                Key   => $Type->{Path} . '###' . $DashboardModule,
+                Key   => $Type . '###' . $DashboardModule,
                 Value => $Setting->{$DashboardModule},
             );
         }
@@ -1607,18 +1571,9 @@ sub _MigrateConfigs {
     print "--- Notify modules...";
 
     # Notify Modules
-    my @NotifyTypes = (
-        {
-            Path => 'Frontend::NotifyModule',
-        },
-        {
-            Path => 'CustomerFrontend::NotifyModule',
-        },
-    );
+    for my $Type (qw(Frontend::NotifyModule CustomerFrontend::NotifyModule)) {
 
-    for my $Type (@NotifyTypes) {
-
-        $Setting = $ConfigObject->Get( $Type->{Path} );
+        $Setting = $ConfigObject->Get( $Type );
 
         NOTIFYMODULE:
         for my $NotifyModule ( sort keys %{$Setting} ) {
@@ -1636,7 +1591,7 @@ sub _MigrateConfigs {
             # set new setting,
             my $Success = $SysConfigObject->ConfigItemUpdate(
                 Valid => 1,
-                Key   => $Type->{Path} . '###' . $NotifyModule,
+                Key   => $Type . '###' . $NotifyModule,
                 Value => $Setting->{$NotifyModule},
             );
         }
