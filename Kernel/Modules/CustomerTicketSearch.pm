@@ -784,7 +784,7 @@ sub Run {
                 push @PDFRow,  $Data{TicketNumber};
                 push @PDFRow,  $Created;
                 push @PDFRow,  $Data{From};
-                push @PDFRow,  $Data{Subject};
+                push @PDFRow,  $Data{Title};
                 push @PDFRow,  $Data{State};
                 push @PDFRow,  $Data{Queue};
                 push @PDFRow,  $Customer;
@@ -816,7 +816,7 @@ sub Run {
                 $CellData->[0]->[1]->{Font}    = 'ProportionalBold';
                 $CellData->[0]->[2]->{Content} = $LayoutObject->{LanguageObject}->Translate('From');
                 $CellData->[0]->[2]->{Font}    = 'ProportionalBold';
-                $CellData->[0]->[3]->{Content} = $LayoutObject->{LanguageObject}->Translate('Subject');
+                $CellData->[0]->[3]->{Content} = $LayoutObject->{LanguageObject}->Translate('Title');
                 $CellData->[0]->[3]->{Font}    = 'ProportionalBold';
                 $CellData->[0]->[4]->{Content} = $LayoutObject->{LanguageObject}->Translate('State');
                 $CellData->[0]->[4]->{Font}    = 'ProportionalBold';
@@ -1103,7 +1103,7 @@ sub Run {
                     # Condense down the subject
                     my $Subject = $TicketObject->TicketSubjectClean(
                         TicketNumber => $Article{TicketNumber},
-                        Subject      => $Article{Subject} || '',
+                        Subject      => $Article{Title} || '',
                     );
                     $Article{CustomerAge} = $LayoutObject->CustomerAge(
                         Age   => $Article{Age},

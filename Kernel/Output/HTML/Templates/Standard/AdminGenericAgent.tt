@@ -935,7 +935,7 @@ Core.Agent.Admin.GenericAgent.Init({
                         <tr>
                             <th>[% Config("Ticket::Hook") %]</th>
                             <th>[% Translate("Age") | html %]</th>
-                            <th>[% Translate("From") | html %] / [% Translate("Subject") | html %]</th>
+                            <th>[% Translate("From") | html %] / [% Translate("Title") | html %]</th>
                             <th>[% Translate("State") | html %]</th>
                             <th>[% Translate("Queue") | html %]</th>
                             <th>[% Translate("Owner") | html %]</th>
@@ -951,7 +951,7 @@ Core.Agent.Admin.GenericAgent.Init({
                                 </a>
                             </td>
                             <td>[% Data.Age | html %]</td>
-                            <td>[% Data.From | truncate(30) | html %][% Data.Subject | truncate(30) | html %]</td>
+                            <td>[% Data.From | truncate(30) | html %][% Data.Title | truncate(30) | html %]</td>
                             <td>[% Translate(Data.State) | html %]</td>
                             <td>[% Data.Queue | truncate(30) | html %]</td>
                             <td>[% Data.Owner | truncate(30) | html %] ([% Data.UserFirstname | html %] [% Data.UserLastname | html %])</td>
