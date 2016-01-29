@@ -187,7 +187,7 @@ $Selenium->RunTest(
             {
                 Name      => "Spam",
                 NameForID => "Spam",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
             },
         );
 
@@ -315,19 +315,16 @@ $Selenium->RunTest(
             {
                 Name      => "People",
                 NameForID => "People",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
                 Type      => "Cluster",
             },
             {
                 Name      => "Communication",
                 NameForID => "Communication",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
                 Type      => "Cluster",
             },
             {
                 Name      => "Miscellaneous",
                 NameForID => "Miscellaneous",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
                 Type      => "Cluster",
             },
         );
