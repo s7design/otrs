@@ -55,14 +55,14 @@ $Selenium->RunTest(
             {
                 SysConfigItem => {
                     Active      => "AgentTicketMove",
-                    Description => "Mark as Spam!",
-                    Link        => "Action=AgentTicketMove;TicketID=[% Data.TicketID %];DestQueue=Delete",
+                    Description => "Mark this ticket as junk!",
+                    Link        => "Action=AgentTicketMove;TicketID=[% Data.TicketID %];DestQueue=Junk",
                     Module      => "Kernel::Output::HTML::TicketMenu::Generic",
                     Name        => "Spam",
                     PopupType   => "",
                     Target      => "",
                 },
-                Key => "Ticket::Frontend::MenuModule###470-Spam",
+                Key => "Ticket::Frontend::MenuModule###470-Junk",
             },
             {
                 SysConfigItem => {
@@ -170,7 +170,7 @@ $Selenium->RunTest(
                 Action => "AgentTicketNote",
             },
             {
-                Name   => "Move",
+                Name   => "DestQueueID",
                 Action => "AgentTicketMove",
             },
             {
@@ -185,9 +185,17 @@ $Selenium->RunTest(
 
         # check ticket pre menu modules
         for my $MenuModulePre (@PreMenuModule) {
+
+            # check pre menu module link
             $Self->True(
                 $Selenium->find_element("//a[contains(\@href, \'Action=$MenuModulePre->{Action}' )]"),
-                "Ticket pre menu $MenuModulePre->{Name} - found"
+                "Ticket pre menu $MenuModulePre->{Name} is found"
+            );
+
+            # check pre menu module name
+            $Self->True(
+                $Selenium->find_element("#$MenuModulePre->{Name}$TicketID",'css'),
+                "Ticket menu name $MenuModulePre->{Name} is found"
             );
         }
 
@@ -217,7 +225,7 @@ $Selenium->RunTest(
                 Action => "AgentTicketPriority",
             },
             {
-                Name   => "Free Fields",
+                Name   => "Free-Fields",
                 Action => "AgentTicketFreeText",
             },
             {
@@ -241,15 +249,15 @@ $Selenium->RunTest(
                 Action => "AgentTicketNote",
             },
             {
-                Name   => "Phone Call Outbound",
+                Name   => "Phone-Call-Outbound",
                 Action => "AgentTicketPhoneOutbound",
             },
             {
-                Name   => "Phone Call Inbound",
+                Name   => "Phone-Call-Inbound",
                 Action => "AgentTicketPhoneInbound",
             },
             {
-                Name   => "E-Mail Outbound",
+                Name   => "E-Mail-Outbound",
                 Action => "AgentTicketEmailOutbound",
             },
             {
@@ -274,15 +282,49 @@ $Selenium->RunTest(
             },
             {
                 Name   => "Spam",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+            },
+            {
+                Name   => "People",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Type   => "Cluster",
+            },
+            {
+                Name   => "Communication",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Type   => "Cluster",
+            },
+            {
+                Name   => "Miscellaneous",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Type   => "Cluster",
             },
         );
 
         # check ticket menu modules
         for my $ZoomMenuModule (@MenuModule) {
+
+            if ( $ZoomMenuModule->{Type} eq 'Cluster' ) {
+
+                # check menu module link
+                $Self->True(
+                    $Selenium->find_element("li ul#nav-$ZoomMenuModule->{Name}-container", 'css'),
+                    "Ticket menu link $ZoomMenuModule->{Name} is found"
+                );
+            }
+            else{
+
+                # check menu module link
+                $Self->True(
+                    $Selenium->find_element("//a[contains(\@href, \'Action=$ZoomMenuModule->{Action}' )]"),
+                    "Ticket menu link $ZoomMenuModule->{Name} is found"
+                );
+            }
+
+            # check menu module name
             $Self->True(
-                $Selenium->find_element("//a[contains(\@href, \'Action=$ZoomMenuModule->{Action}' )]"),
-                "Ticket menu $ZoomMenuModule->{Name} - found"
+                $Selenium->find_element("li#nav-$ZoomMenuModule->{Name}",'css'),
+                "Ticket menu name $ZoomMenuModule->{Name} is found"
             );
         }
 
