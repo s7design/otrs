@@ -150,36 +150,44 @@ $Selenium->RunTest(
         # create pre menu module test params
         my @PreMenuModule = (
             {
-                Name   => "Lock",
-                Action => "AgentTicket"
+                Name      => "Lock",
+                NameForID => "Lock",
+                Action    => "AgentTicket"
             },
             {
-                Name   => "Zoom",
-                Action => "AgentTicketZoom",
+                Name      => "Zoom",
+                NameForID => "Zoom",
+                Action    => "AgentTicketZoom",
             },
             {
-                Name   => "History",
-                Action => "AgentTicketHistory",
+                Name      => "History",
+                NameForID => "History",
+                Action    => "AgentTicketHistory",
             },
             {
-                Name   => "Priority",
-                Action => "AgentTicketPriority",
+                Name      => "Priority",
+                NameForID => "Priority",
+                Action    => "AgentTicketPriority",
             },
             {
-                Name   => "Note",
-                Action => "AgentTicketNote",
+                Name      => "Note",
+                NameForID => "Note",
+                Action    => "AgentTicketNote",
             },
             {
-                Name   => "DestQueueID",
-                Action => "AgentTicketMove",
+                Name      => "Move",
+                NameForID => "DestQueueID",
+                Action    => "AgentTicketMove",
             },
             {
-                Name   => "Delete",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
+                Name      => "Delete",
+                NameForID => "Delete",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
             },
             {
-                Name   => "Spam",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
+                Name      => "Spam",
+                NameForID => "Spam",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
             },
         );
 
@@ -194,7 +202,7 @@ $Selenium->RunTest(
 
             # check pre menu module name
             $Self->True(
-                $Selenium->find_element( "#$MenuModulePre->{Name}$TicketID", 'css' ),
+                $Selenium->find_element( "#$MenuModulePre->{NameForID}$TicketID", 'css' ),
                 "Ticket menu name $MenuModulePre->{Name} is found"
             );
         }
@@ -205,110 +213,133 @@ $Selenium->RunTest(
         # create menu module test params
         my @MenuModule = (
             {
-                Name   => "Back",
-                Action => "AgentDashboard",
+                Name      => "Back",
+                NameForID => "Back",
+                Action    => "AgentDashboard",
             },
             {
-                Name   => "Lock",
-                Action => "AgentTicket"
+                Name      => "Lock",
+                NameForID => "Lock",
+                Action    => "AgentTicket"
             },
             {
-                Name   => "History",
-                Action => "AgentTicketHistory",
+                Name      => "History",
+                NameForID => "History",
+                Action    => "AgentTicketHistory",
             },
             {
-                Name   => "Print",
-                Action => "AgentTicketPrint",
+                Name      => "Print",
+                NameForID => "Print",
+                Action    => "AgentTicketPrint",
             },
             {
-                Name   => "Priority",
-                Action => "AgentTicketPriority",
+                Name      => "Priority",
+                NameForID => "Print",
+                Action    => "AgentTicketPriority",
             },
             {
-                Name   => "Free-Fields",
-                Action => "AgentTicketFreeText",
+                Name      => "Free Fields",
+                NameForID => "Free-Fields",
+                Action    => "AgentTicketFreeText",
             },
             {
-                Name   => "Link",
-                Action => "AgentLinkObject",
+                Name      => "Link",
+                NameForID => "Link",
+                Action    => "AgentLinkObject",
             },
             {
-                Name   => "Owner",
-                Action => "AgentTicketOwner",
+                Name      => "Owner",
+                NameForID => "Owner",
+                Action    => "AgentTicketOwner",
             },
             {
-                Name   => "Responsible",
-                Action => "AgentTicketResponsible",
+                Name      => "Responsible",
+                NameForID => "Responsible",
+                Action    => "AgentTicketResponsible",
             },
             {
-                Name   => "Customer",
-                Action => "AgentTicketCustomer",
+                Name      => "Customer",
+                NameForID => "Customer",
+                Action    => "AgentTicketCustomer",
             },
             {
-                Name   => "Note",
-                Action => "AgentTicketNote",
+                Name      => "Note",
+                NameForID => "Note",
+                Action    => "AgentTicketNote",
             },
             {
-                Name   => "Phone-Call-Outbound",
-                Action => "AgentTicketPhoneOutbound",
+                Name      => "Phone Call Outbound",
+                NameForID => "Phone-Call-Outbound",
+                Action    => "AgentTicketPhoneOutbound",
             },
             {
-                Name   => "Phone-Call-Inbound",
-                Action => "AgentTicketPhoneInbound",
+                Name      => "Phone Call Inbound",
+                NameForID => "Phone-Call-Inbound",
+                Action    => "AgentTicketPhoneInbound",
             },
             {
-                Name   => "E-Mail-Outbound",
-                Action => "AgentTicketEmailOutbound",
+                Name      => "E-Mail Outbound",
+                NameForID => "E-Mail-Outbound",
+                Action    => "AgentTicketEmailOutbound",
             },
             {
-                Name   => "Merge",
-                Action => "AgentTicketMerge",
+                Name      => "Merge",
+                NameForID => "Merge",
+                Action    => "AgentTicketMerge",
             },
             {
-                Name   => "Pending",
-                Action => "AgentTicketPending",
+                Name      => "Pending",
+                NameForID => "Pending",
+                Action    => "AgentTicketPending",
             },
             {
-                Name   => "Watch",
-                Action => "AgentTicketWatcher",
+                Name      => "Watch",
+                NameForID => "Watch",
+                Action    => "AgentTicketWatcher",
             },
             {
-                Name   => "Close",
-                Action => "AgentTicketClose",
+                Name      => "Close",
+                NameForID => "Close",
+                Action    => "AgentTicketClose",
             },
             {
-                Name   => "Delete",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
+                Name      => "Delete",
+                NameForID => "Delete",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
             },
             {
-                Name   => "Spam",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Name      => "Spam",
+                NameForID => "Spam",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
             },
             {
-                Name   => "People",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
-                Type   => "Cluster",
+                Name      => "People",
+                NameForID => "People",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Type      => "Cluster",
             },
             {
-                Name   => "Communication",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
-                Type   => "Cluster",
+                Name      => "Communication",
+                NameForID => "Communication",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Type      => "Cluster",
             },
             {
-                Name   => "Miscellaneous",
-                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
-                Type   => "Cluster",
+                Name      => "Miscellaneous",
+                NameForID => "Miscellaneous",
+                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Type      => "Cluster",
             },
         );
 
         # check ticket menu modules
         for my $ZoomMenuModule (@MenuModule) {
 
-            if ( $ZoomMenuModule->{Type} eq 'Cluster' ) {
+            if ( defined $ZoomMenuModule->{Type} && $ZoomMenuModule->{Type} eq 'Cluster' ) {
 
                 # check menu module link
                 $Self->True(
-                    $Selenium->find_element( "li ul#nav-$ZoomMenuModule->{Name}-container", 'css' ),
+                    $Selenium->find_element( "li ul#nav-$ZoomMenuModule->{NameForID}-container", 'css' ),
                     "Ticket menu link $ZoomMenuModule->{Name} is found"
                 );
             }
@@ -323,7 +354,7 @@ $Selenium->RunTest(
 
             # check menu module name
             $Self->True(
-                $Selenium->find_element( "li#nav-$ZoomMenuModule->{Name}", 'css' ),
+                $Selenium->find_element( "li#nav-$ZoomMenuModule->{NameForID}", 'css' ),
                 "Ticket menu name $ZoomMenuModule->{Name} is found"
             );
         }
