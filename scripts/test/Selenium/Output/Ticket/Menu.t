@@ -194,7 +194,7 @@ $Selenium->RunTest(
 
             # check pre menu module name
             $Self->True(
-                $Selenium->find_element("#$MenuModulePre->{Name}$TicketID",'css'),
+                $Selenium->find_element( "#$MenuModulePre->{Name}$TicketID", 'css' ),
                 "Ticket menu name $MenuModulePre->{Name} is found"
             );
         }
@@ -308,11 +308,11 @@ $Selenium->RunTest(
 
                 # check menu module link
                 $Self->True(
-                    $Selenium->find_element("li ul#nav-$ZoomMenuModule->{Name}-container", 'css'),
+                    $Selenium->find_element( "li ul#nav-$ZoomMenuModule->{Name}-container", 'css' ),
                     "Ticket menu link $ZoomMenuModule->{Name} is found"
                 );
             }
-            else{
+            else {
 
                 # check menu module link
                 $Self->True(
@@ -323,7 +323,7 @@ $Selenium->RunTest(
 
             # check menu module name
             $Self->True(
-                $Selenium->find_element("li#nav-$ZoomMenuModule->{Name}",'css'),
+                $Selenium->find_element( "li#nav-$ZoomMenuModule->{Name}", 'css' ),
                 "Ticket menu name $ZoomMenuModule->{Name} is found"
             );
         }

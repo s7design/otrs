@@ -1002,7 +1002,7 @@ sub MaskAgentZoom {
             }
 
             $Item->{NameForID} = $Item->{Name};
-            $Item->{NameForID} =~ s/ /-/g if( $Item->{NameForID} =~ m/ / );
+            $Item->{NameForID} =~ s/ /-/g if ( $Item->{NameForID} =~ m/ / );
 
             if ( !$Menus{$Menu}->{ClusterName} ) {
 
@@ -1024,15 +1024,15 @@ sub MaskAgentZoom {
         for my $Cluster ( sort keys %MenuClusters ) {
 
             my $NameForID = $Cluster;
-            $NameForID =~ s/ /-/g if( $NameForID =~ m/ / );
+            $NameForID =~ s/ /-/g if ( $NameForID =~ m/ / );
 
             $ZoomMenuItems{ $MenuClusters{$Cluster}->{Priority} . $Cluster } = {
-                Name  => $Cluster,
+                Name      => $Cluster,
                 NameForID => $NameForID,
-                Type  => 'Cluster',
-                Link  => '#',
-                Class => 'ClusterLink',
-                Items => $MenuClusters{$Cluster}->{Items},
+                Type      => 'Cluster',
+                Link      => '#',
+                Class     => 'ClusterLink',
+                Items     => $MenuClusters{$Cluster}->{Items},
                 }
         }
 
@@ -1050,7 +1050,7 @@ sub MaskAgentZoom {
                     Name => 'TicketMenuSubContainer',
                     Data => {
                         NameForID => $ZoomMenuItems{$Item}->{NameForID},
-                    }
+                        }
                 );
 
                 for my $SubItem ( sort keys %{ $ZoomMenuItems{$Item}->{Items} } ) {
@@ -2428,8 +2428,9 @@ sub _ArticleTree {
                         Data => $Item->{ArticleData}->{Body},
                     );
 
-                    for my $ChatMessage (@{ $ChatMessages // [] }) {
-                        $ChatMessage->{CreateTime} = $LayoutObject->{LanguageObject}->FormatTimeString( $ChatMessage->{CreateTime}, 'DateFormat' );
+                    for my $ChatMessage ( @{ $ChatMessages // [] } ) {
+                        $ChatMessage->{CreateTime} = $LayoutObject->{LanguageObject}
+                            ->FormatTimeString( $ChatMessage->{CreateTime}, 'DateFormat' );
                     }
                     $Item->{ArticleData}->{ChatMessages} = $ChatMessages;
 
