@@ -1001,9 +1001,6 @@ sub MaskAgentZoom {
                 $Item->{Class} = "AsPopup PopupType_$Menus{$Menu}->{PopupType}";
             }
 
-            $Item->{NameForID} = $Item->{Name};
-            $Item->{NameForID} =~ s/ /-/g if ( $Item->{NameForID} =~ m/ / );
-
             if ( !$Menus{$Menu}->{ClusterName} ) {
 
                 $ZoomMenuItems{$Menu} = $Item;
@@ -1022,17 +1019,12 @@ sub MaskAgentZoom {
         }
 
         for my $Cluster ( sort keys %MenuClusters ) {
-
-            my $NameForID = $Cluster;
-            $NameForID =~ s/ /-/g if ( $NameForID =~ m/ / );
-
             $ZoomMenuItems{ $MenuClusters{$Cluster}->{Priority} . $Cluster } = {
-                Name      => $Cluster,
-                NameForID => $NameForID,
-                Type      => 'Cluster',
-                Link      => '#',
-                Class     => 'ClusterLink',
-                Items     => $MenuClusters{$Cluster}->{Items},
+                Name  => $Cluster,
+                Type  => 'Cluster',
+                Link  => '#',
+                Class => 'ClusterLink',
+                Items => $MenuClusters{$Cluster}->{Items},
                 }
         }
 
@@ -1049,8 +1041,8 @@ sub MaskAgentZoom {
                 $LayoutObject->Block(
                     Name => 'TicketMenuSubContainer',
                     Data => {
-                        NameForID => $ZoomMenuItems{$Item}->{NameForID},
-                        }
+                        Name => $ZoomMenuItems{$Item}->{Name},
+                    },
                 );
 
                 for my $SubItem ( sort keys %{ $ZoomMenuItems{$Item}->{Items} } ) {

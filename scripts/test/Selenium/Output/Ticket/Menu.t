@@ -80,7 +80,7 @@ $Selenium->RunTest(
                 SysConfigItem => {
                     Active      => "AgentTicketMove",
                     Description => "Mark as Spam!",
-                    Link        => "Action=AgentTicketMove;TicketID=[% Data.TicketID %];DestQueue=Delete",
+                    Link        => "Action=AgentTicketMove;TicketID=[% Data.TicketID %];DestQueue=Junk",
                     Module      => "Kernel::Output::HTML::TicketMenu::Generic",
                     Name        => "Spam",
                     PopupType   => "",
@@ -150,49 +150,50 @@ $Selenium->RunTest(
         # create pre menu module test params
         my @PreMenuModule = (
             {
-                Name      => "Lock",
-                NameForID => "Lock",
-                Action    => "AgentTicket"
+                Name   => "Lock",
+                Action => "AgentTicket"
             },
             {
-                Name      => "Zoom",
-                NameForID => "Zoom",
-                Action    => "AgentTicketZoom",
+                Name   => "Zoom",
+                Action => "AgentTicketZoom",
             },
             {
-                Name      => "History",
-                NameForID => "History",
-                Action    => "AgentTicketHistory",
+                Name   => "History",
+                Action => "AgentTicketHistory",
             },
             {
-                Name      => "Priority",
-                NameForID => "Priority",
-                Action    => "AgentTicketPriority",
+                Name   => "Priority",
+                Action => "AgentTicketPriority",
             },
             {
-                Name      => "Note",
-                NameForID => "Note",
-                Action    => "AgentTicketNote",
+                Name   => "Note",
+                Action => "AgentTicketNote",
             },
             {
-                Name      => "Move",
-                NameForID => "DestQueueID",
-                Action    => "AgentTicketMove",
+                Name   => "Move",
+                Action => "AgentTicketMove",
             },
             {
-                Name      => "Delete",
-                NameForID => "Delete",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
+                Name   => "Delete",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
             },
             {
-                Name      => "Spam",
-                NameForID => "Spam",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Name   => "Spam",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
             },
         );
 
         # check ticket pre menu modules
         for my $MenuModulePre (@PreMenuModule) {
+
+            my $NameForID;
+            if ( $MenuModulePre->{Name} eq 'Move' ) {
+                $NameForID = 'DestQueueID';
+            }
+            else {
+                $NameForID = $MenuModulePre->{Name};
+                $NameForID =~ s/ /-/g if ( $NameForID =~ m/ / );
+            }
 
             # check pre menu module link
             $Self->True(
@@ -202,7 +203,7 @@ $Selenium->RunTest(
 
             # check pre menu module name
             $Self->True(
-                $Selenium->find_element( "#$MenuModulePre->{NameForID}$TicketID", 'css' ),
+                $Selenium->find_element( "#$NameForID$TicketID", 'css' ),
                 "Ticket menu name $MenuModulePre->{Name} is found"
             );
         }
@@ -213,130 +214,110 @@ $Selenium->RunTest(
         # create menu module test params
         my @MenuModule = (
             {
-                Name      => "Back",
-                NameForID => "Back",
-                Action    => "AgentDashboard",
+                Name   => "Back",
+                Action => "AgentDashboard",
             },
             {
-                Name      => "Lock",
-                NameForID => "Lock",
-                Action    => "AgentTicket"
+                Name   => "Lock",
+                Action => "AgentTicket"
             },
             {
-                Name      => "History",
-                NameForID => "History",
-                Action    => "AgentTicketHistory",
+                Name   => "History",
+                Action => "AgentTicketHistory",
             },
             {
-                Name      => "Print",
-                NameForID => "Print",
-                Action    => "AgentTicketPrint",
+                Name   => "Print",
+                Action => "AgentTicketPrint",
             },
             {
-                Name      => "Priority",
-                NameForID => "Print",
-                Action    => "AgentTicketPriority",
+                Name   => "Priority",
+                Action => "AgentTicketPriority",
             },
             {
-                Name      => "Free Fields",
-                NameForID => "Free-Fields",
-                Action    => "AgentTicketFreeText",
+                Name   => "Free Fields",
+                Action => "AgentTicketFreeText",
             },
             {
-                Name      => "Link",
-                NameForID => "Link",
-                Action    => "AgentLinkObject",
+                Name   => "Link",
+                Action => "AgentLinkObject",
             },
             {
-                Name      => "Owner",
-                NameForID => "Owner",
-                Action    => "AgentTicketOwner",
+                Name   => "Owner",
+                Action => "AgentTicketOwner",
             },
             {
-                Name      => "Responsible",
-                NameForID => "Responsible",
-                Action    => "AgentTicketResponsible",
+                Name   => "Responsible",
+                Action => "AgentTicketResponsible",
             },
             {
-                Name      => "Customer",
-                NameForID => "Customer",
-                Action    => "AgentTicketCustomer",
+                Name   => "Customer",
+                Action => "AgentTicketCustomer",
             },
             {
-                Name      => "Note",
-                NameForID => "Note",
-                Action    => "AgentTicketNote",
+                Name   => "Note",
+                Action => "AgentTicketNote",
             },
             {
-                Name      => "Phone Call Outbound",
-                NameForID => "Phone-Call-Outbound",
-                Action    => "AgentTicketPhoneOutbound",
+                Name   => "Phone Call Outbound",
+                Action => "AgentTicketPhoneOutbound",
             },
             {
-                Name      => "Phone Call Inbound",
-                NameForID => "Phone-Call-Inbound",
-                Action    => "AgentTicketPhoneInbound",
+                Name   => "Phone Call Inbound",
+                Action => "AgentTicketPhoneInbound",
             },
             {
-                Name      => "E-Mail Outbound",
-                NameForID => "E-Mail-Outbound",
-                Action    => "AgentTicketEmailOutbound",
+                Name   => "E-Mail Outbound",
+                Action => "AgentTicketEmailOutbound",
             },
             {
-                Name      => "Merge",
-                NameForID => "Merge",
-                Action    => "AgentTicketMerge",
+                Name   => "Merge",
+                Action => "AgentTicketMerge",
             },
             {
-                Name      => "Pending",
-                NameForID => "Pending",
-                Action    => "AgentTicketPending",
+                Name   => "Pending",
+                Action => "AgentTicketPending",
             },
             {
-                Name      => "Watch",
-                NameForID => "Watch",
-                Action    => "AgentTicketWatcher",
+                Name   => "Watch",
+                Action => "AgentTicketWatcher",
             },
             {
-                Name      => "Close",
-                NameForID => "Close",
-                Action    => "AgentTicketClose",
+                Name   => "Close",
+                Action => "AgentTicketClose",
             },
             {
-                Name      => "Delete",
-                NameForID => "Delete",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
+                Name   => "Delete",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Delete",
             },
             {
-                Name      => "Spam",
-                NameForID => "Spam",
-                Action    => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
+                Name   => "Spam",
+                Action => "AgentTicketMove;TicketID=$TicketID;DestQueue=Junk",
             },
             {
-                Name      => "People",
-                NameForID => "People",
-                Type      => "Cluster",
+                Name => "People",
+                Type => "Cluster",
             },
             {
-                Name      => "Communication",
-                NameForID => "Communication",
-                Type      => "Cluster",
+                Name => "Communication",
+                Type => "Cluster",
             },
             {
-                Name      => "Miscellaneous",
-                NameForID => "Miscellaneous",
-                Type      => "Cluster",
+                Name => "Miscellaneous",
+                Type => "Cluster",
             },
         );
 
         # check ticket menu modules
         for my $ZoomMenuModule (@MenuModule) {
 
+            my $NameForID = $ZoomMenuModule->{Name};
+            $NameForID =~ s/ /-/g if ( $NameForID =~ m/ / );
+
             if ( defined $ZoomMenuModule->{Type} && $ZoomMenuModule->{Type} eq 'Cluster' ) {
 
                 # check menu module link
                 $Self->True(
-                    $Selenium->find_element( "li ul#nav-$ZoomMenuModule->{NameForID}-container", 'css' ),
+                    $Selenium->find_element( "li ul#nav-$NameForID-container", 'css' ),
                     "Ticket menu link $ZoomMenuModule->{Name} is found"
                 );
             }
@@ -351,7 +332,7 @@ $Selenium->RunTest(
 
             # check menu module name
             $Self->True(
-                $Selenium->find_element( "li#nav-$ZoomMenuModule->{NameForID}", 'css' ),
+                $Selenium->find_element( "li#nav-$NameForID", 'css' ),
                 "Ticket menu name $ZoomMenuModule->{Name} is found"
             );
         }
