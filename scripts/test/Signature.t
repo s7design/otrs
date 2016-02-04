@@ -15,7 +15,6 @@ use vars (qw($Self));
 # get helper object
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
-        RestoreSystemConfiguration => 1,
         RestoreDatabase            => 1,
     },
 );
