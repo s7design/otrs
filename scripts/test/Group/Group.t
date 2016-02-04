@@ -192,7 +192,7 @@ for my $GroupName ( sort keys %GroupIDByGroupName ) {
 
     $Self->False(
         exists $Groups{$GroupID},
-        'GroupList() does not contains group ' . $GroupName . ' with ID ' . $GroupID,
+        'GroupList() does not contain group ' . $GroupName . ' with ID ' . $GroupID,
     );
 }
 
