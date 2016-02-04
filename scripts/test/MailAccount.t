@@ -12,9 +12,7 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::System::ObjectManager;
-
-# get needed objects
+# get mail account object
 my $MailAccountObject = $Kernel::OM->Get('Kernel::System::MailAccount');
 
 my $MailAccountAdd = $MailAccountObject->MailAccountAdd(
