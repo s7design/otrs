@@ -40,6 +40,9 @@ sub new {
         $Self->{$Item} = $ParamObject->GetParam( Param => $Item ) || $Param{$Item};
     }
 
+    # get add filters param
+    $Self->{AddFilters} = $ParamObject->GetParam( Param => 'AddFilters' ) || $Param{AddFilters} || 0;
+
     # set filter settings
     for my $Item (qw(ColumnFilter GetColumnFilter GetColumnFilterSelect)) {
         $Self->{$Item} = $Param{$Item};
@@ -575,9 +578,17 @@ sub Run {
             }
         }
 
+        $CacheUsed = 0;
+
         # add order by parameter to the search
         if ( $Self->{OrderBy} ) {
-            $TicketSearch{OrderBy} = $Self->{OrderBy};
+            if ( $Self->{AddFilters} ) {
+                $TicketSearch{OrderBy} = $Self->{OrderBy} eq 'Up' ? 'Down' : 'Up';
+                $CacheUsed = 1;
+            }
+            else {
+                $TicketSearch{OrderBy} = $Self->{OrderBy};
+            }
         }
 
         # add process management search terms
@@ -587,7 +598,6 @@ sub Run {
             };
         }
 
-        $CacheUsed = 0;
         my @TicketIDsArray;
         if (
             !$Self->{Config}->{IsProcessWidget}
@@ -813,21 +823,27 @@ sub Run {
     # show non-labeled table headers
     my $CSS = '';
     my $OrderBy;
+    my $TitleSort;
     for my $Item (@MetaItems) {
-        $CSS = '';
-        my $Title = $Item;
-        if ( $Self->{SortBy} && ( $Self->{SortBy} eq $Item ) ) {
-            if ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) ) {
-                $OrderBy = 'Down';
-                $CSS .= ' SortAscendingLarge';
-            }
-            else {
-                $OrderBy = 'Up';
-                $CSS .= ' SortDescendingLarge';
-            }
+        $CSS       = '';
+        $TitleSort = 0;
+        my $Title = $LayoutObject->{LanguageObject}->Translate($Item);
+        if ( $Self->{SortBy} && ( $Self->{SortBy} eq $Item ) && !$Self->{AddFilters} ) {
+            $OrderBy = ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) ) ? 'Down' : 'Up';
+            $TitleSort = 1;
+        }
+        elsif ( $Self->{SortBy} && ( $Self->{SortBy} eq $Item ) && $Self->{AddFilters} ) {
+            $OrderBy = ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) ) ? 'Up' : 'Down';
+            $TitleSort = 1;
+        }
 
-            # set title description
-            my $TitleDesc = $OrderBy eq 'Down' ? 'sorted ascending' : 'sorted descending';
+        # set title description
+        if ($TitleSort) {
+            $CSS
+                .= ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) )
+                ? ' SortDescendingLarge'
+                : ' SortAscendingLarge';
+            my $TitleDesc = $OrderBy eq 'Down' ? Translatable('sorted ascending') : Translatable('sorted descending');
             $TitleDesc = $LayoutObject->{LanguageObject}->Translate($TitleDesc);
             $Title .= ', ' . $TitleDesc;
         }
@@ -881,21 +897,27 @@ sub Run {
 
         if ( $HeaderColumn !~ m{\A DynamicField_}xms ) {
 
-            $CSS = '';
-            my $Title = $HeaderColumn;
+            $CSS       = '';
+            $TitleSort = 0;
+            my $Title = $LayoutObject->{LanguageObject}->Translate($HeaderColumn);
 
-            if ( $Self->{SortBy} && ( $Self->{SortBy} eq $HeaderColumn ) ) {
-                if ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) ) {
-                    $OrderBy = 'Down';
-                    $CSS .= ' SortAscendingLarge';
-                }
-                else {
-                    $OrderBy = 'Up';
-                    $CSS .= ' SortDescendingLarge';
-                }
+            if ( $Self->{SortBy} && ( $Self->{SortBy} eq $HeaderColumn ) && !$Self->{AddFilters} ) {
+                $OrderBy = ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) ) ? 'Down' : 'Up';
+                $TitleSort = 1;
+            }
+            elsif ( $Self->{SortBy} && ( $Self->{SortBy} eq $HeaderColumn ) && $Self->{AddFilters} ) {
+                $OrderBy = ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) ) ? 'Up' : 'Down';
+                $TitleSort = 1;
+            }
 
-                # add title description
-                my $TitleDesc = $OrderBy eq 'Down' ? 'sorted ascending' : 'sorted descending';
+            # set title description
+            if ($TitleSort) {
+                $CSS
+                    .= ( $Self->{OrderBy} && ( $Self->{OrderBy} eq 'Up' ) )
+                    ? ' SortDescendingLarge'
+                    : ' SortAscendingLarge';
+                my $TitleDesc
+                    = $OrderBy eq 'Down' ? Translatable('sorted ascending') : Translatable('sorted descending');
                 $TitleDesc = $LayoutObject->{LanguageObject}->Translate($TitleDesc);
                 $Title .= ', ' . $TitleDesc;
             }
