@@ -12,12 +12,19 @@ use utf8;
 
 use vars (qw($Self));
 
-# get needed objects
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+# get PID object
 my $PIDObject    = $Kernel::OM->Get('Kernel::System::PID');
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 # set fixed time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 my $PIDCreate = $PIDObject->PIDCreate( Name => 'Test' );
 $Self->True(
@@ -54,7 +61,7 @@ $Self->False(
 );
 
 $UpdateSuccess = $PIDObject->PIDUpdate(
-    Name => 'NonExistentProcess' . $HelperObject->GetRandomID(),
+    Name => 'NonExistentProcess' . $Helper->GetRandomID(),
 );
 
 $Self->False(
@@ -63,7 +70,7 @@ $Self->False(
 );
 
 # wait 2 seconds to update the PID change time
-$HelperObject->FixedTimeAddSeconds(2);
+$Helper->FixedTimeAddSeconds(2);
 
 $UpdateSuccess = $PIDObject->PIDUpdate(
     Name => 'Test',
@@ -101,7 +108,7 @@ $Self->True(
 );
 
 # 2 manually modify the PID host
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 $UpdateSuccess = $Kernel::OM->Get('Kernel::System::DB')->Do(
     SQL => '
         UPDATE process_id
@@ -148,5 +155,7 @@ $Self->False(
     $UpdatedPIDGet{PID},
     'PIDGet() for forced delete (PID should be deleted now)',
 );
+
+# cleanup is done by RestoreDatabase
 
 1;
