@@ -14,15 +14,8 @@ use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
 
-# get config object
+# get needed objects
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-# get helper object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreSystemConfiguration => 1,
-    },
-);
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # use ReferenceData ISO list
@@ -44,7 +37,6 @@ $Self->True(
 );
 
 # let's assume these countries don't go anywhere
-
 my @CountryList = ( 'Netherlands', 'Germany', 'Switzerland', 'United States of America', 'Japan' );
 
 for my $Country (@CountryList) {
@@ -55,7 +47,6 @@ for my $Country (@CountryList) {
 }
 
 # set configuration to small list
-
 $ConfigObject->Set(
     Key   => 'ReferenceData::OwnCountryList',
     Value => {
@@ -84,7 +75,5 @@ for my $Country (@CountryList) {
         "OwnCountryList: Testing existence of country ($Country)",
     );
 }
-
-# cleanup is done by RestoreDatabase
 
 1;

@@ -180,6 +180,6 @@ for my $Test (@JSTests) {
     );
 }
 
-# cleanup is done by RestoreDatabase
+# cleanup cache is done by RestoreDatabase
 
 1;
