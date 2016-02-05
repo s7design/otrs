@@ -14,7 +14,6 @@ use vars (qw($Self));
 
 # get needed objects
 my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
 my $PIDObject    = $Kernel::OM->Get('Kernel::System::PID');
 
 # set fixed time
@@ -55,7 +54,7 @@ $Self->False(
 );
 
 $UpdateSuccess = $PIDObject->PIDUpdate(
-    Name => 'NonExistentProcess' . time(),
+    Name => 'NonExistentProcess' . $HelperObject->GetRandomID(),
 );
 
 $Self->False(
@@ -103,7 +102,7 @@ $Self->True(
 
 # 2 manually modify the PID host
 my $RandomID = $HelperObject->GetRandomID();
-$UpdateSuccess = $DBObject->Do(
+$UpdateSuccess = $Kernel::OM->Get('Kernel::System::DB')->Do(
     SQL => '
         UPDATE process_id
         SET process_host = ?
@@ -121,7 +120,7 @@ $Self->Is(
     'PIDGet() for Force delete (Host)',
 );
 
-# 3 delete wihout force should keep the process
+# 3 delete without force should keep the process
 my $CurrentPID = $UpdatedPIDGet{PID};
 $PIDDelete = $PIDObject->PIDDelete( Name => 'Test' );
 $Self->True(
