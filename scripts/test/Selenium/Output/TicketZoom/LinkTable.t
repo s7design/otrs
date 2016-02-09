@@ -40,14 +40,11 @@ $Selenium->RunTest(
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # create three test tickets
-        my @TicketNumbers;
         my @TicketTitles;
         my @TicketIDs;
         for my $TicketCreate ( 1 .. 3 ) {
-            my $TicketNumber = $TicketObject->TicketCreateNumber();
             my $TicketTitle  = "Title" . $Helper->GetRandomID();
             my $TicketID     = $TicketObject->TicketCreate(
-                TN         => $TicketNumber,
                 Title      => $TicketTitle,
                 Queue      => 'Raw',
                 Lock       => 'unlock',
@@ -61,7 +58,6 @@ $Selenium->RunTest(
                 $TicketID,
                 "TicketID $TicketID is created",
             );
-            push @TicketNumbers, $TicketNumber;
             push @TicketTitles,  $TicketTitle;
             push @TicketIDs,     $TicketID;
         }
@@ -116,7 +112,7 @@ $Selenium->RunTest(
         # navigate to AgentTicketZoom for test created second ticket
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketIDs[1]");
 
-        # verify its right screen
+        # verify it is right screen
         $Self->True(
             index( $Selenium->get_page_source(), $TicketTitles[1] ) > -1,
             "Ticket $TicketTitles[1] found on page",
@@ -172,6 +168,7 @@ $Selenium->RunTest(
             "Linked Objects Widget is collapsed"
         );
 
+        # cleanup test data
         # delete test created tickets
         for my $TicketDelete (@TicketIDs) {
             $Success = $TicketObject->TicketDelete(
@@ -185,7 +182,11 @@ $Selenium->RunTest(
         }
 
         # make sure the cache is correct
-        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => 'Ticket' );
+        for my $Cache (qw(Ticket LinkObject)) {
+            $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+                Type => $Cache,
+            );
+        }
 
     }
 

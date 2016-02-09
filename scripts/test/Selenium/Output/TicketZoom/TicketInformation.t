@@ -136,12 +136,17 @@ $Selenium->RunTest(
         );
 
         # create test SLA with low escalation times, so we trigger warning in 'Ticket Information' widget
+        my %EscalationTimes = (
+            FirstResponseTime => 30,
+            UpdateTime => 40,
+            SolutionTime => 50,
+        );
         my $SLAID = $Kernel::OM->Get('Kernel::System::SLA')->SLAAdd(
             ServiceIDs        => [$ServiceID],
             Name              => $TicketData{SLA},
-            FirstResponseTime => 30,
-            UpdateTime        => 40,
-            SolutionTime      => 50,
+            FirstResponseTime => $EscalationTimes{FirstResponseTime},
+            UpdateTime        => $EscalationTimes{UpdateTime},
+            SolutionTime      => $EscalationTimes{SolutionTime},
             ValidID           => 1,
             Comment           => 'Selenium SLA',
             UserID            => 1,
@@ -298,7 +303,7 @@ $Selenium->RunTest(
         );
 
         # add accounted time to the ticket
-        my $AccountedTime = int( rand(100) ) . '.5';
+        my $AccountedTime = $Helper->GetRandomNumber() / 1000;
         $Success = $TicketObject->TicketAccountTime(
             TicketID  => $TicketID,
             ArticleID => $ArticleID,
@@ -343,13 +348,15 @@ $Selenium->RunTest(
         $Selenium->VerifiedRefresh();
 
         # verify escalation times, warning should be active
-        for my $EscalationTime ( 29, 39, 49 ) {
+        for my $EscalationTime ( values %EscalationTimes ) {
+            $EscalationTime--;
             $Self->True(
                 $Selenium->find_element("//p[\@class='Warning'][\@title='Service Time: $EscalationTime m']"),
                 "Escalation Time $EscalationTime m , found in Ticket Information Widget",
             );
         }
 
+        # cleanup test data
         # delete dynamic field value
         $Success = $DynamicFieldValueObject->ValueDelete(
             FieldID  => $DynamicFieldID,

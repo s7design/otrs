@@ -168,6 +168,7 @@ $Selenium->RunTest(
             "Process activity found in Process Information widget"
         );
 
+        # cleanup test data
         # delete test process ticket
         my $Success = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
             TicketID => $TicketID[1],

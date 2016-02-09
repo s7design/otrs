@@ -178,6 +178,7 @@ $Selenium->RunTest(
             "Customer Information Widget is collapsed"
         );
 
+        # cleanup test data
         # get DB object
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
