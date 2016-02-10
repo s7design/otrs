@@ -75,7 +75,6 @@ $Self->True(
 );
 
 # test the support data collect function
-
 $CacheObject->CleanUp(
     Type => 'SupportDataCollector',
 );
@@ -168,5 +167,8 @@ $Self->True(
     $TimeElapsedCache < $TimeElapsed,
     "Collect() - Should take less than $TimeElapsed seconds, it took $TimeElapsedCache",
 );
+
+# cleanup cache
+$CacheObject->CleanUp();
 
 1;
