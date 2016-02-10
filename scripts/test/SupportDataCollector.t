@@ -19,7 +19,6 @@ use Time::HiRes ();
 use Kernel::System::SupportDataCollector::PluginBase;
 
 # get needed objects
-my $HelperObject               = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $CacheObject                = $Kernel::OM->Get('Kernel::System::Cache');
 my $MainObject                 = $Kernel::OM->Get('Kernel::System::Main');
 my $SupportDataCollectorObject = $Kernel::OM->Get('Kernel::System::SupportDataCollector');
