@@ -12,13 +12,21 @@ use utf8;
 
 use vars (qw($Self));
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 # get needed objects
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
 # tests for article search index modules
 for my $Module (qw(StaticDB RuntimeDB)) {
 
-    # Make sure that the TicketObject gets recreated for each loop.
+    # make sure that the TicketObject gets recreated for each loop.
     $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Ticket'] );
 
     $ConfigObject->Set(
@@ -63,7 +71,7 @@ Perl modules provide a range of features to help you avoid reinventing the wheel
         HistoryType    => 'OwnerUpdate',
         HistoryComment => 'Some free text!',
         UserID         => 1,
-        NoAgentNotify  => 1,                                   # if you don't want to send agent notifications
+        NoAgentNotify  => 1,
     );
     $Self->True(
         $ArticleID,
@@ -96,7 +104,7 @@ Perl modules provide a range of features to help you avoid reinventing the wheel
         HistoryType    => 'OwnerUpdate',
         HistoryComment => 'Some free text!',
         UserID         => 1,
-        NoAgentNotify  => 1,                                   # if you don't want to send agent notifications
+        NoAgentNotify  => 1,
     );
     $Self->True(
         $ArticleID,
@@ -359,5 +367,7 @@ for my $Module (qw(StaticDB)) {
         );
     }
 }
+
+# cleanup is done by RestoreDatabase
 
 1;
