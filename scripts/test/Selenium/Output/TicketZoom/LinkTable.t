@@ -36,6 +36,13 @@ $Selenium->RunTest(
             );
         }
 
+        # set 'Linked Objects' widget to simple view
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'LinkObject::ViewMode',
+            Value => 'Simple',
+        );
+
         # get ticket object
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
@@ -43,8 +50,8 @@ $Selenium->RunTest(
         my @TicketTitles;
         my @TicketIDs;
         for my $TicketCreate ( 1 .. 3 ) {
-            my $TicketTitle  = "Title" . $Helper->GetRandomID();
-            my $TicketID     = $TicketObject->TicketCreate(
+            my $TicketTitle = "Title" . $Helper->GetRandomID();
+            my $TicketID    = $TicketObject->TicketCreate(
                 Title      => $TicketTitle,
                 Queue      => 'Raw',
                 Lock       => 'unlock',
@@ -58,8 +65,8 @@ $Selenium->RunTest(
                 $TicketID,
                 "TicketID $TicketID is created",
             );
-            push @TicketTitles,  $TicketTitle;
-            push @TicketIDs,     $TicketID;
+            push @TicketTitles, $TicketTitle;
+            push @TicketIDs,    $TicketID;
         }
 
         # get link object
@@ -166,6 +173,32 @@ $Selenium->RunTest(
         $Self->True(
             $Selenium->find_element("//div[contains(\@class, 'WidgetSimple DontPrint Collapsed')]"),
             "Linked Objects Widget is collapsed"
+        );
+
+        # verify 'Linked Objects' widget is in the side bar with simple view
+        my $ParentElement = $Selenium->find_element( ".SidebarColumn", 'css' );
+        $Self->Is(
+            $Selenium->find_child_element( $ParentElement, '.Header>h2', 'css' )->get_text(),
+            'Linked Objects',
+            'Linked Objects widget is positioned in the side bar with simple view',
+        );
+
+        # change view to complex
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'LinkObject::ViewMode',
+            Value => 'Complex',
+        );
+
+        # refresh screen
+        $Selenium->VerifiedRefresh();
+
+        # verify 'Linked Object' widget is in the main column with complex view
+        $ParentElement = $Selenium->find_element( ".ContentColumn", 'css' );
+        $Self->Is(
+            $Selenium->find_child_element( $ParentElement, '.Header>h2', 'css' )->get_text(),
+            'Linked: Ticket',
+            'Linked Objects widget is positioned in the main column with complex view',
         );
 
         # cleanup test data

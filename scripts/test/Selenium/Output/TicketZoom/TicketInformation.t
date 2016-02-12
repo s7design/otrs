@@ -26,6 +26,7 @@ $Selenium->RunTest(
         );
         my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
         my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 
         # disable 'Ticket Information', 'Customer Information' and 'Linked Objects' widgets in AgentTicketZoom screen
         for my $WidgetDisable (qw(0100-TicketInformation 0200-CustomerInformation 0300-LinkTable)) {
@@ -51,6 +52,34 @@ $Selenium->RunTest(
             Valid => 1,
             Key   => 'Ticket::Responsible',
             Value => 1
+        );
+
+        # use a calendar with the same business hours for every day so that the UT runs correctly
+        # on every day of the week and outside usual business hours.
+        my %Week;
+        my @Days = qw(Sun Mon Tue Wed Thu Fri Sat);
+        for my $Day (@Days) {
+            $Week{$Day} = [ 0 .. 23 ];
+        }
+        $ConfigObject->Set(
+            Key   => 'TimeWorkingHours',
+            Value => \%Week,
+        );
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'TimeWorkingHours',
+            Value => \%Week,
+        );
+
+        # disable default Vacation days
+        $ConfigObject->Set(
+            Key   => 'TimeVacationDays',
+            Value => {},
+        );
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'TimeVacationDays',
+            Value => {},
         );
 
         # get user object
@@ -138,8 +167,8 @@ $Selenium->RunTest(
         # create test SLA with low escalation times, so we trigger warning in 'Ticket Information' widget
         my %EscalationTimes = (
             FirstResponseTime => 30,
-            UpdateTime => 40,
-            SolutionTime => 50,
+            UpdateTime        => 40,
+            SolutionTime      => 50,
         );
         my $SLAID = $Kernel::OM->Get('Kernel::System::SLA')->SLAAdd(
             ServiceIDs        => [$ServiceID],
@@ -239,7 +268,7 @@ $Selenium->RunTest(
         );
 
         # get script alias
-        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         # navigate to AgentTicketZoom for test created ticket
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
