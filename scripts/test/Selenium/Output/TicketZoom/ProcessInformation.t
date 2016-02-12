@@ -112,12 +112,17 @@ $Selenium->RunTest(
 
         # select test process
         $Selenium->execute_script(
-            "\$('#ProcessEntityID').val('$ListReverse{$ProcessName}').trigger('redraw.InputField').trigger('change');");
+            "\$('#ProcessEntityID').val('$ListReverse{$ProcessName}').trigger('redraw.InputField').trigger('change');"
+        );
 
         # wait until page has loaded, if necessary
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#Subject").length' );
 
-        # click on submit and switch back screen
+        # input process ticket subject and body
+        $Selenium->find_element( "#Subject",  'css' )->send_keys('SelProcess Subject');
+        $Selenium->find_element( "#RichText", 'css' )->send_keys('SelProcess Body');
+
+        # click on submit
         $Selenium->find_element("//button[\@type='submit']")->VerifiedClick();
 
         # verify there is 'Process Information' widget
@@ -161,6 +166,9 @@ $Selenium->RunTest(
         # switch back screen
         $Selenium->WaitFor( WindowCount => 1 );
         $Selenium->switch_to_window( $Handles->[0] );
+
+        # refresh screen
+        $Selenium->VerifiedRefresh();
 
         # verify there is new activity in 'Process Information' widget
         $Self->True(
