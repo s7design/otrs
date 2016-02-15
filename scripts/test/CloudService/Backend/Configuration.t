@@ -12,10 +12,13 @@ use utf8;
 
 use vars (qw($Self));
 
-my $HelperObject       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+# get cloud service object
 my $CloudServiceObject = $Kernel::OM->Get('Kernel::System::CloudService::Backend::Configuration');
 
-my $RandomID = $HelperObject->GetRandomID();
+# get helper object
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
+my $RandomID = $Helper->GetRandomID();
 
 my @Tests = (
     {
@@ -368,5 +371,10 @@ for my $CloudServiceID (@CloudServiceIDs) {
         "CloudServiceList() from cache did not find cloud service $CloudServiceID",
     );
 }
+
+# make sure the cache is corrects
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+    Type => 'CloudService',
+);
 
 1;

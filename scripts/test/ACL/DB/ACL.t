@@ -18,13 +18,13 @@ use Kernel::System::VariableCheck qw(:all);
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 my $ACLObject    = $Kernel::OM->Get('Kernel::System::ACL::DB::ACL');
 my $CacheObject  = $Kernel::OM->Get('Kernel::System::Cache');
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # set fixed time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 # define needed variables
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 my $UserID   = 1;
 
 # get original ACL list
@@ -382,7 +382,7 @@ for my $Test (@Tests) {
 
 # try to update the ACL
 print "Force a gap between create and update ACL, Sleeping 2s\n";
-$HelperObject->FixedTimeAddSeconds(2);
+$Helper->FixedTimeAddSeconds(2);
 
 TEST:
 for my $Test (@Tests) {
@@ -730,7 +730,7 @@ for my $ACLID ( sort keys %AddedACL ) {
     # sanity check
     $Self->True(
         $Success,
-        "ACLDelete() ACLID:$ACLID | Deleted sucessfully",
+        "ACLDelete() ACLID:$ACLID | Deleted successfully",
     );
 
     $Self->True(
