@@ -12,9 +12,6 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::System::Ticket;
-use Kernel::System::ProcessManagement::ActivityDialog;
-
 use Kernel::System::VariableCheck qw(:all);
 
 # get needed objects
@@ -29,13 +26,6 @@ $Kernel::OM->ObjectParamAdd(
     },
 );
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
-# create common objects to be used in ActivityDialog object creation
-my %CommonObject;
-$CommonObject{ActivityObject}         = $Kernel::OM->Get('Kernel::System::ProcessManagement::Activity');
-$CommonObject{ActivityDialogObject}   = $Kernel::OM->Get('Kernel::System::ProcessManagement::ActivityDialog');
-$CommonObject{TransitionObject}       = $Kernel::OM->Get('Kernel::System::ProcessManagement::Transition');
-$CommonObject{TransitionActionObject} = $Kernel::OM->Get('Kernel::System::ProcessManagement::TransitionAction');
 
 # define a testing environment, set defined processes to be easy to compare, this are done in memory
 #   no changes to the real system configuration
@@ -171,26 +161,6 @@ my %TestActivityDialogs = (
 $ConfigObject->{ActivityDialog}                   = \%TestProcesses;
 $ConfigObject->{'ActivityDialog::ActivityDialog'} = \%TestActivityDialogs;
 $ConfigObject->{'ActivityDialog::Activity'}       = \%TestActivities;
-
-# create empty object holders, the following tests requires to set ACLs on the fly and will need to
-#   re create the objects for each test.
-my $TicketObject;
-my $ProcessObject;
-
-# this function is to recreate the objects.
-my $RecreateObjects = sub {
-
-    $TicketObject = Kernel::System::Ticket->new(
-        %{$Self},
-    );
-
-    $ProcessObject = Kernel::System::ProcessManagement::ActivityDialog->new(
-        %{$Self},
-        %CommonObject,
-    );
-
-    return 1;
-};
 
 my $RandomID = $Helper->GetRandomID();
 
@@ -934,7 +904,7 @@ for my $Test (@Tests) {
             $UserType = 'Not Affected User';
         }
 
-        $RecreateObjects->();
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # validate the ProcessList with stored ACLs
         my $ACL = $TicketObject->TicketAcl(
