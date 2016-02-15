@@ -31,11 +31,10 @@ my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 #     Value => {},
 # );
 
-my $HelperObject     = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $TransitionObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::Transition');
 
 # define needed variables
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Kernel::OM->Get('Kernel::System::UnitTest::Helper')->GetRandomID();
 
 # ------------------------------------------------------------ #
 # define general tests
@@ -188,7 +187,7 @@ my @Tests = (
                 DynamicField_VWModel => ['2'],
             },
             TransitionEntityID => '',
-            Message            => 'TransitionCheck() (emtpy TransitionEntityID)',
+            Message            => 'TransitionCheck() (empty TransitionEntityID)',
             TestType           => 'False',
         },
     },
