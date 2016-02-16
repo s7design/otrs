@@ -16,11 +16,16 @@ use vars (qw($Self));
 use Kernel::System::VariableCheck qw(:all);
 
 # get needed objects
-my $ConfigObject           = $Kernel::OM->Get('Kernel::Config');
 my $CacheObject            = $Kernel::OM->Get('Kernel::System::Cache');
-my $HelperObject           = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $TransitionActionObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::TransitionAction');
-my $EntityObject           = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
+
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # set fixed time
 $HelperObject->FixedTimeSet();
@@ -29,7 +34,7 @@ $HelperObject->FixedTimeSet();
 my $RandomID = $HelperObject->GetRandomID();
 my $UserID   = 1;
 
-my $EntityID = $EntityObject->EntityIDGenerate(
+my $EntityID = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity')->EntityIDGenerate(
     EntityType => 'TransitionAction',
     UserID     => 1,
 );
@@ -231,7 +236,7 @@ my @Tests = (
         Success => 1,
     },
     {
-        Name   => 'TransitionActionAdd Test 15: EntityID Full Lenght',
+        Name   => 'TransitionActionAdd Test 15: EntityID Full Length',
         Config => {
             EntityID => $EntityID,
             Name     => $EntityID,
@@ -883,19 +888,6 @@ $Self->IsDeeply(
     "TransitionActionListGet Test 2: Correct List | Cache",
 );
 
-print "------------System Cleanup------------\n";
+# cleanup is done by RestoreDatabase
 
-# remove added TransitionActions
-for my $TransitionActionID ( sort keys %AddedTransitionActions ) {
-    my $Success = $TransitionActionObject->TransitionActionDelete(
-        ID     => $TransitionActionID,
-        UserID => $UserID,
-    );
-
-    # sanity check
-    $Self->True(
-        $Success,
-        "TransitionActionDelete() TransitionActionID:$TransitionActionID | Deleted sucessfully",
-    );
-}
 1;

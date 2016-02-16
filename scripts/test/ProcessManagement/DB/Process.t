@@ -16,12 +16,17 @@ use vars (qw($Self));
 use Kernel::System::VariableCheck qw(:all);
 
 # get needed objects
-my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
 my $CacheObject    = $Kernel::OM->Get('Kernel::System::Cache');
-my $HelperObject   = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $ActivityObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Activity');
 my $ProcessObject  = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
-my $EntityObject   = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
+
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # set fixed time
 $HelperObject->FixedTimeSet();
@@ -36,7 +41,7 @@ my $ActivityName1     = 'Activity1';
 my $ActivityName2     = 'Activity2';
 my $ActivityName3     = 'Activity3';
 
-my $EntityID = $EntityObject->EntityIDGenerate(
+my $EntityID = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity')->EntityIDGenerate(
     EntityType => 'Process',
     UserID     => 1,
 );
@@ -296,7 +301,7 @@ my @Tests = (
         Success => 1,
     },
     {
-        Name   => 'ProcessAdd Test 15: EntityID Full Lenght',
+        Name   => 'ProcessAdd Test 15: EntityID Full Length',
         Config => {
             EntityID      => $EntityID,
             Name          => $EntityID,
@@ -1253,33 +1258,6 @@ $Self->IsDeeply(
     "ProcessListGet Test 2: Correct List | Cache",
 );
 
-print "------------System Cleanup------------\n";
+# cleanup is done by RestoreDatabase
 
-# remove added activities
-for my $ActivityID (@AddedActivities) {
-    my $Success = $ActivityObject->ActivityDelete(
-        ID     => $ActivityID,
-        UserID => $UserID,
-    );
-
-    # sanity check
-    $Self->True(
-        $Success,
-        "ActivityDelete() ActivityID:$ActivityID | Deleted sucessfully",
-    );
-}
-
-# remove added processes
-for my $ProcessID ( sort keys %AddedProcess ) {
-    my $Success = $ProcessObject->ProcessDelete(
-        ID     => $ProcessID,
-        UserID => $UserID,
-    );
-
-    # sanity check
-    $Self->True(
-        $Success,
-        "ProcessDelete() ProcessID:$ProcessID | Deleted sucessfully",
-    );
-}
 1;
