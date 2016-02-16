@@ -26,13 +26,13 @@ $Kernel::OM->ObjectParamAdd(
         RestoreDatabase => 1,
     },
 );
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # set fixed time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 # define needed variables
-my $RandomID                = $HelperObject->GetRandomID();
+my $RandomID                = $Helper->GetRandomID();
 my $UserID                  = 1;
 my $ActivityDialogEntityID1 = 'AD1-' . $RandomID;
 my $ActivityDialogEntityID2 = 'AD2-' . $RandomID;
@@ -297,7 +297,7 @@ my @AddedActivityList = map {$_} sort keys %AddedActivities;
     {
         Name   => 'ActivityGet Test 4: Wrong ID',
         Config => {
-            ID                  => 'NotExistent' . $RandomID,
+            ID                  => '9999999',
             EntityID            => undef,
             ActivityDialogNames => 0,
             UserID              => $UserID,
@@ -308,7 +308,7 @@ my @AddedActivityList = map {$_} sort keys %AddedActivities;
         Name   => 'ActivityGet Test 5: Wrong EntityID',
         Config => {
             ID                  => undef,
-            EntityID            => 'NotExistent' . $RandomID,
+            EntityID            => '9999999',
             ActivityDialogNames => 0,
             UserID              => $UserID,
         },
@@ -696,7 +696,7 @@ for my $Test (@Tests) {
         print "Force a gap between create and update activity, Waiting 2s\n";
 
         # wait 2 seconds
-        $HelperObject->FixedTimeAddSeconds(2);
+        $Helper->FixedTimeAddSeconds(2);
 
         my $Success = $ActivityObject->ActivityUpdate( %{ $Test->{Config} } );
 
@@ -885,7 +885,7 @@ for my $ActivityID ( sort { $a <=> $b } keys %TestActivityListCopy ) {
     {
         Name   => 'ActivityDelete Test 4: Wrong Activity ID',
         Config => {
-            ID     => $RandomID,
+            ID     => '9999999',
             UserID => $UserID,
         },
         Success => 0,

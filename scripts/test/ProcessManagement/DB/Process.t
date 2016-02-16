@@ -26,13 +26,13 @@ $Kernel::OM->ObjectParamAdd(
         RestoreDatabase => 1,
     },
 );
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # set fixed time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 # define needed variables
-my $RandomID          = $HelperObject->GetRandomID();
+my $RandomID          = $Helper->GetRandomID();
 my $UserID            = 1;
 my $ActivityEntityID1 = 'A1-' . $RandomID;
 my $ActivityEntityID2 = 'A2-' . $RandomID;
@@ -376,7 +376,7 @@ my @AddedProcessList = map {$_} sort keys %AddedProcess;
     {
         Name   => 'ProcessGet Test 4: Wrong ID',
         Config => {
-            ID            => 'NotExistent' . $RandomID,
+            ID            => '9999999',
             EntityID      => undef,
             ActivityNames => 0,
             UserID        => $UserID,
@@ -387,7 +387,7 @@ my @AddedProcessList = map {$_} sort keys %AddedProcess;
         Name   => 'ProcessGet Test 5: Wrong EntityID',
         Config => {
             ID            => undef,
-            EntityID      => 'NotExistent' . $RandomID,
+            EntityID      => '9999999',
             ActivityNames => 0,
             UserID        => $UserID,
         },
@@ -854,7 +854,7 @@ for my $Test (@Tests) {
         print "Force a gap between create and update process, Waiting 2s\n";
 
         # wait 2 seconds
-        $HelperObject->FixedTimeAddSeconds(2);
+        $Helper->FixedTimeAddSeconds(2);
 
         my $Success = $ProcessObject->ProcessUpdate( %{ $Test->{Config} } );
 
@@ -1168,7 +1168,7 @@ for my $Test (@Tests) {
     {
         Name   => 'ProcessDelete Test 4: Wrong process ID',
         Config => {
-            ID     => $RandomID,
+            ID     => '9999999',
             UserID => $UserID,
         },
         Success => 0,

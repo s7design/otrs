@@ -25,13 +25,13 @@ $Kernel::OM->ObjectParamAdd(
         RestoreDatabase => 1,
     },
 );
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # set fixed time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 # define needed variables
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 my $UserID   = 1;
 
 my $EntityID = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity')->EntityIDGenerate(
@@ -307,7 +307,7 @@ my @AddedTransitionActionsList = map {$_} sort keys %AddedTransitionActions;
     {
         Name   => 'TransitionActionGet Test 4: Wrong ID',
         Config => {
-            ID       => 'NotExistent' . $RandomID,
+            ID       => '9999999',
             EntityID => undef,
             UserID   => $UserID,
         },
@@ -317,7 +317,7 @@ my @AddedTransitionActionsList = map {$_} sort keys %AddedTransitionActions;
         Name   => 'TransitionActionGet Test 5: Wrong EntityID',
         Config => {
             ID       => undef,
-            EntityID => 'NotExistent' . $RandomID,
+            EntityID => '9999999',
             UserID   => $UserID,
         },
         Success => 0,
@@ -607,7 +607,7 @@ for my $Test (@Tests) {
         print "Force a gap between create and update TransitionAction, Waiting 2s\n";
 
         # wait 2 seconds
-        $HelperObject->FixedTimeAddSeconds(2);
+        $Helper->FixedTimeAddSeconds(2);
 
         my $Success = $TransitionActionObject->TransitionActionUpdate( %{ $Test->{Config} } );
 
@@ -798,7 +798,7 @@ for my $TransitionActionID ( sort { $a <=> $b } keys %TestTransitionActionListCo
     {
         Name   => 'TransitionActionDelete Test 4: Wrong TransitionAction ID',
         Config => {
-            ID     => $RandomID,
+            ID     => '9999999',
             UserID => $UserID,
         },
         Success => 0,
