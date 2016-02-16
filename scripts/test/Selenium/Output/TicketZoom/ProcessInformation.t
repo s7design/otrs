@@ -119,11 +119,26 @@ $Selenium->RunTest(
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#Subject").length' );
 
         # input process ticket subject and body
-        $Selenium->find_element( "#Subject",  'css' )->send_keys('SelProcess Subject');
+        my $SubjectRand = 'SelProcess' . $Helper->GetRandomID();
+        $Selenium->find_element( "#Subject",  'css' )->send_keys($SubjectRand);
         $Selenium->find_element( "#RichText", 'css' )->send_keys('SelProcess Body');
 
         # click on submit
-        $Selenium->find_element("//button[\@type='submit']")->VerifiedClick();
+        $Selenium->find_element("//button[contains(\@id, 'SubmitActivityDialog')]")->VerifiedClick();
+
+        # get ticket object
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
+        # get test process ticket ID
+        my @TicketIDs = $TicketObject->TicketSearch(
+            Result  => 'ARRAY',
+            Limit   => 1,
+            Subject => "%$SubjectRand%",
+            UserID  => 1,
+        );
+
+        # navigate to AgentTicketZoom screen of created test process
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketIDs[0]");
 
         # verify there is 'Process Information' widget
         my $ParentElement = $Selenium->find_element( ".SidebarColumn", 'css' );
@@ -143,11 +158,9 @@ $Selenium->RunTest(
             "Process activity found in Ticket Information widget"
         );
 
-        # get created test process ticket ID
-        my @TicketID = split( 'TicketID=', $Selenium->get_current_url() );
-
         # click on 'Priority' and switch screen
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketPriority;TicketID=$TicketID[1]' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketPriority;TicketID=$TicketIDs[0]' )]")
+            ->click();
 
         $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
@@ -178,14 +191,14 @@ $Selenium->RunTest(
 
         # cleanup test data
         # delete test process ticket
-        my $Success = $Kernel::OM->Get('Kernel::System::Ticket')->TicketDelete(
-            TicketID => $TicketID[1],
+        my $Success = $TicketObject->TicketDelete(
+            TicketID => $TicketIDs[0],
             UserID   => $TestUserID,
         );
 
         $Self->True(
             $Success,
-            "Process ticket ID $TicketID[1] is deleted",
+            "Process ticket ID $TicketIDs[0] is deleted",
         );
 
         # get needed objects
