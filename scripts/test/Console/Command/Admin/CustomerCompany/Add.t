@@ -12,10 +12,18 @@ use utf8;
 
 use vars (qw($Self));
 
+# get command object
 my $CommandObject = $Kernel::OM->Get('Kernel::System::Console::Command::Admin::CustomerCompany::Add');
 
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $RandomName   = $HelperObject->GetRandomID();
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
+my $RandomName = $Helper->GetRandomID();
 
 # try to execute command without any options
 my $ExitCode = $CommandObject->Execute();
@@ -27,7 +35,7 @@ $Self->Is(
 
 # provide minimum options
 $ExitCode = $CommandObject->Execute(
-    '--customer-id', $RandomName, '--name', 'Test',
+    '--customer-id', "$RandomName-CID", '--name', "$RandomName-name",
 );
 $Self->Is(
     $ExitCode,
@@ -37,26 +45,24 @@ $Self->Is(
 
 # provide minimum options
 $ExitCode = $CommandObject->Execute(
-    '--customer-id', $RandomName, '--name', 'Test',
+    '--customer-id', "$RandomName-CID", '--name', "$RandomName-name-second",
 );
 $Self->Is(
     $ExitCode,
     1,
-    "Minimum options (company already exists)",
+    "Minimum options (company CustomerID already exists)",
 );
 
-# delete customer user
-my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
-    SQL => "DELETE FROM customer_company WHERE customer_id = '$RandomName'",
+# provide minimum options
+$ExitCode = $CommandObject->Execute(
+    '--customer-id', "$RandomName-CID-second", '--name', "$RandomName-name",
 );
-$Self->True(
-    $Success,
-    "CustomerCompanyDelete - $RandomName",
+$Self->Is(
+    $ExitCode,
+    1,
+    "Minimum options (company name already exists)",
 );
 
-# Make sure the cache is correct.
-$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
-    Type => 'CustomerCompany',
-);
+# cleanup is done by RestoreDatabase
 
 1;

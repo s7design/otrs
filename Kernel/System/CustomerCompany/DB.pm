@@ -190,6 +190,40 @@ sub CustomerCompanyList {
     return %List;
 }
 
+sub CustomerList {
+    my ( $Self, %Param ) = @_;
+
+    my $Valid //= 1;
+
+    # what is the result
+    my $What = join(
+        ', ',
+        @{ $Self->{CustomerCompanyMap}->{CustomerCompanyListFields} }
+    );
+
+    my $SQL = "SELECT $What FROM $Self->{CustomerCompanyTable}";
+
+    if ($Valid) {
+
+        # get valid object
+        my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
+
+        $SQL .= ' WHERE valid_id IN (' . join ', ', $ValidObject->ValidIDsGet() . ')';
+    }
+
+    # get database object
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+    return if !$DBObject->Prepare( SQL => $SQL );
+
+    my %Data;
+    while ( my @Row = $DBObject->FetchrowArray() ) {
+        $Data{ $Row[0] } = $Row[1];
+    }
+
+    return %Data;
+}
+
 sub CustomerCompanyGet {
     my ( $Self, %Param ) = @_;
 

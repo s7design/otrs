@@ -120,6 +120,24 @@ sub CustomerCompanyAdd {
         }
     }
 
+    my %ExistingCustomerCompany = $Self->{ $Param{Source} }->CustomerList( Valid => 0 );
+    my %ExistingCustomer = reverse %ExistingCustomerCompany;
+
+    if ( $ExistingCustomerCompany{ $Param{CustomerID} } ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "A customer company with the CustomerID $Param{CustomerID} already exists.",
+        );
+        return;
+    }
+    elsif ( $ExistingCustomer{ $Param{CustomerCompanyName} } ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "A customer company with the name $Param{CustomerCompanyName} already exists.",
+        );
+        return;
+    }
+
     my $Result = $Self->{ $Param{Source} }->CustomerCompanyAdd(%Param);
     return if !$Result;
 
@@ -242,6 +260,35 @@ sub CustomerCompanyUpdate {
         );
         return;
     }
+
+    my %ExistingCustomerCompany = $Self->CustomerList( Valid => 0 );
+    my %ExistingCustomer = reverse %ExistingCustomerCompany;
+
+    if (
+        defined $ExistingCustomerCompany{ $Param{CustomerID} }
+        && ( $ExistingCustomerCompany{ $Param{CustomerID} } ne $Param{CustomerCompanyName} )
+        && ( $Company{CustomerID} ne $Param{CustomerID} )
+        )
+    {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "A customer company with the CustomerID $Param{CustomerID} already exists.",
+        );
+        return;
+    }
+    elsif (
+        defined $ExistingCustomer{ $Param{CustomerCompanyName} }
+        && ( $ExistingCustomer{ $Param{CustomerCompanyName} } ne $Param{CustomerID} )
+        && ( $Company{CustomerCompanyName} ne $Param{CustomerCompanyName} )
+        )
+    {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "A customer company with the name $Param{CustomerCompanyName} already exists.",
+        );
+        return;
+    }
+
     my $Result = $Self->{ $Company{Source} }->CustomerCompanyUpdate(%Param);
     return if !$Result;
 
@@ -333,6 +380,41 @@ sub CustomerCompanyList {
 
         # get comppany list result of backend and merge it
         my %SubData = $Self->{"CustomerCompany$Count"}->CustomerCompanyList(%Param);
+        %Data = ( %Data, %SubData );
+    }
+    return %Data;
+}
+
+=item CustomerList()
+
+get list of customer companies.
+
+    my %List = $CustomerCompanyObject->CustomerList();
+
+    my %List = $CustomerCompanyObject->CustomerList(
+        Valid => 0,
+    );
+
+Returns:
+
+%List = {
+          'example.com' => 'Customer Inc.',
+          'acme.com'    => 'Acme Inc.'
+        };
+
+=cut
+
+sub CustomerList {
+    my ( $Self, %Param ) = @_;
+
+    my %Data;
+    SOURCE:
+    for my $Count ( '', 1 .. 10 ) {
+
+        next SOURCE if !$Self->{"CustomerCompany$Count"};
+
+        # get comppany list result of backend and merge it
+        my %SubData = $Self->{"CustomerCompany$Count"}->CustomerList(%Param);
         %Data = ( %Data, %SubData );
     }
     return %Data;
