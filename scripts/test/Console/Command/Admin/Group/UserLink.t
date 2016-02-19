@@ -59,6 +59,12 @@ $Self->Is(
     "Minimum options (but invalid permission parameter)",
 );
 
+# disable email checks to create new user
+$Kernel::OM->Get('Kernel::Config')->Set(
+    Key   => 'CheckEmailAddresses',
+    Value => 0,
+);
+
 # add users
 my $UserRand = 'user' . $RandomName;
 my $UserID   = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
