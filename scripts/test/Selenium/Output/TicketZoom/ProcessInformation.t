@@ -84,13 +84,17 @@ $Selenium->RunTest(
         $Selenium->find_element( "#FileUpload",                      'css' )->send_keys($Location);
         $Selenium->find_element( "#OverwriteExistingEntitiesImport", 'css' )->click();
         $Selenium->find_element("//button[\@value='Upload process configuration'][\@type='submit']")->VerifiedClick();
+
+        # wait until process is created
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".Notice").length' );
+
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
 
         # let mod_perl / Apache2::Reload pick up the changed configuration
         sleep 3;
 
-        # navigate to AgentTicketProcess screen
-        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketProcess");
+        # wait until process is synchronized
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && !$(".Notice").length' );
 
         # get process object
         my $ProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
@@ -110,6 +114,15 @@ $Selenium->RunTest(
             UserID   => $TestUserID,
         );
 
+        $Self->Is(
+            $Process->{Name},
+            'TestProcess',
+            "Test process is creted"
+        );
+
+        # navigate to AgentTicketProcess screen
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketProcess");
+
         # select test process
         $Selenium->execute_script(
             "\$('#ProcessEntityID').val('$ListReverse{$ProcessName}').trigger('redraw.InputField').trigger('change');"
@@ -119,12 +132,16 @@ $Selenium->RunTest(
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#Subject").length' );
 
         # input process ticket subject and body
-        my $SubjectRand = 'SelProcess' . $Helper->GetRandomID();
+        my $SubjectRand = 'ProcessSubject-' . $Helper->GetRandomID();
+        $Selenium->execute_script("\$('#QueueID').val('2').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#Subject",  'css' )->send_keys($SubjectRand);
-        $Selenium->find_element( "#RichText", 'css' )->send_keys('SelProcess Body');
+        $Selenium->find_element( "#RichText", 'css' )->send_keys('Test Process Body');
 
-        # click on submit
-        $Selenium->find_element("//button[contains(\@id, 'SubmitActivityDialog')]")->VerifiedClick();
+        # submit process
+        $Selenium->find_element( "#Subject", 'css' )->VerifiedSubmit();
+
+        # let mod_perl / Apache2::Reload pick up the changed configuration
+        sleep 3;
 
         # get ticket object
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
@@ -132,10 +149,22 @@ $Selenium->RunTest(
         # get test process ticket ID
         my @TicketIDs = $TicketObject->TicketSearch(
             Result  => 'ARRAY',
+            SortBy  => 'Age',
+            OrderBy => 'Down',
             Limit   => 1,
-            Subject => "%$SubjectRand%",
             UserID  => 1,
         );
+
+        my %Ticket = $TicketObject->TicketGet(
+            TicketID => $TicketIDs[0],
+            UserID   => 1,
+        );
+
+        $Self->Is(
+            $Ticket{CreateBy},
+            $TestUserID,
+            "Test ticket process is creted"
+        ) || die;
 
         # navigate to AgentTicketZoom screen of created test process
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketIDs[0]");
@@ -306,7 +335,7 @@ $Selenium->RunTest(
 
         # make sure the cache is correct
         for my $Cache (
-            qw (Ticket ProcessManagement_Activity ProcessManagement_ActivityDialog ProcessManagement_Transition ProcessManagement_TransitionAction )
+            qw (Ticket TicketSearch ProcessManagement_Activity ProcessManagement_ActivityDialog ProcessManagement_Transition ProcessManagement_TransitionAction )
             )
         {
             $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
