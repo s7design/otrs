@@ -90,7 +90,7 @@ $ExitCode = $CommandObject->Execute( '--user-name', $UserRand, '--role-name', $R
 $Self->Is(
     $ExitCode,
     0,
-    "Minimum options (but role doesn't exist)",
+    "Minimum options (parameters OK: linked user $UserRand to role $RoleRand)",
 );
 
 # cleanup is done by RestoreDatabase
