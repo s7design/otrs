@@ -1,6 +1,4 @@
 # --
-# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
-# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -16,15 +14,9 @@ use Kernel::System::VariableCheck qw(:all);
 
 # get needed objects
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
 my $ModuleObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::TransitionAction::TicketStateSet');
-
-# get helper object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreDatabase => 1,
-    },
-);
-my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 $Helper->FixedTimeSet();
 
@@ -35,7 +27,7 @@ my $RandomID   = $Helper->GetRandomID();
 
 # set user details
 my $TestUserLogin = $Helper->TestUserCreate();
-my $TestUserID    = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
+my $TestUserID    = $UserObject->UserLookup(
     UserLogin => $TestUserLogin,
 );
 
@@ -338,6 +330,23 @@ for my $Test (@Tests) {
     }
 }
 
-# cleanup is done by RestoreDatabase.
+#-----------------------------------------
+# Destructors to remove our Test items
+# ----------------------------------------
+
+# Ticket
+my $Delete = $TicketObject->TicketDelete(
+    TicketID => $TicketID,
+    UserID   => 1,
+);
+$Self->True(
+    $Delete,
+    "TicketDelete() - $TicketID",
+);
+
+# cleanUp casche
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
+
+# ----------------------------------------
 
 1;

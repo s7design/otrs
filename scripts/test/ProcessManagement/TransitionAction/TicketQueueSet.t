@@ -157,7 +157,7 @@ my @Tests = (
             UserID => $UserID,
             Ticket => \%Ticket,
             Config => {
-                QueueID => 'NotExisting' . $RandomID,
+                QueueID => 9999999,
             },
         },
         Success => 0,

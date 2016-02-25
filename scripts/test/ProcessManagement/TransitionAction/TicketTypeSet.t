@@ -57,7 +57,7 @@ my $TestUserID    = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
 
 my @TypeID;
 my @TypeName;
-for my $Item ( 0..2 ) {
+for my $Item ( 0 .. 2 ) {
     $TypeName[$Item] = 'Type' . $Item . $RandomID;
 
     $TypeID[$Item] = $TypeObject->TypeAdd(
@@ -188,7 +188,7 @@ my @Tests = (
             UserID => $UserID,
             Ticket => \%Ticket,
             Config => {
-                TypeID => 'NotExisting' . $RandomID,
+                TypeID => 9999999,
             },
         },
         Success => 0,

@@ -115,15 +115,15 @@ $Self->True(
 # Create a test tickets
 # ----------------------------------------
 my @TicketData;
-for my $Item ( 0..1 ) {
-    my $TicketID  = $TicketObject->TicketCreate(
-        Title         => ($Item == 0) ? $Services[0]->{ServiceID} : 'test',
+for my $Item ( 0 .. 1 ) {
+    my $TicketID = $TicketObject->TicketCreate(
+        Title => ( $Item == 0 ) ? $Services[0]->{ServiceID} : 'test',
         QueueID       => 1,
         Lock          => 'unlock',
         Priority      => '3 normal',
         StateID       => 1,
         TypeID        => 1,
-        CustomerUser  => ($Item==0) ? $TestCustomerUserLogin : undef,
+        CustomerUser  => ( $Item == 0 ) ? $TestCustomerUserLogin : undef,
         OwnerID       => 1,
         ResponsibleID => 1,
         UserID        => $UserID,
@@ -182,7 +182,7 @@ my @Tests = (
         Name   => 'No Config',
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {},
         },
         Success => 0,
@@ -191,7 +191,7 @@ my @Tests = (
         Name   => 'Wrong Config',
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 NoAgentNotify => 0,
             },
@@ -213,7 +213,7 @@ my @Tests = (
         Name   => 'Wrong Config Format',
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => 1,
         },
         Success => 0,
@@ -222,7 +222,7 @@ my @Tests = (
         Name   => 'Wrong Service',
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 Service => 'NotExisting' . $RandomID,
             },
@@ -233,7 +233,7 @@ my @Tests = (
         Name   => 'Wrong ServiceID',
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 ServiceID => 'NotExisting' . $RandomID,
             },
@@ -244,7 +244,7 @@ my @Tests = (
         Name   => 'Not assigned Service',
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 Service => $Services[2]->{Name},
             },
@@ -255,7 +255,7 @@ my @Tests = (
         Name   => 'Not Assigned ServiceID',
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 ServiceID => $Services[2]->{ServiceID},
             },
@@ -266,7 +266,7 @@ my @Tests = (
         Name   => "Ticket without customer with Service $Services[0]->{Name}",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[1],
+            Ticket => $TicketData[1],
             Config => {
                 ServiceID => $Services[0]->{Name},
             },
@@ -277,7 +277,7 @@ my @Tests = (
         Name   => "Ticket without customer with ServiceID $Services[1]->{Name}",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[1],
+            Ticket => $TicketData[1],
             Config => {
                 ServiceID => $Services[0]->{ServiceID},
             },
@@ -288,7 +288,7 @@ my @Tests = (
         Name   => "Correct Service $Services[0]->{Name}",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 Service => $Services[0]->{Name},
             },
@@ -299,7 +299,7 @@ my @Tests = (
         Name   => "Correct Service $Services[1]->{Name}",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 Service => $Services[1]->{Name},
             },
@@ -310,7 +310,7 @@ my @Tests = (
         Name   => "Correct ServiceID $Services[0]->{Name}",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 ServiceID => $Services[0]->{ServiceID},
             },
@@ -321,7 +321,7 @@ my @Tests = (
         Name   => "Correct ServiceID $Services[1]->{Name}",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 ServiceID => $Services[1]->{ServiceID},
             },
@@ -332,7 +332,7 @@ my @Tests = (
         Name   => "Correct Ticket->Title",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 ServiceID => '<OTRS_TICKET_Title>',
             },
@@ -343,7 +343,7 @@ my @Tests = (
         Name   => "Wrong Ticket->NotExisting",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 ServiceID => '<OTRS_TICKET_NotExisting>',
             },
@@ -354,7 +354,7 @@ my @Tests = (
         Name   => "Correct Using Different UserID",
         Config => {
             UserID => $UserID,
-            Ticket =>  $TicketData[0],
+            Ticket => $TicketData[0],
             Config => {
                 Service => $Services[0]->{Name},
                 UserID  => $TestUserID,
@@ -368,7 +368,6 @@ for my $Test (@Tests) {
 
     # make a deep copy to avoid changing the definition
     my $OrigTest = Storable::dclone($Test);
-
 
     my $Success = $ModuleObject->Run(
         %{ $Test->{Config} },
@@ -395,7 +394,6 @@ for my $Test (@Tests) {
             TicketID => $TicketID,
             UserID   => 1,
         );
-
 
         ATTRIBUTE:
         for my $Attribute ( sort keys %{ $Test->{Config}->{Config} } ) {
