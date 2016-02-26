@@ -20,6 +20,14 @@ my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
 my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
 my $HTMLUtilsObject = $Kernel::OM->Get('Kernel::System::HTMLUtils');
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 my $HomeDir     = $ConfigObject->Get('Home');
 my $CertPath    = $ConfigObject->Get('SMIME::CertPath');
 my $PrivatePath = $ConfigObject->Get('SMIME::PrivatePath');
@@ -203,7 +211,7 @@ for my $Certificate (@Certificates) {
         "#$Certificate->{CertificateName} CertificateAdd() - $Result{Message}",
     );
 
-    # and private key
+    # add private key
     my $KeyString = $MainObject->FileRead(
         Directory => $ConfigObject->Get('Home') . "/scripts/test/sample/SMIME/",
         Filename  => $Certificate->{PrivateKeyFileName},
@@ -449,7 +457,7 @@ for my $Test (@Tests) {
 
 for my $Test (@TestVariations) {
 
-    # make a deep copy as the references gets mofified over the tests
+    # make a deep copy as the references gets modified over the tests
     $Test = Storable::dclone($Test);
 
     my $ArticleID = $TicketObject->ArticleSend(
@@ -572,43 +580,6 @@ for my $Test (@TestVariations) {
     }
 }
 
-#
-# cleanup
-#
-
-# the ticket is no longer needed
-$TicketObject->TicketDelete(
-    TicketID => $TicketID,
-    UserID   => 1,
-);
-
-for my $Certificate (@Certificates) {
-    my @Keys = $SMIMEObject->Search(
-        Search => $Certificate->{CertificateHash},
-    );
-    $Self->True(
-        $Keys[0] || '',
-        "$Certificate->{CertificateName} Search()",
-    );
-
-    my %Result = $SMIMEObject->PrivateRemove(
-        Hash    => $Keys[0]->{Hash},
-        Modulus => $Keys[0]->{Modulus},
-    );
-    $Self->True(
-        $Result{Successful} || '',
-        "$Certificate->{CertificateName} PrivateRemove() - $Result{Message}",
-    );
-
-    %Result = $SMIMEObject->CertificateRemove(
-        Hash        => $Keys[0]->{Hash},
-        Fingerprint => $Keys[0]->{Fingerprint},
-    );
-
-    $Self->True(
-        $Result{Successful} || '',
-        "$Certificate->{CertificateName} CertificateRemove()",
-    );
-}
+# cleanup is done by RestoreDatabase.
 
 1;
