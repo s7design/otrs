@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -53,21 +53,24 @@ $Selenium->RunTest(
         );
 
         # get create article data
+        my $Customer     = 'customer' . $Helper->GetRandomID();
+        my $ToCustomer   = "to$Customer\@example.com";
+        my $FromCustomer = "from$Customer\@example.com";
         my @TestArticles = (
             {
                 SenderType => 'customer',
-                From       => 'From Customer <fromcustomer@example.com>',
+                From       => "From Customer <$FromCustomer>",
                 To         => 'Raw',
             },
             {
                 SenderType => 'system',
                 From       => 'SeleniumSystemAddress <systemaddress@example.com>',
-                To         => 'To Customer <tocustomer@example.com>',
+                To         => "To Customer <$ToCustomer>",
             },
             {
                 SenderType => 'customer',
-                From       => 'From Customer <fromcustomer@example.com>',
-                To         => 'To Customer <tocustomer@example.com>',
+                From       => "From Customer <$FromCustomer>",
+                To         => "To Customer <$ToCustomer>",
             },
         );
 
@@ -113,17 +116,17 @@ $Selenium->RunTest(
         my @Tests = (
             {
                 ArticleID      => $ArticleIDs[0],
-                ToValueOnSplit => 'fromcustomer@example.com',
+                ToValueOnSplit => $FromCustomer,
                 ResultMessage  => 'From is Customer, To is Queue',
             },
             {
                 ArticleID      => $ArticleIDs[1],
-                ToValueOnSplit => 'tocustomer@example.com',
+                ToValueOnSplit => $ToCustomer,
                 ResultMessage  => 'From is SystemAddress, To is Customer'
             },
             {
                 ArticleID      => $ArticleIDs[2],
-                ToValueOnSplit => 'fromcustomer@example.com',
+                ToValueOnSplit => $FromCustomer,
                 ResultMessage  => 'From is Customer, To is Customer'
             },
         );
