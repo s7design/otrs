@@ -507,7 +507,7 @@ sub _Show {
                 Link        => $LayoutObject->{Baselink} . $Item->{Link},
                 Target      => $Item->{Target},
                 PopupType   => $Item->{PopupType},
-                Description => $Item->{Description},
+                Description => $LayoutObject->{LanguageObject}->Translate( $Item->{Description} ),
                 Block       => $Item->{Block},
 
             };
