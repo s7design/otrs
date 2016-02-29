@@ -12,8 +12,7 @@ use utf8;
 
 use vars (qw($Self));
 
-# get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+# get ticket object
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
 # get helper object

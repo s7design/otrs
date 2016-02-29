@@ -227,8 +227,6 @@ for my $Test (@Tests) {
         "$Test->{Name} - TicketWatchGet()",
     );
 
-=cut
-
     # article flag tests
     my @Tests = (
         {
@@ -381,13 +379,6 @@ for my $Test (@Tests) {
         );
     }
 
-=cut
-
-    # the ticket is no longer needed
-    $TicketObject->TicketDelete(
-        TicketID => $TicketID,
-        UserID   => 1,
-    );
 }
 
 # cleanup is done by RestoreDatabase.

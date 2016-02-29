@@ -26,15 +26,13 @@ $Kernel::OM->ObjectParamAdd(
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # create local objects
-my $RandomID = int rand 1_000_000_000;
+my $RandomID = $Helper->GetRandomID();
 
 $Self->Is(
     ref $BackendObject,
     'Kernel::System::DynamicField::Backend',
     'Backend object was created successfuly',
 );
-
-my @TestDynamicFields;
 
 # create a dynamic field
 my $FieldID1 = $DynamicFieldObject->DynamicFieldAdd(
@@ -51,22 +49,21 @@ my $FieldID1 = $DynamicFieldObject->DynamicFieldAdd(
     Reorder => 0,
 );
 
-my $Field1Config = $DynamicFieldObject->DynamicFieldGet(
+my @DFConfig;
+my $DFTicketConfig = $DynamicFieldObject->DynamicFieldGet(
     ID => $FieldID1,
 );
 
-push @TestDynamicFields, $FieldID1;
+push @DFConfig, $DFTicketConfig;
 
 # create a dynamic fields
-my @FieldIDArticle;
-my @FieldArticleConfig;
-for my $Item ( 0..1 ) {
-    my $TmpItem = $Item + 1;
-    $FieldIDArticle[$Item] = $DynamicFieldObject->DynamicFieldAdd(
-        Name       => "DFTArticle" . "$TmpItem" . "$RandomID",
+
+for my $Item ( 1 .. 2 ) {
+    my $DynamicFieldID = $DynamicFieldObject->DynamicFieldAdd(
+        Name       => "DFTArticle$Item$RandomID",
         Label      => 'Description',
         FieldOrder => 9991,
-        FieldType  => 'Text',                   # mandatory, selects the DF backend to use for this field
+        FieldType  => 'Text',                                  # mandatory, selects the DF backend to use for this field
         ObjectType => 'Article',
         Config     => {
             DefaultValue => 'Default',
@@ -76,11 +73,12 @@ for my $Item ( 0..1 ) {
         Reorder => 0,
     );
 
-    $FieldArticleConfig[$Item] = $DynamicFieldObject->DynamicFieldGet(
-        ID => $FieldIDArticle[$Item],
+    my $DFArticleConfig = $DynamicFieldObject->DynamicFieldGet(
+        ID => $DynamicFieldID,
     );
 
-    push @TestDynamicFields, $FieldIDArticle[$Item];
+    push @DFConfig, $DFArticleConfig;
+
 }
 
 # tests for article search index modules
@@ -105,7 +103,7 @@ for my $Module (qw(StaticDB RuntimeDB)) {
     my @TicketIDs;
     my @Tickets;
 
-    for my $Item (0..1) {
+    for my $Item ( 0 .. 1 ) {
         my $TicketID = $TicketObject->TicketCreate(
             Title        => "Ticket$RandomID",
             Queue        => 'Raw',
@@ -119,25 +117,24 @@ for my $Module (qw(StaticDB RuntimeDB)) {
         );
 
         push @TestTicketIDs, $TicketID;
+        push @TicketIDs,     $TicketID;
 
-        push @TicketIDs, $TicketID;
-
-        my %TmpTicket = $TicketObject->TicketGet(
+        my %TicketData = $TicketObject->TicketGet(
             TicketID => $TicketID,
         );
 
-        push @Tickets, \%TmpTicket;
+        push @Tickets, \%TicketData;
     }
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $Field1Config,
+        DynamicFieldConfig => $DFConfig[0],
         ObjectID           => $TicketIDs[0],
         Value              => 'ticket1_field1',
         UserID             => 1,
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $Field1Config,
+        DynamicFieldConfig => $DFConfig[0],
         ObjectID           => $TicketIDs[1],
         Value              => 'ticket2_field1',
         UserID             => 1,
@@ -159,14 +156,14 @@ for my $Module (qw(StaticDB RuntimeDB)) {
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[0],
+        DynamicFieldConfig => $DFConfig[1],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle1_ticket1_article1',
         UserID             => 1,
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[1],
+        DynamicFieldConfig => $DFConfig[2],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle2_ticket1_article1',
         UserID             => 1,
@@ -188,14 +185,14 @@ for my $Module (qw(StaticDB RuntimeDB)) {
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[0],
+        DynamicFieldConfig => $DFConfig[1],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle1_ticket1_article2',
         UserID             => 1,
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[1],
+        DynamicFieldConfig => $DFConfig[2],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle2_ticket1_article2',
         UserID             => 1,
@@ -217,14 +214,14 @@ for my $Module (qw(StaticDB RuntimeDB)) {
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[0],
+        DynamicFieldConfig => $DFConfig[1],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle1_ticket2_article1',
         UserID             => 1,
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[1],
+        DynamicFieldConfig => $DFConfig[2],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle2_ticket2_article1',
         UserID             => 1,
@@ -246,14 +243,14 @@ for my $Module (qw(StaticDB RuntimeDB)) {
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[0],
+        DynamicFieldConfig => $DFConfig[1],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle1_ticket2_article2',
         UserID             => 1,
     );
 
     $BackendObject->ValueSet(
-        DynamicFieldConfig => $FieldArticleConfig[1],
+        DynamicFieldConfig => $DFConfig[2],
         ObjectID           => $ArticleID,
         Value              => 'fieldarticle2_ticket2_article2',
         UserID             => 1,
@@ -452,16 +449,6 @@ for my $Module (qw(StaticDB RuntimeDB)) {
             UserID   => 1,
         );
     }
-}
-
-for my $FieldID (@TestDynamicFields) {
-
-    # delete the dynamic field
-    $DynamicFieldObject->DynamicFieldDelete(
-        ID      => $FieldID,
-        UserID  => 1,
-        Reorder => 0,
-    );
 }
 
 # cleanup is done by RestoreDatabase.

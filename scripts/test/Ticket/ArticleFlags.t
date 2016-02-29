@@ -12,8 +12,7 @@ use utf8;
 
 use vars (qw($Self));
 
-# get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+# get ticket object
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
 # get helper object
@@ -42,7 +41,7 @@ $Self->True(
 
 my @ArticleIDs;
 
-for my $Item (0..1) {
+for my $Item ( 0 .. 1 ) {
     my $ArticleID = $TicketObject->ArticleCreate(
         TicketID       => $TicketID,
         ArticleType    => 'note-internal',
@@ -259,7 +258,7 @@ for my $Test (@Tests) {
 
 # test searching for article flags
 
-my @SearchTestFlagsSet    = qw( f1 f2 f3 );
+my @SearchTestFlagsSet = qw( f1 f2 f3 );
 
 for my $Flag (@SearchTestFlagsSet) {
     my $Set = $TicketObject->ArticleFlagSet(

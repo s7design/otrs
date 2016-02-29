@@ -18,11 +18,6 @@ for my $Module ( 'RuntimeDB', 'StaticDB' ) {
     # make sure that the TicketObject gets recreated for each loop.
     $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Ticket'] );
 
-    # get needed objects
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
-    my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
-
     # get helper object
     $Kernel::OM->ObjectParamAdd(
         'Kernel::System::UnitTest::Helper' => {
@@ -31,9 +26,9 @@ for my $Module ( 'RuntimeDB', 'StaticDB' ) {
     );
     my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-    my $QueueID = $QueueObject->QueueLookup( Queue => 'Raw' );
+    my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueLookup( Queue => 'Raw' );
 
-    $ConfigObject->Set(
+    $Kernel::OM->Get('Kernel::Config')->Set(
         Key   => 'Ticket::IndexModule',
         Value => "Kernel::System::Ticket::IndexAccelerator::$Module",
     );
