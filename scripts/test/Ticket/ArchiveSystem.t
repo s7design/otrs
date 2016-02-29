@@ -15,6 +15,14 @@ use vars (qw($Self));
 # get config object
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 $ConfigObject->Set(
     Key   => 'Ticket::ArchiveSystem',
     Value => 1,
@@ -381,5 +389,7 @@ for my $Test (@Tests) {
         UserID   => 1,
     );
 }
+
+# cleanup is done by RestoreDatabase.
 
 1;
