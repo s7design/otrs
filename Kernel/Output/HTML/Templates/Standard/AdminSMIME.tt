@@ -10,7 +10,6 @@
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("S/MIME Management") | html %]: [% Translate(Data.Subtitle) | html %]</h1>
     <div class="SidebarColumn">
-[% RenderBlockStart("Disabled") %]
         <div class="WidgetSimple">
             <div class="Header">
                 <h2>[% Translate("Notice") | html %]</h2>
@@ -21,6 +20,7 @@
                     <input type="hidden" name="Subaction" value="Edit"/>
                     <input type="hidden" name="SysConfigGroup" value="Framework"/>
                     <input type="hidden" name="SysConfigSubGroup" value="Crypt::SMIME"/>
+[% RenderBlockStart("Disabled") %]
                     <h3><span class="Warning">[% Translate("This feature is disabled!") | html %]<span></h3>
                     <fieldset>
                         <p class="FieldExplanation">
@@ -31,24 +31,8 @@
                                 <span><i class="fa fa-unlock-alt"></i> [% Translate("Enable it here!") | html %]</span>
                             </button>
                         </div>
-                        <div class="Clear"></div>
-                    </fieldset>
-                </form>
-            </div>
-        </div>
 [% RenderBlockEnd("Disabled") %]
-
 [% RenderBlockStart("NotWorking") %]
-        <div class="WidgetSimple">
-            <div class="Header">
-                <h2>[% Translate("Notice") | html %]</h2>
-            </div>
-            <div class="Content ActionList">
-                <form action="[% Env("CGIHandle") %]" method="post">
-                    <input type="hidden" name="Action" value="AdminSysConfig"/>
-                    <input type="hidden" name="Subaction" value="Edit"/>
-                    <input type="hidden" name="SysConfigGroup" value="Framework"/>
-                    <input type="hidden" name="SysConfigSubGroup" value="Crypt::SMIME"/>
                     <h3><span class="Error">[% Translate("This feature is not working!") | html %]<span></h3>
                     <fieldset>
                         <p class="FieldExplanation">
@@ -59,12 +43,12 @@
                                 <span><i class="fa fa-unlock-alt"></i> [% Translate("Configure it here!") | html %]</span>
                             </button>
                         </div>
+[% RenderBlockEnd("NotWorking") %]
                         <div class="Clear"></div>
                     </fieldset>
                 </form>
             </div>
         </div>
-[% RenderBlockEnd("NotWorking") %]
 
 [% RenderBlockStart("ActionList") %]
         <div class="WidgetSimple">
