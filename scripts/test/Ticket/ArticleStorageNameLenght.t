@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -47,7 +47,7 @@ my $ArticleID = $TicketObject->ArticleCreate(
     HistoryType    => 'OwnerUpdate',
     HistoryComment => 'Some free text!',
     UserID         => 1,
-    NoAgentNotify  => 1,                                          # if you don't want to send agent notifications
+    NoAgentNotify  => 1,
 );
 
 $Self->True(
@@ -98,7 +98,7 @@ my @Tests = (
             'шђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћ',
     },
 
-    # attachment with 120 character long Cyrillic FileName, approximately limit for Linux file name reaching 255 bytes after encoding Cyrillic letters
+# attachment with 120 character long Cyrillic FileName, approximately limit for Linux file name reaching 255 bytes after encoding Cyrillic letters
     {
         Description => 'Cyrillic 120 characters',
         FileName =>
@@ -113,17 +113,20 @@ my @Tests = (
     },
 
     # Japanese charcters, 3 byte per character when encoding
+    # there are issues with some distributions when encoding 3 byte characters, conduct OS check for these tests
     # attachment with 20 character long Japanese name,
     {
         Description => 'Japanese 20 characters',
         FileName    => '人だけの会員制転職サ人だけの会員制転職サ',
+        OSCheck     => 1,
     },
 
-    # attachment with 75 character long Japanese FileName, approximately limit for Linux file name reaching 255 bytes after encoding Japanese letters
+# attachment with 75 character long Japanese FileName, approximately limit for Linux file name reaching 255 bytes after encoding Japanese letters
     {
         Description => 'Japanese 75 characters',
         FileName =>
             '人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会',
+        OSCheck => 1,
     },
 
     # attachment with 120 character long Japanese FileName, have to cut name to create attachment file in FS backend
@@ -131,20 +134,29 @@ my @Tests = (
         Description => 'Japanese 120 characters',
         FileName =>
             '人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ',
+        OSCheck => 1,
     },
 
     # attachment with 140 character long Japanese FileName, have to cut name to create attachment file in FS backend
     {
         Description => 'Japanese 140 characters',
         FileName =>
-            '人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ',
+            '人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ',
+        OSCheck => 1,
     },
 );
 
+TEST:
 for my $Test (@Tests) {
 
     # article attachment checks
     for my $Backend (qw(DB FS)) {
+
+        # check if distribution is Fedora and skip tests cases for 3 byte characters
+        if ( $Test->{OSCheck} ) {
+            my %OSInfo = $Kernel::OM->Get('Kernel::System::Environment')->OSInfoGet();
+            next TEST if $OSInfo{Distribution} eq 'fedora';
+        }
 
         # make sure that the TicketObject gets recreated for each loop.
         $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Ticket'] );
