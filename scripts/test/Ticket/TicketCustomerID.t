@@ -24,14 +24,13 @@ $Kernel::OM->ObjectParamAdd(
 );
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-my $RandomID = $Helper->GetRandomID();
 my @CustomerCompanyIDs;
 for my $Item ( 1 .. 3 ) {
-    my $RandomString = "$Item$RandomID";
-    push @CustomerCompanyIDs, $RandomString;
-    my $ID = $CustomerCompanyObject->CustomerCompanyAdd(
-        CustomerID             => $RandomString,
-        CustomerCompanyName    => "$RandomString-Name",
+    my $CustomerCompany = 'CustomerCompany' . $Helper->GetRandomID();
+    push @CustomerCompanyIDs, $CustomerCompany;
+    my $CustomerCompanyID = $CustomerCompanyObject->CustomerCompanyAdd(
+        CustomerID             => $CustomerCompany,
+        CustomerCompanyName    => "$CustomerCompany-Name",
         CustomerCompanyStreet  => '5201 Blue Lagoon Drive',
         CustomerCompanyZIP     => '33126',
         CustomerCompanyCity    => 'Miami',
@@ -42,12 +41,11 @@ for my $Item ( 1 .. 3 ) {
         UserID                 => 1,
     );
     $Self->True(
-        $ID,
-        "Created company $RandomString with id $ID",
+        $CustomerCompanyID,
+        "Created company $CustomerCompany with id $CustomerCompanyID",
     );
 }
 
-my @TicketIDs;
 my %CustomerIDTickets;
 for my $CustomerID (@CustomerCompanyIDs) {
     for ( 1 .. 3 ) {
@@ -69,7 +67,7 @@ for my $CustomerID (@CustomerCompanyIDs) {
             $TicketID,
             "Ticket created for test - $CustomerID - $TicketID",
         );
-        push @TicketIDs, $TicketID;
+
         push @{ $CustomerIDTickets{$CustomerID} }, $TicketID;
 
     }
