@@ -13,15 +13,21 @@ use utf8;
 use vars (qw($Self));
 
 # get needed objects
-my $ConfigObject          = $Kernel::OM->Get('Kernel::Config');
-my $HelperObject          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 my $TicketObject          = $Kernel::OM->Get('Kernel::System::Ticket');
 
-my @CustomerCompanyIDs;
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-for ( 1 .. 3 ) {
-    my $RandomString = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
+my @CustomerCompanyIDs;
+for my $Item ( 1 .. 3 ) {
+    my $RandomString = "$Item$RandomID";
     push @CustomerCompanyIDs, $RandomString;
     my $ID = $CustomerCompanyObject->CustomerCompanyAdd(
         CustomerID             => $RandomString,
@@ -39,7 +45,6 @@ for ( 1 .. 3 ) {
         $ID,
         "Created company $RandomString with id $ID",
     );
-
 }
 
 my @TicketIDs;
@@ -118,15 +123,6 @@ for my $CustomerID (@CustomerCompanyIDs) {
 
 }
 
-for my $TicketID (@TicketIDs) {
-    my $Success = $TicketObject->TicketDelete(
-        TicketID => $TicketID,
-        UserID   => 1,
-    );
-    $Self->True(
-        $Success,
-        "Removed ticket $TicketID",
-    );
-}
+# cleanup is done by RestoreDatabase.
 
 1;

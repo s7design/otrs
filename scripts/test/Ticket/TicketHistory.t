@@ -18,6 +18,14 @@ my $QueueObject  = $Kernel::OM->Get('Kernel::System::Queue');
 my $TypeObject   = $Kernel::OM->Get('Kernel::System::Type');
 my $StateObject  = $Kernel::OM->Get('Kernel::System::State');
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
 my @Tests = (
@@ -367,16 +375,6 @@ for my $Test (@Tests) {
     }
 }
 
-# clean up created tickets
-for my $HistoryTicketID (@HistoryCreateTicketIDs) {
-    my $Delete = $TicketObject->TicketDelete(
-        UserID   => 1,
-        TicketID => $HistoryTicketID,
-    );
-    $Self->True(
-        $Delete,
-        'HistoryGet - TicketDelete()',
-    );
-}
+# cleanup is done by RestoreDatabase.
 
 1;
