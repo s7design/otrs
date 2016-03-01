@@ -240,16 +240,6 @@ for my $Item ( sort keys %AddDynamicFields ) {
     );
 }
 
-# delete job
-my $JobDelete = $GenericAgentObject->JobDelete(
-    Name   => $JobName,
-    UserID => 1,
-);
-$Self->True(
-    $JobDelete || '',
-    'JobDelete()',
-);
-
 # cleanup is done by RestoreDatabase.
 
 1;

@@ -20,8 +20,7 @@ my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 # get helper object
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
-        RestoreDatabase            => 1,
-        RestoreSystemConfiguration => 1,
+        RestoreDatabase => 1,
     },
 );
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
@@ -337,6 +336,7 @@ for my $Test (@Tests) {
 
 }
 continue {
+
     # delete notification event
     my $NotificationDelete = $NotificationEventObject->NotificationDelete(
         ID     => $NotificationID,
