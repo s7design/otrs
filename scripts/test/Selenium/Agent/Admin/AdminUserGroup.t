@@ -45,7 +45,7 @@ $Selenium->RunTest(
 
         # create test group
         my $GroupName = 'group' . $Helper->GetRandomID();
-        my $GroupID       = $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
+        my $GroupID   = $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
             Name    => $GroupName,
             Comment => 'Selenium test group',
             ValidID => 1,
@@ -134,7 +134,7 @@ $Selenium->RunTest(
         }
 
         # set permissions
-        for my $Permission ( qw(rw ro note owner) ) {
+        for my $Permission (qw(rw ro note owner)) {
             $Selenium->find_element("//input[\@value='$UserID'][\@name='$Permission']")->click();
         }
 
@@ -144,8 +144,8 @@ $Selenium->RunTest(
         $Selenium->find_element( $GroupName, 'link_text' )->VerifiedClick();
 
         # check permissions
-        for my $Permission ( keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled':'disabled';
+        for my $Permission ( sort keys $Test[1] ) {
+            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$UserID'][\@name='$Permission']")->is_selected(),
                 $Test[1]{$Permission},
@@ -168,8 +168,8 @@ $Selenium->RunTest(
 
         # check group relations for user after using filter by group
         # check permissions
-        for my $Permission ( keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled':'disabled';
+        for my $Permission ( sort keys $Test[1] ) {
+            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$UserID'][\@name='$Permission']")->is_selected(),
                 $Test[1]{$Permission},
@@ -184,7 +184,7 @@ $Selenium->RunTest(
         $Selenium->find_element( $FullTestUserLogin, 'link_text' )->VerifiedClick();
 
         # set permissions
-        for my $Permission ( qw(ro note priority) ) {
+        for my $Permission (qw(ro note priority)) {
             $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->click();
         }
 
@@ -193,8 +193,8 @@ $Selenium->RunTest(
         # check edited test agent permissions
         $Selenium->find_element( $FullTestUserLogin, 'link_text' )->VerifiedClick();
 
-        for my $Permission ( keys $Test[2] ) {
-            my $Enabled = $Test[2]{$Permission} ? 'enabled':'disabled';
+        for my $Permission ( sort keys $Test[2] ) {
+            my $Enabled = $Test[2]{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->is_selected(),
                 $Test[2]{$Permission},
@@ -217,7 +217,7 @@ $Selenium->RunTest(
             }
 
             $GroupName = $DBObject->Quote($GroupName);
-            $Success       = $DBObject->Do(
+            $Success   = $DBObject->Do(
                 SQL  => "DELETE FROM groups WHERE name = ?",
                 Bind => [ \$GroupName ],
             );

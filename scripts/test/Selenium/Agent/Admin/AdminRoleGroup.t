@@ -34,7 +34,7 @@ $Selenium->RunTest(
 
         #add test role
         my $RoleName = $Helper->GetRandomID();
-        my $RoleID       = $Kernel::OM->Get('Kernel::System::Group')->RoleAdd(
+        my $RoleID   = $Kernel::OM->Get('Kernel::System::Group')->RoleAdd(
             Name    => $RoleName,
             ValidID => 1,
             UserID  => 1,
@@ -46,7 +46,7 @@ $Selenium->RunTest(
 
         # add test group
         my $GroupName = $Helper->GetRandomID();
-        my $GroupID       = $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
+        my $GroupID   = $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
             Name    => $GroupName,
             ValidID => 1,
             UserID  => 1,
@@ -101,7 +101,7 @@ $Selenium->RunTest(
         $Selenium->find_element( $RoleName, 'link_text' )->VerifiedClick();
 
         # set permissions
-        for my $Permission ( qw(ro note owner) ) {
+        for my $Permission (qw(ro note owner)) {
             $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->click();
         }
 
@@ -132,8 +132,8 @@ $Selenium->RunTest(
         $Selenium->find_element( $RoleName, 'link_text' )->VerifiedClick();
 
         # check permissions
-        for my $Permission ( keys $Test[0] ) {
-            my $Enabled = $Test[0]{$Permission} ? 'enabled':'disabled';
+        for my $Permission ( sort keys $Test[0] ) {
+            my $Enabled = $Test[0]{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->is_selected(),
                 $Test[0]{$Permission},
@@ -155,8 +155,8 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Filter", 'css' )->clear();
 
         # check permissions
-        for my $Permission ( keys $Test[0] ) {
-            my $Enabled = $Test[0]{$Permission} ? 'enabled':'disabled';
+        for my $Permission ( sort keys $Test[0] ) {
+            my $Enabled = $Test[0]{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->is_selected(),
                 $Test[0]{$Permission},
@@ -171,7 +171,7 @@ $Selenium->RunTest(
         $Selenium->find_element( $GroupName, 'link_text' )->VerifiedClick();
 
         # set permissions
-        for my $Permission ( qw(note move_into priority create) ) {
+        for my $Permission (qw(note move_into priority create)) {
             $Selenium->find_element("//input[\@value='$RoleID'][\@name='$Permission']")->click();
         }
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
@@ -180,8 +180,8 @@ $Selenium->RunTest(
         $Selenium->find_element( $GroupName, 'link_text' )->VerifiedClick();
 
         # check permissions
-        for my $Permission ( keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled':'disabled';
+        for my $Permission ( sort keys $Test[1] ) {
+            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$RoleID'][\@name='$Permission']")->is_selected(),
                 $Test[1]{$Permission},
@@ -203,9 +203,9 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Filter", 'css' )->clear();
 
         # check role relations for group after using filter by role
-                # check permissions
-        for my $Permission ( keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled':'disabled';
+        # check permissions
+        for my $Permission ( sort keys $Test[1] ) {
+            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$RoleID'][\@name='$Permission']")->is_selected(),
                 $Test[1]{$Permission},

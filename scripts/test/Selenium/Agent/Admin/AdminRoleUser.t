@@ -134,7 +134,6 @@ $Selenium->RunTest(
         # check if relation is clear
         $Selenium->find_element( $RoleName, 'link_text' )->VerifiedClick();
 
-
         $Self->Is(
             $Selenium->find_element("//input[\@value='$RoleID']")->is_selected(),
             0,

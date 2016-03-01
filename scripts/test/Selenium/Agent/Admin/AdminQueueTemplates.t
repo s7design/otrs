@@ -41,7 +41,7 @@ $Selenium->RunTest(
 
         # add test queue
         my $QueueName = "queue" . $Helper->GetRandomID();
-        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
+        my $QueueID   = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
             Name            => $QueueName,
             ValidID         => 1,
             GroupID         => 1,
@@ -63,7 +63,7 @@ $Selenium->RunTest(
         # create test template
         for ( 1 .. 2 ) {
             my $StandardTemplateName = "standard template" . $Helper->GetRandomID();
-            my $TemplateID       = $StandardTemplateObject->StandardTemplateAdd(
+            my $TemplateID           = $StandardTemplateObject->StandardTemplateAdd(
                 Name         => $StandardTemplateName,
                 Template     => 'Thank you for your email.',
                 ContentType  => 'text/plain; charset=utf-8',
@@ -128,7 +128,6 @@ $Selenium->RunTest(
             ->click();
         $Selenium->find_element("//input[\@value='$QueueID'][\@type='checkbox']")->click();
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
-
 
         # change test Template relation for test Queue
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Queue;ID=$QueueID' )]")->VerifiedClick();
