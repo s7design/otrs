@@ -32,6 +32,14 @@ if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     sleep $SleepTime;
 }
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 # get scheduler database object
 my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
 
@@ -65,11 +73,8 @@ $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
     Type => 'SchedulerDBRecurrentTaskExecute'
 );
 
-# get HelperObject;
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
 # freeze time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 # get time object
 my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
@@ -83,7 +88,7 @@ my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $TimeObject->SystemTim
 my $SecsDiff = 60 - $Sec;
 
 # fix time to have 0 seconds in the current minute
-$HelperObject->FixedTimeAddSeconds($SecsDiff);
+$Helper->FixedTimeAddSeconds($SecsDiff);
 
 $SystemTime = $TimeObject->SystemTime();
 
@@ -290,9 +295,9 @@ for my $Test (@Tests) {
 
     if ( $Test->{AddSecondsBefore} ) {
         my $StartSystemTime = $TimeObject->SystemTime();
-        $HelperObject->FixedTimeAddSeconds( $Test->{AddSecondsBefore} );
+        $Helper->FixedTimeAddSeconds( $Test->{AddSecondsBefore} );
         my $EndSystemTime = $TimeObject->SystemTime();
-        print("  Added $Test->{AddSecondsBefore} seconds to time form $StartSystemTime to $EndSystemTime\n");
+        print("  Added $Test->{AddSecondsBefore} seconds to time from $StartSystemTime to $EndSystemTime\n");
     }
 
     # cleanup Task Manager Cache
@@ -523,7 +528,7 @@ for my $Test (@Tests) {
             "$Test->{Name} RecurrentTaskExecute() - result with true",
         );
 
-        $HelperObject->FixedTimeAddSeconds(60);
+        $Helper->FixedTimeAddSeconds(60);
     }
 
     my @List = $SchedulerDBObject->TaskList(
@@ -612,7 +617,7 @@ $Self->Is(
 for my $Test (@Tests) {
 
     if ( $Test->{AddSeconds} ) {
-        $HelperObject->FixedTimeAddSeconds( $Test->{AddSeconds} );
+        $Helper->FixedTimeAddSeconds( $Test->{AddSeconds} );
     }
 
     $SchedulerDBObject->RecurrentTaskUnlockExpired(
@@ -635,18 +640,11 @@ for my $Test (@Tests) {
 
 }
 
-my $Success = $SchedulerDBObject->RecurrentTaskDelete(
-    TaskID => $List[0]->{TaskID},
-);
-
-$Self->True(
-    $Success,
-    "Deleted Task $List[0]->{TaskID}",
-);
-
 # start daemon if it was already running before this test
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     system("$Daemon start");
 }
+
+# cleanup is done by RestoreDatabase.
 
 1;

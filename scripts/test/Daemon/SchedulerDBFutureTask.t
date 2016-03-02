@@ -41,11 +41,11 @@ $Self->Is(
     "Kernel::System::Daemon::SchedulerDB->new()",
 );
 
-# get HelperObject;
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+# get helper object
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # freeze time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 # get current time stamp
 my $TimeStamp = $Kernel::OM->Get('Kernel::System::Time')->CurrentTimestamp();
@@ -302,6 +302,7 @@ for my $Test (@Tests) {
 #FutureTaskList() tests
 my @List = $SchedulerDBObject->FutureTaskList();
 my %ListLookup = map { $_->{TaskID} => $_ } @List;
+
 for my $TaskID (@AddedTasksIDs) {
     $Self->True(
         $ListLookup{$TaskID},
@@ -347,7 +348,7 @@ for my $TaskID (@AddedTasksIDs) {
     );
 }
 
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 
 # FutureTaskToExecute() tests
 my $TaskID = $SchedulerDBObject->FutureTaskAdd(
@@ -530,7 +531,7 @@ for my $Test (@Tests) {
             "$Test->{Name} FutureTaskAdd() - result with true",
         );
 
-        $HelperObject->FixedTimeAddSeconds(60);
+        $Helper->FixedTimeAddSeconds(60);
     }
 
     my @List = $SchedulerDBObject->FutureTaskList(

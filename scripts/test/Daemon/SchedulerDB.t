@@ -32,6 +32,14 @@ if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     sleep $SleepTime;
 }
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 # get scheduler database object
 my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
 
@@ -506,11 +514,9 @@ for my $Task (@List) {
 }
 
 # TaskCleanup() tests
-# get helper object
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # freeze the current time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 my %TaskTemplate = (
     Type     => 'UnitTest',
@@ -567,7 +573,7 @@ my @Tests = (
 for my $Test (@Tests) {
 
     if ( $Test->{PastSecondsAdd} ) {
-        $HelperObject->FixedTimeAddSeconds( -$Test->{PastSecondsAdd} );
+        $Helper->FixedTimeAddSeconds( -$Test->{PastSecondsAdd} );
         print "  Set $Test->{PastSecondsAdd} seconds into the past.\n";
     }
 
@@ -595,7 +601,7 @@ for my $Test (@Tests) {
     }
 
     if ( $Test->{PastSecondsAdd} ) {
-        $HelperObject->FixedTimeAddSeconds( $Test->{PastSecondsAdd} );
+        $Helper->FixedTimeAddSeconds( $Test->{PastSecondsAdd} );
         print "  Restored time.\n";
     }
 
@@ -664,7 +670,7 @@ my $OriginalTimeStamp = $TimeObject->CurrentTimestamp();
 
 for my $Test (@Tests) {
     if ( $Test->{AddSeconds} ) {
-        $HelperObject->FixedTimeAddSeconds( $Test->{AddSeconds} );
+        $Helper->FixedTimeAddSeconds( $Test->{AddSeconds} );
     }
 
     my $CurrentTimeStamp = $TimeObject->CurrentTimestamp();
@@ -820,7 +826,7 @@ for my $Test (@Tests) {
             "$Test->{Name} TaskAdd() - result should not be undef",
         );
 
-        $HelperObject->FixedTimeAddSeconds(60);
+        $Helper->FixedTimeAddSeconds(60);
     }
 
     my @List = $SchedulerDBObject->TaskList(
@@ -888,5 +894,7 @@ for my $Task (@List) {
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     system("$Daemon start");
 }
+
+# cleanup is done by RestoreDatabase.
 
 1;

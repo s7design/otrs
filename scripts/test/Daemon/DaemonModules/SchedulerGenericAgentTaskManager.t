@@ -53,10 +53,15 @@ for my $Sec ( 1 .. 120 ) {
 }
 
 # get helper object
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # freeze time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
 my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $TimeObject->SystemTime2Date(
@@ -66,10 +71,10 @@ my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $TimeObject->SystemTim
 my $SecsDiff = $Sec - 60;
 
 # go back in time to have 0 seconds in the current minute
-$HelperObject->FixedTimeAddSeconds($SecsDiff);
+$Helper->FixedTimeAddSeconds($SecsDiff);
 
 # get random ID
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 
 my @Tests = (
     {
@@ -234,7 +239,7 @@ for my $Test (@Tests) {
             SystemTime => $StartSystemTime,
         );
         my $SecondsAdd = ( 60 - $Sec );
-        $HelperObject->FixedTimeAddSeconds($SecondsAdd);
+        $Helper->FixedTimeAddSeconds($SecondsAdd);
         my $EndSystemTime = $TimeObject->SystemTime();
         print("  Added $SecondsAdd seconds to time (initial adjustment) form $StartSystemTime to $EndSystemTime\n");
 
@@ -245,7 +250,7 @@ for my $Test (@Tests) {
     # add seconds if needed
     if ( $Test->{SecondsAdd} ) {
         my $StartSystemTime = $TimeObject->SystemTime();
-        $HelperObject->FixedTimeAddSeconds( $Test->{SecondsAdd} );
+        $Helper->FixedTimeAddSeconds( $Test->{SecondsAdd} );
         my $EndSystemTime = $TimeObject->SystemTime();
         print("  Added $Test->{SecondsAdd} seconds to time form $StartSystemTime to $EndSystemTime\n");
     }
@@ -495,5 +500,7 @@ $Self->True(
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     system("$Daemon start");
 }
+
+# cleanup is done by RestoreDatabase.
 
 1;

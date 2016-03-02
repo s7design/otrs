@@ -13,10 +13,7 @@ use utf8;
 
 use vars (qw($Self));
 
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-my $Home = $Kernel::OM->Get('Kernel::Config')->Get('Home');
-
+my $Home   = $Kernel::OM->Get('Kernel::Config')->Get('Home');
 my $Daemon = $Home . '/bin/otrs.Daemon.pl';
 
 # get current daemon status
@@ -35,8 +32,17 @@ if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
 }
 
 # get needed objects
+my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
 my $TaskWorkerObject  = $Kernel::OM->Get('Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker');
 my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
+
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # wait until task is executed
 ACTIVESLEEP:
@@ -63,11 +69,8 @@ $ConfigObject->Set(
     Value => {},
 );
 
-# get helper object
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
 # freeze time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
 my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $TimeObject->SystemTime2Date(
@@ -77,18 +80,18 @@ my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $TimeObject->SystemTim
 my $SecsDiff = $Sec - 60;
 
 # go back in time to have 0 seconds in the current minute
-$HelperObject->FixedTimeAddSeconds($SecsDiff);
+$Helper->FixedTimeAddSeconds($SecsDiff);
 
 # get random ID
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 
 my @Tests = (
     {
         Name    => 'No Schedule',
         CronJob => {
-            Name => 'NoSchedue' . $RandomID,
+            Name => 'NoSchedule' . $RandomID,
             Data => {
-                TaskName => 'NoSchedue' . $RandomID,
+                TaskName => 'NoSchedule' . $RandomID,
                 Command  => 'df',
             },
         },
@@ -99,7 +102,7 @@ my @Tests = (
         CronJob => {
             Name => 'WrongSchedue' . $RandomID,
             Data => {
-                TaskName => 'NoSchedue' . $RandomID,
+                TaskName => 'NoSchedule' . $RandomID,
                 Command  => 'df',
                 Schedule => '\1 * * * *',
             },
@@ -180,9 +183,9 @@ for my $Test (@Tests) {
             SystemTime => $StartSystemTime,
         );
         my $SecondsAdd = ( 60 - $Sec );
-        $HelperObject->FixedTimeAddSeconds($SecondsAdd);
+        $Helper->FixedTimeAddSeconds($SecondsAdd);
         my $EndSystemTime = $TimeObject->SystemTime();
-        print("  Added $SecondsAdd seconds to time (initial adjustment) form $StartSystemTime to $EndSystemTime\n");
+        print("  Added $SecondsAdd seconds to time (initial adjustment) from $StartSystemTime to $EndSystemTime\n");
 
     }
 
@@ -191,9 +194,9 @@ for my $Test (@Tests) {
     # add seconds if needed
     if ( $Test->{SecondsAdd} ) {
         my $StartSystemTime = $TimeObject->SystemTime();
-        $HelperObject->FixedTimeAddSeconds( $Test->{SecondsAdd} );
+        $Helper->FixedTimeAddSeconds( $Test->{SecondsAdd} );
         my $EndSystemTime = $TimeObject->SystemTime();
-        print("  Added $Test->{SecondsAdd} seconds to time form $StartSystemTime to $EndSystemTime\n");
+        print("  Added $Test->{SecondsAdd} seconds to time from $StartSystemTime to $EndSystemTime\n");
     }
 
     # cleanup Task Manager Cache
@@ -418,39 +421,11 @@ for my $Name ( sort keys %TestJobNames ) {
     }
 }
 
-# remove all Cron jobs from config
-my $JobDelete = $ConfigObject->Set(
-    Key   => 'Daemon::SchedulerCronTaskManager::Task',
-    Value => {},
-);
-$Self->True(
-    $JobDelete,
-    "Removed all cron task settings - executed with true",
-);
-
-# remove all cron jobs from config
-$ConfigObject->Set(
-    Key   => 'Daemon::SchedulerCronTaskManager::Task',
-    Value => $OriginalSettings,
-);
-
-# re-create original tasks
-my $RunSuccess = $TaskManagerObject->Run();
-$Self->True(
-    $RunSuccess,
-    "Task manager Run() - with true",
-);
-
-# also remove the task form the just removed Cron job
-$CleanupSuccess = $SchedulerDBObject->CronTaskCleanup();
-$Self->True(
-    $CleanupSuccess,
-    "CronTaskCleanup() - executed with true",
-);
-
 # start daemon if it was already running before this test
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     system("$Daemon start");
 }
+
+# cleanup is done by RestoreDatabase.
 
 1;
