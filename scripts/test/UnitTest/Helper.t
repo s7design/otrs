@@ -12,8 +12,6 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::System::UnitTest::Helper;
-
 my $HelperObject = Kernel::System::UnitTest::Helper->new();
 
 $Self->True(
