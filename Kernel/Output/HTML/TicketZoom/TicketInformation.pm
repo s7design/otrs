@@ -184,12 +184,14 @@ sub Run {
 
     # check if ticket is normal or process ticket
     my $IsProcessTicket = $Kernel::OM->Get('Kernel::System::Ticket')->TicketCheckForProcessType(
-        'TicketID' => $Self->{TicketID}
+        'TicketID' => $Ticket{TicketID},
     );
+
+    my $DisplaySettings = $ConfigObject->Get("Ticket::Frontend::AgentTicketZoom");
 
     # overwrite display options for process ticket
     if ($IsProcessTicket) {
-        $Param{WidgetTitle} = $Self->{DisplaySettings}->{ProcessDisplay}->{WidgetTitle};
+        $Param{WidgetTite} = $DisplaySettings->{ProcessDisplay}->{WidgetTitle};
 
         # get the DF where the ProcessEntityID is stored
         my $ProcessEntityIDField = 'DynamicField_'
@@ -198,7 +200,6 @@ sub Run {
         # get the DF where the AtivityEntityID is stored
         my $ActivityEntityIDField = 'DynamicField_'
             . $ConfigObject->Get("Process::DynamicFieldProcessManagementActivityID");
-
 
         my $ProcessData = $Kernel::OM->Get('Kernel::System::ProcessManagement::Process')->ProcessGet(
             ProcessEntityID => $Ticket{$ProcessEntityIDField},
@@ -237,7 +238,7 @@ sub Run {
     my $DynamicFieldBeckendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
     # to store dynamic fields to be displayed in the process widget and in the sidebar
-    my ( @FieldsSidebar );
+    my (@FieldsSidebar);
 
     # cycle trough the activated Dynamic Fields for ticket object
     DYNAMICFIELD:
@@ -245,9 +246,6 @@ sub Run {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
         next DYNAMICFIELD if !defined $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} };
         next DYNAMICFIELD if $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} } eq '';
-
-        # use translation here to be able to reduce the character length in the template
-        my $Label = $LayoutObject->{LanguageObject}->Translate( $DynamicFieldConfig->{Label} );
 
         my $ValueStrg = $DynamicFieldBeckendObject->DisplayValueRender(
             DynamicFieldConfig => $DynamicFieldConfig,
@@ -258,12 +256,12 @@ sub Run {
                 || 18,    # limit for sidebar display
         );
 
-        if ( $Self->{DisplaySettings}->{DynamicField}->{ $DynamicFieldConfig->{Name} } ) {
+        if ( $DisplaySettings->{DynamicField}->{ $DynamicFieldConfig->{Name} } ) {
             push @FieldsSidebar, {
                 Name                        => $DynamicFieldConfig->{Name},
                 Title                       => $ValueStrg->{Title},
                 Value                       => $ValueStrg->{Value},
-                Label                       => $Label,
+                Label                       => $DynamicFieldConfig->{Label},
                 Link                        => $ValueStrg->{Link},
                 $DynamicFieldConfig->{Name} => $ValueStrg->{Title},
             };
@@ -273,7 +271,7 @@ sub Run {
         $LayoutObject->Block(
             Name => 'TicketDynamicField_' . $DynamicFieldConfig->{Name},
             Data => {
-                Label => $Label,
+                Label => $DynamicFieldConfig->{Label},
             },
         );
 

@@ -22,7 +22,7 @@ sub Run {
     my $LinkListWithData =
         $Kernel::OM->Get('Kernel::System::LinkObject')->LinkListWithData(
         Object           => 'Ticket',
-        Key              => $Self->{TicketID},
+        Key              => $Param{Ticket}{TicketID},
         State            => 'Valid',
         UserID           => $Self->{UserID},
         ObjectParameters => {
