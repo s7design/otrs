@@ -32,16 +32,15 @@ $Kernel::OM->Get('Kernel::Config')->Set(
 );
 
 my @CustomerLogins;
-my $Rand = $Helper->GetRandomID();
 
 # add two customer users
-for my $Key ( 1 .. 2 ) {
-    my $UserRand = 'TestCustomerUserLogin + ' . $Key . $Rand;
+for ( 1 .. 2 ) {
+    my $UserRand = "CustomerUserLogin + " . $Helper->GetRandomID();
 
     my $CustomerUserID = $CustomerUserObject->CustomerUserAdd(
         Source         => 'CustomerUser',
-        UserFirstname  => 'Firstname Test' . $Key,
-        UserLastname   => 'Lastname Test' . $Key,
+        UserFirstname  => 'Firstname Test',
+        UserLastname   => 'Lastname Test',
         UserCustomerID => "CustomerID-$UserRand",
         UserLogin      => $UserRand,
         UserEmail      => $UserRand . '-Email@example.com',

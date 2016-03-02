@@ -54,7 +54,6 @@ for my $Item ( 1 .. 2 ) {
         State        => 'new',
         CustomerID   => '123465' . $RandomID,
         CustomerUser => 'customerOne@example.com',
-        Service      => ( $Item == 1 ) ? ( 'TestService' . $RandomID ) : undef,
         OwnerID      => 1,
         UserID       => 1,
     );

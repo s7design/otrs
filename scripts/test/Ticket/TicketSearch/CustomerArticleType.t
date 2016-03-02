@@ -25,6 +25,16 @@ $Kernel::OM->ObjectParamAdd(
 );
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+$ConfigObject->Set(
+    Key   => 'CheckEmailAddresses',
+    Value => 0,
+);
+
+$ConfigObject->Set(
+    Key   => 'Ticket::StorageModule',
+    Value => 'Kernel::System::Ticket::ArticleStorageDB',
+);
+
 my $UserID = 1;
 
 # ticket index accelerator tests
@@ -36,21 +46,9 @@ for my $Module ( 'RuntimeDB', 'StaticDB' ) {
     # Make sure that the TicketObject gets recreated for each loop.
     $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Ticket'] );
 
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
     $ConfigObject->Set(
         Key   => 'Ticket::IndexModule',
         Value => "Kernel::System::Ticket::IndexAccelerator::$Module",
-    );
-
-    $ConfigObject->Set(
-        Key   => 'CheckEmailAddresses',
-        Value => 0,
-    );
-
-    $ConfigObject->Set(
-        Key   => 'Ticket::StorageModule',
-        Value => 'Kernel::System::Ticket::ArticleStorageDB',
     );
 
     # create test ticket object
@@ -62,15 +60,11 @@ for my $Module ( 'RuntimeDB', 'StaticDB' ) {
     );
 
     my @TicketIDs;
-    my @TitleData = (
-        'Ticket One Title' . $RandomID,
-        'Ticket Two Title' . $RandomID
-    );
 
     # create tickets
-    for my $TitleDataItem (@TitleData) {
+    for my $TitleDataItem ( 'Ticket One Title', 'Ticket Two Title' ) {
         my $TicketID = $TicketObject->TicketCreate(
-            Title        => $TitleDataItem,
+            Title        => "$TitleDataItem$RandomID",
             Queue        => 'Raw',
             Lock         => 'unlock',
             Priority     => '3 normal',
@@ -102,26 +96,18 @@ for my $Module ( 'RuntimeDB', 'StaticDB' ) {
         push @TicketIDs, $TicketID;
     }
 
-    my $TicketIDsLastIndex = @TicketIDs - 1;
-    my @SubjectData        = (
-        'Kumbala' . $RandomID,
-        'Acua' . $RandomID
-    );
-
     # create articles (ArticleType is 'note-internal' only for first article of first ticket)
-    for my $Item ( 0 .. $TicketIDsLastIndex ) {
-        for my $SubjectDataItem (@SubjectData) {
+    for my $Item ( 0 .. 1 ) {
+        for my $SubjectDataItem (qw( Kumbala Acua )) {
             my $ArticleID = $TicketObject->ArticleCreate(
-                TicketID    => $TicketIDs[$Item],
-                ArticleType => ( $Item == 0 && $SubjectDataItem eq $SubjectData[0] )
-                ? 'note-internal'
-                : 'note-external',
+                TicketID       => $TicketIDs[$Item],
+                ArticleType    => ( $Item == 0 && $SubjectDataItem eq 'Kumbala' ) ? 'note-internal' : 'note-external',
                 SenderType     => 'agent',
                 From           => 'Agent Some Agent Some Agent <email@example.com>',
                 To             => 'Customer A <customer-a@example.com>',
                 Cc             => 'Customer B <customer-b@example.com>',
                 ReplyTo        => 'Customer B <customer-b@example.com>',
-                Subject        => $SubjectDataItem,
+                Subject        => "$SubjectDataItem$RandomID",
                 Body           => 'A text for the body, Title äöüßÄÖÜ€ис',
                 ContentType    => 'text/plain; charset=ISO-8859-15',
                 HistoryType    => 'OwnerUpdate',
@@ -129,10 +115,9 @@ for my $Module ( 'RuntimeDB', 'StaticDB' ) {
                 UserID         => 1,
                 NoAgentNotify  => 1,
             );
-            $Self->IsNot(
+            $Self->True(
                 $ArticleID,
-                undef,
-                "$Module ArticleCreate() for $TicketIDs[$Item] | ArticleID is not undef"
+                "Article is created - $ArticleID "
             );
         }
     }

@@ -29,7 +29,7 @@ $ConfigObject->Set(
 );
 
 # add user
-my $UserRandom = 'example-user' . $Helper->GetRandomID();
+my $UserRandom = 'user' . $Helper->GetRandomID();
 
 my $UserID = $UserObject->UserAdd(
     UserFirstname => 'John',
