@@ -136,12 +136,6 @@ for my $Test (@Tests) {
     );
 }
 
-# cleanup
-$Self->True(
-    $DBObject->Do( SQL => 'DROP TABLE test_utf8_range' ) || 0,
-    "DROP TABLE",
-);
-
 # cleanup is done by RestoreDatabase.
 
 1;
