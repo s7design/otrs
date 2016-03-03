@@ -22,7 +22,7 @@ div.Tooltip {
 }
 
 div.Tooltip.TongueLeft {
-    margin-left: -37px;
+    margin-left: 0px;
 }
 
 /* RTL intentionally the same */
@@ -48,7 +48,7 @@ div.Tooltip.TongueBottom > div.Content {
     margin-top: 15px;
 }
 
-div.Tooltip > div.Content:after, 
+div.Tooltip > div.Content:after,
 div.Tooltip > div.Content:before {
     left: 50%;
     border: solid transparent;
@@ -59,22 +59,22 @@ div.Tooltip > div.Content:before {
     pointer-events: none;
 }
 
-div.Tooltip.TongueTop > div.Content:after, 
+div.Tooltip.TongueTop > div.Content:after,
 div.Tooltip.TongueTop > div.Content:before {
     top: 100%;
 }
 
-div.Tooltip.TongueBottom > div.Content:after, 
+div.Tooltip.TongueBottom > div.Content:after,
 div.Tooltip.TongueBottom > div.Content:before {
     bottom: 100%;
 }
 
-div.Tooltip.TongueLeft > div.Content:after, 
+div.Tooltip.TongueLeft > div.Content:after,
 div.Tooltip.TongueLeft > div.Content:before {
     left: 10%;
 }
 
-div.Tooltip.TongueRight > div.Content:after, 
+div.Tooltip.TongueRight > div.Content:after,
 div.Tooltip.TongueRight > div.Content:before {
     left: 90%;
     right: 10%;
