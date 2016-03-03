@@ -13,8 +13,11 @@ use utf8;
 
 use vars (qw($Self));
 
+# get config object
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
 # prevent mails send
-$Kernel::OM->Get('Kernel::Config')->Set(
+$ConfigObject->Set(
     Key   => 'SendmailModule',
     Value => 'Kernel::System::Email::DoNotSendEmail',
 );
@@ -49,7 +52,7 @@ $Self->IsNot(
     "TicketCreate() - result should not be undef",
 );
 
-my $Home = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+my $Home = $ConfigObject->Get('Home');
 
 # get generic agent object
 my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');

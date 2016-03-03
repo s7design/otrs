@@ -191,7 +191,7 @@ my $Success2 = $SchedulerDBObject->TaskLock(
 
 $Self->True(
     $Success2,
-    "TaskLock() - Lock task 1 needs to be successfull",
+    "TaskLock() - Lock task 1 needs to be successful",
 );
 
 # try to lock task 1 with different PID
@@ -203,7 +203,7 @@ my $Success3 = $SchedulerDBObject->TaskLock(
 
 $Self->False(
     $Success3,
-    "TaskLock() - Lock task 1 needs to be unsuccessfull",
+    "TaskLock() - Lock task 1 needs to be unsuccessful",
 );
 
 # try to lock task 1 with different NodeID
@@ -215,7 +215,7 @@ my $Success4 = $SchedulerDBObject->TaskLock(
 
 $Self->False(
     $Success4,
-    "TaskLock() - Lock task 1 needs to be unsuccessfull",
+    "TaskLock() - Lock task 1 needs to be unsuccessful",
 );
 
 # add second task
@@ -357,7 +357,7 @@ my $Success6 = $SchedulerDBObject->TaskLock(
 
 $Self->True(
     $Success6,
-    "TaskLock() - Lock task 2 needs to be successfull",
+    "TaskLock() - Lock task 2 needs to be successful",
 );
 
 # try to lock task 2 with different PID
@@ -369,7 +369,7 @@ my $Success7 = $SchedulerDBObject->TaskLock(
 
 $Self->False(
     $Success7,
-    "TaskLock() - Lock task 2 needs to be unsuccessfull",
+    "TaskLock() - Lock task 2 needs to be unsuccessful",
 );
 
 # try to lock task 2 with different NodeID
@@ -381,7 +381,7 @@ my $Success8 = $SchedulerDBObject->TaskLock(
 
 $Self->False(
     $Success8,
-    "TaskLock() - Lock task 2 needs to be unsuccessfull",
+    "TaskLock() - Lock task 2 needs to be unsuccessful",
 );
 
 # get all existing tasks
@@ -871,24 +871,6 @@ $Self->Is(
     -1,
     "TaskAdd() - MaximumParallelInstances without name should be -1",
 );
-
-# cleanup
-@List = $SchedulerDBObject->TaskList(
-    Type => 'UnitTest',
-);
-for my $Task (@List) {
-
-    my $TaskID = $Task->{TaskID};
-
-    my $Success = $SchedulerDBObject->TaskDelete(
-        TaskID => $TaskID,
-    );
-
-    $Self->True(
-        $Success,
-        "Worker TaskDelete() - for TaskID $TaskID with true",
-    );
-}
 
 # start daemon if it was already running before this test
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {

@@ -42,6 +42,11 @@ $Self->Is(
 );
 
 # get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # freeze time
@@ -557,20 +562,11 @@ for my $Test (@Tests) {
     );
 }
 
-# cleanup (FutureTaksDelete() positive results)
-for my $TaskID (@AddedTasksIDs) {
-    my $Success = $SchedulerDBObject->FutureTaskDelete(
-        TaskID => $TaskID,
-    );
-    $Self->True(
-        $Success,
-        "FutureTaskDelete() - for $TaskID with true",
-    );
-}
-
 # start daemon if it was already running before this test
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     system("$Daemon start");
 }
+
+# cleanup is done by RestoreDatabase.
 
 1;

@@ -68,8 +68,11 @@ for my $Sec ( 1 .. 120 ) {
     print "Waiting $Sec secs for scheduler tasks to be executed\n";
 }
 
+# get cache object
+my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
 # delete any cache
-$Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+$CacheObject->CleanUp(
     Type => 'SchedulerDBRecurrentTaskExecute'
 );
 
@@ -286,9 +289,6 @@ my @Tests = (
         NoCache          => 1,
     },
 );
-
-# get cache object
-my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
 TEST:
 for my $Test (@Tests) {

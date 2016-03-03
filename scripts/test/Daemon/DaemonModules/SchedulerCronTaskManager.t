@@ -13,7 +13,10 @@ use utf8;
 
 use vars (qw($Self));
 
-my $Home   = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+# get config object
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+my $Home   = $ConfigObject->Get('Home');
 my $Daemon = $Home . '/bin/otrs.Daemon.pl';
 
 # get current daemon status
@@ -32,7 +35,6 @@ if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
 }
 
 # get needed objects
-my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
 my $TaskWorkerObject  = $Kernel::OM->Get('Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker');
 my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
 
@@ -60,10 +62,10 @@ for my $Sec ( 1 .. 120 ) {
     print "Waiting $Sec secs for scheduler tasks to be executed\n";
 }
 
-# get original cron settings
+# get original Cron settings
 my $OriginalSettings = $ConfigObject->Get('Daemon::SchedulerCronTaskManager::Task') || {};
 
-# remove all cron jobs from config
+# remove all Cron jobs from config
 $ConfigObject->Set(
     Key   => 'Daemon::SchedulerCronTaskManager::Task',
     Value => {},
@@ -110,7 +112,7 @@ my @Tests = (
         TaskAdd => 0,
     },
 
-    # # Test block (this tests needs to be run together in the same order)
+    # Test block (this tests needs to be run together in the same order)
     {
         Name    => 'All Minutes',
         CronJob => {
@@ -145,7 +147,7 @@ my @Tests = (
         SecondsAdd => 10,
     },
 
-    # # Test block end
+    # Test block end
 
 );
 
@@ -158,7 +160,7 @@ for my $Test (@Tests) {
 
     my $CronName;
 
-    # create a cron job if needed
+    # create a Cron job if needed
     if ( $Test->{CronJob} ) {
         my $CronAdd = $ConfigObject->Set(
             Key   => "Daemon::SchedulerCronTaskManager::Task###$Test->{CronJob}->{Name}",
@@ -290,7 +292,7 @@ for my $Test (@Tests) {
 
     next TESTCASE if $Test->{KeepCron};
 
-    # remove all cron jobs from config
+    # remove all Cron jobs from config
     my $CronDelete = $ConfigObject->Set(
         Key   => 'Daemon::SchedulerCronTaskManager::Task',
         Value => {},
@@ -344,7 +346,7 @@ my $CronAdd = $ConfigObject->Set(
 );
 $Self->True(
     $CronAdd,
-    "Cron setting added - for cron job '$CronName' with true",
+    "Cron setting added - for Cron job '$CronName' with true",
 );
 
 my %TestJobNames = (
@@ -420,6 +422,36 @@ for my $Name ( sort keys %TestJobNames ) {
         );
     }
 }
+
+# remove all Cron jobs from config
+my $JobDelete = $ConfigObject->Set(
+    Key   => 'Daemon::SchedulerCronTaskManager::Task',
+    Value => {},
+);
+$Self->True(
+    $JobDelete,
+    "Removed all Cron task settings - executed with true",
+);
+
+# remove all Cron jobs from config
+$ConfigObject->Set(
+    Key   => 'Daemon::SchedulerCronTaskManager::Task',
+    Value => $OriginalSettings,
+);
+
+# re-create original tasks
+my $RunSuccess = $TaskManagerObject->Run();
+$Self->True(
+    $RunSuccess,
+    "Task manager Run() - with true",
+);
+
+# also remove the task form the just removed Cron job
+$CleanupSuccess = $SchedulerDBObject->CronTaskCleanup();
+$Self->True(
+    $CleanupSuccess,
+    "CronTaskCleanup() - executed with true",
+);
 
 # start daemon if it was already running before this test
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
