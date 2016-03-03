@@ -53,11 +53,6 @@ for my $Sec ( 1 .. 120 ) {
 }
 
 # get helper object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreDatabase => 1,
-    },
-);
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # freeze time
@@ -480,11 +475,28 @@ for my $Name ( sort keys %TestJobNames ) {
     }
 }
 
+my $JobDelete = $GenericAgentObject->JobDelete(
+    Name   => $JobName,
+    UserID => 1,
+);
+$Self->True(
+    $JobDelete,
+    "JobDelete() - for GA job '$JobName' with true",
+);
+
+# also remove the task form the just deleted GenericAgen job
+$CleanupSuccess = $SchedulerDBObject->GenericAgentTaskCleanup();
+$Self->True(
+    $CleanupSuccess,
+    "GenericAgentTaskCleanup() - executed with true",
+);
+
 # start daemon if it was already running before this test
 if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     system("$Daemon start");
 }
 
-# cleanup is done by RestoreDatabase.
+# cleanup cache
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
 1;

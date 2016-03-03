@@ -37,14 +37,7 @@ if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
 # get needed objects
 my $TaskWorkerObject  = $Kernel::OM->Get('Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker');
 my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
-
-# get helper object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreDatabase => 1,
-    },
-);
-my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper            = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # wait until task is executed
 ACTIVESLEEP:
@@ -430,10 +423,10 @@ my $JobDelete = $ConfigObject->Set(
 );
 $Self->True(
     $JobDelete,
-    "Removed all Cron task settings - executed with true",
+    "Removed all cron task settings - executed with true",
 );
 
-# remove all Cron jobs from config
+# remove all cron jobs from config
 $ConfigObject->Set(
     Key   => 'Daemon::SchedulerCronTaskManager::Task',
     Value => $OriginalSettings,
@@ -458,6 +451,7 @@ if ( $PreviousDaemonStatus =~ m{Daemon running}i ) {
     system("$Daemon start");
 }
 
-# cleanup is done by RestoreDatabase.
+# cleanup cache
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
 1;
