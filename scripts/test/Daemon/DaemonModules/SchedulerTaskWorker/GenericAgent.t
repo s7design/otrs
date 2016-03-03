@@ -13,11 +13,8 @@ use utf8;
 
 use vars (qw($Self));
 
-# get config object
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
 # prevent mails send
-$ConfigObject->Set(
+$Kernel::OM->Get('Kernel::Config')->Set(
     Key   => 'SendmailModule',
     Value => 'Kernel::System::Email::DoNotSendEmail',
 );
@@ -25,15 +22,17 @@ $ConfigObject->Set(
 # prepare environment
 
 # get helper object
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # get random ID
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 
-# get ticket object
-my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-
-my $TicketID = $TicketObject->TicketCreate(
+my $TicketID = $Kernel::OM->Get('Kernel::System::Ticket')->TicketCreate(
     Title        => 'GA' . $RandomID,
     QueueID      => 1,
     Lock         => 'unlock',
@@ -119,7 +118,7 @@ $Self->True(
 );
 
 # freeze time
-$HelperObject->FixedTimeSet();
+$Helper->FixedTimeSet();
 
 my @Tests = (
     {
@@ -235,7 +234,7 @@ for my $Test (@Tests) {
     }
 
     if ( $Test->{AddSeconds} ) {
-        $HelperObject->FixedTimeAddSeconds( $Test->{AddSeconds} );
+        $Helper->FixedTimeAddSeconds( $Test->{AddSeconds} );
     }
 
     my %Job = $GenericAgentObject->JobGet( Name => 'GA' . $RandomID );
@@ -270,22 +269,6 @@ for my $Test (@Tests) {
     }
 }
 
-# cleanup system
-$Success = $GenericAgentObject->JobDelete(
-    Name   => 'GA' . $RandomID,
-    UserID => 1,
-);
-$Self->True(
-    $Success,
-    "JobDelete() for GA$RandomID with true",
-);
+# cleanup is done by RestoreDatabase.
 
-$Success = $TicketObject->TicketDelete(
-    TicketID => $TicketID,
-    UserID   => 1,
-);
-$Self->True(
-    $Success,
-    "TicketDelete() for $TicketID with true",
-);
 1;
