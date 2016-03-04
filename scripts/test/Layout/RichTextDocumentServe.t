@@ -14,6 +14,14 @@ use vars (qw($Self));
 
 local $ENV{SCRIPT_NAME} = 'index.pl';
 
+# get needed objects
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 $Kernel::OM->ObjectParamAdd(
     'Kernel::Output::HTML::Layout' => {
         Lang      => 'de',
@@ -337,5 +345,7 @@ for my $Test (@Tests) {
         "$Test->{Name} - ContentType",
     );
 }
+
+# cleanup cache is done by RestoreDatabase
 
 1;
