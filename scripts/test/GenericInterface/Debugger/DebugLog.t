@@ -48,7 +48,6 @@ $Self->True(
 );
 
 # provide no objects
-
 my $DebugLogObject;
 
 # with just objects
