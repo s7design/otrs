@@ -16,6 +16,7 @@ use Kernel::GenericInterface::Debugger;
 use Kernel::GenericInterface::Operation;
 
 # get helper object
+# skip SSL certificate verification
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
         SkipSSLVerify => 1,

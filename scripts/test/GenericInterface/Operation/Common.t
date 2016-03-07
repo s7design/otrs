@@ -17,6 +17,7 @@ use Kernel::GenericInterface::Operation::Ticket::TicketCreate;
 use Kernel::GenericInterface::Operation::Session::SessionCreate;
 
 # get helper object
+# skip SSL certificate verification
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
         SkipSSLVerify   => 1,
@@ -283,9 +284,6 @@ for my $Test (@Tests) {
         );
     }
 }
-
-# cleanup sessions
-my $CleanUp = $Kernel::OM->Get('Kernel::System::AuthSession')->CleanUp();
 
 # cleanup is done by RestoreDatabase.
 
