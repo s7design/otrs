@@ -27,6 +27,7 @@ my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
 # get helper object
+# skip SSL certificate verification
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
         RestoreSystemConfiguration => 1,
@@ -4006,13 +4007,12 @@ my $Success;
 
 # delete queues
 for my $QueueData (@Queues) {
-    my $QueueID = $QueueData->{QueueID};
     $Success = $DBObject->Do(
-        SQL => "DELETE FROM queue WHERE id = $QueueID",
+        SQL => "DELETE FROM queue WHERE id = $QueueData->{QueueID}",
     );
     $Self->True(
         $Success,
-        "Queue with ID $RandomID is deleted!",
+        "Queue with ID $QueueData->{QueueID} is deleted!",
     );
 }
 
@@ -4044,7 +4044,7 @@ $Self->True(
 );
 
 $Success = $DBObject->Do(
-    SQL => "DELETE FROM service_sla WHERE service_id = $ServiceID",
+    SQL => "DELETE FROM service_sla WHERE service_id = $ServiceID OR sla_id = $SLAID",
 );
 $Self->True(
     $Success,
@@ -4059,14 +4059,7 @@ $Self->True(
     "Service with ID $ServiceID is deleted!",
 );
 
-# delete SLA and service_sla
-$Success = $DBObject->Do(
-    SQL => "DELETE FROM service_sla WHERE sla_id = $SLAID",
-);
-$Self->True(
-    $Success,
-    "Service SLA referenced to SLA ID $SLAID is deleted!",
-);
+# delete SLA
 $Success = $DBObject->Do(
     SQL => "DELETE FROM sla WHERE id = $SLAID",
 );

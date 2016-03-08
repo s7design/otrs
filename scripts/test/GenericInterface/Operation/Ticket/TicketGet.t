@@ -31,6 +31,7 @@ $ConfigObject->Set(
 );
 
 # get helper object
+# skip SSL certificate verification
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
         RestoreSystemConfiguration => 1,

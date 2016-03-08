@@ -21,6 +21,7 @@ use Kernel::GenericInterface::Operation::Session::SessionCreate;
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
 # get helper object
+# skip SSL certificate verification
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
         SkipSSLVerify => 1,
