@@ -107,36 +107,35 @@ $Selenium->RunTest(
 
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
 
-        my @Test = (
-            {
-                'ro'        => 1,
-                'move_into' => 0,
-                'create'    => 0,
-                'note'      => 1,
-                'owner'     => 1,
-                'priority'  => 0,
-                'rw'        => 0,
-            },
-            {
-                'ro'        => 1,
-                'move_into' => 1,
-                'create'    => 1,
-                'note'      => 0,
-                'owner'     => 1,
-                'priority'  => 1,
-                'rw'        => 0,
-            },
+        my %TestFirst = (
+            'ro'        => 1,
+            'move_into' => 0,
+            'create'    => 0,
+            'note'      => 1,
+            'owner'     => 1,
+            'priority'  => 0,
+            'rw'        => 0,
+        );
+
+        my %TestSecond = (
+            'ro'        => 1,
+            'move_into' => 1,
+            'create'    => 1,
+            'note'      => 0,
+            'owner'     => 1,
+            'priority'  => 1,
+            'rw'        => 0,
         );
 
         # check edited test group permissions
         $Selenium->find_element( $RoleName, 'link_text' )->VerifiedClick();
 
         # check permissions
-        for my $Permission ( sort keys $Test[0] ) {
-            my $Enabled = $Test[0]{$Permission} ? 'enabled' : 'disabled';
+        for my $Permission ( sort keys %TestFirst ) {
+            my $Enabled = $TestFirst{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->is_selected(),
-                $Test[0]{$Permission},
+                $TestFirst{$Permission},
                 "$Permission permission for group $GroupName and role $RoleName is $Enabled",
             );
         }
@@ -155,11 +154,11 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Filter", 'css' )->clear();
 
         # check permissions
-        for my $Permission ( sort keys $Test[0] ) {
-            my $Enabled = $Test[0]{$Permission} ? 'enabled' : 'disabled';
+        for my $Permission ( sort keys %TestFirst ) {
+            my $Enabled = $TestFirst{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->is_selected(),
-                $Test[0]{$Permission},
+                $TestFirst{$Permission},
                 "$Permission permission for group $GroupName and role $RoleName is $Enabled",
             );
         }
@@ -180,11 +179,11 @@ $Selenium->RunTest(
         $Selenium->find_element( $GroupName, 'link_text' )->VerifiedClick();
 
         # check permissions
-        for my $Permission ( sort keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
+        for my $Permission ( sort keys %TestSecond ) {
+            my $Enabled = $TestSecond{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$RoleID'][\@name='$Permission']")->is_selected(),
-                $Test[1]{$Permission},
+                $TestSecond{$Permission},
                 "$Permission permission for group $GroupName and role $RoleName is $Enabled",
             );
         }
@@ -204,11 +203,11 @@ $Selenium->RunTest(
 
         # check role relations for group after using filter by role
         # check permissions
-        for my $Permission ( sort keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
+        for my $Permission ( sort keys %TestSecond ) {
+            my $Enabled = $TestSecond{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$RoleID'][\@name='$Permission']")->is_selected(),
-                $Test[1]{$Permission},
+                $TestSecond{$Permission},
                 "$Permission permission for group $GroupName and role $RoleName is $Enabled",
             );
         }

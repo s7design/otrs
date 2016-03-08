@@ -95,38 +95,38 @@ $Selenium->RunTest(
         # edit test group permission for test agent
         $Selenium->find_element( $GroupName, 'link_text' )->VerifiedClick();
 
-        my @Test = (
-            {
-                'ro'        => 1,
-                'move_into' => 1,
-                'create'    => 1,
-                'note'      => 1,
-                'owner'     => 1,
-                'priority'  => 1,
-                'rw'        => 1,
-            },
-            {
-                'ro'        => 0,
-                'move_into' => 1,
-                'create'    => 1,
-                'note'      => 0,
-                'owner'     => 0,
-                'priority'  => 1,
-                'rw'        => 0,
-            },
-            {
-                'ro'        => 1,
-                'move_into' => 1,
-                'create'    => 1,
-                'note'      => 1,
-                'owner'     => 0,
-                'priority'  => 0,
-                'rw'        => 0,
-            },
+        my %TestFirst = (
+            'ro'        => 1,
+            'move_into' => 1,
+            'create'    => 1,
+            'note'      => 1,
+            'owner'     => 1,
+            'priority'  => 1,
+            'rw'        => 1,
+        );
+
+        my %TestSecond = (
+            'ro'        => 0,
+            'move_into' => 1,
+            'create'    => 1,
+            'note'      => 0,
+            'owner'     => 0,
+            'priority'  => 1,
+            'rw'        => 0,
+        );
+
+        my %TestThird = (
+            'ro'        => 1,
+            'move_into' => 1,
+            'create'    => 1,
+            'note'      => 1,
+            'owner'     => 0,
+            'priority'  => 0,
+            'rw'        => 0,
         );
 
         # check permissions
-        for my $Permission ( sort keys $Test[0] ) {
+        for my $Permission ( sort keys %TestFirst ) {
             $Self->True(
                 $Selenium->find_element("//input[\@value='$UserID'][\@name='$Permission']"),
                 "$Permission permission for user $TestUserLogin in group $GroupName is enabled",
@@ -144,11 +144,11 @@ $Selenium->RunTest(
         $Selenium->find_element( $GroupName, 'link_text' )->VerifiedClick();
 
         # check permissions
-        for my $Permission ( sort keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
+        for my $Permission ( sort keys %TestSecond ) {
+            my $Enabled = $TestSecond{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$UserID'][\@name='$Permission']")->is_selected(),
-                $Test[1]{$Permission},
+                $TestSecond{$Permission},
                 "$Permission permission for user $TestUserLogin in group $GroupName is $Enabled",
             );
         }
@@ -168,11 +168,11 @@ $Selenium->RunTest(
 
         # check group relations for user after using filter by group
         # check permissions
-        for my $Permission ( sort keys $Test[1] ) {
-            my $Enabled = $Test[1]{$Permission} ? 'enabled' : 'disabled';
+        for my $Permission ( sort keys %TestSecond ) {
+            my $Enabled = $TestSecond{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$UserID'][\@name='$Permission']")->is_selected(),
-                $Test[1]{$Permission},
+                $TestSecond{$Permission},
                 "$Permission permission for user $TestUserLogin in group $GroupName is $Enabled",
             );
         }
@@ -193,11 +193,11 @@ $Selenium->RunTest(
         # check edited test agent permissions
         $Selenium->find_element( $FullTestUserLogin, 'link_text' )->VerifiedClick();
 
-        for my $Permission ( sort keys $Test[2] ) {
-            my $Enabled = $Test[2]{$Permission} ? 'enabled' : 'disabled';
+        for my $Permission ( sort keys %TestThird ) {
+            my $Enabled = $TestThird{$Permission} ? 'enabled' : 'disabled';
             $Self->Is(
                 $Selenium->find_element("//input[\@value='$GroupID'][\@name='$Permission']")->is_selected(),
-                $Test[2]{$Permission},
+                $TestThird{$Permission},
                 "$Permission permission for user $TestUserLogin in group $GroupName is $Enabled",
             );
         }
