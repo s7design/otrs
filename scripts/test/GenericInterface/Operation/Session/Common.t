@@ -15,16 +15,16 @@ use vars (qw($Self));
 use Kernel::GenericInterface::Debugger;
 use Kernel::GenericInterface::Operation::Session::SessionCreate;
 
-# helper object
-# skip SSL certificate verification
+# get helper object
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
-        SkipSSLVerify => 1,
+        SkipSSLVerify   => 1,
+        RestoreDatabase => 1,
     },
 );
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-my $RandomID = $HelperObject->GetRandomID();
+my $RandomID = $Helper->GetRandomID();
 
 # create webservice object
 my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
@@ -74,14 +74,14 @@ $Self->Is(
 );
 
 # set user details
-my $UserLogin    = $HelperObject->TestUserCreate();
+my $UserLogin    = $Helper->TestUserCreate();
 my $UserPassword = $UserLogin;
 my $UserID       = $Kernel::OM->Get('Kernel::System::User')->UserLookup(
     UserLogin => $UserLogin,
 );
 
 # set customer user details
-my $CustomerUserLogin    = $HelperObject->TestCustomerUserCreate();
+my $CustomerUserLogin    = $Helper->TestCustomerUserCreate();
 my $CustomerUserPassword = $CustomerUserLogin;
 my $CustomerUserID       = $CustomerUserLogin;
 
@@ -196,14 +196,6 @@ for my $Test (@Tests) {
     }
 }
 
-# clean up webservice
-my $WebserviceDelete = $WebserviceObject->WebserviceDelete(
-    ID     => $WebserviceID,
-    UserID => 1,
-);
-$Self->True(
-    $WebserviceDelete,
-    "Deleted Webservice $WebserviceID",
-);
+# cleanup is done by RestoreDatabase.
 
 1;
