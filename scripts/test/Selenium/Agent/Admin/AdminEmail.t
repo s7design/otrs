@@ -41,7 +41,7 @@ $Selenium->RunTest(
         $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'SendmailModule',
-            Value => 'Kernel::System::Email::Test',
+            Value => 'Kernel::System::Email::DoNotSendEmail',
         );
 
         my $TestUserLogin = $Helper->TestUserCreate(
