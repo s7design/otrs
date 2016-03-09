@@ -44,7 +44,7 @@ my $SOAPObject = Kernel::GenericInterface::Transport::HTTP::SOAP->new(
     },
 );
 
-# create xml object
+# create XML object
 my $XMLObject = XML::TreePP->new();
 
 my $SOAPHeader = '<?xml version="1.0" encoding="UTF-8"?>'
