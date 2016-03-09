@@ -12,8 +12,6 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::Language;
-
 # get selenium object
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
@@ -23,8 +21,18 @@ $Selenium->RunTest(
         # get helper object
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # set test user language
+        my $Language = 'de';
+
+        # get language object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::Language' => {
+                UserLanguage => $Language,
+            },
+        );
+        my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+
         # create test user and login
-        my $Language      = 'de';
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups   => ['admin'],
             Language => $Language,
@@ -142,10 +150,6 @@ JAVASCRIPT
                 $Selenium->find_element(
                     "//a[contains(\@data-query-string, \'Subaction=DynamicFieldDelete;ID=$DynamicFieldID' )]"
                 )->click();
-
-                my $LanguageObject = Kernel::Language->new(
-                    UserLanguage => $Language,
-                );
 
                 $Self->Is(
                     $Selenium->execute_script("return window.getLastConfirm()"),

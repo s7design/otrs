@@ -11,7 +11,6 @@ use warnings;
 use utf8;
 
 use vars (qw($Self));
-use Kernel::Language;
 
 # get selenium object
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
@@ -53,11 +52,20 @@ $Selenium->RunTest(
             );
             $Selenium->find_element( "select#UserLanguage", 'css' )->VerifiedSubmit();
 
-            # now check if the language was correctly applied in the interface
-            my $LanguageObject = Kernel::Language->new(
-                UserLanguage => $Language,
+            # discard language object
+            $Kernel::OM->ObjectsDiscard(
+                Objects => ['Kernel::Language'],
             );
 
+            # get language object
+            $Kernel::OM->ObjectParamAdd(
+                'Kernel::Language' => {
+                    UserLanguage => $Language,
+                },
+            );
+            my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+
+            # now check if the language was correctly applied in the interface
             my $Element = $Selenium->find_element( 'Label[for=UserLanguage]', 'css' );
             $Self->Is(
                 substr( $Element->get_text(), 0, -1 ),

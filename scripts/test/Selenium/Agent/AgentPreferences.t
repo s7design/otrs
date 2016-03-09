@@ -11,7 +11,6 @@ use warnings;
 use utf8;
 
 use vars (qw($Self));
-use Kernel::Language;
 
 # get needed objects
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
@@ -117,9 +116,13 @@ JAVASCRIPT
         # we should not be able to submit the form without an alert
         $Selenium->find_element("//button[\@id='NotificationEventTransportUpdate'][\@type='submit']")->VerifiedClick();
 
-        my $LanguageObject = Kernel::Language->new(
-            UserLanguage => $Language,
+        # get language object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::Language' => {
+                UserLanguage => $Language,
+            },
         );
+        my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
 
         $Self->Is(
             $Selenium->execute_script("return window.getLastAlert()"),
@@ -196,10 +199,18 @@ JAVASCRIPT
                 "#UserLanguage updated value",
             );
 
-            # create language object
-            my $LanguageObject = Kernel::Language->new(
-                UserLanguage => "$Language",
+            # discard language object
+            $Kernel::OM->ObjectsDiscard(
+                Objects => ['Kernel::Language'],
             );
+
+            # get language object
+            $Kernel::OM->ObjectParamAdd(
+                'Kernel::Language' => {
+                    UserLanguage => $Language,
+                },
+            );
+            my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
 
             # check for correct translation
             $Self->True(

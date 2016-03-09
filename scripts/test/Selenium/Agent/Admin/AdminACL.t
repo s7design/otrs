@@ -13,7 +13,6 @@ use utf8;
 use vars (qw($Self));
 
 use Selenium::Remote::WDKeys;
-use Kernel::Language;
 
 # get selenium object
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
@@ -150,9 +149,13 @@ JAVASCRIPT
             "\$('.ItemAddLevel1').val('Properties').trigger('redraw.InputField').trigger('change');"
         );
 
-        my $LanguageObject = Kernel::Language->new(
-            UserLanguage => $Language,
+        # get language object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::Language' => {
+                UserLanguage => $Language,
+            },
         );
+        my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
 
         $Self->Is(
             $Selenium->execute_script("return window.getLastAlert()"),

@@ -12,8 +12,6 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::Language;
-
 # get selenium object
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
@@ -52,9 +50,14 @@ $Selenium->RunTest(
             $Selenium->find_element( "table tbody tr td", 'css' );
         }
         else {
-            my $LanguageObject = Kernel::Language->new(
-                UserLanguage => $Language,
+
+            # get language object
+            $Kernel::OM->ObjectParamAdd(
+                'Kernel::Language' => {
+                    UserLanguage => $Language,
+                },
             );
+            my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
 
             $Self->True(
                 index(

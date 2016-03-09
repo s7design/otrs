@@ -12,8 +12,6 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::Language;
-
 # get selenium object
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
@@ -103,10 +101,18 @@ $Selenium->RunTest(
                 "#UserLanguage updated value",
             );
 
-            # create language object
-            my $LanguageObject = Kernel::Language->new(
-                UserLanguage => "$Language",
+            # discard language object
+            $Kernel::OM->ObjectsDiscard(
+                Objects => ['Kernel::Language'],
             );
+
+            # get language object
+            $Kernel::OM->ObjectParamAdd(
+                'Kernel::Language' => {
+                    UserLanguage => $Language,
+                },
+            );
+            my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
 
             # check for correct translation
             $Self->True(

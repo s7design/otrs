@@ -12,11 +12,10 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::Language;
-
 # get needed objects
-my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $Selenium     = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
+my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+my $Selenium        = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
@@ -32,10 +31,17 @@ $Selenium->RunTest(
         my $Language = 'de';
 
         # do not check RichText
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $SysConfigObject->ConfigItemUpdate(
             Valid => 1,
             Key   => 'Frontend::RichText',
             Value => 0
+        );
+
+        # use test email backend
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'SendmailModule',
+            Value => 'Kernel::System::Email::Test',
         );
 
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -102,11 +108,15 @@ $Selenium->RunTest(
         $Selenium->find_element( "#RichText", 'css' )->send_keys($Text);
         $Selenium->find_element( "#Subject",  'css' )->VerifiedSubmit();
 
-        # check if test admin notification is success
-        my $LanguageObject = Kernel::Language->new(
-            UserLanguage => $Language,
+        # get language object
+        $Kernel::OM->ObjectParamAdd(
+            'Kernel::Language' => {
+                UserLanguage => $Language,
+            },
         );
+        my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
 
+        # check if test admin notification is success
         my $Expected = $LanguageObject->Get(
             "Your message was sent to"
         ) . ": $TestUserLogin\@localunittest.com";
