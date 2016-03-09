@@ -62,6 +62,13 @@ $Selenium->RunTest(
             Value => 0
         );
 
+        # use DoNotSendEmail email backend
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'SendmailModule',
+            Value => 'Kernel::System::Email::DoNotSendEmail',
+        );
+
         # get standard template object
         my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
 
