@@ -53,6 +53,13 @@ $Selenium->RunTest(
             Value => 0,
         );
 
+        # use DoNotSendEmail email backend
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'SendmailModule',
+            Value => 'Kernel::System::Email::DoNotSendEmail',
+        );
+
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],

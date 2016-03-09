@@ -53,6 +53,13 @@ $Selenium->RunTest(
             Value => 0
         );
 
+        # use DoNotSendEmail email backend
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'SendmailModule',
+            Value => 'Kernel::System::Email::DoNotSendEmail',
+        );
+
         # get ticket object
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
