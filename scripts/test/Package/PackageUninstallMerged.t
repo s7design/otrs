@@ -16,14 +16,6 @@ use vars (qw($Self));
 my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
 my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
 
-# get helper object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreDatabase => 1,
-    },
-);
-my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
 # get OTRS Version
 my $OTRSVersion = $ConfigObject->Get('Version');
 
@@ -177,5 +169,8 @@ if ( !$DeveloperSystem ) {
         'PackageIsInstalled() - with false',
     );
 }
+
+# cleanup cache
+$Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
 
 1;
