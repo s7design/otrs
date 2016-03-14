@@ -137,6 +137,7 @@ $Selenium->RunTest(
         # test filter with "WrongFilterTemplate" to uncheck all values
         $Selenium->find_element( "#Filter", 'css' )->clear();
         $Selenium->find_element( "#Filter", 'css' )->send_keys("WrongFilterTemplate");
+        sleep 1;
 
         # test is no data matches
         $Self->True(
