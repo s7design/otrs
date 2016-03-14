@@ -15,8 +15,6 @@ use Kernel::Language qw(Translatable);
 
 our $ObjectManagerDisabled = 1;
 
-use Kernel::Language qw(Translatable);
-
 sub new {
     my ( $Type, %Param ) = @_;
 
@@ -30,7 +28,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    # get needed objects
+    # get objects
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
@@ -43,6 +41,7 @@ sub Run {
         $Output .= $LayoutObject->NavigationBar();
 
         $LayoutObject->Block( Name => 'Overview' );
+        $LayoutObject->Block( Name => 'Notice' );
         $LayoutObject->Block( Name => 'Disabled' );
         $LayoutObject->Block( Name => 'OverviewResult' );
         $LayoutObject->Block(
@@ -71,6 +70,7 @@ sub Run {
         );
 
         $LayoutObject->Block( Name => 'Overview' );
+        $LayoutObject->Block( Name => 'Notice' );
         $LayoutObject->Block( Name => 'NotWorking' );
         $LayoutObject->Block( Name => 'OverviewResult' );
         $LayoutObject->Block(
@@ -103,7 +103,6 @@ sub Run {
         Key       => 'SMIMESearch',
         Value     => $Param{Search},
     );
-
 
     # ------------------------------------------------------------ #
     # delete cert

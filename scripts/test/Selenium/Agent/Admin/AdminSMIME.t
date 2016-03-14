@@ -63,7 +63,7 @@ $Selenium->RunTest(
 
         # check widget sidebar when SMIME sysconfig is disabled
         $Self->True(
-            $Selenium->find_element('h3 span.Warning', 'css'),
+            $Selenium->find_element( 'h3 span.Warning', 'css' ),
             "Widget sidebar with warning message is displayed.",
         );
         $Self->True(
@@ -90,12 +90,15 @@ $Selenium->RunTest(
             Value => '/SomePrivatePath',
         );
 
+        # let mod_perl / Apache2::Reload pick up the changed configuration
+        sleep 3;
+
         # refresh AdminSMIME screen
         $Selenium->VerifiedRefresh();
 
         # check widget sidebar when SMIME sysconfig does not work
         $Self->True(
-            $Selenium->find_element('h3 span.Error', 'css'),
+            $Selenium->find_element( 'h3 span.Error', 'css' ),
             "Widget sidebar with error message is displayed.",
         );
         $Self->True(
@@ -114,6 +117,9 @@ $Selenium->RunTest(
             Key   => 'SMIME::PrivatePath',
             Value => $PrivatePath,
         );
+
+        # let mod_perl / Apache2::Reload pick up the changed configuration
+        sleep 3;
 
         # refresh AdminSMIME screen
         $Selenium->VerifiedRefresh();
