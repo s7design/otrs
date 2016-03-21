@@ -56,6 +56,9 @@ $Selenium->RunTest(
         my $PGPPath = $ConfigObject->Get('Home') . "/var/tmp/pgp";
         mkpath( [$PGPPath], 0, 0770 );    ## no critic
 
+        # let mod_perl / Apache2::Reload pick up the changed configuration
+        sleep 3;
+
         # get script alias
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
