@@ -111,8 +111,10 @@ $Selenium->RunTest(
         );
         $Selenium->find_element( "#DialogButton1", 'css' )->VerifiedClick();
 
-        # sort by ticket number, order up
-        $Selenium->find_element("//a[contains(\@title, \'TicketNumber\' )]")->VerifiedClick();
+        # sort by ticket number, order down
+        $Selenium->VerifiedGet(
+            "${ScriptAlias}index.pl?Action=AgentTicketStatusView;Filter=Open;View=;SortBy=TicketNumber;OrderBy=Down;ColumnFilterQueue=$QueueID;StartWindow=0;StartHit=1"
+        );
 
         # check for ticket with highest ticket number on first 1st page and verify that ticket
         # with lowest ticket number number is not present

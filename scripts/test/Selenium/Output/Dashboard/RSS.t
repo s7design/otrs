@@ -64,10 +64,15 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # test if RSS plugin shows correct link
-        my $RSSLink = "http://www.otrs.com/release-notes-otrs";
+        # test if RSS plugin is displayed
         $Self->True(
-            index( $Selenium->get_page_source(), $RSSLink ) > -1,
+            index( $Selenium->get_page_source(), 'Custom RSS Feed' ) > -1,
+            "RSS dashboard plugin - found",
+        );
+
+        my $RSSLink = "http://www.otrs.com/";
+        $Self->True(
+            $Selenium->find_element("//a[contains(\@href, \'$RSSLink' )]"),
             "RSS dashboard plugin link - found",
         );
 

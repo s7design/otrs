@@ -62,12 +62,23 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # test if News plugin shows correct link
-        my $NewsLink = "http://www.otrs.com/release-notes-otrs";
+        # test if News plugin is displayed
+        $Self->True(
+            index( $Selenium->get_page_source(), 'OTRS News' ) > -1,
+            "RSS dashboard plugin - found",
+        );
+
+        my $NewsLink = "http://www.otrs.com/";
         $Self->True(
             index( $Selenium->get_page_source(), $NewsLink ) > -1,
             "News dashboard plugin link - found",
         );
+
+        # make sure cache is correct
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+            Type => 'Dashboard',
+        );
+
     }
 );
 
