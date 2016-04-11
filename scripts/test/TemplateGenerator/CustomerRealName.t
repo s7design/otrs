@@ -15,12 +15,9 @@ use vars (qw($Self));
 # get needed objects
 my $AutoResponseObject      = $Kernel::OM->Get('Kernel::System::AutoResponse');
 my $CommandObject           = $Kernel::OM->Get('Kernel::System::Console::Command::Maint::PostMaster::Read');
-my $TicketObject            = $Kernel::OM->Get('Kernel::System::Ticket');
 my $DBObject                = $Kernel::OM->Get('Kernel::System::DB');
 my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
-
-# define needed variable
-my $RandomID = $Kernel::OM->Get('Kernel::System::UnitTest::Helper')->GetRandomID();
+my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
 
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
@@ -29,6 +26,12 @@ $Kernel::OM->ObjectParamAdd(
 );
 my $Helper   = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $RandomID = $Helper->GetRandomID();
+
+# do not really send emails
+$ConfigObject->Set(
+    Key   => 'SendmailModule',
+    Value => 'Kernel::System::Email::DoNotSendEmail',
+);
 
 # add system address
 my $SystemAddressNameRand = 'SystemAddress' . $RandomID;
@@ -205,18 +208,18 @@ for my $Test (@Tests) {
 
         $ExitCode = $CommandObject->Execute( '--target-queue', $QueueNameRand, '--debug' );
 
-        # reset CGI object from previous runs
-        CGI::initialize_globals();
+        $Self->Is(
+            $ExitCode,
+            0,
+            "$Test->{Name} - Maint::PostMaster::Read exit code with email input",
+        );
 
-        # discard Web::Request from OM to prevent duplicated entries
-        $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::PostMaster'] );
+        # discard Web::Request and Ticket object from OM to prevent duplicated entries
+        $Kernel::OM->ObjectsDiscard( Objects => [ 'Kernel::System::PostMaster', 'Kernel::System::Ticket' ] );
     }
 
-    $Self->Is(
-        $ExitCode,
-        0,
-        "$Test->{Name} - Maint::PostMaster::Read exit code with email input",
-    );
+    # get ticket object
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
     # get test ticket ID
     my ($TicketID) = $Result =~ m{TicketID:\s+(\d+)};
