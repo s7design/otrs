@@ -224,7 +224,7 @@ Core.Agent = (function (TargetNS) {
 
                     if ($('body').hasClass('Visible-ScreenXL')) {
 
-                        $('#NavigationContainer').css('height', '300px');
+                        $('#NavigationContainer').css('height', '500px');
 
                         // If Timeout is set for this nav element, clear it
                         ClearSubnavCloseTimeout($Element);
