@@ -199,7 +199,7 @@ Core.Agent.Admin.GenericInterfaceOperation.Init({
     Localization: {
         CommunicationErrorMsg: [% Translate("An error occurred during communication.") | JSON %],
         DeleteOperationMsg: [% Translate("Delete this Operation") | JSON %],
-        DeleteMsg: [% Translate("Delete") | JSON %],
+         DeleteMsg: Core.Language.Translate('Delete'),
         CancelMsg: [% Translate("Cancel") | JSON %]
     }
 });

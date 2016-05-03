@@ -287,7 +287,7 @@ Core.Agent.Admin.GenericInterfaceMapping.Init({
     DeletedString: "[% Data.DeletedString | html %]",
     Localization: {
         DeleteKeyMappingMsg: [% Translate("Delete this Key Mapping") | JSON %],
-        DeleteMsg: [% Translate("Delete") | JSON %],
+         DeleteMsg: Core.Language.Translate('Delete'),
         CancelMsg: [% Translate("Cancel") | JSON %]
     }
 });

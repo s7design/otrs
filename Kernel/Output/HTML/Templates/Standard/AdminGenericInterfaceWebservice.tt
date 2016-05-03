@@ -495,7 +495,7 @@ Core.Agent.Admin.GenericInterfaceWebservice.Init({
         DeleteInvokerMsg: [% Translate("Delete invoker") | JSON %],
         CloneWebserviceMsg: [% Translate("Clone webservice") | JSON %],
         ImportWebserviceMsg: [% Translate("Import webservice") | JSON %],
-        DeleteMsg: [% Translate("Delete") | JSON %],
+         DeleteMsg: Core.Language.Translate('Delete'),
         CloneMsg: [% Translate("Clone") | JSON %],
         ImportMsg: [% Translate("Import") | JSON %],
         CancelMsg: [% Translate("Cancel") | JSON %]
