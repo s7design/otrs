@@ -275,7 +275,7 @@ Core.Agent.Admin.GenericInterfaceInvoker.Init({
         CommunicationErrorMsg: [% Translate("An error occurred during communication.") | JSON %],
         DeleteInvokerMsg: [% Translate("Delete this Invoker") | JSON %],
         DeleteEventMsg: [% Translate("Delete this Event Trigger") | JSON %],
-         DeleteMsg: Core.Language.Translate('Delete'),
+        DeleteMsg: Core.Language.Translate('Delete'),
         CancelMsg: [% Translate("Cancel") | JSON %]
     }
 });
