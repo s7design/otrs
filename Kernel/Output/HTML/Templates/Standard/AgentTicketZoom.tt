@@ -12,7 +12,7 @@
     $('#SetArticleFilter').bind('click', function (Event) {
         Core.UI.Dialog.ShowContentDialog($('#ArticleFilterDialog'), [% Translate("Article filter") | JSON %], '20px', 'Center', true, [
             {
-                Label: [% Translate("Apply") | JSON %],
+                Label: Core.Language.Translate('Apply'),
                 Function: function () {
                     var Data = Core.AJAX.SerializeForm($('#ArticleFilterDialogForm'));
                     Core.AJAX.FunctionCall(Core.Config.Get('CGIHandle'), Data, function () {
@@ -21,7 +21,7 @@
                 }
             },
             {
-                Label: [% Translate("Reset") | JSON %],
+                Label: Core.Language.Translate('Reset'),
                 Function: function () {
                     $('#ArticleTypeFilter').val('').trigger('redraw.InputField');
                     $('#ArticleSenderTypeFilter').val('').trigger('redraw.InputField');
@@ -75,7 +75,7 @@
         $('#EventTypeFilterDialog').find('form').css('width', '500px');
         Core.UI.Dialog.ShowContentDialog($('#EventTypeFilterDialog'), [% Translate("Event Type Filter") | JSON %], '20px', 'Center', true, [
             {
-                Label: [% Translate("Apply") | JSON %],
+                Label: Core.Language.Translate('Apply'),
                 Function: function () {
                     var Data = Core.AJAX.SerializeForm($('#EventTypeFilterDialogForm'));
                     Core.AJAX.FunctionCall(Core.Config.Get('CGIHandle'), Data, function () {
@@ -84,7 +84,7 @@
                 }
             },
             {
-                Label: [% Translate("Reset") | JSON %],
+                Label: Core.Language.Translate('Reset'),
                 Function: function () {
                     $('#EventTypeFilter').val('').trigger('redraw.InputField');
                 }
@@ -271,7 +271,7 @@ $('.ShowFieldInfoOverlay').bind('click', function() {
         Buttons: [
             {
                 Type: 'Close',
-                Label: [% Translate("Close") | JSON %],
+                Label: Core.Language.Translate('Close'),
                 Function: function() {
                     Core.UI.Dialog.CloseDialog($('.Dialog:visible'));
                     Core.Form.EnableForm($('form[name="compose"]'));

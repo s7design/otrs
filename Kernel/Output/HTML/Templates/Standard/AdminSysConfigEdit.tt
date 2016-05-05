@@ -502,7 +502,7 @@
             Length = $(this).text().length,
             ShortText,
             FullText,
-            LinkText = [% Translate("Show more") | JSON %],
+            LinkText = Core.Language.Translate('Show more'),
             OverlayTitle = $(this)
                 .closest('fieldset')
                 .find('h3')

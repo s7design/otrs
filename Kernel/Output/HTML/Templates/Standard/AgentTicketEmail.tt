@@ -660,7 +660,7 @@ $('#FileUpload').bind('change', function () {
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
 Core.Agent.TicketAction.Init();
-Core.Config.Set('Localization.Delete', [% Translate("Delete") | JSON %]);
+Core.Config.Set('Localization.Delete', Core.Language.Translate('Delete'));
 //]]></script>
 [% END %]
 
