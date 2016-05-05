@@ -272,12 +272,12 @@
 <script type="text/javascript">//<![CDATA[
 Core.Agent.Admin.GenericAgent.Init({
     Localization: {
-        DuplicateEventTitle: [% Translate("Duplicate event.") | JSON %],
-        DuplicateEventMsg: [% Translate("This event is already attached to the job, Please use a different one.") | JSON %],
-        DeleteEventMsg: [% Translate("Delete this Event Trigger") | JSON %],
+        DuplicateEventTitle:  Core.Language.Translate('Duplicate event.'),
+        DuplicateEventMsg:  Core.Language.Translate('This event is already attached to the job, Please use a different one.'),
+        DeleteEventMsg:  Core.Language.Translate('Delete this Event Trigger'),
         DeleteMsg: Core.Language.Translate('Delete'),
-        CancelMsg: [% Translate("Cancel") | JSON %],
-        RemoveSelection: [% Translate("Remove selection") | JSON %]
+        CancelMsg:  Core.Language.Translate('Cancel'),
+        RemoveSelection:  Core.Language.Translate('Remove selection')
     }
 });
 //]]></script>

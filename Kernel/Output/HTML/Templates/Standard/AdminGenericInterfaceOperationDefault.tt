@@ -197,10 +197,10 @@ Core.Agent.Admin.GenericInterfaceOperation.Init({
     Operation: "[% Data.Operation | html %]",
     Action: 'AdminGenericInterfaceOperationDefault',
     Localization: {
-        CommunicationErrorMsg: [% Translate("An error occurred during communication.") | JSON %],
-        DeleteOperationMsg: [% Translate("Delete this Operation") | JSON %],
+        CommunicationErrorMsg: Core.Language.Translate('An error occurred during communication.'),
+        DeleteOperationMsg: Core.Language.Translate('Delete this Operation'),
         DeleteMsg: Core.Language.Translate('Delete'),
-        CancelMsg: [% Translate("Cancel") | JSON %]
+        CancelMsg: Core.Language.Translate('Cancel')
     }
 });
 

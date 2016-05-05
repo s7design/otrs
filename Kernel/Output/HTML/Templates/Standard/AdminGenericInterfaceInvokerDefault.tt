@@ -272,11 +272,11 @@ Core.Agent.Admin.GenericInterfaceInvoker.Init({
     Action: 'AdminGenericInterfaceInvokerDefault',
     EventTypeSelected: $('#EventType').val(),
     Localization: {
-        CommunicationErrorMsg: [% Translate("An error occurred during communication.") | JSON %],
-        DeleteInvokerMsg: [% Translate("Delete this Invoker") | JSON %],
-        DeleteEventMsg: [% Translate("Delete this Event Trigger") | JSON %],
+        CommunicationErrorMsg: Core.Language.Translate('An error occurred during communication.'),
+        DeleteInvokerMsg: Core.Language.Translate('Delete this Invoker'),
+        DeleteEventMsg: Core.Language.Translate('Delete this Event Trigger'),
         DeleteMsg: Core.Language.Translate('Delete'),
-        CancelMsg: [% Translate("Cancel") | JSON %]
+        CancelMsg: Core.Language.Translate('Cancel')
     }
 });
 
