@@ -113,7 +113,7 @@ $('#ShowContextSettingsDialog').bind('click', function (Event) {
     Core.UI.Dialog.ShowContentDialog($('#ContextSettingsDialogContainer'), [% Translate("Settings") | JSON %], '20%', 'Center', true,
         [
             {
-                Label: [% Translate("Save") | JSON %],
+                Label: Core.Language.Translate('Save'),
                 Type: 'Submit',
                 Class: 'Primary'}
         ]);
@@ -223,8 +223,8 @@ $('.DynamicFieldDelete').bind('click', function (Event) {
     if (window.confirm([% Translate("Do you really want to delete this dynamic field? ALL associated data will be LOST!") | JSON %])) {
 
         Core.UI.Dialog.ShowDialog({
-            Title: [% Translate("Delete field") | JSON %],
-            HTML: [% Translate("Deleting the field and its data. This may take a while...") | JSON %],
+            Title: Core.Language.Translate('Delete field'),
+            HTML: Core.Language.Translate('Deleting the field and its data. This may take a while...'),
             Modal: true,
             CloseOnClickOutside: false,
             CloseOnEscape: false,

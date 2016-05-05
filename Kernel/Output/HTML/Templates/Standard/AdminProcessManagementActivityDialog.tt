@@ -244,10 +244,10 @@ Core.Agent.Admin.ProcessManagement.InitActivityDialogEdit();
 
 //Localizations
 Core.Agent.Admin.ProcessManagement.Localization = {
-        CancelMsg: "[% Translate("Cancel") | html %]",
-        SaveMsg: "[% Translate("Save") | html %]",
-        DialogTitle: "[% Translate("Edit Field Details") | html %]",
-        WrongArticleTypeMsg: "[% Translate("Customer interface does not support internal article types.") | html %]"
+        CancelMsg: Core.Language.Translate('Cancel'),
+        SaveMsg: Core.Language.Translate('Save'),
+        DialogTitle: Core.Language.Translate('Edit Field Details'),
+        WrongArticleTypeMsg: Core.Language.Translate('Customer interface does not support internal article types.')
 };
 //]]></script>
 [% END %]

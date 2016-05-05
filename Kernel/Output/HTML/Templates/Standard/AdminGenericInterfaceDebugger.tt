@@ -135,12 +135,12 @@
 Core.Agent.Admin.GenericInterfaceDebugger.Init({
     WebserviceID: [% Data.WebserviceID | html %],
     Localization: {
-        CommunicationErrorMsg: [% Translate("An error occurred during communication.") | JSON %],
-        NoDataFoundMsg: [% Translate("No data found.") | JSON %],
-        ToggleContentMsg: [% Translate("Show or hide the content.") | JSON %],
-        ClearDebugLogMsg: [% Translate("Clear debug log") | JSON %],
-        ClearMsg: [% Translate("Clear") | JSON %],
-        CancelMsg: [% Translate("Cancel") | JSON %]
+        CommunicationErrorMsg: Core.Language.Translate('An error occurred during communication.'),
+        NoDataFoundMsg: Core.Language.Translate('No data found.'),
+        ToggleContentMsg: Core.Language.Translate('Show or hide the content.'),
+        ClearDebugLogMsg: Core.Language.Translate('Clear debug log'),
+        ClearMsg: Core.Language.Translate('Clear'),
+        CancelMsg: Core.Language.Translate('Cancel')
     }
 });
 
