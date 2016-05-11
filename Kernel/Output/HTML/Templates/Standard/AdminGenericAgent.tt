@@ -270,16 +270,7 @@
 
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
-Core.Agent.Admin.GenericAgent.Init({
-    Localization: {
-        DuplicateEventTitle:  Core.Language.Translate('Duplicate event.'),
-        DuplicateEventMsg:  Core.Language.Translate('This event is already attached to the job, Please use a different one.'),
-        DeleteEventMsg:  Core.Language.Translate('Delete this Event Trigger'),
-        DeleteMsg: Core.Language.Translate('Delete'),
-        CancelMsg:  Core.Language.Translate('Cancel'),
-        RemoveSelection:  Core.Language.Translate('Remove selection')
-    }
-});
+Core.Agent.Admin.GenericAgent.Init();
 //]]></script>
 [% END %]
 

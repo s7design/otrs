@@ -284,12 +284,7 @@ $('#SaveAndFinishButton').bind('click', function(){
 <script type="text/javascript">//<![CDATA[
 Core.Agent.Admin.GenericInterfaceMapping.Init({
     WebserviceID: [% Data.WebserviceID | html %],
-    DeletedString: "[% Data.DeletedString | html %]",
-    Localization: {
-        DeleteKeyMappingMsg: Core.Language.Translate('Delete this Key Mapping'),
-        DeleteMsg: Core.Language.Translate('Delete'),
-        CancelMsg: Core.Language.Translate('Cancel')
-    }
+    DeletedString: "[% Data.DeletedString | html %]"
 });
 //]]></script>
 [% END %]

@@ -488,18 +488,6 @@ $('#SaveAndFinishButton').bind('click', function(){
 <script type="text/javascript">//<![CDATA[
 Core.Agent.Admin.GenericInterfaceWebservice.Init({
     WebserviceID: $('#WebserviceID').val(),
-    Localization: {
-        CommunicationErrorMsg: Core.Language.Translate('An error occurred during communication.'),
-        DeleteWebserviceMsg: Core.Language.Translate('Delete webservice'),
-        DeleteOperationMsg: Core.Language.Translate('Delete operation'),
-        DeleteInvokerMsg: Core.Language.Translate('Delete invoker'),
-        CloneWebserviceMsg: Core.Language.Translate('Clone webservice'),
-        ImportWebserviceMsg: Core.Language.Translate('Import webservice'),
-        DeleteMsg: Core.Language.Translate('Delete'),
-        CloneMsg: Core.Language.Translate('Clone'),
-        ImportMsg: Core.Language.Translate('Import'),
-        CancelMsg: Core.Language.Translate('Cancel')
-    },
     Action: "[% Data.Action | html %]"
 });
 //]]></script>
