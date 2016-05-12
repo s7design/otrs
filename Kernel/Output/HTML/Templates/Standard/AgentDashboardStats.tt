@@ -72,13 +72,6 @@
 
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
-
-// add translations
-Core.Config.Set('Grouped', Core.Language.Translate('Grouped');
-Core.Config.Set('Stacked', Core.Language.Translate('Stacked');
-Core.Config.Set('Expanded', Core.Language.Translate('Expanded');
-Core.Config.Set('Stream', Core.Language.Translate('Stream');
-
 (function(){
     var Timeout = 500;
     // check if the container is already expanded, otherwise the graph

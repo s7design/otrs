@@ -502,7 +502,6 @@
             Length = $(this).text().length,
             ShortText,
             FullText,
-            LinkText = Core.Language.Translate('Show more'),
             OverlayTitle = $(this)
                 .closest('fieldset')
                 .find('h3')
@@ -520,7 +519,7 @@
             FullText = FullText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
             $(this)
-                .append('&nbsp;<a href="#" class="DescriptionOverlay">' + LinkText + '</a>')
+                .append('&nbsp;<a href="#" class="DescriptionOverlay">' + Core.Language.Translate('Show more') + '</a>')
                 .find('a.DescriptionOverlay')
                 .bind('click', function() {
 

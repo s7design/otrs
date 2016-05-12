@@ -336,7 +336,6 @@
 #Layers
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
-    Core.Config.Set('Localization.Delete', Core.Language.Translate('Delete'));
     Core.Agent.TicketAction.Init();
 //]]></script>
 [% END %]
