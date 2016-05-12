@@ -677,11 +677,7 @@ $('.NotificationDelete').bind('click', function (Event) {
 
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
-Core.Agent.Admin.NotificationEvent.Init({
-    Localization: {
-        DeleteNotificationLanguageMsg: Core.Language.Translate('Do you really want to delete this notification language?')
-    }
-});
+Core.Agent.Admin.NotificationEvent.Init();
 //]]></script>
 [% END %]
 

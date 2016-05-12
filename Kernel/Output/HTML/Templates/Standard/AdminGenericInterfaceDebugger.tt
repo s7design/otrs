@@ -132,17 +132,7 @@
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
 
-Core.Agent.Admin.GenericInterfaceDebugger.Init({
-    WebserviceID: [% Data.WebserviceID | html %],
-    Localization: {
-        CommunicationErrorMsg: Core.Language.Translate('An error occurred during communication.'),
-        NoDataFoundMsg: Core.Language.Translate('No data found.'),
-        ToggleContentMsg: Core.Language.Translate('Show or hide the content.'),
-        ClearDebugLogMsg: Core.Language.Translate('Clear debug log'),
-        ClearMsg: Core.Language.Translate('Clear'),
-        CancelMsg: Core.Language.Translate('Cancel')
-    }
-});
+Core.Agent.Admin.GenericInterfaceDebugger.Init([% Data.WebserviceID | html %]);
 
 $('#FilterRefresh').bind('click', Core.Agent.Admin.GenericInterfaceDebugger.GetRequestList);
 $('#DeleteButton').bind('click', Core.Agent.Admin.GenericInterfaceDebugger.ShowDeleteDialog);
