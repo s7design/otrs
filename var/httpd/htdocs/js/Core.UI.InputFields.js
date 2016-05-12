@@ -369,7 +369,6 @@ Core.UI.InputFields = (function (TargetNS) {
             MoreBox = false,
             Multiple = ($SelectObj.attr('multiple') !== '' && $SelectObj.attr('multiple') !== undefined) ? true : false,
             PossibleNone = false,
-            MoreString = Core.Language.Translate("and %s more..."),
             MaxWidth,
             $SearchObj = $InputContainerObj.find('.InputField_Search'),
             $TempMoreObj;
@@ -414,7 +413,7 @@ Core.UI.InputFields = (function (TargetNS) {
             if (SelectionLength > 1) {
                 $TempMoreObj = $('<div />').hide()
                     .addClass('InputField_More')
-                    .text(MoreString.replace(/%s/, '##'))
+                    .text(Core.Language.Translate("and %s more...").replace(/%s/, '##'))
                     .appendTo($InputContainerObj);
 
                 // Save place for string
@@ -536,7 +535,7 @@ Core.UI.InputFields = (function (TargetNS) {
                                     OffsetLeft + 'px'
                                 )
                                 .text(
-                                    MoreString.replace(/%s/, SelectionLength - i)
+                                    Core.Language.Translate("and %s more...").replace(/%s/, SelectionLength - i)
                                 )
                                 .on('click.InputField', function () {
                                     $SearchObj.trigger('focus');
