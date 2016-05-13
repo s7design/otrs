@@ -57,7 +57,7 @@
             });
             // if there is not at least one transport enabled, omit the action
             if (!FoundEnabled) {
-                alert([% Translate("Sorry, but you can't disable all methods for notifications marked as mandatory.") | JSON %]);
+                alert(Core.Language.Translate("Sorry, but you can't disable all methods for notifications marked as mandatory."));
                 Event.preventDefault();
                 Event.stopPropagation();
                 return false;
@@ -82,7 +82,7 @@
 
             // if there is not at least one transport enabled, omit the action
             if (!FoundEnabled) {
-                alert([% Translate("Sorry, but you can't disable all methods for this notification.") | JSON %]);
+                alert(Core.Language.Translate("Sorry, but you can't disable all methods for this notification."));
                 Event.stopPropagation();
                 return false;
             }
