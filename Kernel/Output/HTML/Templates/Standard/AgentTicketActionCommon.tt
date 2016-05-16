@@ -95,11 +95,27 @@
                         <label for="NewQueueID">[% Translate("Queue") | html %]:</label>
                         <div class="Field">
                             [% Data.QueuesStrg %]
-                            <div id="NewQueueIDError" class="TooltipErrorMessage" ><p>[% Translate("This field is required.") | html %]</p></div>
-                            <div id="NewQueueIDServerError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
+                            <div id="NewQueueIDServerError" class="TooltipErrorMessage"><p>[% Translate("Queue invalid.") | html %]</p></div>
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("Queue") %]
+
+[% RenderBlockStart("QueueMandatory") %]
+                        <label class="Mandatory" for="NewQueueID"><span class="Marker">*</span>[% Translate("Queue") | html %]:</label>
+                        <div class="Field">
+                            [% Data.QueuesStrg %]
+                            <div id="NewQueueIDError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
+                            <div id="NewQueueIDServerError" class="TooltipErrorMessage"><p>[% Translate("Queue invalid.") | html %]</p></div>
+                        </div>
+                        <div class="Clear"></div>
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+    $('#NewQueueID').bind('change', function (Event) {
+        Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewQueueID', [ 'TypeID', 'ServiceID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID' [% Data.DynamicFieldNamesStrg %] ]);
+    });
+//]]></script>
+[% END %]
+[% RenderBlockEnd("QueueMandatory") %]
 
 [% RenderBlockStart("Service") %]
                         <label for="ServiceID">[% Translate("Service") | html %]:</label>
@@ -133,7 +149,7 @@
                         <div class="Field">
                             [% Data.SLAStrg %]
                             <div id="SLAIDError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
-                            <div id="SLAIDServerError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
+                            <div id="SLAIDServerError" class="TooltipErrorMessage"><p>[% Translate("SLA invalid.") | html %]</p></div>
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("SLAMandatory") %]
@@ -142,7 +158,7 @@
                         <label for="NewOwnerID">[% Translate("New Owner") | html %]:</label>
                         <div class="Field">
                             [% Data.OwnerStrg %]
-                            <div id="NewOwnerIDServerError" class="TooltipErrorMessage"><p>[% Translate("Please set a new owner!") | html %]</p></div>
+                            <div id="NewOwnerIDServerError" class="TooltipErrorMessage"><p>[% Translate("Owner invalid.") | html %]</p></div>
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("Owner") %]
@@ -152,7 +168,7 @@
                         <div class="Field">
                             [% Data.OwnerStrg %]
                             <div id="NewOwnerIDError" class="TooltipErrorMessage"><p>[% Translate("Please set a new owner!") | html %]</p></div>
-                            <div id="NewOwnerIDServerError" class="TooltipErrorMessage"><p>[% Translate("Please set a new owner!") | html %]</p></div>
+                            <div id="NewOwnerIDServerError" class="TooltipErrorMessage"><p>[% Translate("Owner invalid.") | html %]</p></div>
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("OwnerMandatory") %]
@@ -170,7 +186,7 @@
                         <div class="Field">
                             [% Data.ResponsibleStrg %]
                             <div id="NewResponsibleIDError" class="TooltipErrorMessage"><p>[% Translate("Please set a new responsible!") | html %]</p></div>
-                            <div id="NewResponsibleIDServerError" class="TooltipErrorMessage"><p>[% Translate("Please set a new responsible!") | html %]</p></div>
+                            <div id="NewResponsibleIDServerError" class="TooltipErrorMessage"><p>[% Translate("Responsible invalid.") | html %]</p></div>
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("ResponsibleMandatory") %]
@@ -178,21 +194,36 @@
 [% RenderBlockStart("State") %]
                         <label for="NewStateID">[% Translate("Next state") | html %]:</label>
                         <div class="Field">
-                    [% Data.StateStrg %]
+                            [% Data.StateStrg %]
                         </div>
                         <div class="Clear"></div>
+[% WRAPPER JSOnDocumentComplete %]
+<script type="text/javascript">//<![CDATA[
+    $('#NewStateID').bind('change', function (Event) {
+        Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewStateID', ['TypeID', 'ServiceID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewPriorityID' [% Data.DynamicFieldNamesStrg %] ]);
+    });
+//]]></script>
+[% END %]
+[% RenderBlockEnd("State") %]
 
+[% RenderBlockStart("StateMandatory") %]
+                        <label class="Mandatory" for="NewStateID"><span class="Marker">*</span>[% Translate("Next state") | html %]:</label>
+                        <div class="Field">
+                            [% Data.StateStrg %]
+                            <div id="NewStateIDError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
+                            <div id="NewStateIDServerError" class="TooltipErrorMessage"><p>[% Translate("State invalid.") | html %]</p></div>
+                        </div>
+                        <div class="Clear"></div>
 [% RenderBlockStart("StatePending") %]
                         <label>[% Translate("Pending date") | html %]:</label>
                         <div class="Field">
-                    [% Data.DateString %]
+                            [% Data.DateString %]
                             <div id="DayServerError" class="TooltipErrorMessage"><p>[% Translate("Date invalid!") | html %]</p></div>
                             <div id="HourServerError" class="TooltipErrorMessage"><p>[% Translate("Date invalid!") | html %]</p></div>
                             <p class="FieldExplanation">[% Translate("For all pending* states.") | html %]</p>
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("StatePending") %]
-[% RenderBlockEnd("State") %]
 
 [% RenderBlockStart("Priority") %]
                         <label for="NewPriorityID">[% Translate("Priority") | html %]:</label>

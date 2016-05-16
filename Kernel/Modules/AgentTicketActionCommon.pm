@@ -465,6 +465,20 @@ sub Run {
                 $Error{'SLAInvalid'} = ' ServerError';
             }
 
+            # check mandatory queue
+            if ( $Config->{Queue} && $Config->{QueueMandatory} ) {
+                if ( !$GetParam{NewQueueID} ) {
+                    $Error{'NewQueueInvalid'} = 'ServerError';
+                }
+            }
+
+            # check mandatory state
+            if ( $Config->{State} && $Config->{StateMandatory} ) {
+                if ( !$GetParam{NewStateID} ) {
+                    $Error{'NewStateInvalid'} = 'ServerError';
+                }
+            }
+
             # check time units, but only if the current screen has a note
             #   (accounted time can only be stored if and article is generated)
             if (
@@ -1617,7 +1631,10 @@ sub _Mask {
             Data           => { %MoveQueues, '' => '-' },
             Multiple       => 0,
             Size           => 0,
-            Class          => 'NewQueueID Modernize',
+            # Class          => 'NewQueueID Modernize',
+            Class          => 'NewQueueID Modernize '
+                    . ( $Config->{QueueMandatory} ? 'Validate_Required ' : '' )
+                    . ( $Param{NewQueueInvalid} || '' ),
             Name           => 'NewQueueID',
             SelectedID     => $Param{NewQueueID},
             TreeView       => $TreeView,
@@ -1626,7 +1643,7 @@ sub _Mask {
         );
 
         $LayoutObject->Block(
-            Name => 'Queue',
+            Name => $Config->{QueueMandatory} ? 'QueueMandatory' : 'Queue',
             Data => {%Param},
         );
     }
@@ -1813,12 +1830,14 @@ sub _Mask {
         $Param{StateStrg} = $LayoutObject->BuildSelection(
             Data         => \%StateList,
             Name         => 'NewStateID',
-            Class        => 'Modernize',
+            Class      => 'Modernize '
+                . ( $Config->{StateMandatory} ? 'Validate_Required ' : '' )
+                . ( $Param{NewStateInvalid} || '' ),
             PossibleNone => $Config->{StateDefault} ? 0 : 1,
             %State,
         );
         $LayoutObject->Block(
-            Name => 'State',
+            Name => $Config->{StateMandatory} ? 'StateMandatory' : 'State',
             Data => \%Param,
         );
 
