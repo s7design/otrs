@@ -87,7 +87,7 @@
         });
 
         if ( !SearchValueFlag ) {
-           alert(Core.Language.Translate('Please enter at least one search value or * to find anything.'));
+           alert([% Translate("Please enter at least one search value or * to find anything.") | JSON %]);
            return false;
         }
     });
