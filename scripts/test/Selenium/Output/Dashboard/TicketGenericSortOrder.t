@@ -131,6 +131,14 @@ $Selenium->RunTest(
         $ActiveElement->clear();
         $ActiveElement->send_keys('StateType=new;SortBy=Priority;OrderBy=Down;');
 
+        # set CacheTTLocal to 0.001
+         $Selenium->find_element(
+            "//input[\@name='DashboardBackend###0120-TicketNewKey[]'][\@title='CacheTTLLocal']"
+        )->send_keys("\N{U+E004}");
+        $ActiveElement = $Selenium->get_active_element();
+        $ActiveElement->clear();
+        $ActiveElement->send_keys('0.001');
+
         # find 'Priority' and 'Queue' for TicketNew dashboard SysConfig and set it as default columns
         for my $DefaultColumns (qw(Priority Queue)) {
             $Selenium->find_element(
@@ -144,8 +152,12 @@ $Selenium->RunTest(
         # submit SysConfig
         $Selenium->find_element("//button[\@class='CallForAction'][\@value='Update']")->VerifiedClick();
 
-        # navigate to AgentDashboard screen
-        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentDashboard");
+        # login test user again
+        $Selenium->Login(
+            Type     => 'Agent',
+            User     => $TestUserLogin,
+            Password => $TestUserLogin,
+        );
 
         # click on 'Tickets in My Queues'
         $Selenium->find_element( "#Dashboard0120-TicketNewMyQueues", 'css' )->click();
@@ -166,10 +178,11 @@ $Selenium->RunTest(
         # click to set filter for queue column
         $Selenium->find_element("//a[contains(\@title, \'Queue, filter not active' )]")->click();
 
-        # wait for AJAX to load
-        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && !$(".Loading").length' );
+        # wait for filter options to load
+        sleep 2;
 
         # set test queue as filter
+        $Selenium->find_element( "#ColumnFilterQueue0120-TicketNew", 'css' )->click();
         $Selenium->execute_script(
             "\$('#ColumnFilterQueue0120-TicketNew').val('$QueueID').trigger('redraw.ColumnFilter').trigger('change');");
 
@@ -209,8 +222,8 @@ $Selenium->RunTest(
         # click to set filter for queue column
         $Selenium->find_element("//a[contains(\@title, \'Queue, filter active' )]")->click();
 
-        # wait for AJAX to load
-        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && !$(".Loading").length' );
+        # wait for filter options to load
+        sleep 2;
 
         # remove queue filter
         $Selenium->find_element( "#ColumnFilterQueue0120-TicketNew", 'css' )->click();
