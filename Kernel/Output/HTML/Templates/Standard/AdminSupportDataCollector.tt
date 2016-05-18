@@ -72,10 +72,10 @@
                     return;
                 }
 
-            var ResponseMessage = Core.Language.Translate('Support Data information was successfully sent.')';
+            var ResponseMessage = [% Translate('Support Data information was successfully sent.') | JSON %];
 
             if ( Response === 0) {
-                ResponseMessage = Core.Language.Translate('Was not possible to send Support Data information.');
+                ResponseMessage = [% Translate('Was not possible to send Support Data information.') | JSON %];
                 TextClass = 'Error';
             }
 
@@ -86,7 +86,7 @@
                 true,
                 [
                     {
-                        Label: Core.Language.Translate('Close'),
+                        Label: [% Translate('Close') | JSON %],
                         Class: 'Primary',
                         Function: function () {
                             Core.UI.Dialog.CloseDialog($('.SendUpdateResultDialog'));
@@ -146,7 +146,7 @@
             Core.UI.Dialog.CloseDialog($('.LoadingSupportBundleDialog'));
 
             if ( !Response.Success ) {
-                var ResponseMessage = Core.Language.Translate('It was not possible to generate the Support Bundle.'),
+                var ResponseMessage = [% Translate('It was not possible to generate the Support Bundle.') | JSON %],
                 TextClass = 'Error';
 
                 Core.UI.Dialog.ShowContentDialog(
@@ -156,7 +156,7 @@
                     true,
                     [
                         {
-                            Label: Core.Language.Translate('Close'),
+                            Label: [% Translate('Close') | JSON %],
                             Class: 'Primary',
                             Function: function () {
                                 Core.UI.Dialog.CloseDialog($('.NoSupportBunle'));
