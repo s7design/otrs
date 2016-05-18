@@ -1090,8 +1090,8 @@ sub _MaskPhone {
     if ( $Param{NextStateID} ) {
         $Selected{SelectedID} = $Param{NextStateID};
     }
-    elsif ( $Config->{State} ) {
-        $Selected{SelectedValue} = $Config->{State};
+    elsif ( $Config->{StateDefault} ) {
+        $Selected{SelectedValue} = $Config->{StateDefault};
     }
     else {
         $Param{NextStates}->{''} = '-';

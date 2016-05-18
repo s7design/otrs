@@ -3041,7 +3041,7 @@
             <TextArea></TextArea>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Ticket::Frontend::AgentTicketPhoneOutbound###State" Required="0" Valid="1">
+    <ConfigItem Name="Ticket::Frontend::AgentTicketPhoneOutbound###StateDefault" Required="0" Valid="1">
         <Description Translatable="1">Defines the default ticket next state after adding a phone note in the ticket phone outbound screen of the agent interface.</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::Ticket::ViewPhoneOutbound</SubGroup>
@@ -3130,7 +3130,7 @@
             <TextArea></TextArea>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Ticket::Frontend::AgentTicketPhoneInbound###State" Required="0" Valid="1">
+    <ConfigItem Name="Ticket::Frontend::AgentTicketPhoneInbound###StateDefault" Required="0" Valid="1">
         <Description Translatable="1">Defines the default ticket next state after adding a phone note in the ticket phone inbound screen of the agent interface.</Description>
         <Group>Ticket</Group>
         <SubGroup>Frontend::Agent::Ticket::ViewPhoneInbound</SubGroup>

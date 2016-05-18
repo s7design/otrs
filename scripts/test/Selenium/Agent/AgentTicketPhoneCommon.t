@@ -53,6 +53,20 @@ $Selenium->RunTest(
             Value => 0
         );
 
+        # set default state
+        my $OutboundStateDefault = 'closed successful';
+        my $InboundStateDefault  = 'open';
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Frontend::AgentTicketPhoneOutbound###StateDefault',
+            Value => $OutboundStateDefault,
+        );
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => 'Ticket::Frontend::AgentTicketPhoneInbound###StateDefault',
+            Value => $InboundStateDefault,
+        );
+
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
@@ -91,12 +105,14 @@ $Selenium->RunTest(
         # get test data
         my @Test = (
             {
-                Name        => 'AgentTicketPhoneOutbound',
-                HistoryText => 'PhoneCallAgent',
+                Name         => 'AgentTicketPhoneOutbound',
+                HistoryText  => 'PhoneCallAgent',
+                StateDefault => $OutboundStateDefault,
             },
             {
-                Name        => 'AgentTicketPhoneInbound',
-                HistoryText => 'PhoneCallCustomer',
+                Name         => 'AgentTicketPhoneInbound',
+                HistoryText  => 'PhoneCallCustomer',
+                StateDefault => $InboundStateDefault,
             },
         );
 
@@ -119,6 +135,13 @@ $Selenium->RunTest(
                 $Element->is_enabled();
                 $Element->is_displayed();
             }
+
+            # check default state
+            $Self->Is(
+                $Selenium->execute_script("return \$('#NextStateID option:selected').text();"),
+                $Action->{StateDefault},
+                "Default state in action $Action->{Name} is set correctly",
+            );
 
             # add body text and submit
             my $ActionText = $Action->{Name} . " Selenium Test";
