@@ -13,11 +13,9 @@ use utf8;
 use vars (qw($Self));
 
 # get needed objects
-my $AutoResponseObject      = $Kernel::OM->Get('Kernel::System::AutoResponse');
-my $CommandObject           = $Kernel::OM->Get('Kernel::System::Console::Command::Maint::PostMaster::Read');
-my $DBObject                = $Kernel::OM->Get('Kernel::System::DB');
-my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
-my $ConfigObject            = $Kernel::OM->Get('Kernel::Config');
+my $AutoResponseObject = $Kernel::OM->Get('Kernel::System::AutoResponse');
+my $CommandObject      = $Kernel::OM->Get('Kernel::System::Console::Command::Maint::PostMaster::Read');
+my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
 
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
@@ -26,6 +24,12 @@ $Kernel::OM->ObjectParamAdd(
 );
 my $Helper   = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $RandomID = $Helper->GetRandomID();
+
+# do not check email addresses
+$ConfigObject->Set(
+    Key   => 'CheckEmailAddresses',
+    Value => 0,
+);
 
 # do not really send emails
 $ConfigObject->Set(
@@ -114,7 +118,7 @@ $Self->True(
 
 # add notificaiton with customer as recipient
 my $NotificationName = 'Notification' . $RandomID;
-my $NotificationID   = $NotificationEventObject->NotificationAdd(
+my $NotificationID   = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationAdd(
     Name    => $NotificationName,
     Comment => 'Unit Test Notification <OTRS_CUSTOMER_REALNAME> tag',
     Data    => {
