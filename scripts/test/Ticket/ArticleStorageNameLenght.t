@@ -19,6 +19,14 @@ my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
+# get helper object
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+        }
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
 my $TicketID = $TicketObject->TicketCreate(
     Title        => 'Some Ticket_Title',
     Queue        => 'Raw',
@@ -112,38 +120,6 @@ my @Tests = (
             'шђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпчшђпчћжђшпч',
     },
 
-    # Japanese charcters, 3 byte per character when encoding
-    # there are issues with some distributions when encoding 3 byte characters, conduct OS check for these tests
-    # attachment with 20 character long Japanese name,
-    {
-        Description => 'Japanese 20 characters',
-        FileName    => '人だけの会員制転職サ人だけの会員制転職サ',
-        OSCheck     => 1,
-    },
-
-# attachment with 75 character long Japanese FileName, approximately limit for Linux file name reaching 255 bytes after encoding Japanese letters
-    {
-        Description => 'Japanese 75 characters',
-        FileName =>
-            '人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会',
-        OSCheck => 1,
-    },
-
-    # attachment with 120 character long Japanese FileName, have to cut name to create attachment file in FS backend
-    {
-        Description => 'Japanese 120 characters',
-        FileName =>
-            '人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ',
-        OSCheck => 1,
-    },
-
-    # attachment with 140 character long Japanese FileName, have to cut name to create attachment file in FS backend
-    {
-        Description => 'Japanese 140 characters',
-        FileName =>
-            '人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ人だけの会員制転職サ',
-        OSCheck => 1,
-    },
 );
 
 TEST:
@@ -266,15 +242,6 @@ for my $Test (@Tests) {
     }
 }
 
-# the ticket is no longer needed
-$TicketObject->TicketDelete(
-    TicketID => $TicketID,
-    UserID   => 1,
-);
-
-$Self->True(
-    $TicketObject,
-    'TicketDelete()',
-);
+# cleanup is done by RestoreDatabase.
 
 1;
