@@ -45,6 +45,13 @@ my @Tests = (
         Target => '',
     },
     {
+        Input => 'Some Text with nested url http://www.example.com/redirect?location=www.example2.com',
+        Result =>
+            'Some Text with nested url <a href="http://www.example.com/redirect?location=www.example2.com" title="http://www.example.com/redirect?location=www.example2.com">http://www.example.com/redirect?location=www.example2.com</a>',
+        Name   => 'LinkQuote - nested URL bug#8761',
+        Target => '',
+    },
+    {
         Input => 'Some Text with url http://example-domain.com',
         Result =>
             'Some Text with url <a href="http://example-domain.com" title="http://example-domain.com">http://example-domain.com</a>',
