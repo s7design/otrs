@@ -41,7 +41,7 @@ $Kernel::OM->ObjectParamAdd(
         RestoreDatabase => 1,
     },
 );
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # get ticket object
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
@@ -80,8 +80,8 @@ my @Tests = (
     {
         Name => 'Test supported tags - <OTRS_TICKET_*> without TicketID',
         TemplateText =>
-            'Options of the ticket data (e. g. <OTRS_TICKET_TicketNumber>, <OTRS_TICKET_TicketID>, <OTRS_TICKET_Queue>, <OTRS_TICKET_State>)',
-        ExpectedResult => 'Options of the ticket data (e. g. -, -, -, -)',
+            'Options of the ticket data (e. g. <OTRS_TICKET_TicketNumber>, <OTRS_TICKET_TicketID>, <OTRS_TICKET_Queue>)',
+        ExpectedResult => 'Options of the ticket data (e. g. -, -, -)',
     },
     {
         Name => 'Test supported tags - <OTRS_TICKET_*>  with TicketID',
@@ -100,7 +100,7 @@ for my $Test (@Tests) {
 
     # create standard template
     my $TemplateID = $StandardTemplateObject->StandardTemplateAdd(
-        Name         => $HelperObject->GetRandomID() . '-StandardTemplate',
+        Name         => $Helper->GetRandomID() . '-StandardTemplate',
         Template     => $Test->{TemplateText},
         ContentType  => 'text/plain; charset=utf-8',
         TemplateType => 'Answer',

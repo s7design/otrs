@@ -41,7 +41,7 @@ $Kernel::OM->ObjectParamAdd(
         RestoreDatabase => 1,
     },
 );
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # get needed objects
 my $TicketObject            = $Kernel::OM->Get('Kernel::System::Ticket');
@@ -51,8 +51,8 @@ my $TemplateGeneratorObject = $Kernel::OM->Get('Kernel::System::TemplateGenerato
 my $CustomerCompanyObject   = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 
 # create test company
-my $TestCustomerID    = $HelperObject->GetRandomID() . "CID";
-my $TestCompanyName   = "Company" . $HelperObject->GetRandomID();
+my $TestCustomerID    = $Helper->GetRandomID() . "CID";
+my $TestCompanyName   = "Company" . $Helper->GetRandomID();
 my $CustomerCompanyID = $Kernel::OM->Get('Kernel::System::CustomerCompany')->CustomerCompanyAdd(
     CustomerID             => $TestCustomerID,
     CustomerCompanyName    => $TestCompanyName,
@@ -71,9 +71,9 @@ $Self->True(
 );
 
 # create test customer user
-my $TestUserLogin      = 'Customer' . $HelperObject->GetRandomID();
-my $TestUserFirstname  = 'Firstname' . $HelperObject->GetRandomID();
-my $TestUserLastname   = 'Lastname' . $HelperObject->GetRandomID();
+my $TestUserLogin      = 'Customer' . $Helper->GetRandomID();
+my $TestUserFirstname  = 'Firstname' . $Helper->GetRandomID();
+my $TestUserLastname   = 'Lastname' . $Helper->GetRandomID();
 my $CustomerEmail      = "$TestUserLogin\@localhost.com";
 my $TestCustomerUserID = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
     Source         => 'CustomerUser',
@@ -130,7 +130,7 @@ for my $Test (@Tests) {
 
     # add salutation
     my $SalutationID = $SalutationObject->SalutationAdd(
-        Name => $HelperObject->GetRandomID() . '-Salutation',
+        Name => $Helper->GetRandomID() . '-Salutation',
         Text => $Test->{Salutation},
         ,
         ContentType => 'text/plain; charset=utf-8',
@@ -143,7 +143,7 @@ for my $Test (@Tests) {
         "Salutation is created - ID $SalutationID",
     );
 
-    my $QueueName = $HelperObject->GetRandomID() . '-Queue';
+    my $QueueName = $Helper->GetRandomID() . '-Queue';
     my $QueueID   = $QueueObject->QueueAdd(
         Name            => $QueueName,
         ValidID         => 1,

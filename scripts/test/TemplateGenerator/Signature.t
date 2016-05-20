@@ -41,7 +41,7 @@ $Kernel::OM->ObjectParamAdd(
         RestoreDatabase => 1,
     },
 );
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 # get needed objects
 my $TicketObject            = $Kernel::OM->Get('Kernel::System::Ticket');
@@ -107,7 +107,7 @@ for my $Test (@Tests) {
 
     # add signature
     my $SignatureID = $SignatureObject->SignatureAdd(
-        Name => $HelperObject->GetRandomID() . '-Signature',
+        Name => $Helper->GetRandomID() . '-Signature',
         ,
         Text        => $Test->{Signature},
         ContentType => 'text/plain; charset=iso-8859-1',
@@ -121,7 +121,7 @@ for my $Test (@Tests) {
     );
 
     my $QueueID = $QueueObject->QueueAdd(
-        Name            => $HelperObject->GetRandomID() . '-Queue',
+        Name            => $Helper->GetRandomID() . '-Queue',
         ValidID         => 1,
         GroupID         => 1,
         SystemAddressID => 1,
