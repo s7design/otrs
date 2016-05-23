@@ -36,6 +36,9 @@ my $CheckBreadcrumb = sub {
 $Selenium->RunTest(
     sub {
 
+        # get queue object
+        my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
+
         # get helper object
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
@@ -62,10 +65,10 @@ $Selenium->RunTest(
             UserLogin => $TestUserLogin,
         );
 
-        # add test Queue
-        my $QueueRandomID = "queue" . $Helper->GetRandomID();
-        my $QueueID       = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-            Name            => $QueueRandomID,
+        # add test queue
+        my $QueueName = "queue" . $Helper->GetRandomID();
+        my $QueueID   = $QueueObject->QueueAdd(
+            Name            => $QueueName,
             ValidID         => 1,
             GroupID         => 1,
             SystemAddressID => 1,
@@ -76,7 +79,7 @@ $Selenium->RunTest(
         );
         $Self->True(
             $QueueID,
-            "Created Queue - $QueueRandomID",
+            "Created Queue - $QueueName",
         );
 
         # get script alias
@@ -123,7 +126,7 @@ $Selenium->RunTest(
             'Client side validation correctly detected missing input value',
         );
 
-        # create real test SystemAddress
+        # create test system address
         my $SysAddRandom  = 'sysadd' . $Helper->GetRandomID() . '@localhost.com';
         my $SysAddComment = "Selenium test SystemAddress";
 
@@ -170,6 +173,65 @@ $Selenium->RunTest(
         # check breadcrumb on Edit screen
         $CheckBreadcrumb->( BreadcrumbText => 'Edit System Email Address: ' . $SysAddRandom );
 
+        # navigate to AdminSystemAddress screen
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminSystemAddress");
+
+        # get system address ID
+        my $SysAddRandomID = $Selenium->execute_script(
+            "return \$('tr.MasterAction td a:contains($SysAddRandom)').attr('href').split('ID=')[1]"
+        );
+
+        # update queue with SysAddRandomID
+        my $Success = $QueueObject->QueueUpdate(
+            QueueID         => $QueueID,
+            Name            => $QueueName,
+            ValidID         => 1,
+            GroupID         => 1,
+            SystemAddressID => $SysAddRandomID,
+            SalutationID    => 1,
+            SignatureID     => 1,
+            UserID          => 1,
+            FollowUpID      => 1,
+        );
+        $Self->True(
+            $Success,
+            "QueueID $QueueID is updated successfully - connected with SystemAddressID $SysAddRandomID",
+        );
+
+        # navigate to screen for change system address
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminSystemAddress;Subaction=Change;ID=$SysAddRandomID");
+
+        # try to set system address ID to invalid
+        $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change')");
+        $Selenium->find_element( "button[value='Save'][type='submit']", 'css' )->VerifiedClick();
+        $Self->True(
+            index(
+                $Selenium->get_page_source(),
+                'System e-mail address is a parameter in some queue(s) and it should not be changed!'
+                ) > -1,
+            "'$SysAddRandom' can't be set to invalid because it is parameter in some queue(s)",
+        );
+
+        # update queue back to the system address ID = 1
+        $Success = $QueueObject->QueueUpdate(
+            QueueID         => $QueueID,
+            Name            => $QueueName,
+            ValidID         => 1,
+            GroupID         => 1,
+            SystemAddressID => 1,
+            SalutationID    => 1,
+            SignatureID     => 1,
+            UserID          => 1,
+            FollowUpID      => 1,
+        );
+        $Self->True(
+            $Success,
+            "QueueID $QueueID is updated successfully",
+        );
+
+        # navigate to screen for change system address
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminSystemAddress;Subaction=Change;ID=$SysAddRandomID");
+
         # edit test SystemAddress and set it to invalid
         $Selenium->find_element( "#Realname", 'css' )->send_keys(" Edited");
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
@@ -186,6 +248,7 @@ $Selenium->RunTest(
 
         # check edited test SystemAddress values
         $Selenium->find_element( $SysAddRandom, 'link_text' )->VerifiedClick();
+
         $Self->Is(
             $Selenium->find_element( '#Realname', 'css' )->get_value(),
             $SysAddRandom . " Edited",
@@ -205,20 +268,23 @@ $Selenium->RunTest(
         # get DB object
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
-        # since we no longer need them, delete test Queue and SystemAddress from the DB
-        my $Success = $DBObject->Do(
+        # cleanup
+        # delete test system address
+        $Success = $DBObject->Do(
             SQL => "DELETE FROM system_address WHERE value0 = \'$SysAddRandom\'",
         );
         $Self->True(
             $Success,
-            "Deleted - $SysAddRandom",
+            "SystemAddress $SysAddRandom is deleted",
         );
+
+        # delete test queue
         $Success = $DBObject->Do(
             SQL => "DELETE FROM queue WHERE id = \'$QueueID\'",
         );
         $Self->True(
             $Success,
-            "Deleted - $QueueRandomID",
+            "QueueID $QueueID is deleted",
         );
 
         # make sure cache is correct

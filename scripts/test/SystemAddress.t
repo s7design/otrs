@@ -12,6 +12,10 @@ use utf8;
 
 use vars (qw($Self));
 
+# get needed objects
+my $SystemAddressObject = $Kernel::OM->Get('Kernel::System::SystemAddress');
+my $QueueObject         = $Kernel::OM->Get('Kernel::System::Queue');
+
 # get helper object
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
@@ -20,46 +24,38 @@ $Kernel::OM->ObjectParamAdd(
 );
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-my $SystemAddressObject = $Kernel::OM->Get('Kernel::System::SystemAddress');
+# get needed variables
+my @QueueNames;
+my @QueueIDs;
 
-my $QueueRand1 = $Helper->GetRandomID();
-my $QueueRand2 = $Helper->GetRandomID();
+# create test queues
+for ( 0 .. 1 ) {
+    my $QueueName = $Helper->GetRandomID();
+    my $QueueID   = $QueueObject->QueueAdd(
+        Name                => $QueueName,
+        ValidID             => 1,
+        GroupID             => 1,
+        FirstResponseTime   => 30,
+        FirstResponseNotify => 70,
+        UpdateTime          => 240,
+        UpdateNotify        => 80,
+        SolutionTime        => 2440,
+        SolutionNotify      => 90,
+        SystemAddressID     => 1,
+        SalutationID        => 1,
+        SignatureID         => 1,
+        UserID              => 1,
+        Comment             => 'Some Comment',
+    );
+    $Self->True(
+        $QueueID,
+        "QueueID $QueueID is created",
+    );
+    push @QueueNames, $QueueName;
+    push @QueueIDs,   $QueueID;
+}
 
-my $QueueID1 = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-    Name                => $QueueRand1,
-    ValidID             => 1,
-    GroupID             => 1,
-    FirstResponseTime   => 30,
-    FirstResponseNotify => 70,
-    UpdateTime          => 240,
-    UpdateNotify        => 80,
-    SolutionTime        => 2440,
-    SolutionNotify      => 90,
-    SystemAddressID     => 1,
-    SalutationID        => 1,
-    SignatureID         => 1,
-    UserID              => 1,
-    Comment             => 'Some Comment',
-);
-
-my $QueueID2 = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-    Name                => $QueueRand2,
-    ValidID             => 1,
-    GroupID             => 1,
-    FirstResponseTime   => 30,
-    FirstResponseNotify => 70,
-    UpdateTime          => 240,
-    UpdateNotify        => 80,
-    SolutionTime        => 2440,
-    SolutionNotify      => 90,
-    SystemAddressID     => 1,
-    SalutationID        => 1,
-    SignatureID         => 1,
-    UserID              => 1,
-    Comment             => 'Some Comment',
-);
-
-# add SystemAddress
+# add system address
 my $SystemAddressEmail    = $Helper->GetRandomID() . '@example.com';
 my $SystemAddressRealname = "OTRS-Team";
 
@@ -67,7 +63,7 @@ my %SystemAddressData = (
     Name     => $SystemAddressEmail,
     Realname => $SystemAddressRealname,
     Comment  => 'some comment',
-    QueueID  => $QueueID1,
+    QueueID  => $QueueIDs[0],
     ValidID  => 1,
 );
 
@@ -75,13 +71,14 @@ my $SystemAddressID = $SystemAddressObject->SystemAddressAdd(
     %SystemAddressData,
     UserID => 1,
 );
-
 $Self->True(
     $SystemAddressID,
-    'SystemAddressAdd()',
+    "SystemAddressID $SystemAddressID is created",
 );
 
-my %SystemAddress = $SystemAddressObject->SystemAddressGet( ID => $SystemAddressID );
+my %SystemAddress = $SystemAddressObject->SystemAddressGet(
+    ID => $SystemAddressID
+);
 
 for my $Key ( sort keys %SystemAddressData ) {
     $Self->Is(
@@ -92,7 +89,9 @@ for my $Key ( sort keys %SystemAddressData ) {
 }
 
 # caching
-%SystemAddress = $SystemAddressObject->SystemAddressGet( ID => $SystemAddressID );
+%SystemAddress = $SystemAddressObject->SystemAddressGet(
+    ID => $SystemAddressID
+);
 
 for my $Key ( sort keys %SystemAddressData ) {
     $Self->Is(
@@ -118,15 +117,15 @@ $Self->True(
 my @Tests = (
     {
         Address => uc($SystemAddressEmail),
-        QueueID => $QueueID1,
+        QueueID => $QueueIDs[0],
     },
     {
         Address => lc($SystemAddressEmail),
-        QueueID => $QueueID1,
+        QueueID => $QueueIDs[0],
     },
     {
         Address => $SystemAddressEmail,
-        QueueID => $QueueID1,
+        QueueID => $QueueIDs[0],
     },
     {
         Address => '2' . $SystemAddressEmail,
@@ -158,15 +157,63 @@ for my $Test (@Tests) {
     );
 }
 
+# update queue with SystemAddressID
+my $Success = $QueueObject->QueueUpdate(
+    QueueID         => $QueueIDs[0],
+    Name            => $QueueNames[0],
+    ValidID         => 1,
+    GroupID         => 1,
+    SystemAddressID => $SystemAddressID,
+    SalutationID    => 1,
+    SignatureID     => 1,
+    UserID          => 1,
+    FollowUpID      => 1,
+);
+$Self->True(
+    $Success,
+    "QueueID $QueueIDs[0] is updated - connected with SystemAddressID $SystemAddressID",
+);
+
+# update system address
+my $SystemAddressUpdate = $SystemAddressObject->SystemAddressUpdate(
+    ID       => $SystemAddressID,
+    Name     => $SystemAddressEmail,
+    ValidID  => 2,
+    Realname => $SystemAddressRealname,
+    QueueID  => $QueueIDs[0],
+    UserID   => 1,
+);
+$Self->False(
+    $SystemAddressUpdate,
+    "SystemAddressUpdate can't set address $SystemAddressEmail to invalid - queueID $QueueIDs[0] is connected with it",
+);
+
+# update queue back
+$Success = $QueueObject->QueueUpdate(
+    QueueID         => $QueueIDs[0],
+    Name            => $QueueNames[0],
+    ValidID         => 1,
+    GroupID         => 1,
+    SystemAddressID => 1,
+    SalutationID    => 1,
+    SignatureID     => 1,
+    UserID          => 1,
+    FollowUpID      => 1,
+);
+$Self->True(
+    $Success,
+    "QueueID $QueueIDs[0] is updated - connected with SystemAddressID 1",
+);
+
 my %SystemAddressDataUpdate = (
     Name     => '2' . $SystemAddressEmail,
     Realname => '2' . $SystemAddressRealname,
     Comment  => 'some comment 1',
-    QueueID  => $QueueID2,
+    QueueID  => $QueueIDs[1],
     ValidID  => 2,
 );
 
-my $SystemAddressUpdate = $SystemAddressObject->SystemAddressUpdate(
+$SystemAddressUpdate = $SystemAddressObject->SystemAddressUpdate(
     %SystemAddressDataUpdate,
     ID     => $SystemAddressID,
     UserID => 1,
@@ -191,7 +238,7 @@ my $SystemAddressID1 = $SystemAddressObject->SystemAddressAdd(
     Name     => $SystemAddressEmail . 'first',
     Realname => $SystemAddressRealname . 'first',
     Comment  => 'some comment',
-    QueueID  => $QueueID1,
+    QueueID  => $QueueIDs[0],
     ValidID  => 1,
     UserID   => 1,
 );
@@ -200,11 +247,11 @@ my $SystemAddressID1 = $SystemAddressObject->SystemAddressAdd(
 my %SystemQueues = $Kernel::OM->Get('Kernel::System::SystemAddress')->SystemAddressQueueList( Valid => 0 );
 
 $Self->True(
-    exists $SystemQueues{$QueueID2} && $SystemQueues{$QueueID2} == $SystemAddressID,
+    exists $SystemQueues{ $QueueIDs[1] } && $SystemQueues{ $QueueIDs[1] } == $SystemAddressID,
     "SystemAddressQueueList() contains the QueueID2",
 );
 $Self->True(
-    exists $SystemQueues{$QueueID1} && $SystemQueues{$QueueID1} == $SystemAddressID1,
+    exists $SystemQueues{ $QueueIDs[0] } && $SystemQueues{ $QueueIDs[0] } == $SystemAddressID1,
     "SystemAddressQueueList() contains the QueueID1",
 );
 
@@ -212,11 +259,11 @@ $Self->True(
 %SystemQueues = $Kernel::OM->Get('Kernel::System::SystemAddress')->SystemAddressQueueList( Valid => 1 );
 
 $Self->False(
-    exists $SystemQueues{$QueueID2},
+    exists $SystemQueues{ $QueueIDs[1] },
     "SystemAddressQueueList() does not contain the invalid QueueID2",
 );
 $Self->True(
-    exists $SystemQueues{$QueueID1} && $SystemQueues{$QueueID1} == $SystemAddressID1,
+    exists $SystemQueues{ $QueueIDs[0] } && $SystemQueues{ $QueueIDs[0] } == $SystemAddressID1,
     "SystemAddressQueueList() contains the valid QueueID1",
 );
 

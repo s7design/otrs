@@ -91,14 +91,14 @@ sub Run {
         # if no errors occurred
         if ( !%Errors ) {
 
+            my $Success = $SystemAddressObject->SystemAddressUpdate(
+                %GetParam,
+                UserID => $Self->{UserID},
+            );
+
             # update email system address
-            if (
-                $SystemAddressObject->SystemAddressUpdate(
-                    %GetParam,
-                    UserID => $Self->{UserID},
-                )
-                )
-            {
+            if ( $Success ){
+
                 # if the user would like to continue editing system e-mail address, just redirect to the edit screen
                 # otherwise return to overview
                 if (
@@ -114,6 +114,28 @@ sub Run {
                     return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
                 }
             }
+            else{
+
+                $Self->_Overview();
+                my $Output = $LayoutObject->Header();
+                $Output .= $LayoutObject->NavigationBar();
+
+                $Output .= $LayoutObject->Notify(
+                    Priority => 'Error',
+                    Info     => Translatable(
+                        'System e-mail address is a parameter in some queue(s) and it should not be changed!'
+                    ),
+                );
+
+                $Output .= $LayoutObject->Output(
+                    TemplateFile => 'AdminSystemAddress',
+                    Data         => \%Param,
+                );
+                $Output .= $LayoutObject->Footer();
+                return $Output;
+
+            }
+
         }
 
         # something has gone wrong

@@ -16,6 +16,7 @@ our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::Log',
     'Kernel::System::Valid',
+    'Kernel::System::Queue',
 );
 
 =head1 NAME
@@ -219,6 +220,27 @@ sub SystemAddressUpdate {
                 Message  => "Need $Needed!",
             );
             return;
+        }
+    }
+
+    # get queue object
+    my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
+
+    # get system address with attributes
+    my %SystemAddress = $Self->SystemAddressGet(
+        ID => $Param{ID},
+    );
+
+    # when validity set from valid to invalid (or invalid-temporarily),
+    # check if the system address is connected with any queue
+    if ( $SystemAddress{ValidID} == 1 && $Param{ValidID} != 1 ) {
+        my %Queues = $QueueObject->GetAllQueues();
+
+        for my $QueueID ( sort keys %Queues ) {
+            my %Queue = $QueueObject->QueueGet(
+                ID => $QueueID,
+            );
+            return if $Queue{SystemAddressID} eq $Param{ID};
         }
     }
 
