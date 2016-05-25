@@ -1499,6 +1499,10 @@ sub Footer {
             = $Self->{LanguageObject}->Translate( $AutocompleteConfig->{$ConfigElement}->{ButtonText} );
     }
 
+    my $AutocompleteConfigJSON = $Self->JSONEncode(
+        Data => $AutocompleteConfig,
+    );
+
     # Search frontend (JavaScript)
     my $SearchFrontendConfig = $ConfigObject->Get('Frontend::Search::JavaScript');
 
@@ -1557,7 +1561,7 @@ sub Footer {
                 )
             ) ? 1 : 0,
         SearchFrontend => $JSCall,
-        Autocomplete   => $AutocompleteConfig,
+        Autocomplete   => $AutocompleteConfigJSON,
     );
 
     for my $Config ( sort keys %JSConfig ) {
@@ -3782,6 +3786,10 @@ sub CustomerFooter {
             = $Self->{LanguageObject}->Translate( $AutocompleteConfig->{$ConfigElement}{ButtonText} );
     }
 
+    my $AutocompleteConfigJSON = $Self->JSONEncode(
+        Data => $AutocompleteConfig,
+    );
+
     # add JS data
     my %JSConfig = (
         Baselink                 => $Self->{Baselink},
@@ -3797,7 +3805,7 @@ sub CustomerFooter {
         CheckEmailAddresses      => $ConfigObject->{CheckEmailAddresses},
         AnimationEnabled         => $ConfigObject->Get('Frontend::AnimationEnabled'),
         InputFieldsActivated     => $ConfigObject->Get('ModernizeCustomerFormFields'),
-        Autocomplete             => $AutocompleteConfig,
+        Autocomplete             => $AutocompleteConfigJSON,
     );
 
     for my $Config ( sort keys %JSConfig ) {
