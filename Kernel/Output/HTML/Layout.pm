@@ -1558,7 +1558,6 @@ sub Footer {
             ) ? 1 : 0,
         SearchFrontend => $JSCall,
         Autocomplete   => $AutocompleteConfig,
-
     );
 
     for my $Config ( sort keys %JSConfig ) {
@@ -3795,11 +3794,10 @@ sub CustomerFooter {
         ChallengeToken           => $Self->{UserChallengeToken},
         CustomerPanelSessionName => $ConfigObject->Get('CustomerPanelSessionName'),
         UserLanguage             => $Self->{UserLanguage},
-        CheckEmailAddresses      => $ConfigObject->('CheckEmailAddresses'),
+        CheckEmailAddresses      => $ConfigObject->{CheckEmailAddresses},
         AnimationEnabled         => $ConfigObject->Get('Frontend::AnimationEnabled'),
-        InputFieldsActivated     => $ConfigObject->Get('ModernizeFormFields'),
+        InputFieldsActivated     => $ConfigObject->Get('ModernizeCustomerFormFields'),
         Autocomplete             => $AutocompleteConfig,
-
     );
 
     for my $Config ( sort keys %JSConfig ) {
