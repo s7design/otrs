@@ -849,13 +849,14 @@ Core.Agent.Admin.ACL = (function (TargetNS) {
                         $(this),
                         function(Request, Response) {
                             var Data = [],
-                                ItemLC = '';
+                                ItemLC = '',
+                                PossibleActionsList = Core.Config.Get('PossibleActionsList');
 
                             if (Request.term === '**') {
-                                Data = Core.Agent.Admin.ACL.Autocomplete.Action;
+                                Data = PossibleActionsList;
                             }
                             else {
-                                $.each(Core.Agent.Admin.ACL.Autocomplete.Action, function(Index, Item) {
+                                $.each(PossibleActionsList, function(Index, Item) {
                                     ItemLC = Item.value.toLowerCase();
                                     if (ItemLC.indexOf(Request.term.toLowerCase()) !== -1) {
                                         Data.push(Item);

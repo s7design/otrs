@@ -795,6 +795,27 @@ sub _ShowEdit {
         }
     }
 
+    # create data for JS
+    my @ACLEditPossibleActionsList;
+    for my $Item (@PossibleActionsList) {
+        my %ACLEdit = (
+            label => $Item,
+            value => $Item
+        );
+        push @ACLEditPossibleActionsList, \%ACLEdit;
+    }
+
+    # set ACL data
+    $LayoutObject->AddJSData(
+        Key   => 'PossibleActionsList',
+        Value => \@ACLEditPossibleActionsList,
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Agent.Admin.ACL.InitACLEdit()',
+    );
+
     $Output .= $LayoutObject->Output(
         TemplateFile => "AdminACL$Param{Action}",
         Data         => {
