@@ -260,6 +260,12 @@ sub Run {
         $Self->_Overview();
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+
+        # add JS code
+        $LayoutObject->AddJSOnDocumentComplete(
+            Code => 'Core.UI.Table.InitTableFilter($("#FilterAttachments"), $("#Attachments"))',
+        );
+
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminAttachment',
             Data         => \%Param,
