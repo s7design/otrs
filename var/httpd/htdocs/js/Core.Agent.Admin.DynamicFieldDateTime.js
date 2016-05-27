@@ -41,5 +41,26 @@ Core.Agent.Admin.DynamicFieldDateTime = (function (TargetNS) {
         return false;
     };
 
+    /**
+     * @name Init
+     * @memberof Core.Agent.Admin.DynamicFieldDateTime
+     * @function
+     * @description
+     *       Initialize module functionality
+     */
+    TargetNS.Init = function () {
+        $('.ShowWarning').bind('change keyup', function () {
+            $('p.Warning').removeClass('Hidden');
+        });
+
+        $('#YearsPeriod').bind('change', function () {
+            TargetNS.ToogleYearsPeriod($(this).val());
+        });
+
+        Core.Agent.Admin.DynamicField.ValidationInit();
+    };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
+
     return TargetNS;
 }(Core.Agent.Admin.DynamicFieldDateTime || {}));
