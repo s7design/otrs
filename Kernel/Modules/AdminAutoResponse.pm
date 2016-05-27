@@ -219,6 +219,12 @@ sub Run {
         $Self->_Overview();
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+
+        # add JS code
+        $LayoutObject->AddJSOnDocumentComplete(
+            Code => 'Core.UI.Table.InitTableFilter($("#FilterAutoResponses"), $("#AutoResponses"))',
+        );
+
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminAutoResponse',
             Data         => \%Param,
