@@ -29,6 +29,7 @@ Core.Agent.Admin.Group = (function (TargetNS) {
      */
     TargetNS.Init = function () {
         $('#Submit').bind('click', TargetNS.AdminGroupCheck);
+        $('.ContentColumn form').bind('submit', TargetNS.AdminGroupCheck);
         Core.UI.Table.InitTableFilter($('#FilterGroups'), $('#Groups'));
     };
 
