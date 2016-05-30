@@ -481,6 +481,11 @@ sub _Edit {
         Data => \%Param,
     );
 
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Form.DisableForm($("form#edit"));',
+    );
+
     $LayoutObject->Block(
         Name => 'OverviewUpdate',
         Data => \%Param,
