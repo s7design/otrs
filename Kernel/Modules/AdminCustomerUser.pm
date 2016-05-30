@@ -663,11 +663,13 @@ sub Run {
                     if ( $Nav eq 'None' ) {
                         my $Output = $NavBar;
 
-                        $LayoutObject->Block(
-                            Name => 'BorrowedViewSubmitJS',
-                            Data => {
-                                Customer => $User,
-                            },
+                        $LayoutObject->AddJSData(
+                            Key   => 'Customer',
+                            Value => $User,
+                        );
+
+                        $LayoutObject->AddJSOnDocumentComplete(
+                            Code => 'Core.Customer.User.UpdateCustomer();',
                         );
 
                         $Output .= $LayoutObject->Output(
@@ -967,7 +969,9 @@ sub _Overview {
     }
 
     if ( $Param{Nav} eq 'None' ) {
-        $LayoutObject->Block( Name => 'BorrowedViewJS' );
+        $LayoutObject->AddJSOnDocumentComplete(
+            Code => 'Core.Customer.User.UpdateCustomerText();',
+        );
     }
 }
 
@@ -1353,7 +1357,9 @@ sub _Edit {
     }
 
     if ( $Param{Nav} eq 'None' ) {
-        $LayoutObject->Block( Name => 'BorrowedViewJS' );
+        $LayoutObject->AddJSOnDocumentComplete(
+            Code => 'Core.Customer.User.UpdateCustomerText();',
+        );
     }
 
     return $LayoutObject->Output(
