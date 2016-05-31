@@ -359,6 +359,12 @@ sub Run {
     $LayoutObject->Block(
         Name => 'Overview',
     );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterGenericAgentJobs"), $("#GenericAgentJobs"));',
+    );
+
     my %Jobs = $GenericAgentObject->JobList();
 
     # if there are any data, it is shown

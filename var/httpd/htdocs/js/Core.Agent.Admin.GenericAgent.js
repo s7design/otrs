@@ -221,5 +221,7 @@ Core.Agent.Admin.GenericAgent = (function (TargetNS) {
         );
     };
 
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
+
     return TargetNS;
 }(Core.Agent.Admin.GenericAgent || {}));

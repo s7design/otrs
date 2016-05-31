@@ -94,14 +94,8 @@
                         </tr>
                     </tbody>
                 </table>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    Core.UI.Table.InitTableFilter($('#FilterGenericAgentJobs'), $('#GenericAgentJobs'));
-//]]></script>
-[% END %]
         </div>
 [% RenderBlockEnd("Overview") %]
-
 [% RenderBlockStart("Edit") %]
         <form action="[% Env("CGIHandle") %]" method="post" name="compose" class="Validate PreventMultipleSubmits">
             <div class="WidgetSimple">
@@ -267,13 +261,6 @@
                             </p>
                         </div>
                         <div class="Clear"></div>
-
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-Core.Agent.Admin.GenericAgent.Init();
-//]]></script>
-[% END %]
-
                     </fieldset>
                 </div>
             </div>
