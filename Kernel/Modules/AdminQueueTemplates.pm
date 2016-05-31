@@ -220,6 +220,22 @@ sub _Change {
         },
     );
 
+    # set relation items
+    $LayoutObject->AddJSData(
+        Key   => 'RelationItems',
+        Value => ['ItemsSelected'],
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Agent.Admin.Checkbox.InitSelectAllCheckboxes();',
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#Filter"), $("#ItemsTable"));',
+    );
+
     $LayoutObject->Block( Name => "ChangeHeader$VisibleType{$NeType}" );
 
     # check if there are queue/template
@@ -288,6 +304,14 @@ sub _Overview {
     $LayoutObject->Block( Name => 'FilterTemplate' );
     $LayoutObject->Block( Name => 'FilterQueue' );
     $LayoutObject->Block( Name => 'OverviewResult' );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterTemplates"), $("#Templates"));',
+    );
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterQueues"), $("#Queues"));',
+    );
 
     my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
 
