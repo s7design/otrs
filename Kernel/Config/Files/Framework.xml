@@ -9200,6 +9200,9 @@ via the Preferences button after logging in.
                     <Block>Customer</Block>
                     <Prio>500</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Checkbox.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
