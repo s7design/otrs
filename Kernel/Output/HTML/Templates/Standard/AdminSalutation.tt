@@ -91,11 +91,6 @@
                         </tr>
                     </tbody>
                 </table>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    Core.UI.Table.InitTableFilter($('#FilterSalutations'), $('#Salutations'));
-//]]></script>
-[% END %]
             </div>
         </div>
 [% RenderBlockEnd("OverviewResult") %]
