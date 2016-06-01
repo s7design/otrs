@@ -197,6 +197,15 @@ sub _Change {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     $LayoutObject->Block( Name => 'Overview' );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterTemplates"), $("#Templates"));',
+    );
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterAttachments"), $("#Attachments"));',
+    );
+
     $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'ActionOverview' );
     $LayoutObject->Block( Name => 'Filter' );
@@ -232,6 +241,17 @@ sub _Change {
         },
     );
 
+    # set permissions
+    $LayoutObject->AddJSData(
+        Key   => 'RelationItems',
+        Value => ['ItemsSelected'],
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Agent.Admin.Checkbox.InitSelectAllCheckboxes();',
+    );
+
     for my $ID ( sort { uc( $Data{$a} ) cmp uc( $Data{$b} ) } keys %Data ) {
 
         my $Selected = $Param{Selected}->{$ID} ? ' checked="checked"' : '';
@@ -263,6 +283,14 @@ sub _Overview {
     $LayoutObject->Block(
         Name => 'Overview',
         Data => {},
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterTemplates"), $("#Templates"));',
+    );
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterAttachments"), $("#Attachments"));',
     );
 
     $LayoutObject->Block( Name => 'Filters' );
