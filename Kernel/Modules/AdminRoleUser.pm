@@ -209,6 +209,11 @@ sub _Change {
         },
     );
 
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#Filter"), $("#UserRoles"));',
+    );
+
     $LayoutObject->Block( Name => "ChangeHeader$VisibleType{$NeType}" );
 
     $LayoutObject->Block(
@@ -218,6 +223,17 @@ sub _Change {
             Type   => $Type,
             NeType => $NeType,
         },
+    );
+
+    # set permissions
+    $LayoutObject->AddJSData(
+        Key   => 'RelationItems',
+        Value => [$Type],
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Agent.Admin.Checkbox.InitSelectAllCheckboxes();',
     );
 
     # check if there are roles
@@ -264,6 +280,14 @@ sub _Overview {
     $LayoutObject->Block(
         Name => 'Overview',
         Data => {},
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterUsers"), $("#Users"));',
+    );
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterRoles"), $("#Roles"));',
     );
 
     # get user list
