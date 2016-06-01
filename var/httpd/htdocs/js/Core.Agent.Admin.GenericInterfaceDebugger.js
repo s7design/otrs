@@ -64,6 +64,11 @@ Core.Agent.Admin.GenericInterfaceDebugger = (function (TargetNS) {
      *      Initializes the module functions.
      */
     TargetNS.Init = function (WebserviceID) {
+
+        // add click binds
+        $('#FilterRefresh').bind('click', TargetNS.GetRequestList);
+        $('#DeleteButton').bind('click', TargetNS.ShowDeleteDialog);
+
         TargetNS.WebserviceID = parseInt(WebserviceID, 10);
     };
 
@@ -83,7 +88,6 @@ Core.Agent.Admin.GenericInterfaceDebugger = (function (TargetNS) {
             FilterRemoteIP: $('#FilterRemoteIP').val() || '',
             FilterType: $('#FilterType').val() || ''
         };
-
 
         Data.FilterFrom = FormatISODate($('#FilterFromYear').val(), $('#FilterFromMonth').val(), $('#FilterFromDay').val()) + ' 00:00:00';
         Data.FilterTo = FormatISODate($('#FilterToYear').val(), $('#FilterToMonth').val(), $('#FilterToDay').val()) + ' 23:59:59';
