@@ -79,6 +79,11 @@ Core.Agent.Admin.GenericInterfaceMapping = (function (TargetNS) {
         //            $(this).parent().remove();
             return false;
         });
+
+        // bind click function to save and finish button
+        $('#SaveAndFinishButton').bind('click', function(){
+            $('#ReturnToAction').val(1);
+        });
     };
 
     /**
@@ -243,9 +248,9 @@ Core.Agent.Admin.GenericInterfaceMapping = (function (TargetNS) {
      * @name RemoveValueMapping
      * @memberof Core.Agent.Admin.GenericInterfaceMapping
      * @function
-     * @param {jQueryObject} Object - JQuery object used to decide if is, or not necessary to hide the input text control for MapTo value.
+     * @param {jQueryObject} Object - JQuery object where the new value mapping is removed.
      * @description
-     *      This function shows or hide the input text control for MapTo value.
+     *      This function removes a new value mapping dialog.
      */
     TargetNS.RemoveValueMapping = function (Object) {
         var ID = Object.attr('id'),
