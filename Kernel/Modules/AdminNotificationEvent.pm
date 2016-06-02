@@ -894,6 +894,14 @@ sub _Edit {
         Data => \%Param,
     );
 
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Agent.Admin.NotificationEvent.Init();',
+    );
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Agent.Admin.NotificationEvent.ValidateOneChecked();',
+    );
+
     # shows header
     if ( $Param{Action} eq 'Change' ) {
         $LayoutObject->Block( Name => 'HeaderEdit' );
@@ -1359,6 +1367,14 @@ sub _Overview {
     $LayoutObject->Block(
         Name => 'OverviewResult',
         Data => \%Param,
+    );
+
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterNotifications"), $("#Notifications"));',
+    );
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.Agent.Admin.NotificationEvent.NotificationDeleteDialog();',
     );
 
     my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');

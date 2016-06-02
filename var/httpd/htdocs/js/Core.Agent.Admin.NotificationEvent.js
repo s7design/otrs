@@ -189,5 +189,47 @@ Core.Agent.Admin.NotificationEvent = (function (TargetNS) {
         return true;
     };
 
+    /**
+     * @name NotificationDeleteDialog
+     * @memberof Core.Agent.Admin.NotificationEvent
+     * @function
+     * @description
+     *      This function registers event for delete notification.
+     */
+    TargetNS.NotificationDeleteDialog = function () {
+
+        $('.NotificationDelete').bind('click', function (Event) {
+            if (window.confirm(Core.Language.Translate('Do you really want to delete this notification?'))) {
+                window.location = $(this).attr('href');
+            }
+
+            // don't interfere with MasterAction
+            Event.stopPropagation();
+            Event.preventDefault();
+            return false;
+        });
+    };
+
+    /**
+     * @name ValidateOneChecked
+     * @memberof Core.Agent.Admin.NotificationEvent
+     * @function
+     * @description
+     *      This function adds special validation methods and rules.
+     */
+    TargetNS.ValidateOneChecked = function () {
+
+        Core.Form.Validate.AddMethod("Validate_OneChecked", function() {
+            if($(".Validate_OneChecked:checkbox:checked").length > 0){
+                return true;
+            }
+           return false;
+        });
+
+        Core.Form.Validate.AddRule("Validate_OneChecked", {
+            Validate_OneChecked: true
+        });
+    };
+
     return TargetNS;
 }(Core.Agent.Admin.NotificationEvent || {}));
