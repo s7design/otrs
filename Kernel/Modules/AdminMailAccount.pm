@@ -284,6 +284,11 @@ sub _Overview {
         Data => \%Param,
     );
 
+    # add JS code
+    $LayoutObject->AddJSOnDocumentComplete(
+        Code => 'Core.UI.Table.InitTableFilter($("#FilterMailAccounts"), $("#MailAccounts"));',
+    );
+
     my %List = $MailAccount->MailAccountList( Valid => 0 );
 
     # if there are any mail accounts, they are shown
