@@ -72,13 +72,6 @@
 
                             <button type="submit" id="SaveAndFinishButton" value="[% Translate("Save and finish") | html %]">[% Translate("Save and finish") | html %]</button>
                             <input type="hidden" name="ReturnToAction" id="ReturnToAction" value="" />
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-$('#SaveAndFinishButton').bind('click', function(){
-    $('#ReturnToAction').val(1);
-});
-//]]></script>
-[% END %]
 
                             [% Translate("or") | html %]
                             <a href="[% Env("Baselink") %]Action=[% Data.ActionFrontendModule | uri %];Subaction=Change;[% Data.ActionType | uri %]=[% Data.Action | uri %];WebserviceID=[% Data.WebserviceID | uri %]">[% Translate("Cancel") | html %]</a>
