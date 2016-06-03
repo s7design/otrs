@@ -231,5 +231,43 @@ Core.Agent.Admin.NotificationEvent = (function (TargetNS) {
         });
     };
 
+    /**
+     * @name EmailSecuritySettings
+     * @memberof Core.Agent.Admin.NotificationEvent
+     * @function
+     * @description
+     *      This function set up attributes (enable/disable) to some fields on click event.
+     */
+    TargetNS.EmailSecuritySettings = function () {
+
+        $('#EmailSecuritySettings').click(function() {
+            var InputField = [
+                "EmailSigningCrypting_Search",
+                "EmailMissingSigningKeys_Search",
+                "EmailMissingCryptingKeys_Search",
+                "EmailDefaultSigningKeys_Search"
+            ];
+
+            if (this.checked) {
+                $.each(InputField, function(index, item) {
+                    $('#' + item).removeAttr('readonly', 'readonly');
+                    $('#' + item).removeAttr('disabled', 'disabled');
+                    $('#' + item).parent().removeClass('AlreadyDisabled');
+                });
+
+                $('.Security').removeAttr('disabled', 'disabled');
+            }
+            else {
+                $.each(InputField, function(index, item) {
+                    $('#' + item).attr('readonly', 'readonly');
+                    $('#' + item).attr('disabled', 'disabled');
+                    $('#' + item).parent().addClass('AlreadyDisabled');
+                });
+
+                $('.Security').attr('disabled', 'disabled');
+            }
+        });
+    };
+
     return TargetNS;
 }(Core.Agent.Admin.NotificationEvent || {}));
