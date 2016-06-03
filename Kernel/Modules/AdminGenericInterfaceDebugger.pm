@@ -50,9 +50,10 @@ sub Run {
         );
     }
 
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => "Core.Agent.Admin.GenericInterfaceDebugger.Init($WebserviceID);",
+    # send value to JS
+    $LayoutObject->AddJSData(
+        Key   => 'WebserviceID',
+        Value => $WebserviceID,
     );
 
     if ( $Self->{Subaction} eq 'GetRequestList' ) {
@@ -125,11 +126,6 @@ sub _ShowScreen {
 
     my $FilterToStrg = $LayoutObject->BuildDateSelection(
         Prefix => 'FilterTo',
-    );
-
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.Agent.Admin.GenericInterfaceDebugger.GetRequestList();',
     );
 
     $Output .= $LayoutObject->Output(
