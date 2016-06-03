@@ -36,7 +36,7 @@ Core.Agent.Admin.NotificationEvent = (function (TargetNS) {
             return false;
         });
 
-        //bind click function to remove button
+        // bind click function to remove button
         $('.LanguageRemove').bind('click', function () {
 
             if (window.confirm(Core.Language.Translate('Do you really want to delete this notification language?'))) {
@@ -66,6 +66,62 @@ Core.Agent.Admin.NotificationEvent = (function (TargetNS) {
 
         // Run on first view.
         VisibleForAgentHandler();
+
+        // initialize table filter
+        Core.UI.Table.InitTableFilter($("#FilterNotifications"), $("#Notifications"));
+
+        // register dialog box for delete notification
+        $('.NotificationDelete').click(function (Event) {
+            if (window.confirm(Core.Language.Translate('Do you really want to delete this notification?'))) {
+                window.location = $(this).attr('href');
+            }
+
+            // don't interfere with MasterAction
+            Event.stopPropagation();
+            Event.preventDefault();
+            return false;
+        });
+
+        // add special validation method
+        Core.Form.Validate.AddMethod("Validate_OneChecked", function() {
+            if($(".Validate_OneChecked:checkbox:checked").length > 0){
+                return true;
+            }
+           return false;
+        });
+
+        // add special validation rule
+        Core.Form.Validate.AddRule("Validate_OneChecked", {Validate_OneChecked: true});
+
+        // set up attributes (enable/disable) to some fields on click
+        $('#EmailSecuritySettings').click(function() {
+            var InputField = [
+                "EmailSigningCrypting_Search",
+                "EmailMissingSigningKeys_Search",
+                "EmailMissingCryptingKeys_Search",
+                "EmailDefaultSigningKeys_Search"
+            ];
+
+            if (this.checked) {
+                $.each(InputField, function(index, item) {
+                    $('#' + item).removeAttr('readonly', 'readonly');
+                    $('#' + item).removeAttr('disabled', 'disabled');
+                    $('#' + item).parent().removeClass('AlreadyDisabled');
+                });
+
+                $('.Security').removeAttr('disabled', 'disabled');
+            }
+            else {
+                $.each(InputField, function(index, item) {
+                    $('#' + item).attr('readonly', 'readonly');
+                    $('#' + item).attr('disabled', 'disabled');
+                    $('#' + item).parent().addClass('AlreadyDisabled');
+                });
+
+                $('.Security').attr('disabled', 'disabled');
+            }
+        });
+
     };
 
    /**
@@ -189,85 +245,7 @@ Core.Agent.Admin.NotificationEvent = (function (TargetNS) {
         return true;
     };
 
-    /**
-     * @name NotificationDeleteDialog
-     * @memberof Core.Agent.Admin.NotificationEvent
-     * @function
-     * @description
-     *      This function registers event for delete notification.
-     */
-    TargetNS.NotificationDeleteDialog = function () {
-
-        $('.NotificationDelete').bind('click', function (Event) {
-            if (window.confirm(Core.Language.Translate('Do you really want to delete this notification?'))) {
-                window.location = $(this).attr('href');
-            }
-
-            // don't interfere with MasterAction
-            Event.stopPropagation();
-            Event.preventDefault();
-            return false;
-        });
-    };
-
-    /**
-     * @name ValidateOneChecked
-     * @memberof Core.Agent.Admin.NotificationEvent
-     * @function
-     * @description
-     *      This function adds special validation methods and rules.
-     */
-    TargetNS.ValidateOneChecked = function () {
-
-        Core.Form.Validate.AddMethod("Validate_OneChecked", function() {
-            if($(".Validate_OneChecked:checkbox:checked").length > 0){
-                return true;
-            }
-           return false;
-        });
-
-        Core.Form.Validate.AddRule("Validate_OneChecked", {
-            Validate_OneChecked: true
-        });
-    };
-
-    /**
-     * @name EmailSecuritySettings
-     * @memberof Core.Agent.Admin.NotificationEvent
-     * @function
-     * @description
-     *      This function set up attributes (enable/disable) to some fields on click event.
-     */
-    TargetNS.EmailSecuritySettings = function () {
-
-        $('#EmailSecuritySettings').click(function() {
-            var InputField = [
-                "EmailSigningCrypting_Search",
-                "EmailMissingSigningKeys_Search",
-                "EmailMissingCryptingKeys_Search",
-                "EmailDefaultSigningKeys_Search"
-            ];
-
-            if (this.checked) {
-                $.each(InputField, function(index, item) {
-                    $('#' + item).removeAttr('readonly', 'readonly');
-                    $('#' + item).removeAttr('disabled', 'disabled');
-                    $('#' + item).parent().removeClass('AlreadyDisabled');
-                });
-
-                $('.Security').removeAttr('disabled', 'disabled');
-            }
-            else {
-                $.each(InputField, function(index, item) {
-                    $('#' + item).attr('readonly', 'readonly');
-                    $('#' + item).attr('disabled', 'disabled');
-                    $('#' + item).parent().addClass('AlreadyDisabled');
-                });
-
-                $('.Security').attr('disabled', 'disabled');
-            }
-        });
-    };
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Agent.Admin.NotificationEvent || {}));

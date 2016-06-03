@@ -498,11 +498,6 @@ sub TransportSettingsDisplayGet {
         Data         => \%Param,
     );
 
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.Agent.Admin.NotificationEvent.EmailSecuritySettings();',
-    );
-
     return $Output;
 }
 
