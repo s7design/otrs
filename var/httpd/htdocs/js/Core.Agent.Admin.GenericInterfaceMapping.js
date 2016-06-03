@@ -64,7 +64,7 @@ Core.Agent.Admin.GenericInterfaceMapping = (function (TargetNS) {
             return false;
         });
 
-        //bind click function to add button
+        // bind click function to add button
         $('.ValueAdd').bind('click', function () {
             TargetNS.AddValueMapping(
                 $(this).closest('fieldset').parent().find('.ValueInsert'),
@@ -73,7 +73,7 @@ Core.Agent.Admin.GenericInterfaceMapping = (function (TargetNS) {
             return false;
         });
 
-        //bind click function to add button
+        // bind click function to remove button
         $('.ValueRemove').bind('click', function () {
             TargetNS.RemoveValueMapping($(this));
         //            $(this).parent().remove();
@@ -128,7 +128,7 @@ Core.Agent.Admin.GenericInterfaceMapping = (function (TargetNS) {
 
             if($(this).hasClass('KeyMapRemove')) {
 
-                // bind click function to add button
+                // bind click function to remove button
                 $(this).bind('click', function () {
                     TargetNS.ShowDeleteDialog($(this).attr('id'));
                     return false;
@@ -218,7 +218,7 @@ Core.Agent.Admin.GenericInterfaceMapping = (function (TargetNS) {
             // add event handler to remove button
             if($(this).hasClass('ValueRemove')) {
 
-                // bind click function to add button
+                // bind click function to remove button
                 $(this).bind('click', function () {
                     // remove row
                     TargetNS.RemoveValueMapping($(this));
