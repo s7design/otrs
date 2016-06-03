@@ -821,9 +821,13 @@ sub LinkQuote {
         (                                          # $3
             (?: [a-z0-9\-]+ \. )*                  # get subdomains, optional
             [a-z0-9\-]+                            # get top level domain
+            (?:                                    # optional port number
+                [:]
+                [0-9]+
+            )?
             (?:                                    # file path element
                 [\/\.]
-                | [a-zA-Z0-9\-]
+                | [a-zA-Z0-9\-_=%]
             )*
             (?:                                    # param string
                 [\?]                               # if param string is there, "?" must be present
