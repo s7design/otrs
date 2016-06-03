@@ -1698,6 +1698,11 @@ via the Preferences button after logging in.
         'Group' => [
             'admin'
         ],
+        'Loader' => {
+            'JavaScript' => [
+              'Core.Agent.Admin.Log.js'
+            ]
+        },
         'NavBarModule' => {
             'Block' => 'System',
             'Description' => Translatable('View system log messages.'),
