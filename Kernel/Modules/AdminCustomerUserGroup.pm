@@ -72,11 +72,6 @@ sub Run {
             $Types{$Type} = \%Data;
         }
 
-        # add JS code
-        $LayoutObject->AddJSOnDocumentComplete(
-            Code => 'Core.UI.Table.InitTableFilter($("#FilterGroups"), $("#Group"));',
-        );
-
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
         $Output .= $Self->_Change(
@@ -311,11 +306,6 @@ sub Run {
         }
     }
 
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.UI.Table.InitTableFilter($("#FilterGroups"), $("#Group"));',
-    );
-
     # get group data
     my %GroupData = $GroupObject->GroupList( Valid => 1 );
 
@@ -426,11 +416,6 @@ sub _Change {
     $LayoutObject->AddJSData(
         Key   => 'RelationItems',
         Value => \@GroupPermissions,
-    );
-
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.Agent.Admin.Checkbox.InitSelectAllCheckboxes();',
     );
 
     # check if there are groups/customers
