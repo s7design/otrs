@@ -9514,7 +9514,6 @@ via the Preferences button after logging in.
                     <Prio>380</Prio>
                 </NavBarModule>
                 <Loader>
-                    <JavaScript>Core.UI.MasterActionLink.js</JavaScript>
                     <CSS>Core.Agent.Admin.CloudServices.css</CSS>
                 </Loader>
             </FrontendModuleReg>
