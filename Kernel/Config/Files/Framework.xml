@@ -9169,7 +9169,7 @@ via the Preferences button after logging in.
                     <Prio>310</Prio>
                 </NavBarModule>
                 <Loader>
-                    <JavaScript>Core.UI.MasterActionLink.js</JavaScript>
+                    <JavaScript>Core.Agent.Admin.CustomerCompany.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
