@@ -667,9 +667,9 @@ sub Run {
                             Key   => 'Customer',
                             Value => $User,
                         );
-
-                        $LayoutObject->AddJSOnDocumentComplete(
-                            Code => 'Core.Customer.User.UpdateCustomer();',
+                        $LayoutObject->AddJSData(
+                            Key   => 'Nav',
+                            Value => $Nav,
                         );
 
                         $Output .= $LayoutObject->Output(
@@ -968,11 +968,10 @@ sub _Overview {
         );
     }
 
-    if ( $Param{Nav} eq 'None' ) {
-        $LayoutObject->AddJSOnDocumentComplete(
-            Code => 'Core.Customer.User.UpdateCustomerText();',
-        );
-    }
+    $LayoutObject->AddJSData(
+        Key   => 'Nav',
+        Value => $Param{Nav},
+    );
 }
 
 sub _Edit {
@@ -1356,11 +1355,10 @@ sub _Edit {
         }
     }
 
-    if ( $Param{Nav} eq 'None' ) {
-        $LayoutObject->AddJSOnDocumentComplete(
-            Code => 'Core.Customer.User.UpdateCustomerText();',
-        );
-    }
+    $LayoutObject->AddJSData(
+        Key   => 'Nav',
+        Value => $Param{Nav},
+    );
 
     return $LayoutObject->Output(
         TemplateFile => 'AdminCustomerUser',

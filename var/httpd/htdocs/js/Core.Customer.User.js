@@ -5,6 +5,7 @@
 // the enclosed file COPYING for license information (AGPL). If you
 // did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 // --
+
 "use strict";
 
 var Core = Core || {};
@@ -20,29 +21,35 @@ Core.Customer = Core.Customer || {};
  Core.Customer.User = (function (TargetNS) {
 
     /**
-     * @name UpdateCustomer
+     * @name Init
      * @memberof Core.Customer.User
      * @function
      * @description
-     *      This function call UpdateCustomer function with customer from config
+     *      This function initializes actions for customer update.
      */
-    TargetNS.UpdateCustomer = function () {
-        var Customer = Core.Config.Get('Customer');
-        Core.Agent.TicketAction.UpdateCustomer(Core.Language.Translate(Customer));
-    };
+    TargetNS.Init = function() {
 
-    /**
-     * @name UpdateCustomerText
-     * @memberof Core.Customer.User
-     * @function
-     * @description
-     *      This function call UpdateCustomer function with field text parameter
-     */
-    TargetNS.UpdateCustomerText = function () {
-        $('#CustomerTable a').bind('click', function () {
+        var Customer = Core.Config.Get('Customer');
+        var Nav      = Core.Config.Get('Nav');
+
+        // update customer only when parameter Nav is 'None'
+        if (!Nav || Nav != 'None') {
+            return;
+        }
+
+        // call UpdateCustomer function with customer from config if exists
+        if (Customer) {
+            Core.Agent.TicketAction.UpdateCustomer(Core.Language.Translate(Customer));
+        }
+
+        // call UpdateCustomer function with field text parameter
+        $('#CustomerTable a').click(function () {
             Core.Agent.TicketAction.UpdateCustomer($(this).text());
         });
+
     };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Customer.User || {}));
