@@ -171,7 +171,7 @@ Core.Agent.SortedTree = (function (TargetNS) {
         });
 
         // generate JSON data
-        $Form.on('submit.GenerateJSON', function() {
+        $Form.on('click', function() {
             var Items = CollectElements($Element),
                 Value = '';
 
