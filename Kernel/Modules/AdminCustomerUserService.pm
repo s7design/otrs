@@ -390,11 +390,6 @@ sub _Change {
         Value => ['ItemsSelected'],
     );
 
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.Agent.Admin.Checkbox.InitSelectAllCheckboxes();',
-    );
-
     $LayoutObject->Block( Name => "AllocateItemHeader$VisibleType{$NeType}" );
 
     my $ColSpan = 2;
@@ -493,13 +488,7 @@ sub _Overview {
     my %ServiceData         = %{ $Param{ServiceData} };
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     $LayoutObject->Block( Name => 'Overview' );
-
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.UI.Table.InitTableFilter($("#FilterServices"), $("#Service"));'
-    );
-
     $LayoutObject->Block( Name => 'ActionList' );
 
     # output search block
