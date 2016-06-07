@@ -9076,7 +9076,7 @@
                     <Prio>300</Prio>
                 </NavBarModule>
                 <Loader>
-                    <JavaScript>Core.Agent.Admin.Checkbox.js</JavaScript>
+                    <JavaScript>Core.Agent.Admin.QueueTemplates.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
