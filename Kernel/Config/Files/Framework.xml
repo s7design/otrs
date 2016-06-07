@@ -9230,7 +9230,7 @@ via the Preferences button after logging in.
                     <Prio>700</Prio>
                 </NavBarModule>
                 <Loader>
-                    <JavaScript>Core.Agent.Admin.Checkbox.js</JavaScript>
+                    <JavaScript>Core.Agent.Admin.RoleUser.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
