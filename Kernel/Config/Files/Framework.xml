@@ -9071,7 +9071,7 @@ via the Preferences button after logging in.
                     <Prio>200</Prio>
                 </NavBarModule>
                 <Loader>
-                    <JavaScript>Core.Agent.Admin.Checkbox.js</JavaScript>
+                    <JavaScript>Core.Agent.Admin.UserGroup.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>

@@ -256,11 +256,6 @@ sub _Change {
         },
     );
 
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.UI.Table.InitTableFilter($("#Filter"), $("#UserGroups"));',
-    );
-
     $LayoutObject->Block(
         Name => "ChangeHeader$VisibleType{$NeType}",
     );
@@ -302,11 +297,6 @@ sub _Change {
     $LayoutObject->AddJSData(
         Key   => 'RelationItems',
         Value => \@Permissions,
-    );
-
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.Agent.Admin.Checkbox.InitSelectAllCheckboxes();',
     );
 
     for my $ID ( sort { uc( $Data{$a} ) cmp uc( $Data{$b} ) } keys %Data ) {
@@ -355,14 +345,6 @@ sub _Overview {
 
     $LayoutObject->Block(
         Name => 'Overview',
-    );
-
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.UI.Table.InitTableFilter($("#FilterUsers"), $("#Users"));',
-    );
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.UI.Table.InitTableFilter($("#FilterGroups"), $("#Groups"));',
     );
 
     $LayoutObject->Block(
