@@ -9,20 +9,21 @@
 "use strict";
 
 var Core = Core || {};
-Core.Customer = Core.Customer || {};
+Core.Agent = Core.Agent || {};
+Core.Agent.Admin = Core.Agent.Admin || {};
 
 /**
- * @namespace Core.Customer.User
- * @memberof Core.Customer
+ * @namespace Core.Agent.Admin.CustomerUser
+ * @memberof Core.Agent.Admin
  * @author OTRS AG
  * @description
  *      This namespace contains the special module function for the CustomerUser module.
  */
- Core.Customer.User = (function (TargetNS) {
+ Core.Agent.Admin.CustomerUser = (function (TargetNS) {
 
     /**
      * @name Init
-     * @memberof Core.Customer.User
+     * @memberof Core.Agent.Admin.CustomerUser
      * @function
      * @description
      *      This function initializes actions for customer update.
@@ -52,4 +53,4 @@ Core.Customer = Core.Customer || {};
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
-}(Core.Customer.User || {}));
+}(Core.Agent.Admin.CustomerUser || {}));
