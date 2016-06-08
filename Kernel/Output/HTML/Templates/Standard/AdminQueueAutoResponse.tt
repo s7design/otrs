@@ -99,13 +99,6 @@
             <div class ="Clear"></div>
 [% RenderBlockEnd("OverviewResult") %]
 
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    Core.UI.Table.InitTableFilter($('#FilterQueues'), $('#Queues'));
-    Core.UI.Table.InitTableFilter($('#FilterAutoResponses'), $('#AutoResponses'));
-//]]></script>
-[% END %]
-
 [% RenderBlockStart("Selection") %]
             <div class="Header">
                 <h2>
