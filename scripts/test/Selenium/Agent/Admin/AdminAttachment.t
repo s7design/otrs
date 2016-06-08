@@ -205,6 +205,7 @@ $Selenium->RunTest(
         # clear FilterAttachment field
         $Selenium->find_element( "#FilterAttachments", 'css' )->clear();
         $Selenium->find_element( "#FilterAttachments", 'css' )->send_keys("\N{U+E007}");
+        sleep 1;
 
         for my $File ( sort keys %Attachments ) {
 
