@@ -1191,8 +1191,8 @@ sub AgentMove {
         Translation  => 1,
         PossibleNone => 1,
         Class        => 'Modernize '
-                        . ( $Config->{StateMandatory} ? 'Validate_Required ' : '' )
-                        . ( $Param{NewStateInvalid} || '' ),
+            . ( $Config->{StateMandatory} ? 'Validate_Required ' : '' )
+            . ( $Param{NewStateInvalid} || '' ),
     );
 
     # build next priority string
@@ -1235,8 +1235,11 @@ sub AgentMove {
     # set state
     if ( $Config->{State} ) {
         $LayoutObject->Block(
-            Name => $Config->{StateMandatory} ? 'StateMandatory' : 'State',
-            Data => {%Param},
+            Name => 'State',
+            Data => {
+                StateMandatory => $Config->{StateMandatory} || 0,
+                %Param
+            },
         );
     }
 

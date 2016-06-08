@@ -70,29 +70,21 @@
 [% RenderBlockEnd("Owner") %]
 
 [% RenderBlockStart("State") %]
-                        <label for="NewStateID">[% Translate("Next ticket state") | html %]:</label>
+                        [% IF Data.StateMandatory %]
+                            <label class="Mandatory" for="NewStateID"><span class="Marker">*</span>[% Translate("Next ticket state") | html %]:</label>
+                        [% ELSE %]
+                            <label for="NewStateID">[% Translate("Next ticket state") | html %]:</label>
+                        [% END %]
                         <div class="Field">
                             [% Data.NextStatesStrg %]
+                            [% IF Data.StateMandatory %]
+                                <div id="NewStateIDError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
+                                <div id="NewStateIDServerError" class="TooltipErrorMessage"><p>[% Translate("State invalid.") | html %]</p></div>
+                            [% END %]
+
                         </div>
                         <div class="Clear"></div>
 [% RenderBlockEnd("State") %]
-
-[% RenderBlockStart("StateMandatory") %]
-                        <label class="Mandatory" for="NewStateID"><span class="Marker">*</span>[% Translate("Next ticket state") | html %]:</label>
-                        <div class="Field">
-                            [% Data.NextStatesStrg %]
-                            <div id="NewStateIDError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
-                            <div id="NewStateIDServerError" class="TooltipErrorMessage"><p>[% Translate("State invalid.") | html %]</p></div>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    $('#NewStateID').bind('change', function (Event) {
-        Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'NewStateID', ['DestQueueID', 'NewUserID', 'NewPriorityID' [% Data.DynamicFieldNamesStrg %]]);
-    });
-//]]></script>
-[% END %]
-                        </div>
-                        <div class="Clear"></div>
-[% RenderBlockEnd("StateMandatory") %]
 
 [% RenderBlockStart("StatePending") %]
                         <label>[% Translate("Pending date") | html %]:</label>
