@@ -328,11 +328,6 @@ sub _Overview {
         Data => \%Param,
     );
 
-    # add JS code
-    $LayoutObject->AddJSOnDocumentComplete(
-        Code => 'Core.UI.Table.InitTableFilter($("#FilterSalutations"), $("#Salutations"));',
-    );
-
     my $SalutationObject = $Kernel::OM->Get('Kernel::System::Salutation');
 
     my %List = $SalutationObject->SalutationList(
