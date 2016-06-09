@@ -78,6 +78,7 @@
                 <Loader>
                     <CSS>Core.Agent.Admin.ProcessManagement.css</CSS>
                     <JavaScript>Core.Agent.Admin.ProcessManagement.js</JavaScript>
+                    <JavaScript>Core.Agent.Admin.ProcessManagementTransition.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
