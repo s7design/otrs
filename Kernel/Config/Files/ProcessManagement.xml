@@ -61,6 +61,7 @@
                     <CSS>Core.Agent.Admin.ProcessManagement.css</CSS>
                     <CSS>Core.AllocationList.css</CSS>
                     <JavaScript>Core.Agent.Admin.ProcessManagement.js</JavaScript>
+                    <JavaScript>Core.Agent.Admin.ProcessManagementActivityDialog.js</JavaScript>
                     <JavaScript>Core.UI.AllocationList.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
