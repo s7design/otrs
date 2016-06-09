@@ -32,6 +32,8 @@
             </div>
         </div>
 [% RenderBlockEnd("ActionList") %]
+
+[% RenderBlockStart("Filter") %]
         <div class="WidgetSimple">
             <div class="Header">
                 <h2><label for="FilterPostMasterFilters">[% Translate("Filter for Postmaster Filters") | html %]</label></h2>
@@ -40,6 +42,7 @@
                 <input type="text" id="FilterPostMasterFilters" class="FilterBox" placeholder="[% Translate("Just start typing to filter...") | html %]" name="FilterPostMasterFilters" value="" title="[% Translate("Filter for postmaster filters") | html %]">
             </div>
         </div>
+[% RenderBlockEnd("Filter") %]
 
         <div class="WidgetSimple">
             <div class="Header">
@@ -92,7 +95,7 @@
                                 <a class="AsBlock" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Update;Name=[% Data.Name | uri %]">[% Translate(Data.Name) | html %]</a>
                             </td>
                             <td class="Center">
-                                <a href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;Name=[% Data.Name | uri %];[% Env("ChallengeTokenParam") | html %]" title="[% Translate("Delete this filter") | html %]"><i class="fa fa-trash-o"></i> [% Translate("Delete") | html %]</a>
+                                <a class="DeleteAction" href="[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Delete;Name=[% Data.Name | uri %];[% Env("ChallengeTokenParam") | html %]" title="[% Translate("Delete this filter") | html %]"><i class="fa fa-trash-o"></i> [% Translate("Delete") | html %]</a>
                             </td>
                         </tr>
 [% RenderBlockEnd("OverviewResultRow") %]
@@ -101,11 +104,6 @@
                         </tr>
                     </tbody>
                 </table>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    Core.UI.Table.InitTableFilter($('#FilterPostMasterFilters'), $('#PostMasterFilters'));
-//]]></script>
-[% END %]
             </div>
         </div>
 [% RenderBlockEnd("OverviewResult") %]

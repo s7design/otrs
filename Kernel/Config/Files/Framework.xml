@@ -9380,6 +9380,9 @@ via the Preferences button after logging in.
                     <Block>Email</Block>
                     <Prio>200</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.PostMasterFilter.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
