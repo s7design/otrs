@@ -34,11 +34,6 @@
                         <td><a href="" rel="CcCustomer" title="[% Translate("Add email address %s to the Cc field", Data.Email) | html %]">[% Translate("Cc") | html %]</a></td>
                         <td><a href="" rel="BccCustomer" title="[% Translate("Add email address %s to the Bcc field", Data.Email) | html %]">[% Translate("Bcc") | html %]</a></td>
                     </tr>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    Core.Data.Set($('#Row[% Data.Count | html %]'), 'Email', "[% Data.Email | html %]");
-//]]></script>
-[% END %]
 [% RenderBlockEnd("Row") %]
                 </tbody>
             </table>
@@ -68,8 +63,3 @@
         </div>
     </div>
 </div>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    Core.Agent.TicketAction.InitAddressBook();
-//]]></script>
-[% END %]
