@@ -142,6 +142,31 @@ $Selenium->RunTest(
             "Setting for toggle widgets found on page",
         );
 
+        # test javascript modal dialog opening
+        $Selenium->find_element( "#CustomerInformationCenterHeading", 'css' )->click();
+        $Selenium->WaitFor(
+            JavaScript =>
+                'return typeof($) === "function" && $(".Modal.Dialog").length'
+        );
+
+        # check up if title 'Search' and field for search by customer user exist in modal dialog
+        $Self->Is(
+            $Selenium->execute_script("return \$('.Modal.Dialog .Header h1:contains(Search)').length"),
+            1,
+            "Title 'Search' exists",
+        );
+        $Self->Is(
+            $Selenium->execute_script("return \$('#AgentCustomerInformationCenterSearchCustomerUser').length"),
+            1,
+            "Field for search by customer user exists",
+        );
+
+        # search by the same value
+        $Selenium->find_element( "#AgentCustomerInformationCenterSearchCustomerID", 'css' )
+            ->send_keys($TestCustomerUserLogin);
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length' );
+        $Selenium->find_element("//*[text()='$TestCustomerUserLogin']")->VerifiedClick();
+
         # test links in Company Status widget
         for my $TestLinks ( sort keys %TicketData ) {
 
