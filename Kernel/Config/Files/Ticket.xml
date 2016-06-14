@@ -9342,6 +9342,9 @@
                     <Block>Ticket</Block>
                     <Prio>800</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.State.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
