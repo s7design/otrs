@@ -24,6 +24,40 @@ Core.Agent.Admin = Core.Agent.Admin || {};
 Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
 
     /**
+     * @name Init
+     * @memberof Core.Agent.Admin.ProcessManagement
+     * @function
+     * @description
+     *      This function initializes the module functionality.
+     */
+    TargetNS.Init = function () {
+
+        // Initialize table filter
+        Core.UI.Table.InitTableFilter($('#Filter'), $('#Processes'), 0);
+
+        // Depending on Subaction initialize specific functions
+        if (Core.Config.Get('Subaction') === 'ActivityNew' ||
+          Core.Config.Get('Subaction') === 'ActivityEdit') {
+            TargetNS.InitActivityEdit();
+        }
+        else if (Core.Config.Get('Subaction') === 'ActivityDialogNew' ||
+          Core.Config.Get('Subaction') === 'ActivityDialogEdit') {
+            TargetNS.InitActivityDialogEdit();
+        }
+        else if (Core.Config.Get('Subaction') === 'TransitionNew' ||
+          Core.Config.Get('Subaction') === 'TransitionEdit') {
+            TargetNS.InitTransitionEdit();
+        }
+        else if (Core.Config.Get('Subaction') === 'TransitionActionNew' ||
+          Core.Config.Get('Subaction') === 'TransitionActionEdit') {
+            TargetNS.InitTransitionActionEdit();
+        }
+
+    };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
+
+    /**
      * @private
      * @name InitProcessPopups
      * @memberof Core.Agent.Admin.ProcessManagement
@@ -816,18 +850,6 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
         Core.Agent.Admin.ProcessManagement.Canvas.Redraw();
         // remove overlay
         Core.Agent.Admin.ProcessManagement.HideOverlay();
-    };
-
-    /**
-     * @name InitProcessOverview
-     * @memberof Core.Agent.Admin.ProcessManagement
-     * @function
-     * @description
-     *      Initialize process overview screen.
-     */
-    TargetNS.InitProcessOverview = function() {
-        InitProcessPopups();
-        Core.UI.Table.InitTableFilter($('#Filter'), $('#Processes'), 0);
     };
 
     /**
