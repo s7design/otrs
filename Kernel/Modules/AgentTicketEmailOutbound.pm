@@ -1526,11 +1526,6 @@ sub _Mask {
         );
     }
 
-    # build customer search autocomplete field
-    $LayoutObject->Block(
-        Name => 'CustomerSearchAutoComplete',
-    );
-
     # prepare errors!
     if ( $Param{Errors} ) {
         for my $Error ( sort keys %{ $Param{Errors} } ) {

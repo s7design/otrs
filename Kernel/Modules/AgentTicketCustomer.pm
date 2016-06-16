@@ -250,11 +250,6 @@ sub Form {
     my %CustomerUserData = ();
     if ( $Self->{TicketID} ) {
 
-        # set some customer search autocomplete properties
-        $LayoutObject->Block(
-            Name => 'CustomerSearchAutoComplete',
-        );
-
         # get ticket data
         my %TicketData = $Kernel::OM->Get('Kernel::System::Ticket')->TicketGet( TicketID => $Self->{TicketID} );
         if ( $TicketData{CustomerUserID} || $Param{CustomerUserID} ) {

@@ -62,11 +62,6 @@ sub Run {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    # build customer search auto-complete field
-    $LayoutObject->Block(
-        Name => 'CustomerSearchAutoComplete',
-    );
-
     if (%List) {
         $LayoutObject->Block(
             Name => 'SearchResult',

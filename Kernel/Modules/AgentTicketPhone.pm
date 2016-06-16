@@ -2278,11 +2278,6 @@ sub _MaskPhoneNew {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    # build customer search autocomplete field
-    $LayoutObject->Block(
-        Name => 'CustomerSearchAutoComplete',
-    );
-
     # build string
     $Param{OptionStrg} = $LayoutObject->BuildSelection(
         Data         => $Param{Users},
