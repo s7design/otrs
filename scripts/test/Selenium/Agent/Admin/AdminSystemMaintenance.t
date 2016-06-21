@@ -218,6 +218,7 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, 'Subaction=Delete;SystemMaintenanceID=$SysMainID')]")->click();
 
         # accept delete confirmation dialog
+        sleep 1;
         $Self->True(
             $Selenium->accept_alert(),
             "Delete - $SysMainComment"
