@@ -12,33 +12,37 @@ var Core = Core || {};
 Core.Agent = Core.Agent || {};
 
 /**
- * @namespace Core.Agent.TicketLinkObject
+ * @namespace Core.Agent.LinkObjectSearchForm
  * @memberof Core.Agent
  * @author OTRS AG
  * @description
- *      This namespace contains the special module functions for the LinkObject screen.
+ *      This namespace contains the special module functions for the LinkObject functionality.
  */
-Core.Agent.TicketLinkObject = (function (TargetNS) {
+Core.Agent.LinkObjectSearchForm = (function (TargetNS) {
     /**
      * @name Init
-     * @memberof Core.Agent.TicketLinkObject
+     * @memberof Core.Agent.LinkObjectSearchForm
      * @function
      * @description
-     *      This function initializes the LinkObject screen.
+     *      This function initializes the LinkObject search form.
      */
     TargetNS.Init = function () {
 
-        var SearchValueFlag;
+        var SearchValueFlag,
+            TemporaryLink = Core.Config.Get('TemporaryLink');
 
-        $('#LinkAddCloseLink, #LinkDeleteCloseLink').on('click', function () {
-            Core.UI.Popup.ClosePopup();
-            return false;
-        });
+        if (TemporaryLink && TemporaryLink == 1) {
+            $('#LinkAddCloseLink, #LinkDeleteCloseLink').on('click', function () {
+                Core.UI.Popup.ClosePopup();
+                return false;
+            });
+        }
 
         $('#TargetIdentifier').on('change', function () {
             $('#SubmitSelect').addClass('gotclicked');
             $(this).closest('form').submit();
         });
+
         // Two submits in this form
         // if SubmitSelect or AddLinks button was clicked,
         // add "gotclicked" class to this button
@@ -47,6 +51,7 @@ Core.Agent.TicketLinkObject = (function (TargetNS) {
         });
 
         $('#LinkSearchForm').submit(function () {
+
             // If SubmitSelect button was clicked,
             // "gotclicked" was added as class to the button
             // remove the class and do the search
@@ -74,4 +79,4 @@ Core.Agent.TicketLinkObject = (function (TargetNS) {
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
-}(Core.Agent.TicketLinkObject || {}));
+}(Core.Agent.LinkObjectSearchForm || {}));
