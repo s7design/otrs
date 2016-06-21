@@ -20,26 +20,11 @@
         </form>
     </div>
 </div>
-[% RenderBlockStart("ParentReload") %]
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-window.opener.Core.UI.Popup.FirePopupEvent('Reload');
-//]]></script>
-[% END %]
-[% RenderBlockEnd("ParentReload") %]
-
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-Core.Form.Validate.Init();
-
-// Register event for tree selection dialog
-Core.UI.TreeSelection.InitTreeSelection();
-//]]></script>
-[% END %]
 
 [% RenderBlockStart("FooterJS") %]
 <script type="text/javascript">
 [% PROCESS JSDataInsert %]
 [% PROCESS JSOnDocumentCompleteInsert %]
+Core.Init.ExecuteInit('APP_MODULE');
 </script>
 [% RenderBlockEnd("FooterJS") %]
