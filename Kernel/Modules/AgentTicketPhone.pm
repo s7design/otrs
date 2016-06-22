@@ -2278,6 +2278,19 @@ sub _MaskPhoneNew {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
+    # set JS data
+    my $ShowCustTickets   = $ConfigObject->Get('Ticket::Frontend::ShowCustomerTickets');
+    my $AllowMultipleFrom = $ConfigObject->Get('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom');
+
+    $LayoutObject->AddJSData(
+        Key   => 'ShowCustomerTickets',
+        Value => $ShowCustTickets,
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'AllowMultipleFrom',
+        Value => $AllowMultipleFrom,
+    );
+
     # build string
     $Param{OptionStrg} = $LayoutObject->BuildSelection(
         Data         => $Param{Users},

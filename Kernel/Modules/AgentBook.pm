@@ -62,6 +62,22 @@ sub Run {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    # set JS data
+    my $ShowCustTickets   = $ConfigObject->Get('Ticket::Frontend::ShowCustomerTickets');
+    my $AllowMultipleFrom = $ConfigObject->Get('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom');
+
+    $LayoutObject->AddJSData(
+        Key   => 'ShowCustomerTickets',
+        Value => $ShowCustTickets,
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'AllowMultipleFrom',
+        Value => $AllowMultipleFrom,
+    );
+
     if (%List) {
         $LayoutObject->Block(
             Name => 'SearchResult',

@@ -28,8 +28,8 @@ Core.Agent = Core.Agent || {};
      *      This function initializes autocomplete in customer search fields.
      */
     TargetNS.Init = function () {
-        Core.Config.Set('CustomerSearch.ShowCustomerTickets', Core.Config.Get("Ticket::Frontend::ShowCustomerTickets"));
-        Core.Config.Set('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom', Core.Config.Get("Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom"));
+        Core.Config.Set('CustomerSearch.ShowCustomerTickets', Core.Config.Get('ShowCustomerTickets'));
+        Core.Config.Set('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom', Core.Config.Get('AllowMultipleFrom'));
         Core.Agent.CustomerSearch.Init($("#CustomerAutoComplete, .CustomerAutoComplete"));
     };
 
