@@ -2913,11 +2913,8 @@ sub NavigationBar {
     );
 
     my $NavbarOrderItems = $UserPreferences{'UserNavBarItemsOrder'} || '';
-    $Self->Block(
-        Name => 'NavbarOrderItems',
-        Data => {
-            'NavbarOrderItems' => $NavbarOrderItems,
-        },
+    $Self->AddJSOnDocumentComplete(
+        Code => "Core.Agent.ReorderNavigationItems($NavbarOrderItems);"
     );
 
     # show search icon if any search router is configured
