@@ -169,6 +169,9 @@ Core.Agent.TicketAction = (function (TargetNS) {
      */
     TargetNS.Init = function () {
 
+        // Initialize spell check functionality
+        TargetNS.InitSpellCheck();
+
         // Register event for spell checker dialog
         $('#OptionSpellCheck').bind('click', function () {
             OpenSpellChecker();
@@ -462,6 +465,8 @@ Core.Agent.TicketAction = (function (TargetNS) {
             $TemplateSelect.data('LastValue', $TemplateSelect.val());
         }
     }
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Agent.TicketAction || {}));
