@@ -70,11 +70,11 @@ sub Run {
     my $AllowMultipleFrom = $ConfigObject->Get('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom');
 
     $LayoutObject->AddJSData(
-        Key   => 'ShowCustomerTickets',
+        Key   => 'CustomerSearch.ShowCustomerTickets',
         Value => $ShowCustTickets,
     );
     $LayoutObject->AddJSData(
-        Key   => 'AllowMultipleFrom',
+        Key   => 'Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom',
         Value => $AllowMultipleFrom,
     );
 
