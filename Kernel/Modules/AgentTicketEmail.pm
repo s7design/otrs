@@ -2244,6 +2244,15 @@ sub _MaskEmailNew {
             Name => 'FromExternalCustomer',
             Data => $Param{FromExternalCustomer},
         );
+
+        $LayoutObject->AddJSData(
+            Key   => 'DataEmail',
+            Value => $Param{FromExternalCustomer}->{Email},
+        );
+        $LayoutObject->AddJSData(
+            Key   => 'DataCustomer',
+            Value => $Param{FromExternalCustomer}->{Customer},
+        );
     }
 
     # Cc
@@ -2708,6 +2717,11 @@ sub _MaskEmailNew {
             Data => \%Param,
         );
     }
+
+    $LayoutObject->AddJSData(
+        Key   => 'DynamicFieldNames',
+        Value => $DynamicFieldNames,
+    );
 
     # get output back
     return $LayoutObject->Output(
