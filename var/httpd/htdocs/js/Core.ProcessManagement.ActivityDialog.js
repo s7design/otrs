@@ -28,7 +28,7 @@ Core.ProcessManagement = Core.ProcessManagement || {};
     *      This function initializes ActivityDialog in Ticketprocess screen.
     */
     TargetNS.Init = function () {
-        if(Core.Config.Get('ParentReload') && Core.Config.Get('ParentReload') == 1){
+        if (typeof Core.Config.Get('ParentReload') !== 'undefined' && parseInt(Core.Config.Get('ParentReload'), 10) === 1){
             Core.UI.Popup.FirePopupEvent('Reload');
         }
         Core.Form.Validate.Init();
