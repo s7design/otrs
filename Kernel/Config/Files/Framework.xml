@@ -10610,6 +10610,7 @@ via the Preferences button after logging in.
                 <Item>Core.Agent.CustomerInformationCenterSearch.js</Item>
                 <Item>Core.UI.Notification.js</Item>
                 <Item>Core.Agent.Responsive.js</Item>
+                <Item>Core.Warn.js</Item>
             </Array>
         </Setting>
     </ConfigItem>
