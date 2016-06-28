@@ -36,6 +36,9 @@ Core.Exception = (function (TargetNS) {
             // Use a public member so that we can also set it from a test case.
             TargetNS.AboutToLeave = true;
         });
+
+        // Initialize return to previous page function.
+        TargetNS.PreviousPage();
     };
 
     /**
@@ -96,7 +99,7 @@ Core.Exception = (function (TargetNS) {
     };
 
     /**
-     * @name Throw
+     * @name IsErrorOfType
      * @memberof Core.Exception
      * @function
      * @returns {Boolean} True, if ErrorObject is of given type, false otherwise.
@@ -110,8 +113,8 @@ Core.Exception = (function (TargetNS) {
     };
 
     /**
-     * @name Throw
-     * @memberof Core.HandleFinalError
+     * @name HandleFinalError
+     * @memberof Core.Exception
      * @function
      * @returns {Boolean} If the error could be handled, returns if it was shown to the user or not.
      * @param {Object} ErrorObject - The error object
@@ -151,7 +154,7 @@ Core.Exception = (function (TargetNS) {
 
     /**
      * @name ShowError
-     * @memberof Core.HandleFinalError
+     * @memberof Core.Exception
      * @function
      * @param {String} ErrorMessage - The error message.
      * @param {String} ErrorType - The error type.
@@ -164,6 +167,34 @@ Core.Exception = (function (TargetNS) {
         if (typeof Trace !== 'undefined') {
             Core.Debug.Log('[STACKTRACE] ' + Trace);
         }
+    };
+
+    /**
+     * @name PreviousPage
+     * @memberof Core.Exception
+     * @function
+     * @description
+     *      This function bind on click event to return on previous page.
+     */
+    TargetNS.PreviousPage = function () {
+
+        $('#PreviousPage').on('click', function () {
+
+            // Check if an older history entry is available
+            if (history.length > 1) {
+            history.back();
+            return false;
+            }
+
+            // If we're in a popup window, close it
+            if (Core.UI.Popup.CurrentIsPopupWindow()) {
+                Core.UI.Popup.ClosePopup();
+                return false;
+            }
+
+            // Normal window, no history: no action possible
+            return false;
+        });
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'DOCUMENT_READY');
