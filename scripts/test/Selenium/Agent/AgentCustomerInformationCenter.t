@@ -143,9 +143,8 @@ $Selenium->RunTest(
         );
 
         # check if there is link to CIC search modal dialog from heading (name of the company)
-        $Self->Is(
+        $Self->True(
             $Selenium->find_element( "#CustomerInformationCenterHeading", 'css' ),
-            1,
             'There is link to customer information center search modal dialog.',
         );
 
