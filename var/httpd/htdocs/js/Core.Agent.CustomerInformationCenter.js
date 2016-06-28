@@ -28,7 +28,7 @@ Core.Agent.CustomerInformationCenter = (function (TargetNS) {
      *      This function binds click event for opening search dialog.
      */
     TargetNS.Init = function () {
-        $('#CustomerInformationCenterHeading').click(function() {
+        $('#CustomerInformationCenterHeading').on('click', function() {
             Core.Agent.CustomerInformationCenterSearch.OpenSearchDialog();
             return false;
         });
