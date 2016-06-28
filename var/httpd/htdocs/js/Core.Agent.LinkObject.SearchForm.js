@@ -10,18 +10,19 @@
 
 var Core = Core || {};
 Core.Agent = Core.Agent || {};
+Core.Agent.LinkObject = Core.Agent.LinkObject || {};
 
 /**
- * @namespace Core.Agent.LinkObjectSearchForm
- * @memberof Core.Agent
+ * @namespace Core.Agent.LinkObject.SearchForm
+ * @memberof Core.Agent.LinkObject
  * @author OTRS AG
  * @description
- *      This namespace contains the special module functions for the LinkObject functionality.
+ *      This namespace contains search form functions for LinkObject screen.
  */
-Core.Agent.LinkObjectSearchForm = (function (TargetNS) {
+Core.Agent.LinkObject.SearchForm = (function (TargetNS) {
     /**
      * @name Init
-     * @memberof Core.Agent.LinkObjectSearchForm
+     * @memberof Core.Agent.LinkObject.SearchForm
      * @function
      * @description
      *      This function initializes the LinkObject search form.
@@ -31,7 +32,7 @@ Core.Agent.LinkObjectSearchForm = (function (TargetNS) {
         var SearchValueFlag,
             TemporaryLink = Core.Config.Get('TemporaryLink');
 
-        if (TemporaryLink && TemporaryLink == 1) {
+        if (typeof TemporaryLink !== 'undefined' && parseInt(TemporaryLink, 10) === 1) {
             $('#LinkAddCloseLink, #LinkDeleteCloseLink').on('click', function () {
                 Core.UI.Popup.ClosePopup();
                 return false;
@@ -79,4 +80,4 @@ Core.Agent.LinkObjectSearchForm = (function (TargetNS) {
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
-}(Core.Agent.LinkObjectSearchForm || {}));
+}(Core.Agent.LinkObject.SearchForm || {}));
