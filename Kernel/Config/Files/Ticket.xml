@@ -8420,6 +8420,7 @@
                 <NavBarName>Ticket</NavBarName>
                 <Loader>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
+                    <JavaScript>Core.Agent.TicketPhoneCommon.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
@@ -8435,6 +8436,7 @@
                 <NavBarName>Ticket</NavBarName>
                 <Loader>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
+                    <JavaScript>Core.Agent.TicketPhoneCommon.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
