@@ -31,9 +31,7 @@ Core.Agent.TicketEmailOutbound = (function (TargetNS) {
 
         var $Form,
             FieldID,
-            DynamicFieldNames = [];
-
-        DynamicFieldNames = Core.Config.Get('DynamicFieldNames');
+            DynamicFieldNames = Core.Config.Get('DynamicFieldNames');
 
         // remove customers
         $('.CustomerTicketRemove').on('click', function () {
