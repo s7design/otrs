@@ -9555,6 +9555,7 @@ via the Preferences button after logging in.
                 </NavBarModule>
                 <Loader>
                     <CSS>Core.Agent.Admin.CloudServices.css</CSS>
+                    <JavaScript>Core.Agent.Admin.CloudServices.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
