@@ -9747,6 +9747,9 @@
                     <AccessKey>n</AccessKey>
                     <Prio>100</Prio>
                 </NavBar>
+                <Loader>
+                    <JavaScript>Core.Customer.TicketMessage.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
