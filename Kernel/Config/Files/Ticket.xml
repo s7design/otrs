@@ -9810,6 +9810,9 @@
                     <AccessKey>s</AccessKey>
                     <Prio>300</Prio>
                 </NavBar>
+                <Loader>
+                    <JavaScript>Core.Customer.TicketSearch.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
