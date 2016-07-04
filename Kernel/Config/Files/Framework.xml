@@ -10692,6 +10692,7 @@ via the Preferences button after logging in.
                 <Item>Core.Form.Validate.js</Item>
                 <Item>Core.Customer.js</Item>
                 <Item>Core.Customer.Responsive.js</Item>
+                <Item>Core.Customer.NavigationBar.js</Item>
             </Array>
         </Setting>
     </ConfigItem>
