@@ -289,6 +289,7 @@
                 </NavBar>
                 <Loader>
                     <CSS>Core.Customer.TicketProcess.css</CSS>
+                    <JavaScript>Core.Customer.TicketProcess.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
