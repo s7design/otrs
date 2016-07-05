@@ -31,21 +31,11 @@ Core.Agent.TicketMove = (function (TargetNS) {
 
         var $Form,
             FieldID,
-            Index,
-            QueueFieldUpdate,
-            OwnerFieldUpdate,
-            StateFieldUpdate,
-            PriorityFieldUpdate,
             DynamicFieldNames = Core.Config.Get('DynamicFieldNames');
 
         // Bind event to Queue field.
         $('#DestQueueID').on('change', function () {
-            QueueFieldUpdate = ['NewUserID', 'NewStateID', 'NewPriorityID', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                QueueFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-
-            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'DestQueueID', QueueFieldUpdate);
+            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'DestQueueID', ['NewUserID', 'NewStateID', 'NewPriorityID', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // Bind event to Owner get all button
@@ -59,32 +49,17 @@ Core.Agent.TicketMove = (function (TargetNS) {
 
         // Bind event to Owner field.
         $('#NewUserID').on('change', function () {
-            OwnerFieldUpdate = ['DestQueueID', 'NewStateID', 'NewPriorityID'];
-            for (Index in DynamicFieldNames) {
-                OwnerFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-
-            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'NewUserID', OwnerFieldUpdate);
+            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'NewUserID', ['DestQueueID', 'NewStateID', 'NewPriorityID'].concat(DynamicFieldNames));
         });
 
         // Bind event to State field.
         $('#NewStateID').on('change', function () {
-            StateFieldUpdate = ['DestQueueID', 'NewUserID', 'NewPriorityID'];
-            for (Index in DynamicFieldNames) {
-                StateFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-
-            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'NewStateID', StateFieldUpdate);
+            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'NewStateID', ['DestQueueID', 'NewUserID', 'NewPriorityID'].concat(DynamicFieldNames));
         });
 
         // Bind event to Priority field
         $('#NewPriorityID').on('change', function () {
-            PriorityFieldUpdate = ['DestQueueID', 'NewUserID', 'NewStateID'];
-            for (Index in DynamicFieldNames) {
-                PriorityFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-
-            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'NewPriorityID', PriorityFieldUpdate);
+            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', 'NewPriorityID', ['DestQueueID', 'NewUserID', 'NewStateID'].concat(DynamicFieldNames));
         });
 
         // Bind event to StandardTemplate field
