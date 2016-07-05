@@ -29,7 +29,7 @@
                             <span><i class="fa fa-cloud"></i> [% Translate("Enable cloud services") | html %]</span>
                         </button>
                         [% Translate("or") | html %]
-                        <a href="#" id="GoBack">[% Translate("go back to the previous page") | html %]</a>.
+                        <a href="#" class="ReturnToPreviousPage">[% Translate("go back to the previous page") | html %]</a>.
                     </fieldset>
                 </form>
             </div>
