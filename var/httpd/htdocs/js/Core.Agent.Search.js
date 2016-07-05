@@ -600,5 +600,25 @@ Core.Agent.Search = (function (TargetNS) {
         });
     };
 
+    /**
+     * @name AgentTicketSearch
+     * @memberof Core.Agent.Search
+     * @function
+     * @description
+     *      This function determines and adds attributes for using in filter.
+     */
+    TargetNS.AgentTicketSearch = function () {
+        var i,
+            SearchAttributes = Core.Config.Get('SearchAttributes');
+
+        SearchAttributes = SearchAttributes.split(",");
+
+        if (SearchAttributes.length > 0) {
+            for (i = 0; i < SearchAttributes.length; i++) {
+                Core.Agent.Search.SearchAttributeAdd(SearchAttributes[i]);
+            }
+        }
+    };
+
     return TargetNS;
 }(Core.Agent.Search || {}));
