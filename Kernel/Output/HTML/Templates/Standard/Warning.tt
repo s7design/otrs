@@ -23,7 +23,7 @@
                 </p>
 
                 <p class="SpacingTop">
-                    <a href="#" id="PreviousPage">[% Translate("Go back to the previous page") | html %]</a>
+                    <a href="#" class="ReturnToPreviousPage">[% Translate("Go back to the previous page") | html %]</a>
                 </p>
 
             </div>

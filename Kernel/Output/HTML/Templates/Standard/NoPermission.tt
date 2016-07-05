@@ -22,7 +22,7 @@
                     [% Translate(Data.Comment) | html %]
 
                 <p class="SpacingTop">
-                    <a href="#" id="PreviousPage">[% Translate("Back to the previous page") | html %]</a>
+                    <a href="#" class="ReturnToPreviousPage">[% Translate("Back to the previous page") | html %]</a>
                 </p>
 
 [% RenderBlockStart("PossibleNextActionContainer") %]
