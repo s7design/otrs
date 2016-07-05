@@ -183,6 +183,11 @@ $Selenium->RunTest(
         $Selenium->execute_script(
             "\$('#ComposeStateID').val('$StateID').trigger('redraw.InputField').trigger('change')"
         );
+
+        # wait for appearance of ajax update field
+        $Selenium->WaitFor(
+            JavaScript => "return typeof(\$) === 'function' && \$('#AJAXLoaderDynamicField_$DFName').length"
+        );
         $Self->Is(
             $Selenium->execute_script("return \$('#AJAXLoaderDynamicField_$DFName').length"),
             1,
