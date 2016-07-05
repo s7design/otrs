@@ -562,6 +562,11 @@ Core.Agent.Search = (function (TargetNS) {
                     return false;
                 });
 
+                window.setTimeout(function (){
+                    TargetNS.AddSearchAttributes();
+                    TargetNS.AdditionalAttributeSelectionRebuild();
+                }, 0);
+
             }, 'html'
         );
     };
@@ -601,17 +606,15 @@ Core.Agent.Search = (function (TargetNS) {
     };
 
     /**
-     * @name AgentTicketSearch
+     * @name AddSearchAttributes
      * @memberof Core.Agent.Search
      * @function
      * @description
      *      This function determines and adds attributes for using in filter.
      */
-    TargetNS.AgentTicketSearch = function () {
+    TargetNS.AddSearchAttributes = function () {
         var i,
-            SearchAttributes = Core.Config.Get('SearchAttributes');
-
-        SearchAttributes = SearchAttributes.split(",");
+            SearchAttributes = Core.Config.Get('SearchAttributes').split(",");
 
         if (SearchAttributes.length > 0) {
             for (i = 0; i < SearchAttributes.length; i++) {

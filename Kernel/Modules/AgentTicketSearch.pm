@@ -2298,6 +2298,10 @@ sub Run {
     # show default search screen
     $Output = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
+    $LayoutObject->Block(
+        Name => 'Search',
+        Data => \%Param,
+    );
     $Output .= $LayoutObject->Output(
         TemplateFile => 'AgentTicketSearch',
         Data         => \%Param,
