@@ -980,8 +980,7 @@ sub LoadDefaults {
         'Core.Form.ErrorTooltips.js',
         'Core.Form.Validate.js',
         'Core.Customer.js',
-        'Core.Customer.Responsive.js',
-        'Core.Customer.NavigationBar.js'
+        'Core.Customer.Responsive.js'
     ];
 
     # Agent Common JS
