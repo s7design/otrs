@@ -29,16 +29,7 @@ Core.Agent.TicketEmail = (function (TargetNS) {
      */
     TargetNS.Init = function () {
 
-        var TypeFieldUpdate,
-            DestFieldUpdate,
-            ServiceFieldUpdate,
-            SLAFieldUpdate,
-            NewUserFieldUpdate,
-            NewResponsibleFieldUpdate,
-            NextStateFieldUpdate,
-            PriorityFieldUpdate,
-            Index,
-            SignatureURL,
+        var SignatureURL,
             CustomerKey,
             $Form,
             FieldID,
@@ -48,20 +39,12 @@ Core.Agent.TicketEmail = (function (TargetNS) {
 
         // change type
         $('#TypeID').on('change', function () {
-            TypeFieldUpdate = ['Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                TypeFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'TypeID', TypeFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'TypeID', ['Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // change queue
         $('#Dest').on('change', function () {
-            DestFieldUpdate = ['TypeID', 'Signature', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                DestFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'Dest', DestFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'Dest', ['TypeID', 'Signature', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
 
             SignatureURL = Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Signature;Dest=' + $(this).val();
             if (!Core.Config.Get('SessionIDCookie')) {
@@ -72,29 +55,17 @@ Core.Agent.TicketEmail = (function (TargetNS) {
 
         // change service
         $('#ServiceID').on('change', function () {
-            ServiceFieldUpdate = ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                ServiceFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'ServiceID', ServiceFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'ServiceID', ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // change SLA
         $('#SLAID').on('change', function () {
-            SLAFieldUpdate = ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'ServiceID', 'NextStateID', 'PriorityID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                SLAFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'SLAID', SLAFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'SLAID', ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'ServiceID', 'NextStateID', 'PriorityID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // change owner
         $('#NewUserID').on('change', function () {
-            NewUserFieldUpdate = ['TypeID', 'Dest', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                NewUserFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'NewUserID', NewUserFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'NewUserID', ['TypeID', 'Dest', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // get all owners
@@ -108,11 +79,7 @@ Core.Agent.TicketEmail = (function (TargetNS) {
 
         // change responsible
         $('#NewResponsibleID').on('change', function () {
-            NewResponsibleFieldUpdate = ['TypeID', 'Dest', 'NewUserID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                NewResponsibleFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'NewResponsibleID', NewResponsibleFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'NewResponsibleID', ['TypeID', 'Dest', 'NewUserID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // get all responsibles
@@ -126,20 +93,12 @@ Core.Agent.TicketEmail = (function (TargetNS) {
 
         // change next state
         $('#NextStateID').on('change', function () {
-            NextStateFieldUpdate = ['TypeID', 'Dest', 'NewUserID','NewResponsibleID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                NextStateFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'NextStateID', NextStateFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'NextStateID', ['TypeID', 'Dest', 'NewUserID','NewResponsibleID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // change priority
         $('#PriorityID').on('change', function () {
-            PriorityFieldUpdate = ['TypeID', 'Dest', 'NewUserID','NewResponsibleID', 'NextStateID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'];
-            for (Index in DynamicFieldNames) {
-                PriorityFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'PriorityID', PriorityFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', 'PriorityID', ['TypeID', 'Dest', 'NewUserID','NewResponsibleID', 'NextStateID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // change standard template
