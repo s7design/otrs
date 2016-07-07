@@ -1628,18 +1628,6 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
         }
     };
 
-    /**
-     * @name InitProcessOverview
-     * @memberof Core.Agent.Admin.ProcessManagement
-     * @function
-     * @description
-     *      Initialize process overview screen.
-     */
-    TargetNS.InitProcessOverview = function() {
-        InitProcessPopups();
-        Core.UI.Table.InitTableFilter($('#Filter'), $('#Processes'), 0);
-    };
-
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
