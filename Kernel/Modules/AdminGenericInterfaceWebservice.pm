@@ -1145,6 +1145,17 @@ sub _ShowEdit {
                             %ActionData,
                         },
                     );
+
+                    # send data to JS
+                    $LayoutObject->AddJSData(
+                        Key   => 'ActionType',
+                        Value => $ActionData{ActionType}
+                    );
+                    $LayoutObject->AddJSData(
+                        Key   => 'Name',
+                        Value => $ActionData{Name}
+                    );
+
                 }
                 else {
                     $LayoutObject->Block(
@@ -1186,28 +1197,18 @@ sub _OutputGIConfig {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    # parse the transport config as JSON structure
-    my $TransportConfig = $LayoutObject->JSONEncode(
-        Data => $Param{GITransports},
+    # send data to JS
+    $LayoutObject->AddJSData(
+        Key   => 'ConfigTransport',
+        Value => $Param{GITransports}
     );
-
-    # parse the operation config as JSON structure
-    my $OpertaionConfig = $LayoutObject->JSONEncode(
-        Data => $Param{GIOperations},
+    $LayoutObject->AddJSData(
+        Key   => 'ConfigOperation',
+        Value => $Param{GIOperations}
     );
-
-    # parse the operation config as JSON structure
-    my $InvokerConfig = $LayoutObject->JSONEncode(
-        Data => $Param{GIInvokers},
-    );
-
-    $LayoutObject->Block(
-        Name => 'ConfigSet',
-        Data => {
-            TransportConfig => $TransportConfig,
-            OperationConfig => $OpertaionConfig,
-            InvokerConfig   => $InvokerConfig,
-        },
+    $LayoutObject->AddJSData(
+        Key   => 'ConfigInvoker',
+        Value => $Param{GIInvokers}
     );
 
     return 1;
