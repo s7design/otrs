@@ -1103,6 +1103,7 @@ sub _ShowEdit {
         else {
 
             # output operation and invoker tables
+            my %JSData;
             for my $ActionName (
                 sort keys %{ $CommTypeConfig{$CommunicationType}->{ActionsConfig} }
                 )
@@ -1128,6 +1129,8 @@ sub _ShowEdit {
                     $ControllerClass   = 'Error';
                 }
 
+                $JSData{ $ActionData{Name} } = $ActionData{ActionType};
+
                 $LayoutObject->Block(
                     Name => 'DetailsActionsRow',
                     Data => {
@@ -1145,17 +1148,6 @@ sub _ShowEdit {
                             %ActionData,
                         },
                     );
-
-                    # send data to JS
-                    $LayoutObject->AddJSData(
-                        Key   => 'ActionType',
-                        Value => $ActionData{ActionType}
-                    );
-                    $LayoutObject->AddJSData(
-                        Key   => 'Name',
-                        Value => $ActionData{Name}
-                    );
-
                 }
                 else {
                     $LayoutObject->Block(
@@ -1167,6 +1159,12 @@ sub _ShowEdit {
                     );
                 }
             }
+
+            # send data to JS
+            $LayoutObject->AddJSData(
+                Key   => 'JSData',
+                Value => \%JSData
+            );
         }
 
         if ($NoControllerFound) {

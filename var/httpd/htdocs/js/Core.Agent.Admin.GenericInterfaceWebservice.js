@@ -53,10 +53,8 @@ Core.Agent.Admin.GenericInterfaceWebservice = (function (TargetNS) {
      */
     TargetNS.Init = function () {
         var Action = Core.Config.Get('Subaction'),
-            ActionName = Core.Config.Get('Name'),
-            ActionType = Core.Config.Get('ActionType');
-        var ElementSelector = '#Delete' + ActionType + ActionName,
-            ElementID = 'Delete' + ActionType + ActionName;
+            JSData = Core.Config.Get('JSData'),
+            ActionName, ActionType, ElementSelector, ElementID;
 
         TargetNS.WebserviceID = parseInt($('#WebserviceID').val(), 10);
 
@@ -96,14 +94,20 @@ Core.Agent.Admin.GenericInterfaceWebservice = (function (TargetNS) {
             $('#ReturnToWebservice').val(1);
         });
 
-        // Initialize delete action dialog event
-        TargetNS.BindDeleteActionDialog({
-            ElementID: ElementID,
-            ActionName: ActionName,
-            ActionType: ActionType,
-            ElementSelector: ElementSelector
-        });
+        // Initialize delete action dialog events
+        for (ActionName in JSData) {
 
+            ActionType = JSData[ActionName];
+            ElementSelector = '#Delete' + ActionType + ActionName;
+            ElementID = 'Delete' + ActionType + ActionName;
+
+            TargetNS.BindDeleteActionDialog({
+                ElementID: ElementID,
+                ActionName: ActionName,
+                ActionType: ActionType,
+                ElementSelector: ElementSelector
+            });
+        }
     };
 
     /**
