@@ -53,6 +53,10 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
             TargetNS.InitTransitionActionEdit();
         }
 
+        // Depending on Action initialize specific functions
+        if (Core.Config.Get('Action') === 'AdminProcessManagementPath') {
+            setTimeout(function(){ TargetNS.InitPathEdit(); }, 1000);
+        }
     };
 
     /**
