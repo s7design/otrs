@@ -29,59 +29,33 @@ Core.Customer.TicketMessage = (function (TargetNS) {
      */
     TargetNS.Init = function(){
 
-        var Index,
-            $Form,
+        var $Form,
             FieldID,
-            TypeFieldUpdate,
-            DestFieldUpdate,
-            ServiceFieldUpdate,
-            SLAFieldUpdate,
-            PriorityFieldUpdate,
             DynamicFieldNames = Core.Config.Get('DynamicFieldNames');
 
         // bind event to Type field
         $('#TypeID').on('change', function () {
-            TypeFieldUpdate = ['Dest', 'PriorityID', 'ServiceID', 'SLAID'];
-            for (Index in DynamicFieldNames) {
-                TypeFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'TypeID', TypeFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'TypeID', ['Dest', 'PriorityID', 'ServiceID', 'SLAID'].concat(DynamicFieldNames));
         });
 
         // bind event to Dest field (Queue)
         $('#Dest').on('change', function () {
-            DestFieldUpdate = ['TypeID', 'PriorityID', 'ServiceID', 'SLAID'];
-            for (Index in DynamicFieldNames) {
-                DestFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'Dest', DestFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'Dest', ['TypeID', 'PriorityID', 'ServiceID', 'SLAID'].concat(DynamicFieldNames));
         });
 
         // bind event to Service field
         $('#ServiceID').on('change', function () {
-            ServiceFieldUpdate = ['TypeID', 'Dest', 'PriorityID', 'SLAID'];
-            for (Index in DynamicFieldNames) {
-                ServiceFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'ServiceID', ServiceFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'ServiceID', ['TypeID', 'Dest', 'PriorityID', 'SLAID'].concat(DynamicFieldNames));
         });
 
         // bind event to SLA field
         $('#SLAID').on('change', function () {
-            SLAFieldUpdate = ['TypeID', 'Dest', 'ServiceID', 'PriorityID', 'SignKeyID', 'CryptKeyID'];
-            for (Index in DynamicFieldNames) {
-                SLAFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'SLAID', SLAFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'SLAID', ['TypeID', 'Dest', 'ServiceID', 'PriorityID', 'SignKeyID', 'CryptKeyID'].concat(DynamicFieldNames));
         });
 
         // bind event to Priority field
         $('#PriorityID').on('change', function () {
-            PriorityFieldUpdate = ['TypeID', 'Dest', 'ServiceID', 'SLAID'];
-            for (Index in DynamicFieldNames) {
-                PriorityFieldUpdate.push(DynamicFieldNames[Index]);
-            }
-            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'PriorityID', PriorityFieldUpdate);
+            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', 'PriorityID', ['TypeID', 'Dest', 'ServiceID', 'SLAID'].concat(DynamicFieldNames));
         });
 
         // choose attachment
