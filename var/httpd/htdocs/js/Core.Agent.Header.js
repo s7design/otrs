@@ -9,19 +9,20 @@
 "use strict";
 
 var Core = Core || {};
+Core.Agent = Core.Agent || {};
 
 /**
- * @namespace Core.Header
- * @memberof Core
+ * @namespace Core.Agent.Header
+ * @memberof Core.Agent
  * @author OTRS AG
  * @description
  *      This namespace contains the functions for handling Header in framework.
  */
-Core.Header = (function (TargetNS) {
+Core.Agent.Header = (function (TargetNS) {
 
     /**
      * @name Init
-     * @memberof Core.Header
+     * @memberof Core.Agent.Header
      * @function
      * @description
      *      Initializes the module functionality.
@@ -59,4 +60,4 @@ Core.Header = (function (TargetNS) {
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
-}(Core.Header || {}));
+}(Core.Agent.Header || {}));

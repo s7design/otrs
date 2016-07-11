@@ -10589,7 +10589,6 @@ via the Preferences button after logging in.
                 <Item>Core.App.js</Item>
                 <Item>Core.App.Responsive.js</Item>
                 <Item>Core.AJAX.js</Item>
-                <Item>Core.Header.js</Item>
                 <Item>Core.UI.js</Item>
                 <Item>Core.UI.InputFields.js</Item>
                 <Item>Core.UI.Accordion.js</Item>
@@ -10611,6 +10610,7 @@ via the Preferences button after logging in.
                 <Item>Core.Agent.js</Item>
                 <Item>Core.Agent.Search.js</Item>
                 <Item>Core.Agent.CustomerInformationCenterSearch.js</Item>
+                <Item>Core.Agent.Header.js</Item>
                 <Item>Core.UI.Notification.js</Item>
                 <Item>Core.Agent.Responsive.js</Item>
             </Array>
