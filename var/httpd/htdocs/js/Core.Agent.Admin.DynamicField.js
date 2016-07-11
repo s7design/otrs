@@ -102,7 +102,7 @@ Core.Agent.Admin.DynamicField = (function (TargetNS) {
      */
     TargetNS.DynamicFieldAddAction = function () {
         var ObjectType = Core.Config.Get('ObjectTypes'),
-            Index;
+            Key;
 
         // Bind event on dynamic field add action
         function FieldAddAction(Type) {
@@ -115,8 +115,8 @@ Core.Agent.Admin.DynamicField = (function (TargetNS) {
                 }
             });
         }
-        for (Index in ObjectType) {
-            FieldAddAction(ObjectType[Index]);
+        for (Key in ObjectType) {
+            FieldAddAction(ObjectType[Key]);
         }
     };
 
