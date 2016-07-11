@@ -10589,6 +10589,7 @@ via the Preferences button after logging in.
                 <Item>Core.App.js</Item>
                 <Item>Core.App.Responsive.js</Item>
                 <Item>Core.AJAX.js</Item>
+                <Item>Core.Header.js</Item>
                 <Item>Core.UI.js</Item>
                 <Item>Core.UI.InputFields.js</Item>
                 <Item>Core.UI.Accordion.js</Item>

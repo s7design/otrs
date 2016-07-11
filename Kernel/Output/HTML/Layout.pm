@@ -1424,6 +1424,13 @@ sub Header {
             }
         }
 
+        if ( $ConfigObject->Get('ChatEngine::Active') ) {
+            $Self->AddJSData(
+                Key   => 'ChatActive',
+                Value => $ConfigObject->Get('ChatEngine::Active')
+            );
+        }
+
         # show logged in notice
         if ( $Param{ShowPrefLink} ) {
             $Self->Block(

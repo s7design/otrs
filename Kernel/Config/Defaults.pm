@@ -1009,6 +1009,7 @@ sub LoadDefaults {
         'Core.App.js',
         'Core.App.Responsive.js',
         'Core.AJAX.js',
+        'Core.Header.js',
         'Core.UI.js',
         'Core.UI.InputFields.js',
         'Core.UI.Accordion.js',
