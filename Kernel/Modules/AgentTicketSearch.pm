@@ -2264,27 +2264,15 @@ sub Run {
             }
         }
 
-        # create a string from an array
-        my $SearchAttributesStrg;
-        my $Count = 0;
-        for my $SearchAttribute (@SearchAttributes) {
-            if ( $Count != 0 ) {
-                $SearchAttributesStrg .= ',';
-            }
-            $SearchAttributesStrg .= $SearchAttribute;
-            $Count++;
-        }
-
-        $LayoutObject->Block(
-            Name => 'SearchAJAXShow',
-            Data => {
-                SearchAttributes => $SearchAttributesStrg,
-            },
+        $LayoutObject->AddJSData(
+            Key   => 'SearchAttributes',
+            Value => \@SearchAttributes,
         );
 
         my $Output .= $LayoutObject->Output(
             TemplateFile => 'AgentTicketSearch',
             Data         => \%Param,
+            AJAX         => 1,
         );
         return $LayoutObject->Attachment(
             NoCache     => 1,
@@ -2298,9 +2286,9 @@ sub Run {
     # show default search screen
     $Output = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
-    $LayoutObject->Block(
-        Name => 'Search',
-        Data => \%Param,
+    $LayoutObject->AddJSData(
+        Key   => 'NonAJAXSearch',
+        Value => 1,
     );
     $Output .= $LayoutObject->Output(
         TemplateFile => 'AgentTicketSearch',

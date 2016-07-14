@@ -614,14 +614,32 @@ Core.Agent.Search = (function (TargetNS) {
      */
     TargetNS.AddSearchAttributes = function () {
         var i,
-            SearchAttributes = Core.Config.Get('SearchAttributes').split(",");
+            SearchAttributes = Core.Config.Get('SearchAttributes');
 
-        if (SearchAttributes.length > 0) {
+        if (typeof SearchAttributes !== 'undefined' && SearchAttributes.length > 0) {
             for (i = 0; i < SearchAttributes.length; i++) {
                 Core.Agent.Search.SearchAttributeAdd(SearchAttributes[i]);
             }
         }
     };
+
+    /**
+     * @name Init
+     * @memberof Core.Agent.Search
+     * @function
+     * @description
+     *      This function opens search dialog only on empty page
+     *      (when it opens via '...Action=AgentTicketSearch' from location bar).
+     */
+    TargetNS.Init = function () {
+        var NonAJAXSearch = Core.Config.Get('NonAJAXSearch');
+
+        if (typeof NonAJAXSearch !== 'undefined' && parseInt(NonAJAXSearch, 10) === 1) {
+            Core.Agent.Search.OpenSearchDialog(Core.Config.Get('Action'));
+        }
+    };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Agent.Search || {}));
