@@ -63,6 +63,50 @@ Core.Customer = (function (TargetNS) {
         TargetNS.SupportedBrowser = Core.App.BrowserCheck('Customer');
         TargetNS.IECompatibilityMode = Core.App.BrowserCheckIECompatibilityMode();
 
+        // set viewport for mobile mode, do not set viewport for DesktopMode
+        (function(doc, win) {
+            var viewport = doc.getElementById('viewport'),
+                isIFrame = (win.top.location.href !== win.location.href),
+                isPopup = (win.name.search(/^OTRSPopup_/) != -1);
+            try {
+              if (((!isIFrame && !isPopup) || (isIFrame && isPopup)) && (!localStorage.getItem("DesktopMode") || parseInt(localStorage.getItem("DesktopMode"), 10) <= 0)) {
+                  viewport.setAttribute("content", "width=device-width, initial-scale=1.0, user-scalable=no");
+              }
+            }
+            catch (Exception) {
+                $.noop(Exception);
+            }
+        }(document, window));
+
+        // decide, if responsive CSS must be loaded
+        // resposive CSS will not be loaded in "desktop mode" or if the document is within an iframe
+        // (customer overview in ticket phone overlay)
+        (function(doc, win) {
+            var isIFrame = (win.top.location.href !== win.location.href),
+                isPopup = (win.name.search(/^OTRSPopup_/) != -1),
+                ResponsiveCSS,
+                Index,
+                CSSFiles = Core.Config.Get('CSSFiles');
+
+            try {
+                if (((!isIFrame && !isPopup) || (isIFrame && isPopup)) && (!localStorage.getItem("DesktopMode") || parseInt(localStorage.getItem("DesktopMode"), 10) <= 0)) {
+                    for (Index in CSSFiles) {
+                        ResponsiveCSS = doc.createElement("link");
+                        ResponsiveCSS.setAttribute("rel", "stylesheet");
+                        ResponsiveCSS.setAttribute("type", "text/css");
+                        ResponsiveCSS.setAttribute(
+                            "href",
+                            Core.Config.Get('FrontendWebPath') + 'skins/Customer/' + CSSFiles[Index].Skin + '/' + CSSFiles[Index].CSSDirectory + '/' + CSSFiles[Index].Filename
+                        );
+                        doc.getElementsByTagName("head")[0].appendChild(ResponsiveCSS);
+                    }
+                }
+            }
+            catch (Exception) {
+                $.noop(Exception);
+            }
+        }(document, window));
+
         if (TargetNS.IECompatibilityMode) {
             TargetNS.SupportedBrowser = false;
             alert(Core.Language.Translate('Please turn off Compatibility Mode in Internet Explorer!'));

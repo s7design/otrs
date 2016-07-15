@@ -410,7 +410,7 @@ sub LoaderCreateJavaScriptTemplateData {
                 $MainObject->FileRead(
                     Location => $Template,
                     Result   => 'SCALAR',
-                )
+                    )
             };
 
             # Remove DTL-style comments (lines starting with #)
@@ -634,6 +634,19 @@ sub LoaderCreateCustomerCSSCalls {
         );
     }
 
+    # get layout object
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    # send data to JS
+    $LayoutObject->AddJSData(
+        Key   => 'FrontendWebPath',
+        Value => $ConfigObject->Get('Frontend::WebPath'),
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'CSSFiles',
+        Value => $Self->{CSSFiles},
+    );
+
     #print STDERR "Time: " . Time::HiRes::tv_interval([$t0]);
 
     return 1;
@@ -713,6 +726,8 @@ sub _HandleCSSList {
         push @Skins, $Param{Skin};
     }
 
+    my @CSSFiles;
+
     #load default css files
     for my $Skin (@Skins) {
         my @FileList;
@@ -734,6 +749,15 @@ sub _HandleCSSList {
                         Filename     => $CSSFile,
                     },
                 );
+
+                if ( $Param{BlockName} eq 'ResponsiveCSS' ) {
+                    my %CSSBlock = (
+                        Skin         => $Skin,
+                        CSSDirectory => 'css',
+                        Filename     => $CSSFile,
+                    );
+                    push @{ $Self->{CSSFiles} }, \%CSSBlock;
+                }
             }
         }
 
@@ -753,6 +777,16 @@ sub _HandleCSSList {
                     Filename     => $MinifiedFile,
                 },
             );
+
+            if ( $Param{BlockName} eq 'ResponsiveCSS' ) {
+                my %CSSCacheBlock = (
+                    Skin         => $Skin,
+                    CSSDirectory => 'css-cache',
+                    Filename     => $MinifiedFile,
+                );
+                push @{ $Self->{CSSFiles} }, \%CSSCacheBlock;
+            }
+
         }
     }
 
