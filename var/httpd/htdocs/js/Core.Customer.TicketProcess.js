@@ -29,10 +29,10 @@ Core.Customer.TicketProcess = (function (TargetNS) {
      */
     TargetNS.Init = function () {
 
-        var ProcessID = Core.Config.Get('ProcessID');
+        var PreSelectedProcessID = Core.Config.Get('PreSelectedProcessID');
 
-        if (typeof ProcessID !== 'undefined') {
-            $('#ProcessEntityID').val(ProcessID).trigger('change');
+        if (typeof PreSelectedProcessID !== 'undefined') {
+            $('#ProcessEntityID').val(PreSelectedProcessID).trigger('change');
         }
 
         $('#ProcessEntityID').on('change', function () {

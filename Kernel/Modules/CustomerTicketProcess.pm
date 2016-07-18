@@ -4025,7 +4025,7 @@ sub _DisplayProcessList {
 
         # send data to JS
         $LayoutObject->AddJSData(
-            Key   => 'ProcessID',
+            Key   => 'PreSelectedProcessID',
             Value => $Param{ProcessID},
         );
     }
