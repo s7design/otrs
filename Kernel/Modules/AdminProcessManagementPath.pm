@@ -327,7 +327,7 @@ sub _ShowEdit {
     # send data to JS
     for my $AddJSData (qw(TransitionEntityID ProcessEntityID StartActivityID)) {
         $LayoutObject->AddJSData(
-            Key   => 'Config.' . $AddJSData,
+            Key   => $AddJSData,
             Value => $Param{$AddJSData}
         );
     }

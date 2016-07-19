@@ -55,7 +55,7 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
 
         // Depending on Action initialize specific functions
         if (Core.Config.Get('Action') === 'AdminProcessManagementPath') {
-            setTimeout(function(){ TargetNS.InitPathEdit(); }, 1000);
+           TargetNS.InitPathEdit();
         }
     };
 
@@ -1409,9 +1409,9 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
      *      Initialize path edit screen.
      */
     TargetNS.InitPathEdit = function () {
-        var CurrentProcessEntityID = Core.Config.Get('Config.ProcessEntityID'),
-            CurrentTransitionEntityID = Core.Config.Get('Config.TransitionEntityID'),
-            StartActivityID = Core.Config.Get('Config.StartActivityID'),
+        var CurrentProcessEntityID = Core.Config.Get('ProcessEntityID'),
+            CurrentTransitionEntityID = Core.Config.Get('TransitionEntityID'),
+            StartActivityID = Core.Config.Get('StartActivityID'),
             ActivityInfo = window.opener.Core.Agent.Admin.ProcessManagement.ProcessData.Activity,
             PathInfo = window.opener.Core.Agent.Admin.ProcessManagement.ProcessData.Process[CurrentProcessEntityID].Path,
             StartActivityEntityID = '', EndActivityEntityID = '',
