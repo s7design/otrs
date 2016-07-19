@@ -153,8 +153,6 @@ Core.Agent.TicketProcess = (function (TargetNS) {
                         $('#AJAXLoader').addClass('Hidden');
                         $('#AJAXDialog').val('1');
 
-                        Core.TicketProcess.Init();
-
                     }
                     else {
 
