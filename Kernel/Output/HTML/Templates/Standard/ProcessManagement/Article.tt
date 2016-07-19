@@ -87,4 +87,3 @@
 [% RenderBlockEnd("TimeUnits") %]
 <div class="FieldSeparator"></div>
 [% RenderBlockEnd("rw:Article") %]
-

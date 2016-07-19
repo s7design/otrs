@@ -101,8 +101,7 @@ Core.TicketProcess = (function (TargetNS) {
 
         // Bind event to FileUpload button
         $('#FileUpload').on('change', function () {
-        	var $Form;
-
+            var $Form;
             $Form = $('#FileUpload').closest('form');
             Core.Form.Validate.DisableValidation($Form);
             $Form.find('#AttachmentUpload').val('1').end().submit();
@@ -110,8 +109,7 @@ Core.TicketProcess = (function (TargetNS) {
 
         // Bind event to AttachmentDelete button
         $('button[id*=AttachmentDelete]').on('click', function () {
-        	var $Form;
-        	
+            var $Form;
             $Form = $(this).closest('form');
             Core.Form.Validate.DisableValidation($Form);
         });
