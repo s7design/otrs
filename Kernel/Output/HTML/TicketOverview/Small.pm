@@ -1694,9 +1694,12 @@ sub Run {
 
             # replace TT directives from string with values
             for my $ActionItem ( @{ $Article{ActionItems} } ) {
-                $ActionItem->{Link} =~ s/\[% Data.TicketID(.+?)%\]/$Article{TicketID}/g;
-                $ActionItem->{Link}
-                    =~ s/\[% Env\("ChallengeTokenParam"\) \| html %\]/$LayoutObject->{ChallengeTokenParam}/g;
+                $ActionItem->{Link} = $LayoutObject->Output(
+                    Template => $ActionItem->{Link},
+                    Data     => {
+                        TicketID => $Article{TicketID},
+                    },
+                );
             }
 
             $ActionRowTickets{ $Article{TicketID} } = $LayoutObject->JSONEncode( Data => $Article{ActionItems} );

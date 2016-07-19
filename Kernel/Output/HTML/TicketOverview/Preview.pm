@@ -267,8 +267,6 @@ sub Run {
             Key   => 'ReplyFieldsFormID',
             Value => $Self->{ReplyFieldsFormID},
         );
-
-        # send data to JS
         $LayoutObject->AddJSData(
             Key   => 'ActionRowTickets',
             Value => $Self->{ActionRowTickets},
@@ -1243,9 +1241,12 @@ sub _Show {
 
         # replace TT directives from string with values
         for my $ActionItem (@ActionItems) {
-            $ActionItem->{Link} =~ s/\[% Data.TicketID(.+?)%\]/$Param{TicketID}/g;
-            $ActionItem->{Link}
-                =~ s/\[% Env\("ChallengeTokenParam"\) \| html %\]/$LayoutObject->{ChallengeTokenParam}/g;
+            $ActionItem->{Link} = $LayoutObject->Output(
+                Template => $ActionItem->{Link},
+                Data     => {
+                    TicketID => $Article{TicketID},
+                },
+            );
         }
 
         $Self->{ActionRowTickets}->{ $Param{TicketID} } = $LayoutObject->JSONEncode( Data => \@ActionItems );
