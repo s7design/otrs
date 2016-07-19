@@ -87,8 +87,4 @@
 [% RenderBlockEnd("TimeUnits") %]
 <div class="FieldSeparator"></div>
 [% RenderBlockEnd("rw:Article") %]
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    Core.Init.ExecuteInit('APP_MODULE');
-//]]></script>
-[% END %]
+
