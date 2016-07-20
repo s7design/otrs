@@ -23,17 +23,6 @@
                             [% Item.StandardForwardsStrg %]
                 </form>
             </li>
-            [% IF Item.Type == 'OnLoad' %]
-                <script type="text/javascript">//<![CDATA[
-                    Core.Agent.ArticleActionMenu.Init("[% Item.FormID %]", "ForwardTemplateID");
-                //]]></script>
-            [% ELSE %]
-                [% WRAPPER JSOnDocumentComplete %]
-                <script type="text/javascript">//<![CDATA[
-                    Core.Agent.ArticleActionMenu.Init("[% Item.FormID %]", "ForwardTemplateID");
-                    //]]></script>
-                [% END %]
-            [% END %]
         [% ELSIF Item.DropdownType == 'Reply' %]
             <li>
                 <form title="[% Translate(Item.Name) | html %]" action="[% Env("CGIHandle") %]" method="get" id="[% Item.FormID | html %]">
@@ -45,17 +34,6 @@
                             [% Item.StandardResponsesStrg %]
                 </form>
             </li>
-            [% IF Item.Type == 'OnLoad' %]
-                <script type="text/javascript">//<![CDATA[
-                    Core.Agent.ArticleActionMenu.Init("[% Item.FormID %]", "ResponseID");
-                //]]></script>
-            [% ELSE %]
-                [% WRAPPER JSOnDocumentComplete %]
-                <script type="text/javascript">//<![CDATA[
-                    Core.Agent.ArticleActionMenu.Init("[% Item.FormID %]", "ResponseID");
-                    //]]></script>
-                [% END %]
-            [% END %]
         [% END %]
 
     [% ELSIF Item.ItemType == 'Link' %]

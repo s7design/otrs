@@ -232,6 +232,28 @@ Core.Agent.TicketZoom = (function (TargetNS) {
     }
 
     /**
+     * @name ArticleActionMenuDropdown
+     * @memberof Core.Agent.TicketZoom
+     * @function
+     * @param {String} FormID - ID of html element for which event is created
+     * @param {String} Name - Name of html element for which event is created
+     * @description
+     *      This function creates onchange open popup event for dropdown html element.
+     */
+    TargetNS.ArticleActionMenuDropdown = function (FormID, Name) {
+        var URL;
+        $('#' + FormID + ' select[name=' + Name + ']').on('change', function () {
+            if ($(this).val() > 0) {
+                URL = Core.Config.Get('Baselink') + $(this).parents().serialize();
+                Core.UI.Popup.OpenPopup(URL, 'TicketAction');
+
+                // reset the select box so that it can be used again from the same window
+                $(this).val('0');
+            }
+        });
+    };
+
+    /**
      * @name LoadArticleFromExternal
      * @memberof Core.Agent.TicketZoom
      * @function
@@ -323,7 +345,24 @@ Core.Agent.TicketZoom = (function (TargetNS) {
         var ZoomExpand = false,
             URLHash,
             $ArticleElement,
-            ResizeTimeoutScroller;
+            ResizeTimeoutScroller,
+            ArticleIndex, Index, MenuItems = Core.Config.Get('MenuItems') || [];
+
+        // create open popup event for dropdown elements
+        if (MenuItems.length > 0) {
+            for (ArticleIndex in MenuItems) {
+                for (Index in MenuItems[ArticleIndex]) {
+                    if (MenuItems[ArticleIndex][Index].ItemType === 'Dropdown' && MenuItems[ArticleIndex][Index].Type !== 'OnLoad') {
+                        if (MenuItems[ArticleIndex][Index].DropdownType === 'Forward') {
+                            TargetNS.ArticleActionMenuDropdown(MenuItems[ArticleIndex][Index].FormID, "ForwardTemplateID");
+                        }
+                        else if (MenuItems[ArticleIndex][Index].DropdownType === 'Reply') {
+                            TargetNS.ArticleActionMenuDropdown(MenuItems[ArticleIndex][Index].FormID, "ResponseID");
+                        }
+                    }
+                }
+            }
+        }
 
         // Check, if ZoomExpand is active or not
         // Only active on tickets with less than 400 articles (see bug#8424)

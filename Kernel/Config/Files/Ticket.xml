@@ -8663,7 +8663,6 @@
                     <JavaScript>Core.UI.Table.Sort.js</JavaScript>
                     <JavaScript>Core.Agent.TableFilters.js</JavaScript>
                     <JavaScript>Core.Agent.LinkObject.js</JavaScript>
-                    <JavaScript>Core.Agent.ArticleActionMenu.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>

@@ -512,7 +512,8 @@ Core.AJAX = (function (TargetNS) {
      *      Calls an URL via Ajax and updates a html element with the answer html of the server.
      */
     TargetNS.ContentUpdate = function ($ElementToUpdate, URL, Callback) {
-        var QueryString, QueryIndex = URL.indexOf("?"), GlobalResponse;
+        var QueryString, QueryIndex = URL.indexOf("?"), GlobalResponse,
+            ArticleIndex, Index, MenuItems;
 
         if (QueryIndex >= 0) {
             QueryString = URL.substr(QueryIndex + 1);
@@ -537,6 +538,23 @@ Core.AJAX = (function (TargetNS) {
                 else if ($ElementToUpdate && isJQueryObject($ElementToUpdate) && $ElementToUpdate.length) {
                     GlobalResponse = Response;
                     $ElementToUpdate.html(Response);
+                    MenuItems = Core.Config.Get('MenuItems') || [];
+
+                    // create open popup event for dropdown elements
+                    if (MenuItems.length > 0) {
+                        for (ArticleIndex in MenuItems) {
+                            for (Index in MenuItems[ArticleIndex]) {
+                                if (MenuItems[ArticleIndex][Index].ItemType === 'Dropdown' && MenuItems[ArticleIndex][Index].Type === 'OnLoad') {
+                                    if (MenuItems[ArticleIndex][Index].DropdownType === 'Forward') {
+                                        Core.Agent.TicketZoom.ArticleActionMenuDropdown(MenuItems[ArticleIndex][Index].FormID, "ForwardTemplateID");
+                                    }
+                                    else if (MenuItems[ArticleIndex][Index].DropdownType === 'Reply') {
+                                        Core.Agent.TicketZoom.ArticleActionMenuDropdown(MenuItems[ArticleIndex][Index].FormID, "ResponseID");
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 else {
                     // We are out of the OTRS App scope, that's why an exception would not be caught. Therefore we handle the error manually.
