@@ -39,8 +39,8 @@ Core.Agent.Admin.GenericInterfaceInvoker = (function (TargetNS) {
      *      Initializes the module functions.
      */
     TargetNS.Init = function () {
-        var Events = Core.Config.Get('Events');
-        var ElementID, EventName, ElementSelector, i;
+        var Events = Core.Config.Get('Events'),
+        ElementID, EventName, ElementSelector, URL;
 
         TargetNS.WebserviceID = parseInt(Core.Config.Get('WebserviceID'), 10);
         TargetNS.Invoker = Core.Config.Get('Invoker');
@@ -48,8 +48,6 @@ Core.Agent.Admin.GenericInterfaceInvoker = (function (TargetNS) {
 
         // Bind events on buttons
         $('#MappingOutboundConfigureButton').on('click', function(){
-            var URL;
-
             if ($('#MappingOutboundConfigDialog').val()) {
                 URL = Core.Config.Get('Baselink') + 'Action=' + $('#MappingOutboundConfigDialog').val();
                 URL += ';Subaction=Change;Invoker=' + $('#OldInvoker').val() + ';Direction=MappingOutbound' + ';WebserviceID=' + $('#WebserviceID').val();
@@ -58,8 +56,6 @@ Core.Agent.Admin.GenericInterfaceInvoker = (function (TargetNS) {
         });
 
         $('#MappingInboundConfigureButton').on('click', function(){
-            var URL;
-
             if ($('#MappingInboundConfigDialog').val()) {
                 URL = Core.Config.Get('Baselink') + 'Action=' + $('#MappingInboundConfigDialog').val();
                 URL += ';Subaction=Change;Invoker=' + $('#OldInvoker').val() + ';Direction=MappingInbound' + ';WebserviceID=' + $('#WebserviceID').val();
@@ -87,17 +83,17 @@ Core.Agent.Admin.GenericInterfaceInvoker = (function (TargetNS) {
         });
 
         // Initialize delete action dialog event
-        for (i = 0; i < Events.length; i++) {
-            ElementID = 'DeleteEvent' + Events[i];
-            EventName = Events[i];
-            ElementSelector = '#DeleteEvent' + Events[i];
+        $.each(Events, function(){
+            ElementID = 'DeleteEvent' + this;
+            EventName = this;
+            ElementSelector = '#DeleteEvent' + this;
 
             TargetNS.BindDeleteEventDialog({
                 ElementID: ElementID,
                 EventName: EventName,
                 ElementSelector: ElementSelector
             });
-        }
+        });
     };
 
     /**
