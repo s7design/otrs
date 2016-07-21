@@ -62,10 +62,9 @@ Core.TicketProcess = (function (TargetNS) {
                 Core.AJAX.FormUpdate($(this).parents('form'), 'AJAXUpdate', 'LockID', Core.Config.Get('LockFieldsToUpdate'));
             });
         }
-        
-        if (typeof Core.Config.Get('ResponsibleFieldsToUpdate') !== 'undefined') {
 
-            // Bind event on Responsible field
+        // Bind event on Responsible field
+        if (typeof Core.Config.Get('ResponsibleFieldsToUpdate') !== 'undefined') {
             $('#ResponsibleID').on('change', function () {
                 Core.AJAX.FormUpdate($(this).parents('form'), 'AJAXUpdate', 'ResponsibleID' , Core.Config.Get('ResponsibleFieldsToUpdate'));
             });
