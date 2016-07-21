@@ -66,24 +66,20 @@ Core.Agent.Admin.GenericInterfaceWebservice = (function (TargetNS) {
         $('#CloneButton').on('click', TargetNS.ShowCloneDialog);
         $('#ImportButton').on('click', TargetNS.ShowImportDialog);
 
-        Core.Config.Set('Webservice.Transport', Core.Config.Get('ConfigTransport'));
-        Core.Config.Set('Webservice.Operation', Core.Config.Get('ConfigOperation'));
-        Core.Config.Set('Webservice.Invoker', Core.Config.Get('ConfigInvoker'));
-
         $('#ProviderTransportProperties').on('click', function() {
-            TargetNS.Redirect('Webservice.Transport', 'ProviderTransportList', {CommunicationType: 'Provider'});
+            TargetNS.Redirect('WebserviceTransport', 'ProviderTransportList', {CommunicationType: 'Provider'});
         });
 
         $('#RequesterTransportProperties').on('click', function() {
-            TargetNS.Redirect('Webservice.Transport', 'RequesterTransportList', {CommunicationType: 'Requester'});
+            TargetNS.Redirect('WebserviceTransport', 'RequesterTransportList', {CommunicationType: 'Requester'});
         });
 
         $('#OperationList').on('change', function() {
-            TargetNS.Redirect('Webservice.Operation', 'OperationList', {OperationType: $(this).val()});
+            TargetNS.Redirect('WebserviceOperation', 'OperationList', {OperationType: $(this).val()});
         });
 
         $('#InvokerList').on('change', function() {
-            TargetNS.Redirect('Webservice.Invoker', 'InvokerList', {InvokerType: $(this).val()});
+            TargetNS.Redirect('WebserviceInvoker', 'InvokerList', {InvokerType: $(this).val()});
         });
 
         $('.HideTrigger').on('change', function(){

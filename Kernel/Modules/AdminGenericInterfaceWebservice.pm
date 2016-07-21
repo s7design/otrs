@@ -1197,15 +1197,15 @@ sub _OutputGIConfig {
 
     # send data to JS
     $LayoutObject->AddJSData(
-        Key   => 'ConfigTransport',
+        Key   => 'WebserviceTransport',
         Value => $Param{GITransports}
     );
     $LayoutObject->AddJSData(
-        Key   => 'ConfigOperation',
+        Key   => 'WebserviceOperation',
         Value => $Param{GIOperations}
     );
     $LayoutObject->AddJSData(
-        Key   => 'ConfigInvoker',
+        Key   => 'WebserviceInvoker',
         Value => $Param{GIInvokers}
     );
 
