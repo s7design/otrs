@@ -200,6 +200,53 @@ Core.Agent.Dashboard = (function (TargetNS) {
      *      Initialize the dashboard module.
      */
     TargetNS.Init = function () {
+
+        var Index,
+            EventsTicketCalendar = Core.Config.Get('EventsTicketCalendar'),
+            EventsParam,
+            EventsParams = [],
+            FirstDay = Core.Config.Get('FirstDay');
+
+        for (Index in EventsTicketCalendar) {
+            EventsParam = {};
+            EventsParam.id = EventsTicketCalendar[Index].ID;
+            EventsParam.title = EventsTicketCalendar[Index].Title;
+            EventsParam.start = new Date (
+                EventsTicketCalendar[Index].SYear,
+                EventsTicketCalendar[Index].SMonth,
+                EventsTicketCalendar[Index].SDay,
+                EventsTicketCalendar[Index].SHour,
+                EventsTicketCalendar[Index].SMinute,
+                EventsTicketCalendar[Index].SSecond
+            );
+            EventsParam.end = new Date (
+                EventsTicketCalendar[Index].EYear,
+                EventsTicketCalendar[Index].EMonth,
+                EventsTicketCalendar[Index].EDay,
+                EventsTicketCalendar[Index].EHour,
+                EventsTicketCalendar[Index].EMinute,
+                EventsTicketCalendar[Index].ESecond
+            );
+            EventsParam.color = EventsTicketCalendar[Index].Color;
+            EventsParam.url = EventsTicketCalendar[Index].Url;
+            EventsParam.description =
+                EventsTicketCalendar[Index].Title +
+                "<br />" +
+                EventsTicketCalendar[Index].QueueName +
+                "<br />" +
+                EventsTicketCalendar[Index].Description;
+            EventsParam.allDay = false;
+
+            EventsParams.push(EventsParam);
+        }
+
+        if (typeof EventsTicketCalendar !== 'undefined') {
+            TargetNS.EventsTicketCalendarInit({
+                FirstDay: FirstDay,
+                Events: EventsParams
+            });
+        }
+
         // Disable drag and drop of dashboard widgets on mobile / touch devices
         // to prevent accidentally moved widgets while tabbing/swiping
         if (!Core.App.Responsive.IsTouchDevice()) {
