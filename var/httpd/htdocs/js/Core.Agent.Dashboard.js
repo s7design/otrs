@@ -193,14 +193,14 @@ Core.Agent.Dashboard = (function (TargetNS) {
     };
 
     /**
-     * @name Init
+     * @private
+     * @name EventsTicketCalendarInitialization
      * @memberof Core.Agent.Dashboard
      * @function
      * @description
-     *      Initialize the dashboard module.
+     *      This function gets data and initializes events ticket calendar.
      */
-    TargetNS.Init = function () {
-
+    function EventsTicketCalendarInitialization () {
         var Index,
             EventsTicketCalendar = Core.Config.Get('EventsTicketCalendar'),
             EventsParam,
@@ -246,6 +246,19 @@ Core.Agent.Dashboard = (function (TargetNS) {
                 Events: EventsParams
             });
         }
+    }
+
+    /**
+     * @name Init
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @description
+     *      Initializes the dashboard module.
+     */
+    TargetNS.Init = function () {
+
+        // initializes events ticket calendar
+        EventsTicketCalendarInitialization();
 
         // Disable drag and drop of dashboard widgets on mobile / touch devices
         // to prevent accidentally moved widgets while tabbing/swiping
