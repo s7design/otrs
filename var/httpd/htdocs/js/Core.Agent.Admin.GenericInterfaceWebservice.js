@@ -54,7 +54,7 @@ Core.Agent.Admin.GenericInterfaceWebservice = (function (TargetNS) {
     TargetNS.Init = function () {
         var Action = Core.Config.Get('Subaction'),
             JSData = Core.Config.Get('JSData'),
-            ActionName, ActionType, ElementSelector, ElementID;
+            ActionName, ActionType, ElementSelector, ElementID, Webservice;
 
         TargetNS.WebserviceID = parseInt($('#WebserviceID').val(), 10);
 
@@ -66,20 +66,22 @@ Core.Agent.Admin.GenericInterfaceWebservice = (function (TargetNS) {
         $('#CloneButton').on('click', TargetNS.ShowCloneDialog);
         $('#ImportButton').on('click', TargetNS.ShowImportDialog);
 
+        Webservice = Core.Config.Get('Webservice');
+
         $('#ProviderTransportProperties').on('click', function() {
-            TargetNS.Redirect('WebserviceTransport', 'ProviderTransportList', {CommunicationType: 'Provider'});
+            TargetNS.Redirect(Webservice.Transport, 'ProviderTransportList', {CommunicationType: 'Provider'});
         });
 
         $('#RequesterTransportProperties').on('click', function() {
-            TargetNS.Redirect('WebserviceTransport', 'RequesterTransportList', {CommunicationType: 'Requester'});
+            TargetNS.Redirect(Webservice.Transport, 'RequesterTransportList', {CommunicationType: 'Requester'});
         });
 
         $('#OperationList').on('change', function() {
-            TargetNS.Redirect('WebserviceOperation', 'OperationList', {OperationType: $(this).val()});
+            TargetNS.Redirect(Webservice.Operation, 'OperationList', {OperationType: $(this).val()});
         });
 
         $('#InvokerList').on('change', function() {
-            TargetNS.Redirect('WebserviceInvoker', 'InvokerList', {InvokerType: $(this).val()});
+            TargetNS.Redirect(Webservice.Invoker, 'InvokerList', {InvokerType: $(this).val()});
         });
 
         $('.HideTrigger').on('change', function(){

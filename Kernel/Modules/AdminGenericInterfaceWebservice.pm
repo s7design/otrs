@@ -1197,16 +1197,13 @@ sub _OutputGIConfig {
 
     # send data to JS
     $LayoutObject->AddJSData(
-        Key   => 'WebserviceTransport',
-        Value => $Param{GITransports}
-    );
-    $LayoutObject->AddJSData(
-        Key   => 'WebserviceOperation',
-        Value => $Param{GIOperations}
-    );
-    $LayoutObject->AddJSData(
-        Key   => 'WebserviceInvoker',
-        Value => $Param{GIInvokers}
+        Key   => 'Webservice',
+        Value => {
+            Transport => $Param{GITransports},
+            Operation => $Param{GIOperations},
+            Invoker   => $Param{GIInvokers},
+
+        },
     );
 
     return 1;
