@@ -151,5 +151,66 @@ Core.Installer = (function (TargetNS) {
         Core.AJAX.FunctionCall(Core.Config.Get('Baselink'), Data, CheckMailConfigCallback);
     };
 
+    /**
+     * @name Init
+     * @memberof Core.Installer
+     * @function
+     * @description
+     *      This function initializes JS functionality.
+     */
+    TargetNS.Init = function () {
+
+        // show 'Next' button
+        $('#InstallerContinueWithJS').show();
+
+        // allow only CreateDB if selected database is not Oracle
+        $('select#DBType').on('change', function(){
+            if (/oracle/.test($(this).val())) {
+                $("#DBInstallTypeUseDB").prop("checked", true);
+                $("#DBInstallTypeUseDB").prop("disabled", "disabled");
+                $("#DBInstallTypeCreateDB").prop("disabled", "disabled");
+            }
+            else {
+                $("#DBInstallTypeUseDB").removeAttr("disabled");
+                $("#DBInstallTypeCreateDB").removeAttr("disabled");
+                $("#DBInstallTypeCreateDB").prop("checked", true);
+            }
+        }).trigger('change');
+
+        // click event for checking values for the database configuration
+        $('#ButtonCheckDB').on('click', TargetNS.CheckDBData);
+
+        // click event for 'Back' button
+        $('#ButtonBack').on('click', function() {
+            parent.history.back();
+        });
+
+        // configure mail screen
+        $('#ButtonCheckMail').on('click', TargetNS.CheckMailConfig);
+        $('#ButtonSkipMail').on('click', function() {
+            TargetNS.SkipMailConfig();
+            return false;
+        });
+        $('#SMTPAuth').on('change', function () {
+            TargetNS.CheckSMTPAuth($(this));
+        });
+        $('#OutboundMailType').on('change', function () {
+            TargetNS.SelectOutboundMailType($(this));
+        });
+        $('#OutboundMailType').trigger('change');
+
+        // show only Log File Location field if log module File is selected
+        $('select#LogModule').on('change', function(){
+            if (/Kernel::System::Log::File/.test($(this).val())) {
+                $('.Row_LogFile').show();
+            }
+            else {
+                $('.Row_LogFile').hide();
+            }
+        }).trigger('change');
+    };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
+
     return TargetNS;
 }(Core.Installer || {}));
