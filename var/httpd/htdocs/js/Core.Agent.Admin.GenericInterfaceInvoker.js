@@ -40,7 +40,7 @@ Core.Agent.Admin.GenericInterfaceInvoker = (function (TargetNS) {
      */
     TargetNS.Init = function () {
         var Events = Core.Config.Get('Events'),
-        ElementID, EventName, ElementSelector, URL;
+        ElementID, EventName, ElementSelector;
 
         TargetNS.WebserviceID = parseInt(Core.Config.Get('WebserviceID'), 10);
         TargetNS.Invoker = Core.Config.Get('Invoker');
@@ -48,6 +48,8 @@ Core.Agent.Admin.GenericInterfaceInvoker = (function (TargetNS) {
 
         // Bind events on buttons
         $('#MappingOutboundConfigureButton').on('click', function(){
+            var URL;
+
             if ($('#MappingOutboundConfigDialog').val()) {
                 URL = Core.Config.Get('Baselink') + 'Action=' + $('#MappingOutboundConfigDialog').val();
                 URL += ';Subaction=Change;Invoker=' + $('#OldInvoker').val() + ';Direction=MappingOutbound' + ';WebserviceID=' + $('#WebserviceID').val();
@@ -56,6 +58,8 @@ Core.Agent.Admin.GenericInterfaceInvoker = (function (TargetNS) {
         });
 
         $('#MappingInboundConfigureButton').on('click', function(){
+            var URL;
+
             if ($('#MappingInboundConfigDialog').val()) {
                 URL = Core.Config.Get('Baselink') + 'Action=' + $('#MappingInboundConfigDialog').val();
                 URL += ';Subaction=Change;Invoker=' + $('#OldInvoker').val() + ';Direction=MappingInbound' + ';WebserviceID=' + $('#WebserviceID').val();
