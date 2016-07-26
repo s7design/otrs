@@ -152,18 +152,14 @@ Core.Installer = (function (TargetNS) {
     };
 
     /**
-     * @name Init
+     * @private
+     * @name SelectDBType
      * @memberof Core.Installer
      * @function
      * @description
-     *      This function initializes JS functionality.
+     *      This function allows CreateDB only if selected database is not Oracle.
      */
-    TargetNS.Init = function () {
-
-        // show 'Next' button
-        $('#InstallerContinueWithJS').show();
-
-        // allow only CreateDB if selected database is not Oracle
+     function SelectDBType() {
         $('select#DBType').on('change', function(){
             if (/oracle/.test($(this).val())) {
                 $("#DBInstallTypeUseDB").prop("checked", true);
@@ -176,6 +172,17 @@ Core.Installer = (function (TargetNS) {
                 $("#DBInstallTypeCreateDB").prop("checked", true);
             }
         }).trigger('change');
+     }
+
+     /**
+     * @private
+     * @name DBSettingsButtons
+     * @memberof Core.Installer
+     * @function
+     * @description
+     *      This function creates click events for Database Settings screen.
+     */
+     function DBSettingsButtons() {
 
         // click event for checking values for the database configuration
         $('#ButtonCheckDB').on('click', TargetNS.CheckDBData);
@@ -184,8 +191,17 @@ Core.Installer = (function (TargetNS) {
         $('#ButtonBack').on('click', function() {
             parent.history.back();
         });
+     }
 
-        // configure mail screen
+     /**
+     * @private
+     * @name ConfigureMail
+     * @memberof Core.Installer
+     * @function
+     * @description
+     *      This function configures mail settings.
+     */
+     function ConfigureMail() {
         $('#ButtonCheckMail').on('click', TargetNS.CheckMailConfig);
         $('#ButtonSkipMail').on('click', function() {
             TargetNS.SkipMailConfig();
@@ -198,8 +214,17 @@ Core.Installer = (function (TargetNS) {
             TargetNS.SelectOutboundMailType($(this));
         });
         $('#OutboundMailType').trigger('change');
+     }
 
-        // show only Log File Location field if log module File is selected
+     /**
+     * @private
+     * @name LogFileFieldLocation
+     * @memberof Core.Installer
+     * @function
+     * @description
+     *      This function shows Log File Location field only if log module File is selected.
+     */
+     function LogFileFieldLocation() {
         $('select#LogModule').on('change', function(){
             if (/Kernel::System::Log::File/.test($(this).val())) {
                 $('.Row_LogFile').show();
@@ -208,6 +233,31 @@ Core.Installer = (function (TargetNS) {
                 $('.Row_LogFile').hide();
             }
         }).trigger('change');
+     }
+
+    /**
+     * @name Init
+     * @memberof Core.Installer
+     * @function
+     * @description
+     *      This function initializes JS functionality.
+     */
+    TargetNS.Init = function () {
+
+        // show 'Next' button
+        $('#InstallerContinueWithJS').show();
+
+        // allows CreateDB only if selected database is not Oracle
+        SelectDBType();
+
+        // button click events for Database Settings screen
+        DBSettingsButtons();
+
+        // configure mail screen
+        ConfigureMail();
+
+        // show Log File Location field (only if log module File is selected)
+        LogFileFieldLocation();
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
