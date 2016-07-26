@@ -150,6 +150,7 @@ Core.Agent.TicketZoom = (function (TargetNS) {
      *      This function loads the given article via ajax.
      */
     function LoadArticle(ArticleURL, ArticleID) {
+
         // Clear timeout for URL hash check, because hash is now changed manually
         window.clearTimeout(CheckURLHashTimeout);
 
@@ -169,7 +170,9 @@ Core.Agent.TicketZoom = (function (TargetNS) {
             // Bottom position of scroller element
                 ScrollerBottomY = ScrollerY + ScrollerHeight,
             // Offset of scroller element (relative)
-                ScrollerOffset = $('div.Scroller').get(0).scrollTop;
+                ScrollerOffset = $('div.Scroller').get(0).scrollTop,
+            // article menu
+                ArticleIndex, Index, MenuItems = Core.Config.Get('MenuItems') || [];
 
             $('#ArticleItems a.AsPopup').bind('click', function () {
                 var Matches,
@@ -220,7 +223,6 @@ Core.Agent.TicketZoom = (function (TargetNS) {
                 $('div.Scroller').get(0).scrollTop = ScrollerOffset + (ActiveArticleBottomY - ScrollerBottomY) + 5;
             }
 
-
             // Initiate URL hash check again
             TargetNS.CheckURLHash();
 
@@ -228,6 +230,21 @@ Core.Agent.TicketZoom = (function (TargetNS) {
             // is showed in article area
             Core.Agent.CheckSessionExpiredAndReload();
 
+            // create open popup event for dropdown elements
+            if (MenuItems.length > 0) {
+                for (ArticleIndex in MenuItems) {
+                    for (Index in MenuItems[ArticleIndex]) {
+                        if (MenuItems[ArticleIndex][Index].ItemType === 'Dropdown' && MenuItems[ArticleIndex][Index].Type === 'OnLoad') {
+                            if (MenuItems[ArticleIndex][Index].DropdownType === 'Forward') {
+                                Core.Agent.TicketZoom.ArticleActionMenuDropdown(MenuItems[ArticleIndex][Index].FormID, "ForwardTemplateID");
+                            }
+                            else if (MenuItems[ArticleIndex][Index].DropdownType === 'Reply') {
+                                Core.Agent.TicketZoom.ArticleActionMenuDropdown(MenuItems[ArticleIndex][Index].FormID, "ResponseID");
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
