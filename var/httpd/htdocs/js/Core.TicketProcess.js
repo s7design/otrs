@@ -27,7 +27,6 @@ Core.TicketProcess = (function (TargetNS) {
      *      This function binds event on different fields to trigger AJAX form update on the other fields.
      */
     TargetNS.Init = function () {
-        var $Form;
 
         // Bind event on Type field
         if (typeof Core.Config.Get('TypeFieldsToUpdate') !== 'undefined') {
@@ -102,6 +101,8 @@ Core.TicketProcess = (function (TargetNS) {
 
         // Bind event to FileUpload button
         $('#FileUpload').on('change', function () {
+            var $Form;
+
             $Form = $('#FileUpload').closest('form');
             Core.Form.Validate.DisableValidation($Form);
             $Form.find('#AttachmentUpload').val('1').end().submit();
@@ -109,6 +110,8 @@ Core.TicketProcess = (function (TargetNS) {
 
         // Bind event to AttachmentDelete button
         $('button[id*=AttachmentDelete]').on('click', function () {
+            var $Form;
+
             $Form = $(this).closest('form');
             Core.Form.Validate.DisableValidation($Form);
         });
