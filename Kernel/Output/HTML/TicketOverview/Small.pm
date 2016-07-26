@@ -822,16 +822,12 @@ sub Run {
 
                         # send data to JS
                         $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.QueryDelay',
-                            Value => 100,
-                        );
-                        $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.MaxResultsDisplayed',
-                            Value => 20,
-                        );
-                        $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.MinQueryLength',
-                            Value => 2,
+                            Key   => 'CustomerIDAutocomplete',
+                            Value => {
+                                'QueryDelay'          => 100,
+                                'MaxResultsDisplayed' => 20,
+                                'MinQueryLength'      => 2,
+                            },
                         );
                     }
                     elsif ( $Column eq 'Owner' ) {
@@ -843,16 +839,12 @@ sub Run {
 
                         # send data to JS
                         $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.QueryDelay',
-                            Value => 100,
-                        );
-                        $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.MaxResultsDisplayed',
-                            Value => 20,
-                        );
-                        $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.MinQueryLength',
-                            Value => 2,
+                            Key   => 'UserAutocomplete',
+                            Value => {
+                                'QueryDelay'          => 100,
+                                'MaxResultsDisplayed' => 20,
+                                'MinQueryLength'      => 2,
+                            },
                         );
                     }
 
@@ -1058,16 +1050,12 @@ sub Run {
 
                         # send data to JS
                         $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.QueryDelay',
-                            Value => 100,
-                        );
-                        $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.MaxResultsDisplayed',
-                            Value => 20,
-                        );
-                        $LayoutObject->AddJSData(
-                            Key   => 'CustomerUserAutocomplete.MinQueryLength',
-                            Value => 2,
+                            Key   => 'CustomerUserAutocomplete',
+                            Value => {
+                                'QueryDelay'          => 100,
+                                'MaxResultsDisplayed' => 20,
+                                'MinQueryLength'      => 2,
+                            },
                         );
                     }
                 }
