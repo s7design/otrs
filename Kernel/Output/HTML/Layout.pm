@@ -2634,16 +2634,21 @@ sub PageNavBar {
             }
 
             if ( $Param{AJAXReplace} ) {
+                my %PageAjaxData = (
+                    BaselinkAll  => $BaselinkAll,
+                    AjaxReplace  => $Param{AJAXReplace},
+                    PageNumber   => $PageNumber,
+                    IDPrefix     => $IDPrefix,
+                    SelectedPage => $SelectedPage
+                );
+
                 $Self->Block(
                     Name => 'PageAjax',
-                    Data => {
-                        BaselinkAll  => $BaselinkAll,
-                        AjaxReplace  => $Param{AJAXReplace},
-                        PageNumber   => $PageNumber,
-                        IDPrefix     => $IDPrefix,
-                        SelectedPage => $SelectedPage
-                    },
+                    Data => \%PageAjaxData,
                 );
+
+                # set data for JS
+                push @{ $Self->{Pagination}->{ $Param{AJAXReplace} }->{Page} }, \%PageAjaxData;
             }
             else {
                 $Self->Block(
@@ -2660,29 +2665,34 @@ sub PageNavBar {
 
         # over window ">>" and ">|"
         elsif ( $i > ( $WindowStart + $WindowSize ) ) {
-            my $StartWindow     = $WindowStart + $WindowSize + 1;
-            my $LastStartWindow = int( $Pages / $WindowSize );
-            my $BaselinkAllBack = $Baselink . "StartHit=" . ( ( $i - 1 ) * $Param{PageShown} + 1 );
-            my $BaselinkAllNext = $Baselink . "StartHit=" . ( ( $Param{PageShown} * ( $Pages - 1 ) ) + 1 );
+            my $StartWindow        = $WindowStart + $WindowSize + 1;
+            my $LastStartWindow    = int( $Pages / $WindowSize );
+            my $BaselinkOneForward = $Baselink . "StartHit=" . ( ( $i - 1 ) * $Param{PageShown} + 1 );
+            my $BaselinkAllForward = $Baselink . "StartHit=" . ( ( $Param{PageShown} * ( $Pages - 1 ) ) + 1 );
 
             if ( $Param{AJAXReplace} ) {
                 $Self->Block(
                     Name => 'PageForwardAjax',
                     Data => {
-                        BaselinkAllBack => $BaselinkAllBack,
-                        BaselinkAllNext => $BaselinkAllNext,
-                        AjaxReplace     => $Param{AJAXReplace},
-                        IDPrefix        => $IDPrefix,
+                        IDPrefix => $IDPrefix,
                     },
+                );
+
+                # set data for JS
+                %{ $Self->{Pagination}->{ $Param{AJAXReplace} }->{PageForward} } = (
+                    BaselinkOneForward => $BaselinkOneForward,
+                    BaselinkAllForward => $BaselinkAllForward,
+                    AjaxReplace        => $Param{AJAXReplace},
+                    IDPrefix           => $IDPrefix,
                 );
             }
             else {
                 $Self->Block(
                     Name => 'PageForward',
                     Data => {
-                        BaselinkAllBack => $BaselinkAllBack,
-                        BaselinkAllNext => $BaselinkAllNext,
-                        IDPrefix        => $IDPrefix,
+                        BaselinkOneForward => $BaselinkOneForward,
+                        BaselinkAllForward => $BaselinkAllForward,
+                        IDPrefix           => $IDPrefix,
                     },
                 );
             }
@@ -2694,17 +2704,22 @@ sub PageNavBar {
         elsif ( $i < $WindowStart && ( $i - 1 ) < $Pages ) {
             my $StartWindow     = $WindowStart - $WindowSize - 1;
             my $BaselinkAllBack = $Baselink . 'StartHit=1;StartWindow=1';
-            my $BaselinkAllNext = $Baselink . 'StartHit=' . ( ( $WindowStart - 1 ) * ( $Param{PageShown} ) + 1 );
+            my $BaselinkOneBack = $Baselink . 'StartHit=' . ( ( $WindowStart - 1 ) * ( $Param{PageShown} ) + 1 );
 
             if ( $Param{AJAXReplace} ) {
                 $Self->Block(
                     Name => 'PageBackAjax',
                     Data => {
-                        BaselinkAllBack => $BaselinkAllBack,
-                        BaselinkAllNext => $BaselinkAllNext,
-                        AjaxReplace     => $Param{AJAXReplace},
-                        IDPrefix        => $IDPrefix,
+                        IDPrefix => $IDPrefix,
                     },
+                );
+
+                # set data for JS
+                %{ $Self->{Pagination}->{ $Param{AJAXReplace} }->{PageBack} } = (
+                    BaselinkAllBack => $BaselinkAllBack,
+                    BaselinkOneBack => $BaselinkOneBack,
+                    AjaxReplace     => $Param{AJAXReplace},
+                    IDPrefix        => $IDPrefix,
                 );
             }
             else {
@@ -2712,7 +2727,7 @@ sub PageNavBar {
                     Name => 'PageBack',
                     Data => {
                         BaselinkAllBack => $BaselinkAllBack,
-                        BaselinkAllNext => $BaselinkAllNext,
+                        BaselinkOneBack => $BaselinkOneBack,
                         IDPrefix        => $IDPrefix,
                     },
                 );
@@ -2722,9 +2737,15 @@ sub PageNavBar {
         }
     }
 
+    # send data to JS
+    $Self->AddJSData(
+        Key   => 'PaginationData',
+        Value => $Self->{Pagination},
+    );
+
     $Param{SearchNavBar} = $Self->Output(
         TemplateFile => 'Pagination',
-        AJAX         => $Param{KeepScriptTags},
+        AJAX         => $Param{AJAX},
     );
 
     # only show total amount of pages if there is more than one
