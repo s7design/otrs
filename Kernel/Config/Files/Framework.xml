@@ -8804,6 +8804,7 @@ via the Preferences button after logging in.
                     <JavaScript>Core.UI.AllocationList.js</JavaScript>
                     <JavaScript>Core.Agent.TableFilters.js</JavaScript>
                     <JavaScript>Core.Agent.Dashboard.js</JavaScript>
+                    <JavaScript>Core.Agent.Statistics.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>

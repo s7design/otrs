@@ -543,13 +543,23 @@ sub StatsParamsWidget {
                                 Name => 'TimeScale',
                                 Data => {
                                     %BlockData,
-                                    Use => $Use,
                                 },
                             );
                         }
 
                         # end of build timescale output
                     }
+
+                    # send data to JS
+                    $LayoutObject->AddJSData(
+                        Key   => 'StatsParamData',
+                        Value => {
+                            %BlockData,
+                            Use  => $Use,
+                            Ajax => $Param{Ajax},
+                        },
+                    );
+
                 }
             }
 
