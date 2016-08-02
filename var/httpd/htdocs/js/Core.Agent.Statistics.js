@@ -185,6 +185,7 @@ Core.Agent.Statistics = (function (TargetNS) {
      *      This function initializes the module functionality.
      */
     TargetNS.Init = function () {
+        var D3Data;
 
         // Initialize the Add screen
         TargetNS.InitAddScreen();
@@ -215,6 +216,18 @@ Core.Agent.Statistics = (function (TargetNS) {
                 $Form.removeAttr('target');
             }
         });
+
+        D3Data = Core.Config.Get('D3Data');
+        if(typeof D3Data !== 'undefined'){
+            Core.UI.AdvancedChart.Init(
+                D3Data.Format,
+                D3Data.RawData,
+                'svg#ChartContent',
+                {
+                    Duration: 250
+                }
+            );
+        }
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
