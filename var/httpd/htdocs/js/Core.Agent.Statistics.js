@@ -185,6 +185,7 @@ Core.Agent.Statistics = (function (TargetNS) {
      *      This function initializes the module functionality.
      */
     TargetNS.Init = function () {
+        var YAxisElements;
 
         // Initialize the Add screen
         TargetNS.InitAddScreen();
@@ -215,6 +216,13 @@ Core.Agent.Statistics = (function (TargetNS) {
                 $Form.removeAttr('target');
             }
         });
+
+        YAxisElements = Core.Config.Get('YAxisElements');
+        if (typeof YAxisElements !== 'undefined'){
+            $.each(YAxisElements, function(){
+                TargetNS.ElementAdd('YAxis', this);
+            });
+        }
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
