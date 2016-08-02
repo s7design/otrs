@@ -185,6 +185,7 @@ Core.Agent.Statistics = (function (TargetNS) {
      *      This function initializes the module functionality.
      */
     TargetNS.Init = function () {
+        var XAxisElements;
 
         // Initialize the Add screen
         TargetNS.InitAddScreen();
@@ -215,6 +216,13 @@ Core.Agent.Statistics = (function (TargetNS) {
                 $Form.removeAttr('target');
             }
         });
+
+        XAxisElements = Core.Config.Get('XAxisElements');
+        if (typeof XAxisElements !== 'undefined'){
+            $.each(XAxisElements, function(){
+                TargetNS.ElementAdd('XAxis', this);
+            });
+        }
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
