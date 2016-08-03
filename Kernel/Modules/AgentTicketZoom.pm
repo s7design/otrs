@@ -265,6 +265,12 @@ sub Run {
         return $LayoutObject->NoPermission( WithHeader => 'yes' );
     }
 
+    # send parameter TicketID to JS
+    $LayoutObject->AddJSData(
+        Key   => 'TicketID',
+        Value => $Self->{TicketID},
+    );
+
     # mark shown ticket as seen
     if ( $Self->{Subaction} eq 'TicketMarkAsSeen' ) {
         my $Success = 1;
@@ -382,6 +388,10 @@ sub Run {
         );
 
         # send data to JS
+        $LayoutObject->AddJSData(
+            Key   => 'ArticleIDs',
+            Value => [ $Self->{ArticleID} ],
+        );
         $LayoutObject->AddJSData(
             Key   => 'MenuItems',
             Value => $Self->{MenuItems},
@@ -949,6 +959,7 @@ sub MaskAgentZoom {
     # show articles items
     if ( !$Self->{ZoomTimeline} ) {
 
+        my @ArticleIDs;
         $Param{ArticleItems} = '';
         ARTICLE:
         for my $ArticleTmp (@ArticleBoxShown) {
@@ -963,9 +974,14 @@ sub MaskAgentZoom {
                 ActualArticleID   => $ArticleID,
                 Type              => 'Static',
             );
+            push \@ArticleIDs, $ArticleTmp->{ArticleID};
         }
 
         # send data to JS
+        $LayoutObject->AddJSData(
+            Key   => 'ArticleIDs',
+            Value => \@ArticleIDs,
+        );
         $LayoutObject->AddJSData(
             Key   => 'MenuItems',
             Value => $Self->{MenuItems},
@@ -979,9 +995,11 @@ sub MaskAgentZoom {
 
     # always show archived tickets as seen
     if ( $Self->{ZoomExpand} && $Ticket{ArchiveFlag} ne 'y' ) {
-        $LayoutObject->Block(
-            Name => 'TicketItemMarkAsSeen',
-            Data => { TicketID => $Ticket{TicketID} },
+
+        # send data to JS
+        $LayoutObject->AddJSData(
+            Key   => 'TicketItemMarkAsSeen',
+            Value => 1,
         );
     }
 
@@ -1588,10 +1606,31 @@ sub MaskAgentZoom {
         );
     }
 
+    # send data to JS
+    $LayoutObject->AddJSData(
+        Key   => 'ArticleTableHeight',
+        Value => $LayoutObject->{UserTicketZoomArticleTableHeight},
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'Ticket::Frontend::HTMLArticleHeightDefault',
+        Value => $ConfigObject->Get('Ticket::Frontend::HTMLArticleHeightDefault'),
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'Ticket::Frontend::HTMLArticleHeightMax',
+        Value => $ConfigObject->Get('Ticket::Frontend::HTMLArticleHeightMax'),
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'Language',
+        Value => {
+            AttachmentViewMessage => $LayoutObject->{LanguageObject}->Translate(
+                'Article could not be opened! Perhaps it is on another article page?'
+            ),
+        },
+    );
+
     # init js
     $LayoutObject->Block(
         Name => 'TicketZoomInit',
-        Data => {%Param},
     );
 
     # return output

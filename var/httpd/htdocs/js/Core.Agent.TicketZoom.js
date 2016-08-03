@@ -174,7 +174,7 @@ Core.Agent.TicketZoom = (function (TargetNS) {
             // article menu
                 ArticleIndex, Index, MenuItems = Core.Config.Get('MenuItems') || [];
 
-            $('#ArticleItems a.AsPopup').bind('click', function () {
+            $('#ArticleItems a.AsPopup').on('click', function () {
                 var Matches,
                     PopupType = 'TicketAction';
 
@@ -353,17 +353,18 @@ Core.Agent.TicketZoom = (function (TargetNS) {
      * @name Init
      * @memberof Core.Agent.TicketZoom
      * @function
-     * @param {Object} Options - The options, mostly defined in SysConfig and passed through.
-     * @param {Number} Options.ArticleTableHeight - The height of the article table. Value is stored in the user preferences.
      * @description
      *      This function initializes the special module functions.
      */
-    TargetNS.Init = function (Options) {
+    TargetNS.Init = function () {
         var ZoomExpand = false,
             URLHash,
             $ArticleElement,
             ResizeTimeoutScroller,
-            ArticleIndex, Index, MenuItems = Core.Config.Get('MenuItems') || [];
+            ArticleIndex, Index, MenuItems = Core.Config.Get('MenuItems') || [],
+            ArticleTableHeight = parseInt(Core.Config.Get('ArticleTableHeight'), 10),
+            TicketID = Core.Config.Get('TicketID'),
+            Count, ArticleIDs = Core.Config.Get('ArticleIDs');
 
         // create open popup event for dropdown elements
         if (MenuItems.length > 0) {
@@ -387,7 +388,7 @@ Core.Agent.TicketZoom = (function (TargetNS) {
             ZoomExpand = !$('div.ArticleView a.OneArticle').hasClass('Active');
         }
 
-        Core.UI.Resizable.Init($('#ArticleTableBody'), Options.ArticleTableHeight, function (Event, UI, Height) {
+        Core.UI.Resizable.Init($('#ArticleTableBody'), ArticleTableHeight, function (Event, UI, Height) {
             // remember new height for next reload
             window.clearTimeout(ResizeTimeoutScroller);
             ResizeTimeoutScroller = window.setTimeout(function () {
@@ -396,7 +397,7 @@ Core.Agent.TicketZoom = (function (TargetNS) {
         });
 
 
-        $('.DataTable tbody td a.Attachment').bind('click', function (Event) {
+        $('.DataTable tbody td a.Attachment').on('click', function (Event) {
             var Position;
             if ($(this).attr('rel') && $('#' + $(this).attr('rel')).length) {
                 Position = $(this).offset();
@@ -432,12 +433,12 @@ Core.Agent.TicketZoom = (function (TargetNS) {
                 }
             }
         }
-        $('a.Timeline').bind('click', function() {
+        $('a.Timeline').on('click', function() {
             $(this).attr('href', $(this).attr('href') + ';ArticleID=' + URLHash);
         });
 
         // loading new articles
-        $('#ArticleTable tbody tr').bind('click', function () {
+        $('#ArticleTable tbody tr').on('click', function () {
 
             Core.App.Publish('Event.Agent.TicketZoom.ArticleClick');
 
@@ -451,6 +452,9 @@ Core.Agent.TicketZoom = (function (TargetNS) {
 
                 // Load content of new article
                 LoadArticle($(this).find('input.ArticleInfo').val(), $(this).find('input.ArticleID').val());
+
+                // mark an article as seen
+                TargetNS.MarkAsSeen(TicketID, $(this).find('input.ArticleID').val());
             }
 
             // Mode: show all articles - jump to the selected article
@@ -466,7 +470,7 @@ Core.Agent.TicketZoom = (function (TargetNS) {
             TargetNS.CheckURLHash();
         }
 
-        $('a.AsPopup').bind('click', function () {
+        $('a.AsPopup').on('click', function () {
             var Matches,
                 PopupType = 'TicketAction';
 
@@ -497,7 +501,55 @@ Core.Agent.TicketZoom = (function (TargetNS) {
         $('label.Switchable').off('click.Switch').on('click.Switch', function() {
             $(this).next('p.Value').find('.Switch').toggleClass('Hidden');
         });
+
+        // mark all articles as seen
+        if (parseInt(Core.Config.Get('TicketItemMarkAsSeen'), 10) === 1) {
+            TargetNS.MarkTicketAsSeen(TicketID);
+        }
+
+        // mark an article as seen
+        for (Count in ArticleIDs) {
+            TargetNS.MarkAsSeen(TicketID, ArticleIDs[Count]);
+        }
+
+        // init chat
+        $('a.CreateChatRequest').on('click', function() {
+            var $Dialog = $('#DashboardUserOnlineChatStartDialog').clone();
+
+            $Dialog.find('input[name=ChatStartUserID]').val($(this).data('customer-user-id'));
+            $Dialog.find('input[name=ChatStartUserType]').val($(this).data('user-type'));
+            $Dialog.find('input[name=ChatStartUserFullname]').val($(this).data('user-fullname'));
+            $Dialog.find('input[name=TicketID]').val($(this).data('ticket-id'));
+            $Dialog.find('input[name=ChannelID]').val($(this).data('channel-id'));
+
+            Core.UI.Dialog.ShowContentDialog($Dialog.html(), Core.Language.Translate('Start chat'), '100px', 'Center', true);
+
+            // Only enable button if there is a message
+            $('.Dialog textarea[name="ChatStartFirstMessage"]').on('keyup', function(){
+                $('.Dialog button').prop('disabled', $(this).val().length ? false : true);
+            });
+
+            $('.Dialog form').on('submit', function(){
+                if (!$('.Dialog textarea[name=ChatStartFirstMessage]').val().length) {
+                    return false;
+                }
+                // Close after submit
+                window.setTimeout(function(){
+                    Core.UI.Dialog.CloseDialog($('.Dialog'));
+                }, 1);
+            });
+
+            return false;
+        });
+
+        // event on change queue
+        $('#DestQueueID').on('change', function () {
+            $(this).closest('form').submit();
+        });
+
     };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Agent.TicketZoom || {}));
