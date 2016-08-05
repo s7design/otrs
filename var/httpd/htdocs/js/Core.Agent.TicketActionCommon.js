@@ -31,46 +31,37 @@ Core.Agent.TicketActionCommon = (function (TargetNS) {
 
         var $Form,
             FieldID,
-            DynamicFieldNames = Core.Config.Get('DynamicFieldNames');
+            DynamicFieldNames = Core.Config.Get('DynamicFieldNames'),
+            Fields = ['TypeID', 'ServiceID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID'],
+            ModifiedFields;
 
-        // Bind event to Type field.
-        $('#TypeID').on('change', function () {
-            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'TypeID', ['ServiceID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID'].concat(DynamicFieldNames));
+        /**
+         * @private
+         * @name FieldUpdate
+         * @memberof Core.Agent.TicketActionCommon.Init
+         * @function
+         * @param {String} Value - FieldID
+         * @param {Array} ModifiedFields - Fields
+         * @description
+         *      Create on change event handler
+         */
+        function FieldUpdate (Value, ModifiedFields) {
+            $('#' + Value).on('change', function () {
+                Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', Value, ModifiedFields);
+            });
+        }
+
+        // Bind events to specific fields
+        $.each(Fields, function(Index, Value) {
+            ModifiedFields = Core.Data.CopyObject(Fields).concat(DynamicFieldNames);
+            ModifiedFields.splice(Index, 1);
+
+            FieldUpdate(Value, ModifiedFields);
         });
 
         // Bind event to Queue field.
         $('#NewQueueID').on('change', function () {
             Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewQueueID', ['TypeID', 'ServiceID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID', 'StandardTemplateID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to Service field.
-        $('#ServiceID').on('change', function () {
-            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'ServiceID', ['TypeID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to SLA field.
-        $('#SLAID').on('change', function () {
-            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'SLAID', ['TypeID', 'ServiceID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to Owner field.
-        $('#NewOwnerID').on('change', function () {
-            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewOwnerID', ['TypeID', 'ServiceID', 'SLAID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to Responsible field.
-        $('#NewResponsibleID').on('change', function () {
-            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewResponsibleID', ['TypeID', 'ServiceID', 'SLAID', 'NewOwnerID', 'NewStateID', 'NewPriorityID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to State field.
-        $('#NewStateID').on('change', function () {
-            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewStateID', ['TypeID', 'ServiceID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewPriorityID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to State field.
-        $('#NewPriorityID').on('change', function () {
-            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewPriorityID', ['TypeID', 'ServiceID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID'].concat(DynamicFieldNames));
         });
 
         // Bind event to StandardTemplate field.

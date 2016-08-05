@@ -31,9 +31,11 @@ Core.Agent.TicketPhone = (function (TargetNS) {
 
         var $Form,
             FieldID,
-            DynamicFieldNames = Core.Config.Get('DynamicFieldNames'),
+            DynamicFieldNames = Core.Config.Get('DynamicFieldNames').concat(['SignKeyID', 'CryptKeyID', 'StandardTemplateID']),
             FromExternalCustomerName = Core.Config.Get('FromExternalCustomerName'),
-            FromExternalCustomerEmail = Core.Config.Get('FromExternalCustomerEmail');
+            FromExternalCustomerEmail = Core.Config.Get('FromExternalCustomerEmail'),
+            Fields = ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID'],
+            ModifiedFields;
 
         // Bind event to customer radio button.
         $('.CustomerTicketRadio').bind('change', function () {
@@ -59,28 +61,28 @@ Core.Agent.TicketPhone = (function (TargetNS) {
                 Core.Agent.CustomerSearch.AddTicketCustomer('FromCustomer', FromExternalCustomerEmail, FromExternalCustomerName, true);
         }
 
-        // Bind event to Type field.
-        $('#TypeID').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'TypeID',
-                ['Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
-        });
+        /**
+         * @private
+         * @name FieldUpdate
+         * @memberof Core.Agent.TicketPhone.Init
+         * @function
+         * @param {String} Value - FieldID
+         * @param {Array} ModifiedFields - Fields
+         * @description
+         *      Create on change event handler
+         */
+        function FieldUpdate (Value, ModifiedFields) {
+            $('#' + Value).on('change', function () {
+                Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', Value, ModifiedFields);
+            });
+        }
 
-        // Bind even to Dest field.
-        $('#Dest').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'Dest',
-                ['TypeID', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
-        });
+        // Bind events to specific fields
+        $.each(Fields, function(Index, Value) {
+            ModifiedFields = Core.Data.CopyObject(Fields).concat(DynamicFieldNames);
+            ModifiedFields.splice(Index, 1);
 
-        // Bind event to Service field.
-        $('#ServiceID').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'ServiceID',
-                ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to SLA field.
-        $('#SLAID').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'SLAID',
-                ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'ServiceID', 'NextStateID', 'PriorityID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
+            FieldUpdate(Value, ModifiedFields);
         });
 
         // Bind event to OwnerSelection get all button.
@@ -92,12 +94,6 @@ Core.Agent.TicketPhone = (function (TargetNS) {
             return false;
         });
 
-        // Bind event to NewUser field
-        $('#NewUserID').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'NewUserID',
-                ['TypeID', 'Dest', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
-        });
-
         // Bind event to ResponsibleSelection get all button.
         $('#ResponsibleSelectionGetAll').bind('click', function () {
             $('#ResponsibleAll').val('1');
@@ -105,12 +101,6 @@ Core.Agent.TicketPhone = (function (TargetNS) {
                 $('#NewResponsibleID').focus();
             });
             return false;
-        });
-
-        // Bind event to Responsible field
-        $('#NewResponsibleID').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'NewResponsibleID',
-                ['TypeID', 'Dest', 'NewUserID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // Bind event to StandardTemplate field.
@@ -135,18 +125,6 @@ Core.Agent.TicketPhone = (function (TargetNS) {
             $Form = $('#FileUpload').closest('form');
             Core.Form.Validate.DisableValidation($Form);
             $Form.find('#AttachmentUpload').val('1').end().submit();
-        });
-
-        // Bind event to State field.
-        $('#NextStateID').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'NextStateID',
-                ['TypeID', 'Dest', 'NewUserID','NewResponsibleID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
-        });
-
-        // Bind event to Priority field.
-        $('#PriorityID').bind('change', function () {
-            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'PriorityID',
-                ['TypeID', 'Dest', 'NewUserID','NewResponsibleID', 'NextStateID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'StandardTemplateID'].concat(DynamicFieldNames));
         });
 
         // Initialize the ticket action popup.
