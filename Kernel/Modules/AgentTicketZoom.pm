@@ -1184,7 +1184,13 @@ sub MaskAgentZoom {
             ActivityEntityID => $Ticket{$ActivityEntityIDField},
         );
 
-        # output the process widget the the main screen
+        # send data to JS
+        $LayoutObject->AddJSData(
+            Key   => 'ProcessWidget',
+            Value => 1,
+        );
+
+        # output the process widget in the main screen
         $LayoutObject->Block(
             Name => 'ProcessWidget',
             Data => {
@@ -1529,6 +1535,12 @@ sub MaskAgentZoom {
                 Class       => 'Modernize',
             );
 
+            # send data to JS
+            $LayoutObject->AddJSData(
+                Key   => 'ArticleFilterDialog',
+                Value => 0,
+            );
+
             $LayoutObject->Block(
                 Name => 'EventTypeFilterDialog',
                 Data => {%Param},
@@ -1570,6 +1582,12 @@ sub MaskAgentZoom {
 
             # Ticket ID
             $Param{TicketID} = $Self->{TicketID};
+
+            # send data to JS
+            $LayoutObject->AddJSData(
+                Key   => 'ArticleFilterDialog',
+                Value => 1,
+            );
 
             $LayoutObject->Block(
                 Name => 'ArticleFilterDialog',
@@ -1622,7 +1640,7 @@ sub MaskAgentZoom {
     $LayoutObject->AddJSData(
         Key   => 'Language',
         Value => {
-            AttachmentViewMessage => $LayoutObject->{LanguageObject}->Translate(
+            AttachmentViewMessage => Translatable(
                 'Article could not be opened! Perhaps it is on another article page?'
             ),
         },
@@ -2336,6 +2354,21 @@ sub _ArticleTree {
 
         # set TicketID for usage in JS
         $Param{TicketID} = $Self->{TicketID};
+
+        # set key 'TimeLong' for JS
+        for my $Item ( @{ $Param{Items} } ) {
+            $Item->{TimeLong}
+                = $LayoutObject->{LanguageObject}->FormatTimeString( $Item->{CreateTime}, 'DateFormatLong' );
+        }
+
+        # send data to JS
+        $LayoutObject->AddJSData(
+            Key   => 'TimelineView',
+            Value => {
+                Enabled => $ConfigObject->Get('TimelineViewEnabled'),
+                Data    => \%Param,
+            },
+        );
 
         $LayoutObject->Block(
             Name => 'TimelineView',
