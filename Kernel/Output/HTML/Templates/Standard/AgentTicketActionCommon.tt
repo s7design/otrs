@@ -227,16 +227,7 @@
                             [% END %]
                         </div>
                         <div class="Clear"></div>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    $('#NewStateID').bind('change', function (Event) {
-        Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'NewStateID', ['TypeID', 'ServiceID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewPriorityID' [% Data.DynamicFieldNamesStrg %] ]);
-    });
-//]]></script>
-[% END %]
-[% RenderBlockEnd("State") %]
 
-[% RenderBlockStart("StateMandatory") %]
                         <label class="Mandatory" for="NewStateID"><span class="Marker">*</span>[% Translate("Next state") | html %]:</label>
                         <div class="Field">
                             [% Data.StateStrg %]
@@ -244,6 +235,8 @@
                             <div id="NewStateIDServerError" class="TooltipErrorMessage"><p>[% Translate("State invalid.") | html %]</p></div>
                         </div>
                         <div class="Clear"></div>
+[% RenderBlockEnd("State") %]
+
 [% RenderBlockStart("StatePending") %]
                         <label>[% Translate("Pending date") | html %]:</label>
                         <div class="Field">
@@ -478,5 +471,3 @@
         </div>
     </form>
 [% RenderBlockEnd("Properties") %]
-
-#Layers
