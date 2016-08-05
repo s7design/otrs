@@ -179,9 +179,9 @@ Core.Agent.Statistics = (function (TargetNS) {
        $('.SwitchPreviewFormat').on('click', function() {
             var Format = $(this).data('format'),
                 FormatCleaned = Format.replace('::', ''),
-                PreviewResult = Core.Config.Get('PreviewResult'),StatsPreviewResult = [];
+                StatsPreviewResult;
 
-            StatsPreviewResult = StatsPreviewResult.concat(PreviewResult);
+            StatsPreviewResult = Core.Data.CopyObject(Core.Config.Get('PreviewResult'));
             $('.SwitchPreviewFormat').removeClass('Active');
             $(this).addClass('Active');
             $('.PreviewContent:visible').hide();
