@@ -257,7 +257,8 @@ Core.Agent.Dashboard = (function (TargetNS) {
      */
     TargetNS.Init = function () {
         var StatsData,
-            DashboardStats = Core.Config.Get('DashboardStatsIDs');
+            DashboardStats = Core.Config.Get('DashboardStatsIDs'),
+            Data = Core.Config.Get('ContainerNames');
 
         // initializes dashboards stats widget functionality
         $.each(DashboardStats, function (Index, Value) {
@@ -272,6 +273,14 @@ Core.Agent.Dashboard = (function (TargetNS) {
 
         // Initializes events customer user list
         InitCustomerUserList();
+
+        // Initializes show and save preferences for widget containers
+        $.each(Data, function (Index, Value) {
+            ContentPreferences(Value);
+        });
+
+        // Initializes refresh event for user online widget
+        UserOnlineRefresh();
 
         // Disable drag and drop of dashboard widgets on mobile / touch devices
         // to prevent accidentally moved widgets while tabbing/swiping
@@ -694,6 +703,25 @@ Core.Agent.Dashboard = (function (TargetNS) {
                     clearTimeout(Core.Config.Get('Timer_' + CustomerUserRefresh.NameHTML));
                 }, Core.Config.Get('RefreshSeconds_' + CustomerUserRefresh.NameHTML) * 1000));
             }
+
+     * @name UserOnlineRefresh
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @description
+     *      Initializes the event to refresh user online widget
+     */
+    function UserOnlineRefresh () {
+        var Data = Core.Config.Get('CanRefresh');
+
+        if (typeof Data !== 'undefined') {
+            $('#Dashboard' + Core.App.EscapeSelector(Data.Name) + '_toggle').on('click', function() {
+                $('#Dashboard' + Core.App.EscapeSelector(Data.Name) + '-box').addClass('Loading');
+                Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(Data.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') +';Subaction=Element;Name=' + Data.Name, function () {
+                    $('#Dashboard' + Core.App.EscapeSelector(Data.Name) + '-box').removeClass('Loading');
+                });
+                clearTimeout(Core.Config.Get('Timer_' + Data.NameHTML));
+                return false;
+            });
         }
     }
 
@@ -749,6 +777,20 @@ Core.Agent.Dashboard = (function (TargetNS) {
             $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).find('.WidgetTooltip').addClass('Hidden');
         });
     };
+
+     * @private
+     * @name ContentPreferences
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @param {Object} Params - Hash with container name, with and without ('-') to support IE
+     * @description
+     *      Initializes to preferences for widget containers
+     */
+    function ContentPreferences (Params) {
+        TargetNS.RegisterUpdatePreferences($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_submit'), 'Dashboard' + Core.App.EscapeSelector(Params.Name),$('#Dashboard' + Core.App.EscapeSelector(Params.NameForm) + '_setting_form'));
+        Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-toggle'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
+        Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_cancel'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
