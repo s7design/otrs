@@ -91,6 +91,9 @@ $Selenium->RunTest(
             "\$('#OperationList').val('Ticket::TicketCreate').trigger('redraw.InputField').trigger('change');"
         );
 
+        # wait for page to load if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#Operation").length' );
+
         # create webservice operation
         $Selenium->find_element( "#Operation", 'css' )->send_keys('SeleniumOperation');
 
@@ -158,9 +161,13 @@ $Selenium->RunTest(
         # click on 'Save and finish' test JS redirection
         $Selenium->find_element("//button[\@value='Save and finish']")->VerifiedClick();
         $Self->True(
-            $Selenium->get_current_url() =~ /AdminGenericInterfaceOperationDefault/,
+            index( $Selenium->get_current_url(), 'AdminGenericInterfaceOperationDefault' ) > -1,
             'JS redirection is successful to AdminGenericInterfaceOperationDefault screen'
         );
+
+        # wait for page to load if necessary
+        $Selenium->WaitFor(
+            JavaScript => 'return typeof($) === "function" && $("#MappingInboundConfigureButton").length' );
 
         # click on configure inbound mapping XSLT again
         $Selenium->find_element("//button[\@id='MappingInboundConfigureButton']")->VerifiedClick();
