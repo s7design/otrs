@@ -534,7 +534,7 @@ sub Run {
     my $Columns = $Self->{Config}->{DefaultColumns} || $ConfigObject->Get('DefaultOverviewColumns') || {};
 
     # try every backend to load and execute it
-    my @JSDatas;
+    my @ContainerNames;
     NAME:
     for my $Name (@Order) {
 
@@ -555,7 +555,7 @@ sub Run {
             NameForm => $NameForm,
         );
 
-        push @JSDatas, \%JSData;
+        push @ContainerNames, \%JSData;
 
         # rendering
         $LayoutObject->Block(
@@ -664,7 +664,7 @@ sub Run {
     # send data to JS
     $LayoutObject->AddJSData(
         Key   => 'ContainerNames',
-        Value => \@JSDatas,
+        Value => \@ContainerNames,
     );
 
     # build main menu

@@ -276,11 +276,11 @@ Core.Agent.Dashboard = (function (TargetNS) {
 
         // Initializes show and save preferences for widget containers
         $.each(Data, function (Index, Value) {
-            ContentPreferences(Value);
+            InitWidgetContainerPref(Value);
         });
 
         // Initializes refresh event for user online widget
-        UserOnlineRefresh();
+        InitUserOnlineRefresh();
 
         // Disable drag and drop of dashboard widgets on mobile / touch devices
         // to prevent accidentally moved widgets while tabbing/swiping
@@ -703,14 +703,17 @@ Core.Agent.Dashboard = (function (TargetNS) {
                     clearTimeout(Core.Config.Get('Timer_' + CustomerUserRefresh.NameHTML));
                 }, Core.Config.Get('RefreshSeconds_' + CustomerUserRefresh.NameHTML) * 1000));
             }
+        }
+    }
 
-     * @name UserOnlineRefresh
+    /**
+     * @name InitUserOnlineRefresh
      * @memberof Core.Agent.Dashboard
      * @function
      * @description
      *      Initializes the event to refresh user online widget
      */
-    function UserOnlineRefresh () {
+    function InitUserOnlineRefresh () {
         var Data = Core.Config.Get('CanRefresh');
 
         if (typeof Data !== 'undefined') {
@@ -778,15 +781,16 @@ Core.Agent.Dashboard = (function (TargetNS) {
         });
     };
 
+    /**
      * @private
-     * @name ContentPreferences
+     * @name InitWidgetContainerPref
      * @memberof Core.Agent.Dashboard
      * @function
      * @param {Object} Params - Hash with container name, with and without ('-') to support IE
      * @description
-     *      Initializes to preferences for widget containers
+     *      Initializes preferences for widget containers
      */
-    function ContentPreferences (Params) {
+    function InitWidgetContainerPref (Params) {
         TargetNS.RegisterUpdatePreferences($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_submit'), 'Dashboard' + Core.App.EscapeSelector(Params.Name),$('#Dashboard' + Core.App.EscapeSelector(Params.NameForm) + '_setting_form'));
         Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-toggle'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
         Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_cancel'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
