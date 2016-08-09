@@ -2709,7 +2709,7 @@ sub _MaskPhoneNew {
         );
 
         # set up rich text editor
-        $LayoutObject->RichTextSetBlock(
+        $LayoutObject->SetRichTextParameters(
             Data => \%Param,
         );
     }

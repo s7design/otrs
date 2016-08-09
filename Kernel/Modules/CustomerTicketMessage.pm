@@ -1333,7 +1333,7 @@ sub _MaskNew {
         );
 
         # set up customer rich text editor
-        $LayoutObject->CustomerRichTextSetBlock(
+        $LayoutObject->CustomerSetRichTextParameters(
             Data => \%Param,
         );
     }

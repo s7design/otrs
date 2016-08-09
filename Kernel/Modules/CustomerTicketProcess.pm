@@ -1229,7 +1229,7 @@ sub _OutputActivityDialog {
             );
 
             # set up customer rich text editor
-            $LayoutObject->CustomerRichTextSetBlock(
+            $LayoutObject->CustomerSetRichTextParameters(
                 Data => \%Param,
             );
         }
@@ -2109,7 +2109,7 @@ sub _RenderArticle {
         );
 
         # set up customer rich text editor
-        $LayoutObject->CustomerRichTextSetBlock(
+        $LayoutObject->CustomerSetRichTextParameters(
             Data => \%Param,
         );
     }
@@ -4029,7 +4029,7 @@ sub _DisplayProcessList {
         );
 
         # set up customer rich text editor
-        $LayoutObject->CustomerRichTextSetBlock(
+        $LayoutObject->CustomerSetRichTextParameters(
             Data => \%Param,
         );
     }

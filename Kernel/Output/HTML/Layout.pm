@@ -5496,17 +5496,17 @@ sub TransfromDateSelection {
     return $Self->TransformDateSelection(@_);
 }
 
-=item RichTextSetBlock()
+=item SetRichTextParameters()
 
 set properties for rich text editor and send them to JS via AddJSData()
 
-$LayoutObject->RichTextSetBlock(
+$LayoutObject->SetRichTextParameters(
     Data => \%Param,
 );
 
 =cut
 
-sub RichTextSetBlock {
+sub SetRichTextParameters {
     my ( $Self, %Param ) = @_;
 
     $Param{Data} ||= {};
@@ -5626,33 +5626,33 @@ sub RichTextSetBlock {
     $Self->AddJSData(
         Key   => 'RichText',
         Value => {
-            ConfigHeight         => $ScreenRichTextHeight,
-            ConfigWidth          => $ScreenRichTextWidth,
-            ConfigTextDir        => $TextDir,
-            ConfigSpellChecker   => $SpellChecker,
-            ConfigEditingAreaCSS => $EditingAreaCSS,
-            ConfigLang           => {
-                ConfigSplitQuote  => $LanguageObject->Translate('Split Quote'),
-                ConfigRemoveQuote => $LanguageObject->Translate('Remove Quote'),
+            Height         => $ScreenRichTextHeight,
+            Width          => $ScreenRichTextWidth,
+            TextDir        => $TextDir,
+            SpellChecker   => $SpellChecker,
+            EditingAreaCSS => $EditingAreaCSS,
+            Lang           => {
+                SplitQuote  => $LanguageObject->Translate('Split Quote'),
+                RemoveQuote => $LanguageObject->Translate('Remove Quote'),
             },
-            ConfigToolbar             => $Toolbar[0],
-            ConfigToolbarWithoutImage => $ToolbarWithoutImage[0],
-            ConfigPictureUploadAction => $PictureUploadAction,
+            Toolbar             => $Toolbar[0],
+            ToolbarWithoutImage => $ToolbarWithoutImage[0],
+            PictureUploadAction => $PictureUploadAction,
             }
     );
 }
 
-=item CustomerRichTextSetBlock()
+=item CustomerSetRichTextParameters()
 
 set properties for customer rich text editor and send them to JS via AddJSData()
 
-$LayoutObject->CustomerRichTextSetBlock(
+$LayoutObject->CustomerSetRichTextParameters(
     Data => \%Param,
 );
 
 =cut
 
-sub CustomerRichTextSetBlock {
+sub CustomerSetRichTextParameters {
     my ( $Self, %Param ) = @_;
 
     $Param{Data} ||= {};
@@ -5711,17 +5711,17 @@ sub CustomerRichTextSetBlock {
     $Self->AddJSData(
         Key   => 'RichText',
         Value => {
-            ConfigHeight         => $ScreenRichTextHeight,
-            ConfigWidth          => $ScreenRichTextWidth,
-            ConfigTextDir        => $TextDir,
-            ConfigSpellChecker   => $SpellChecker,
-            ConfigEditingAreaCSS => $EditingAreaCSS,
-            ConfigLang           => {
-                ConfigSplitQuote => $LanguageObject->Translate('Split Quote'),
+            Height         => $ScreenRichTextHeight,
+            Width          => $ScreenRichTextWidth,
+            TextDir        => $TextDir,
+            SpellChecker   => $SpellChecker,
+            EditingAreaCSS => $EditingAreaCSS,
+            Lang           => {
+                SplitQuote => $LanguageObject->Translate('Split Quote'),
             },
-            ConfigToolbar             => $Toolbar[0],
-            ConfigToolbarWithoutImage => $ToolbarWithoutImage[0],
-            ConfigPictureUploadAction => $PictureUploadAction,
+            Toolbar             => $Toolbar[0],
+            ToolbarWithoutImage => $ToolbarWithoutImage[0],
+            PictureUploadAction => $PictureUploadAction,
             }
     );
 

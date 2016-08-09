@@ -1997,7 +1997,7 @@ sub _Mask {
         );
 
         # set up rich text editor
-        $LayoutObject->RichTextSetBlock(
+        $LayoutObject->SetRichTextParameters(
             Data => \%Param,
         );
     }

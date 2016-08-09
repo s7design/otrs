@@ -209,7 +209,7 @@ sub Run {
         );
 
         # set up rich text editor
-        $LayoutObject->RichTextSetBlock(
+        $LayoutObject->SetRichTextParameters(
             Data => \%Param,
         );
     }

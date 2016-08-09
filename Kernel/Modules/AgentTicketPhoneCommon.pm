@@ -1274,7 +1274,7 @@ sub _MaskPhone {
         );
 
         # set up rich text editor
-        $LayoutObject->RichTextSetBlock(
+        $LayoutObject->SetRichTextParameters(
             Data => \%Param,
         );
     }

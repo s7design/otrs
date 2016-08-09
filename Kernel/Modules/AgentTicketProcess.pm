@@ -1435,7 +1435,7 @@ sub _OutputActivityDialog {
             );
 
             # set up rich text editor
-            $LayoutObject->RichTextSetBlock(
+            $LayoutObject->SetRichTextParameters(
                 Data => \%Param,
             );
         }
@@ -2608,7 +2608,7 @@ sub _RenderArticle {
         );
 
         # set up rich text editor
-        $LayoutObject->RichTextSetBlock(
+        $LayoutObject->SetRichTextParameters(
             Data => \%Param,
         );
     }
@@ -5268,7 +5268,7 @@ sub _DisplayProcessList {
         );
 
         # set up rich text editor
-        $LayoutObject->RichTextSetBlock(
+        $LayoutObject->SetRichTextParameters(
             Data => \%Param,
         );
     }
