@@ -70,66 +70,6 @@ Core.Agent.Statistics = (function (TargetNS) {
         $ContainerElement.find('.Element' + Core.App.EscapeSelector(ElementName)).clone().appendTo($FormFieldsElement);
     };
 
-    TargetNS.InitViewScreen = function() {
-        var StatsParamData = Core.Config.Get('StatsParamData');
-
-        if (StatsParamData.Use === 'UseAsValueSeries') {
-            $('#' + StatsParamData.XAxisTimeScaleElementID).on('change', function() {
-                var TimeScaleYAxis = StatsParamData.TimeScaleYAxis,
-                $TimeScaleElement = $('#' + StatsParamData.TimeScaleElementID),
-                XAxisTimeScaleValue = $(this).val();
-
-                // reset the current time scale dropdown for the y axis
-                $TimeScaleElement.empty();
-
-                if (XAxisTimeScaleValue in TimeScaleYAxis) {
-                    $.each(TimeScaleYAxis[XAxisTimeScaleValue], function (Index, Item) {
-                        var TimeScaleOption = new Option(Item.Value, Item.Key);
-
-                        // Overwrite option text, because of wrong html quoting of text content.
-                        // (This is needed for IE.)
-                        TimeScaleOption.innerHTML = Item.Value;
-                        $TimeScaleElement.append(TimeScaleOption).val(Item.Key).trigger('redraw.InputField').trigger('change');
-
-                    });
-                }
-            });
-        }
-
-        if (StatsParamData.Ajax) {
-            Core.UI.InputFields.Activate();
-        }
-
-        $('.DataShowMore').on('click', function() {
-            if ($(this).find('.More').is(':visible')) {
-                $(this)
-                    .find('.More')
-                    .hide()
-                    .next('.Less')
-                    .show()
-                    .parent()
-                    .prev('.DataFull')
-                    .show()
-                    .prev('.DataTruncated')
-                    .hide()
-            }
-            else {
-                $(this)
-                    .find('.More')
-                    .show()
-                    .next('.Less')
-                    .hide()
-                    .parent()
-                    .prev('.DataFull')
-                    .hide()
-                    .prev('.DataTruncated')
-                    .show()
-            }
-            return false;
-        });
-
-    };
-
     /**
      * @name InitEditScreen
      * @memberof Core.Agent.Statistics
@@ -280,11 +220,6 @@ Core.Agent.Statistics = (function (TargetNS) {
 
         // Initialize the Edit screen
         TargetNS.InitEditScreen();
-
-        // Initialize the View - StatsParams screen
-        if (typeof Core.Config.Get('StatsParamData') !== 'undefined') {
-            TargetNS.InitViewScreen();
-        }
 
         // Bind event on delete stats button
         $('.StatDelete').on('click', function (Event) {
