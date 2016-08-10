@@ -293,6 +293,9 @@ Core.Agent.Dashboard = (function (TargetNS) {
         // Initialize dashboard ticket stats
         InitDashboardTicketStats();
 
+        // Initializes UserOnline widget functionality
+        TargetNS.InitUserOnline();
+
         // Disable drag and drop of dashboard widgets on mobile / touch devices
         // to prevent accidentally moved widgets while tabbing/swiping
         if (!Core.App.Responsive.IsTouchDevice()) {
@@ -407,6 +410,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
 
                 Core.AJAX.ContentUpdate($('#' + ElementID), URL, function () {
                     Core.UI.ToggleTwoContainer($('#' + ElementID + '-setting'), $('#' + ElementID));
+                    TargetNS.InitUserOnline();
                 });
                 return false;
             });
@@ -732,12 +736,104 @@ Core.Agent.Dashboard = (function (TargetNS) {
                 $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').addClass('Loading');
                 Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') +';Subaction=Element;Name=' + UserOnlineRefresh.Name, function () {
                     $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').removeClass('Loading');
+                    TargetNS.InitUserOnline();
                 });
                 clearTimeout(Core.Config.Get('Timer_' + UserOnlineRefresh.NameHTML));
                 return false;
             });
         }
     }
+
+    /**
+     * @name InitUserOnline
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @description
+     *      Initializes User Online dashboard widget.
+     */
+    TargetNS.InitUserOnline = function() {
+        var UserOnline = Core.Config.Get('UserOnline'),
+            UserID, $Dialog, Data;
+
+        if (typeof UserOnline !== 'undefined') {
+
+            $('#Dashboard' + Core.App.EscapeSelector(UserOnline.Name) + 'Agent').unbind('click').bind('click', function(){
+                Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(UserOnline.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Element;Name=' + UserOnline.Name + ';Filter=Agent', function () {
+                    TargetNS.InitUserOnline();
+                });
+                return false;
+            });
+            $('#Dashboard' + Core.App.EscapeSelector(UserOnline.Name) + 'Customer').unbind('click').bind('click', function(){
+                Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(UserOnline.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Element;Name=' + UserOnline.Name + ';Filter=Customer', function () {
+                    TargetNS.InitUserOnline();
+                });
+                return false;
+            });
+
+            $('a.DashboardUserOnlineChatStart').off('click').on('click', function() {
+                UserID = $(this).data('user-id'),
+                $Dialog = $('#DashboardUserOnlineChatStartDialog').clone();
+
+                $Dialog.find('input[name=ChatStartUserID]').val($(this).data('user-id'));
+                $Dialog.find('input[name=ChatStartUserType]').val($(this).data('user-type'));
+                $Dialog.find('input[name=ChatStartUserFullname]').val($(this).data('user-fullname'));
+
+                // Get Availability
+                Data = {
+                    Action: 'AgentChat',
+                    Subaction: 'GetAvailability',
+                    UserID: UserID
+                };
+
+                Core.AJAX.FunctionCall(
+                    Core.Config.Get('Baselink'),
+                    Data,
+                    function(Response) {
+                        if (Response < 1) {
+                            window.alert(Core.Language.Translate("Selected agent is not available for chat"));
+
+                            // Reload page
+                            document.location.reload(true);
+                            return false;
+                        }
+
+                        Core.UI.Dialog.ShowContentDialog($Dialog.html(), Core.Language.Translate('Start chat'), '100px', 'Center', true);
+
+                        // Only enable button if there is a message
+                        $('.Dialog textarea[name="ChatStartFirstMessage"]').on('keyup', function(){
+                            $('.Dialog button').prop('disabled', $(this).val().length ? false : true);
+                        });
+
+                        $('.Dialog form').on('submit', function(){
+                            if (!$('.Dialog textarea[name=ChatStartFirstMessage]').val().length) {
+                                return false;
+                            }
+                            // Close after submit
+                            window.setTimeout(function(){
+                                Core.UI.Dialog.CloseDialog($('.Dialog'));
+                            }, 1);
+                        });
+                    });
+
+                return false;
+            });
+
+            Core.Config.Set('RefreshSeconds_' + UserOnline.NameHTML, parseInt(UserOnline.RefreshTime, 10) || 0);
+            if (Core.Config.Get('RefreshSeconds_' + UserOnline.NameHTML)) {
+                Core.Config.Set('Timer_' + UserOnline.NameHTML, window.setTimeout(
+                    function() {
+                        $('#Dashboard' + Core.App.EscapeSelector(UserOnline.Name) + '-box').addClass('Loading');
+                        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(UserOnline.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Element;Name=' + UserOnline.Name, function () {
+                            $('#Dashboard' + Core.App.EscapeSelector(UserOnline.Name) + '-box').removeClass('Loading');
+                            TargetNS.InitUserOnline();
+                        });
+                        clearTimeout(Core.Config.Get('Timer_' + UserOnline.NameHTML));
+                    },
+                    Core.Config.Get('RefreshSeconds_' + UserOnline.NameHTML) * 1000)
+                );
+            }
+        }
+    };
 
     /**
      * @name InitStatsWidget
