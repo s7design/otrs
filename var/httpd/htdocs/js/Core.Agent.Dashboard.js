@@ -287,6 +287,9 @@ Core.Agent.Dashboard = (function (TargetNS) {
         // Initializes refresh event for user online widget
         InitUserOnlineRefresh();
 
+        // Initialize dashboard ticket stats
+        InitDashboardTicketStats();
+
         // Disable drag and drop of dashboard widgets on mobile / touch devices
         // to prevent accidentally moved widgets while tabbing/swiping
         if (!Core.App.Responsive.IsTouchDevice()) {
@@ -799,6 +802,36 @@ Core.Agent.Dashboard = (function (TargetNS) {
         TargetNS.RegisterUpdatePreferences($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_submit'), 'Dashboard' + Core.App.EscapeSelector(Params.Name),$('#Dashboard' + Core.App.EscapeSelector(Params.NameForm) + '_setting_form'));
         Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-toggle'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
         Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_cancel'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
+    }
+
+    /**
+     * @private
+     * @name InitDashboardTicketStats
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @description
+     *      This function initialize dashboard ticket stats widget.
+     */
+    function InitDashboardTicketStats () {
+        var DashboardTicketStats = Core.Config.Get('DashboardTicketStats');
+
+        if (typeof DashboardTicketStats !== 'undefined') {
+            (function(){
+                var Timeout = 500;
+                window.setTimeout(function () {
+                    Core.UI.AdvancedChart.Init(
+                        "D3::SimpleLineChart",
+                        DashboardTicketStats.ChartData,
+                        'svg.GraphWidget' + DashboardTicketStats.Key,
+                        {
+                            Duration: 250,
+                            ReduceXTicks: false
+                        }
+                    );
+                }, Timeout);
+            }());
+        }
+
     }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
