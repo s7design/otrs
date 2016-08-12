@@ -91,16 +91,34 @@ sub Run {
                 UserID => $Self->{UserID},
             );
             if ($Update) {
-                $Self->_Overview();
-                my $Output = $LayoutObject->Header();
-                $Output .= $LayoutObject->NavigationBar();
-                $Output .= $LayoutObject->Notify( Info => Translatable('Attachment updated!') );
-                $Output .= $LayoutObject->Output(
-                    TemplateFile => 'AdminAttachment',
-                    Data         => \%Param,
-                );
-                $Output .= $LayoutObject->Footer();
-                return $Output;
+                if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+
+                    # if the user would like to continue editing the attachment, just redirect to the edit screen
+                    my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
+                    my %Data = $StdAttachmentObject->StdAttachmentGet(
+                        ID => $ID,
+                    );
+
+                    my $Output = $LayoutObject->Header();
+                    $Output .= $LayoutObject->NavigationBar();
+                    $Output .= $LayoutObject->Notify( Info => Translatable('Attachment updated!') );
+                    $Self->_Edit(
+                        Action => 'Change',
+                        %Data,
+                    );
+
+                    $Output .= $LayoutObject->Output(
+                        TemplateFile => 'AdminAttachment',
+                        Data         => \%Param,
+                    );
+                    $Output .= $LayoutObject->Footer();
+                    return $Output;
+                }
+                else {
+
+                    # otherwise return to overview
+                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+                }
             }
         }
 
@@ -310,16 +328,6 @@ sub _Edit {
             %{ $Param{Errors} },
         },
     );
-
-    # shows header
-    if ( $Param{Action} eq 'Change' ) {
-        $LayoutObject->Block( Name => 'HeaderEdit' );
-        $LayoutObject->Block( Name => 'ContenLabelEdit' );
-    }
-    else {
-        $LayoutObject->Block( Name => 'HeaderAdd' );
-        $LayoutObject->Block( Name => 'ContenLabelAdd' );
-    }
 
     return 1;
 }

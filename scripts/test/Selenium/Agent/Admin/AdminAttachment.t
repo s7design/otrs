@@ -49,11 +49,39 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
+        # check breadcrumb on Add screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Overview screen.",
+        );
+
         # create test standard attachments
         for my $File (qw(xls txt doc png pdf)) {
 
             # click 'add new attachment' link
             $Selenium->find_element("//a[contains(\@href, \'Action=AdminAttachment;Subaction=Add' )]")->VerifiedClick();
+
+            # check breadcrumb on Add screen
+            $Self->True(
+                $Selenium->find_element( '.BreadCrumb', 'css' ),
+                "Breadcrumb is found on Add screen.",
+            );
+
+            $Self->True(
+                $Selenium->execute_script("return \$('li>a:contains(Admin Attachment)').length"),
+                "Breadcrumb previus item is found on Add screen - link to Admin Attacment screen.",
+            );
+
+            $Self->True(
+                $Selenium->execute_script("return \$('li:contains(Add New Attacment)').length"),
+                "Breadcrumb last item is found on Add screen.",
+            );
+
+            # check form action
+            $Self->True(
+                $Selenium->find_element( '#Submit', 'css' ),
+                "Submit is found on Add screen.",
+            );
 
             # file checks
             my $Location = $Home . "/scripts/test/sample/StdAttachment/StdAttachment-Test1.$File";
@@ -77,6 +105,30 @@ $Selenium->RunTest(
 
             # go to new standard attachment again and edit
             $Selenium->find_element( $AttachmentName, 'link_text' )->VerifiedClick();
+
+            # check breadcrumb on Edit screen
+            $Self->True(
+                $Selenium->find_element( '.BreadCrumb', 'css' ),
+                "Breadcrumb is found on Edit screen.",
+            );
+
+            $Self->True(
+                $Selenium->execute_script("return \$('li>a:contains(Admin Attachment)').length"),
+                "Breadcrumb previus item is found on Edit screen - link to Admin Attacment screen.",
+            );
+
+            $Self->True(
+                $Selenium->execute_script("return \$('li:contains($AttachmentName)').length"),
+                "Breadcrumb last item is found on Edit screen.",
+            );
+
+            # check form actions
+            for my $Action (qw(Submit SubmitAndContinue)) {
+                $Self->True(
+                    $Selenium->find_element( "#$Action", 'css' ),
+                    "$Action is found on Edit screen.",
+                );
+            }
 
             $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
             $Selenium->find_element( "#Comment", 'css' )->send_keys('Selenium test attachment');

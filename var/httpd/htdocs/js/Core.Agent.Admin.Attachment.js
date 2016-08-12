@@ -38,6 +38,11 @@ Core.Agent.Admin = Core.Agent.Admin || {};
             }
             return false;
         });
+
+        $('#SubmitAndContinue').on('click', function() {
+            $('#ContinueAfterSave').val(1);
+            $('#Submit').click();
+        });
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
