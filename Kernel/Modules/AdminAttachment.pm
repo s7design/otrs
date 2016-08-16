@@ -91,28 +91,11 @@ sub Run {
                 UserID => $Self->{UserID},
             );
             if ($Update) {
+
+                # if the user would like to continue editing the attachment, just redirect to the edit screen
                 if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
-
-                    # if the user would like to continue editing the attachment, just redirect to the edit screen
                     my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
-                    my %Data = $StdAttachmentObject->StdAttachmentGet(
-                        ID => $ID,
-                    );
-
-                    my $Output = $LayoutObject->Header();
-                    $Output .= $LayoutObject->NavigationBar();
-                    $Output .= $LayoutObject->Notify( Info => Translatable('Attachment updated!') );
-                    $Self->_Edit(
-                        Action => 'Change',
-                        %Data,
-                    );
-
-                    $Output .= $LayoutObject->Output(
-                        TemplateFile => 'AdminAttachment',
-                        Data         => \%Param,
-                    );
-                    $Output .= $LayoutObject->Footer();
-                    return $Output;
+                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Subaction=Change;ID=$ID" );
                 }
                 else {
 

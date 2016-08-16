@@ -624,6 +624,12 @@ Core.Agent = (function (TargetNS) {
         Core.App.Responsive.CheckIfTouchDevice();
 
         InitNavigation();
+
+        // bind event on click for #SubmitAndContinue button
+        $('#SubmitAndContinue').on('click', function() {
+            $('#ContinueAfterSave').val(1);
+            $('#Submit').click();
+        });
     };
 
     /**
