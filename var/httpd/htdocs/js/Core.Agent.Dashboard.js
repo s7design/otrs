@@ -751,12 +751,13 @@ Core.Agent.Dashboard = (function (TargetNS) {
     };
 
     /**
-     * @name InitStatsWidget
+     * @private
+     * @name StatsWidget
      * @memberof Core.Agent.Dashboard
      * @param {Object} StatsData - Hash with different config options.
      * @function
      * @description
-     *      Initializes the stats dashboard widget functionality.
+     *      Initializes each available stats dashboard widget functionality.
      */
     function StatsWidget (StatsData) {
         (function(){
