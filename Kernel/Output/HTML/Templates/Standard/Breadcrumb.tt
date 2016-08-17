@@ -9,8 +9,11 @@
 <ul class="BreadCrumb">
     <li>[% Translate("You are here") | html %]:</li>
     [% FOREACH Item IN Path %]
+        [% NEXT IF Item.Name == undef %]
         <li>
-            [% IF Item.Link %]
+
+            <!-- link is not needed if there is only one or for the last item in breadcrumb -->
+            [% IF Item.Link && Path.size() > 1 %]
                 <a href="[% Env('Baselink') %]Action=[% Item.Link %]">[% Translate(Item.Name) | html %]</a>
             [% ELSE %]
                 [% Translate(Item.Name) | html %]
