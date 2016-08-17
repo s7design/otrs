@@ -9,21 +9,22 @@
 [% RenderBlockStart("Overview") %]
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("Attachment Management") | html %]</h1>
-    <ul class="BreadCrumb">
-        <li>[% Translate("You are here") | html %]:</li>
-        <li>
-            <a href="[% Env("Baselink") %]Action=[% Env("Action") %]">[% Translate("Admin Attachment") | html %]</a>
-        </li>
-        <li>
-        [% IF Data.Action &&  Data.Action == 'Add' %]
-            [% Translate("Add New Attacment") | html %]
-        [% ELSIF Data.Action && Data.Action == 'Change' %]
-            [% Data.Name | html %]
-        [% END %]
-        </li>
-    </ul>
-
-    <div class="Clear"></div>
+    [% IF Data.Action &&  Data.Action == 'Add' %]
+        [%  ItemName = Translate("Add New Attachment") | html %]
+    [% ELSIF Data.Action && Data.Action == 'Change' %]
+        [% ItemName = Data.Name | html %]
+    [% END %]
+    [% INCLUDE "Breadcrumb.tt"
+        Path = [
+            {
+                Name => 'Admin Attachment',
+                Link => Env("Action"),
+            },
+            {
+                Name => ItemName,
+            },
+        ]
+    %]
     <div class="SidebarColumn">
 
 [% RenderBlockStart("ActionList") %]

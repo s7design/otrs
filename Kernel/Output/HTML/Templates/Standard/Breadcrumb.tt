@@ -1,0 +1,21 @@
+# --
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# --
+
+<ul class="BreadCrumb">
+    <li>[% Translate("You are here") | html %]:</li>
+    [% FOREACH Item IN Path %]
+        <li>
+            [% IF Item.Link %]
+                <a href="[% Env('Baselink') %]Action=[% Item.Link %]">[% Translate(Item.Name) | html %]</a>
+            [% ELSE %]
+                [% Translate(Item.Name) | html %]
+            [% END %]
+        </li>
+    [% END %]
+</ul>
+<div class="Clear"></div>
