@@ -55,6 +55,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
+        # check breadcrumb on Overview screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Overview screen.",
+        );
+
         # click 'Add auto response'
         $Selenium->find_element("//a[contains(\@href, \'Action=AdminAutoResponse;Subaction=Add' )]")->VerifiedClick();
 
@@ -79,6 +85,28 @@ $Selenium->RunTest(
             ),
             '1',
             'Client side validation correctly detected missing input value',
+        );
+
+        # check breadcrumb on Add screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Add screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li>a:contains(Admin Auto Response)').length"),
+            "Breadcrumb previus item is found on Add screen - link to Admin Auto Response screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li:contains(Add New Auto Response)').length"),
+            "Breadcrumb last item is found on Add screen.",
+        );
+
+        # check form action
+        $Self->True(
+            $Selenium->find_element( '#Submit', 'css' ),
+            "Submit is found on Add screen.",
         );
 
         # get needed variables
@@ -118,6 +146,30 @@ $Selenium->RunTest(
 
         # edit test job and set it to invalid
         $Selenium->find_element( $AutoResponseNames[0], 'link_text' )->VerifiedClick();
+
+        # check breadcrumb on Edit screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Edit screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li>a:contains(Admin Auto Response)').length"),
+            "Breadcrumb previus item is found on Edit screen - link to Admin Auto Response screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li:contains($AutoResponseNames[0])').length"),
+            "Breadcrumb last item is found on Edit screen.",
+        );
+
+        # check form actions
+        for my $Action (qw(Submit SubmitAndContinue)) {
+            $Self->True(
+                $Selenium->find_element( "#$Action", 'css' ),
+                "$Action is found on Edit screen.",
+            );
+        }
 
         $AutoResponseNames[0] = 'Update' . $AutoResponseNames[0];
         $Selenium->find_element( "#Name", 'css' )->clear();

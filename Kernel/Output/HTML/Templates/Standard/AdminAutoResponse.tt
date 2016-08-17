@@ -9,24 +9,24 @@
 [% RenderBlockStart("Overview") %]
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("Auto Response Management") | html %]</h1>
-    [% IF Data.Action &&  Data.Action == 'Add' %]
-        [%  ItemName = Translate("Add New Auto Response") | html %]
-    [% ELSIF Data.Action && Data.Action == 'Change' %]
-        [% ItemName = Data.Name | html %]
-    [% END %]
-    [% INCLUDE "Breadcrumb.tt"
-        Path = [
+
+    [% BreadcrumbPath = [
             {
                 Name => 'Admin Auto Response',
                 Link => Env("Action"),
             },
-            {
-                Name => ItemName,
-            },
         ]
     %]
 
-    <div class="Clear"></div>
+    [% SWITCH Data.Action %]
+    [%   CASE 'Add' %]
+           [% BreadcrumbPath.push({ Name => Translate("Add New Auto Response"),}) %]
+    [%   CASE 'Change' %]
+           [% BreadcrumbPath.push({ Name => Data.Name }) %]
+    [% END %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
+
     <div class="SidebarColumn">
 [% RenderBlockStart("ActionList") %]
         <div class="WidgetSimple">
