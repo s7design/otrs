@@ -46,6 +46,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
+        # check breadcrumb on Overview screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Overview screen.",
+        );
+
         # click 'add new type' link
         $Selenium->find_element("//a[contains(\@href, \'Action=AdminType;Subaction=Add' )]")->VerifiedClick();
 
@@ -66,6 +72,28 @@ $Selenium->RunTest(
             'Client side validation correctly detected missing input value',
         );
 
+        # check breadcrumb on Add screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Add screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li>a:contains(Admin Type)').length"),
+            "Breadcrumb previus item is found on Add screen - link to Admin Type screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li:contains(Add New Type)').length"),
+            "Breadcrumb last item is found on Add screen.",
+        );
+
+        # check form action
+        $Self->True(
+            $Selenium->find_element( '#Submit', 'css' ),
+            "Submit is found on Add screen.",
+        );
+
         # create a real test type
         my $TypeRandomID = "Type" . $Helper->GetRandomID();
 
@@ -83,6 +111,30 @@ $Selenium->RunTest(
 
         # go to new type again
         $Selenium->find_element( $TypeRandomID, 'link_text' )->VerifiedClick();
+
+        # check breadcrumb on Edit screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Edit screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li>a:contains(Admin Type)').length"),
+            "Breadcrumb previus item is found on Edit screen - link to Admin Type screen.",
+        );
+
+        $Self->True(
+            $Selenium->execute_script("return \$('li:contains($TypeRandomID)').length"),
+            "Breadcrumb last item is found on Edit screen.",
+        );
+
+        # check form actions
+        for my $Action (qw(Submit SubmitAndContinue)) {
+            $Self->True(
+                $Selenium->find_element( "#$Action", 'css' ),
+                "$Action is found on Edit screen.",
+            );
+        }
 
         # check new type values
         $Self->Is(
