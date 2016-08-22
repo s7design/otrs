@@ -114,9 +114,9 @@
             <div class="Header">
 
             [% IF Data.Action == 'Add' %]
-                <h2>[% Translate("Add Attachment") | html %]</h2>
+                <h2>[% Translate("Add Auto Response") | html %]</h2>
             [% ELSE %]
-                <h2>[% Translate("Edit Attachment") | html %]</h2>
+                <h2>[% Translate("Edit Auto Response") | html %]</h2>
             [% END %]
 
             </div>
