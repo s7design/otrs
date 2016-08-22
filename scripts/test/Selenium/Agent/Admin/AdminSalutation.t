@@ -48,6 +48,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
+        # check breadcrumb on Overview screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Overview screen.",
+        );
+
         # click 'Add salutation'
         $Selenium->find_element("//a[contains(\@href, \'Action=AdminSalutation;Subaction=Add' )]")->VerifiedClick();
         for my $ID (
@@ -57,6 +63,33 @@ $Selenium->RunTest(
             my $Element = $Selenium->find_element( "#$ID", 'css' );
             $Element->is_enabled();
             $Element->is_displayed();
+        }
+
+        # check breadcrumb on Add screen
+        my $Count = 0;
+        for my $BreadcrumbText ( 'You are here:', 'Admin Salutation', 'Add New Salutation' ) {
+            $Self->Is(
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                $BreadcrumbText,
+                "Breadcrumb text '$BreadcrumbText' is found on screen"
+            );
+
+            if ( $BreadcrumbText eq 'Admin Salutation' ) {
+                $Self->Is(
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    1,
+                    "Breadcrumb text '$BreadcrumbText' is linked"
+                );
+            }
+            else {
+                $Self->Is(
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    0,
+                    "Breadcrumb text '$BreadcrumbText' is not linked"
+                );
+            }
+
+            $Count++;
         }
 
         # check client side validation
@@ -111,6 +144,33 @@ $Selenium->RunTest(
             1,
             "#ValidID stored value",
         );
+
+        # check breadcrumb on Edit screen
+        $Count = 0;
+        for my $BreadcrumbText ( 'You are here:', 'Admin Salutation', $SalutationRandomID ) {
+            $Self->Is(
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                $BreadcrumbText,
+                "Breadcrumb text '$BreadcrumbText' is found on screen"
+            );
+
+            if ( $BreadcrumbText eq 'Admin Salutation' ) {
+                $Self->Is(
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    1,
+                    "Breadcrumb text '$BreadcrumbText' is linked"
+                );
+            }
+            else {
+                $Self->Is(
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    0,
+                    "Breadcrumb text '$BreadcrumbText' is not linked"
+                );
+            }
+
+            $Count++;
+        }
 
         # edit test Salutation, clear comment and set it to invalid
         my $EditSalutationRichText = "Dear <OTRS_CUSTOMER_Userlastname>,\n\nThank you for your request.";
