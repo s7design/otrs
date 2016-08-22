@@ -258,7 +258,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
     TargetNS.Init = function () {
         var StatsData,
             DashboardStats = Core.Config.Get('DashboardStatsIDs'),
-            Data = Core.Config.Get('ContainerNames');
+            WidgetContainers = Core.Config.Get('ContainerNames');
 
         // initializes dashboards stats widget functionality
         $.each(DashboardStats, function (Index, Value) {
@@ -275,7 +275,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
         InitCustomerUserList();
 
         // Initializes show and save preferences for widget containers
-        $.each(Data, function (Index, Value) {
+        $.each(WidgetContainers, function (Index, Value) {
             InitWidgetContainerPref(Value);
         });
 
@@ -714,15 +714,15 @@ Core.Agent.Dashboard = (function (TargetNS) {
      *      Initializes the event to refresh user online widget
      */
     function InitUserOnlineRefresh () {
-        var Data = Core.Config.Get('CanRefresh');
+        var UserOnlineRefresh = Core.Config.Get('CanRefresh');
 
-        if (typeof Data !== 'undefined') {
-            $('#Dashboard' + Core.App.EscapeSelector(Data.Name) + '_toggle').on('click', function() {
-                $('#Dashboard' + Core.App.EscapeSelector(Data.Name) + '-box').addClass('Loading');
-                Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(Data.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') +';Subaction=Element;Name=' + Data.Name, function () {
-                    $('#Dashboard' + Core.App.EscapeSelector(Data.Name) + '-box').removeClass('Loading');
+        if (typeof UserOnlineRefresh !== 'undefined') {
+            $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '_toggle').on('click', function() {
+                $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').addClass('Loading');
+                Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') +';Subaction=Element;Name=' + UserOnlineRefresh.Name, function () {
+                    $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').removeClass('Loading');
                 });
-                clearTimeout(Core.Config.Get('Timer_' + Data.NameHTML));
+                clearTimeout(Core.Config.Get('Timer_' + UserOnlineRefresh.NameHTML));
                 return false;
             });
         }
