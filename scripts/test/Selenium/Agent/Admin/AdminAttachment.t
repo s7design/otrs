@@ -26,6 +26,8 @@ $Selenium->RunTest(
         # get needed variables
         my $Home = $ConfigObject->Get('Home');
         my %Attachments;
+        my $Count;
+        my $IsLinkedBreadcrumbText;
 
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
@@ -49,7 +51,7 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
-        # check breadcrumb on Add screen
+        # check breadcrumb on Overview screen
         $Self->True(
             $Selenium->find_element( '.BreadCrumb', 'css' ),
             "Breadcrumb is found on Overview screen.",
@@ -62,20 +64,34 @@ $Selenium->RunTest(
             $Selenium->find_element("//a[contains(\@href, \'Action=AdminAttachment;Subaction=Add' )]")->VerifiedClick();
 
             # check breadcrumb on Add screen
-            $Self->True(
-                $Selenium->find_element( '.BreadCrumb', 'css' ),
-                "Breadcrumb is found on Add screen.",
-            );
+            $Count = 0;
+            for my $BreadcrumbText ( 'You are here:', 'Attachment Management', 'Add Attachment' ) {
+                $Self->Is(
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                    $BreadcrumbText,
+                    "Breadcrumb text '$BreadcrumbText' is found on screen"
+                );
 
-            $Self->True(
-                $Selenium->execute_script("return \$('li>a:contains(Admin Attachment)').length"),
-                "Breadcrumb previus item is found on Add screen - link to Admin Attacment screen.",
-            );
+                $IsLinkedBreadcrumbText =
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
 
-            $Self->True(
-                $Selenium->execute_script("return \$('li:contains(Add New Attacment)').length"),
-                "Breadcrumb last item is found on Add screen.",
-            );
+                if ( $BreadcrumbText eq 'Attachment Management' ) {
+                    $Self->Is(
+                        $IsLinkedBreadcrumbText,
+                        1,
+                        "Breadcrumb text '$BreadcrumbText' is linked"
+                    );
+                }
+                else {
+                    $Self->Is(
+                        $IsLinkedBreadcrumbText,
+                        0,
+                        "Breadcrumb text '$BreadcrumbText' is not linked"
+                    );
+                }
+
+                $Count++;
+            }
 
             # check form action
             $Self->True(
@@ -94,7 +110,7 @@ $Selenium->RunTest(
             $Selenium->find_element( "#FileUpload", 'css' )->send_keys($Location);
             $Selenium->find_element( "#Name",       'css' )->VerifiedSubmit();
 
-            # check if standard attachment show on AdminAttacnment screen
+            # check if standard attachment show on AdminAttachment screen
             $Self->True(
                 index( $Selenium->get_page_source(), $AttachmentName ) > -1,
                 "Attachment $AttachmentName is found on page",
@@ -107,20 +123,34 @@ $Selenium->RunTest(
             $Selenium->find_element( $AttachmentName, 'link_text' )->VerifiedClick();
 
             # check breadcrumb on Edit screen
-            $Self->True(
-                $Selenium->find_element( '.BreadCrumb', 'css' ),
-                "Breadcrumb is found on Edit screen.",
-            );
+            $Count = 0;
+            for my $BreadcrumbText ( 'You are here:', 'Attachment Management', 'Edit Attachment: ' . $AttachmentName ) {
+                $Self->Is(
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                    $BreadcrumbText,
+                    "Breadcrumb text '$BreadcrumbText' is found on screen"
+                );
 
-            $Self->True(
-                $Selenium->execute_script("return \$('li>a:contains(Admin Attachment)').length"),
-                "Breadcrumb previus item is found on Edit screen - link to Admin Attacment screen.",
-            );
+                $IsLinkedBreadcrumbText =
+                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
 
-            $Self->True(
-                $Selenium->execute_script("return \$('li:contains($AttachmentName)').length"),
-                "Breadcrumb last item is found on Edit screen.",
-            );
+                if ( $BreadcrumbText eq 'Attachment Management' ) {
+                    $Self->Is(
+                        $IsLinkedBreadcrumbText,
+                        1,
+                        "Breadcrumb text '$BreadcrumbText' is linked"
+                    );
+                }
+                else {
+                    $Self->Is(
+                        $IsLinkedBreadcrumbText,
+                        0,
+                        "Breadcrumb text '$BreadcrumbText' is not linked"
+                    );
+                }
+
+                $Count++;
+            }
 
             # check form actions
             for my $Action (qw(Submit SubmitAndContinue)) {

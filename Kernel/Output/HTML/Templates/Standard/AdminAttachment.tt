@@ -12,17 +12,18 @@
 
     [% BreadcrumbPath = [
             {
-                Name => 'Admin Attachment',
+                Name => Translate('Attachment Management'),
                 Link => Env("Action"),
             },
         ]
     %]
 
     [% SWITCH Data.Action %]
-    [%   CASE 'Add' %]
-           [% BreadcrumbPath.push({ Name => Translate("Add New Attachment"),}) %]
-    [%   CASE 'Change' %]
-           [% BreadcrumbPath.push({ Name => Data.Name }) %]
+        [% CASE 'Add' %]
+            [% BreadcrumbPath.push({ Name => Translate("Add Attachment"),}) %]
+        [% CASE 'Change' %]
+            [% USE EditTitle = String(Translate("Edit Attachment")) %]
+            [% BreadcrumbPath.push({ Name => EditTitle.append( ': ', Data.Name ) }) %]
     [% END %]
 
     [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
