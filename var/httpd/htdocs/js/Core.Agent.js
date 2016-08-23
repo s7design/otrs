@@ -643,6 +643,9 @@ Core.Agent = (function (TargetNS) {
         InitNavigation();
 
         InitSubmitAndContinue();
+
+        // Initialize pagination
+        TargetNS.InitPagination();
     };
 
     /**
@@ -685,6 +688,56 @@ Core.Agent = (function (TargetNS) {
             location.reload();
         }
     };
+
+    /**
+     * @name InitPagination
+     * @memberof Core.Agent
+     * @function
+     * @description
+     *      This function initialize Pagination
+     */
+    TargetNS.InitPagination = function () {
+        var WidgetContainers = Core.Config.Get('ContainerNames');
+
+        // Initializes show and save preferences for widget containers
+        if (typeof WidgetContainers !== 'undefined') {
+            $.each(WidgetContainers, function (Index, Value) {
+                PaginationEvent(Value);
+            });
+        }
+    };
+
+    /**
+     * @private
+     * @name PaginationEvent
+     * @memberof Core.Agent
+     * @function
+     * @param {Object} Params - Hash with container name,
+     * @description
+     *      Initializes pagination events
+     */
+    function PaginationEvent (Params) {
+        var ServerData, Pagination, PaginationData, $Container;
+        if (typeof Core.Config.Get('PaginationDataDashboard' + Params.NameForm) !== 'undefined') {
+
+            Core.App.Subscribe('Event.Agent.Pagination.#Dashboard' + Params.Name, function() {
+                ServerData = Core.Config.Get('PaginationDataDashboard' + Params.NameForm);
+                if (typeof ServerData !== 'undefined') {
+                    $('.Pagination' + Params.NameForm).off('click.PaginationAJAX' + Params.NameForm).on('click.PaginationAJAX' + Params.NameForm, function () {
+                        Pagination = Core.Data.Get($(this), 'pagination-pagenumber');
+                        PaginationData = ServerData[Pagination];
+                        $Container = $(this).parents('.WidgetSimple');
+                        $Container.addClass('Loading');
+                        Core.AJAX.ContentUpdate($('#' + PaginationData.AjaxReplace), PaginationData.Baselink, function () {
+                            $Container.removeClass('Loading');
+                        });
+                        return false;
+                    });
+                }
+            });
+            Core.App.Publish('Event.Agent.Pagination.#Dashboard' + Params.Name);
+        }
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_GLOBAL_EARLY');
 

@@ -275,9 +275,6 @@ Core.Agent.Dashboard = (function (TargetNS) {
             });
         }
 
-        // Initializes pagination
-        TargetNS.InitPagination();
-
         // Initializes refresh event for user online widget
         InitUserOnlineRefresh();
 
@@ -404,7 +401,6 @@ Core.Agent.Dashboard = (function (TargetNS) {
 
                 Core.AJAX.ContentUpdate($('#' + ElementID), URL, function () {
                     Core.UI.ToggleTwoContainer($('#' + ElementID + '-setting'), $('#' + ElementID));
-                    TargetNS.InitPagination();
                 });
                 return false;
             });
@@ -730,7 +726,6 @@ Core.Agent.Dashboard = (function (TargetNS) {
                 $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').addClass('Loading');
                 Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') +';Subaction=Element;Name=' + UserOnlineRefresh.Name, function () {
                     $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').removeClass('Loading');
-                    TargetNS.InitPagination();
                 });
                 clearTimeout(Core.Config.Get('Timer_' + UserOnlineRefresh.NameHTML));
                 return false;

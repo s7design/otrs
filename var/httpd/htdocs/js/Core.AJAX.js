@@ -551,6 +551,7 @@ Core.AJAX = (function (TargetNS) {
                     Callback();
                 }
                 Core.App.Publish('Event.AJAX.ContentUpdate.Callback', [GlobalResponse]);
+                Core.App.Publish('Event.Agent.Pagination.' + $ElementToUpdate.selector);
             },
             error: function (XHRObject, Status, Error) {
 
