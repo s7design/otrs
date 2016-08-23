@@ -64,6 +64,40 @@ $Selenium->RunTest(
         # click 'Add auto response'
         $Selenium->find_element("//a[contains(\@href, \'Action=AdminAutoResponse;Subaction=Add' )]")->VerifiedClick();
 
+        # get needed variables
+        my $Count;
+        my $IsLinkedBreadcrumbText;
+
+        # check breadcrumb on Add screen
+        $Count = 0;
+        for my $BreadcrumbText ( 'You are here:', 'Auto Response Management', 'Add Auto Response' ) {
+            $Self->Is(
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                $BreadcrumbText,
+                "Breadcrumb text '$BreadcrumbText' is found on screen"
+            );
+
+            $IsLinkedBreadcrumbText =
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
+
+            if ( $BreadcrumbText eq 'Auto Response Management' ) {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    1,
+                    "Breadcrumb text '$BreadcrumbText' is linked"
+                );
+            }
+            else {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    0,
+                    "Breadcrumb text '$BreadcrumbText' is not linked"
+                );
+            }
+
+            $Count++;
+        }
+
         # check page
         for my $ID (
             qw(Name Subject RichText TypeID AddressID ValidID Comment)
@@ -85,22 +119,6 @@ $Selenium->RunTest(
             ),
             '1',
             'Client side validation correctly detected missing input value',
-        );
-
-        # check breadcrumb on Add screen
-        $Self->True(
-            $Selenium->find_element( '.BreadCrumb', 'css' ),
-            "Breadcrumb is found on Add screen.",
-        );
-
-        $Self->True(
-            $Selenium->execute_script("return \$('li>a:contains(Admin Auto Response)').length"),
-            "Breadcrumb previus item is found on Add screen - link to Admin Auto Response screen.",
-        );
-
-        $Self->True(
-            $Selenium->execute_script("return \$('li:contains(Add New Auto Response)').length"),
-            "Breadcrumb last item is found on Add screen.",
         );
 
         # check form action
@@ -148,20 +166,38 @@ $Selenium->RunTest(
         $Selenium->find_element( $AutoResponseNames[0], 'link_text' )->VerifiedClick();
 
         # check breadcrumb on Edit screen
-        $Self->True(
-            $Selenium->find_element( '.BreadCrumb', 'css' ),
-            "Breadcrumb is found on Edit screen.",
-        );
+        $Count = 0;
+        for my $BreadcrumbText (
+            'You are here:', 'Auto Response Management',
+            'Edit Auto Response: ' . $AutoResponseNames[0]
+            )
+        {
+            $Self->Is(
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                $BreadcrumbText,
+                "Breadcrumb text '$BreadcrumbText' is found on screen"
+            );
 
-        $Self->True(
-            $Selenium->execute_script("return \$('li>a:contains(Admin Auto Response)').length"),
-            "Breadcrumb previus item is found on Edit screen - link to Admin Auto Response screen.",
-        );
+            $IsLinkedBreadcrumbText =
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
 
-        $Self->True(
-            $Selenium->execute_script("return \$('li:contains($AutoResponseNames[0])').length"),
-            "Breadcrumb last item is found on Edit screen.",
-        );
+            if ( $BreadcrumbText eq 'Auto Response Management' ) {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    1,
+                    "Breadcrumb text '$BreadcrumbText' is linked"
+                );
+            }
+            else {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    0,
+                    "Breadcrumb text '$BreadcrumbText' is not linked"
+                );
+            }
+
+            $Count++;
+        }
 
         # check form actions
         for my $Action (qw(Submit SubmitAndContinue)) {

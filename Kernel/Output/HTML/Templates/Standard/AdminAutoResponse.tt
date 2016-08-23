@@ -12,17 +12,18 @@
 
     [% BreadcrumbPath = [
             {
-                Name => 'Admin Auto Response',
+                Name => Translate('Auto Response Management'),
                 Link => Env("Action"),
             },
         ]
     %]
 
     [% SWITCH Data.Action %]
-    [%   CASE 'Add' %]
-           [% BreadcrumbPath.push({ Name => Translate("Add New Auto Response"),}) %]
-    [%   CASE 'Change' %]
-           [% BreadcrumbPath.push({ Name => Data.Name }) %]
+        [% CASE 'Add' %]
+            [% BreadcrumbPath.push({ Name => Translate("Add Auto Response"),}) %]
+        [% CASE 'Change' %]
+            [% USE EditTitle = String(Translate("Edit Auto Response")) %]
+            [% BreadcrumbPath.push({ Name => EditTitle.append( ': ', Data.Name ) }) %]
     [% END %]
 
     [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
