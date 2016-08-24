@@ -158,21 +158,11 @@ sub Run {
         if ( !%Errors ) {
 
             # update group
-            if (
-                $CustomerCompanyObject->CustomerCompanyUpdate(
-                    %GetParam,
-                    UserID => $Self->{UserID},
-                )
-                )
-            {
-                $Self->_Overview(
-                    Nav    => $Nav,
-                    Search => $Search,
-                );
-                my $Output = $LayoutObject->Header();
-                $Output .= $LayoutObject->NavigationBar(
-                    Type => $NavigationBarType,
-                );
+            my $Update = $CustomerCompanyObject->CustomerCompanyUpdate( %GetParam, UserID => $Self->{UserID} );
+
+            if ($Update) {
+
+                my $Output;
 
                 # set dynamic field values
                 my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
@@ -202,13 +192,18 @@ sub Run {
                     }
                 }
 
-                $Output .= $LayoutObject->Notify( Info => Translatable('Customer company updated!') );
-                $Output .= $LayoutObject->Output(
-                    TemplateFile => 'AdminCustomerCompany',
-                    Data         => \%Param,
-                );
-                $Output .= $LayoutObject->Footer();
-                return $Output;
+                # if the user would like to continue editing the customer company, just redirect to the edit screen
+                if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+                    my $CustomerID = $ParamObject->GetParam( Param => 'CustomerID' ) || '';
+                    return $LayoutObject->Redirect(
+                        OP => "Action=$Self->{Action};Subaction=Change;CustomerID=$CustomerID;Nav=$Nav"
+                    );
+                }
+                else {
+
+                    # otherwise return to overview
+                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+                }
             }
         }
 
@@ -494,14 +489,6 @@ sub _Edit {
         Key   => 'ReadOnly',
         Value => $ConfigObject->{ $Param{Source} }->{ReadOnly},
     );
-
-    # shows header
-    if ( $Param{Action} eq 'Change' ) {
-        $LayoutObject->Block( Name => 'HeaderEdit' );
-    }
-    else {
-        $LayoutObject->Block( Name => 'HeaderAdd' );
-    }
 
     # Get valid object.
     my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
