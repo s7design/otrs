@@ -13,7 +13,7 @@
 
     [% BreadcrumbPath = [
             {
-                Name => 'Admin Cloud Service',
+                Name => Translate('Cloud Service Management'),
                 Link => Env("Action"),
             },
         ]

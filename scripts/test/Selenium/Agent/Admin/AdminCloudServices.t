@@ -45,23 +45,29 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
-        # click 'Support data collector' link
+        # check 'Support data collector' link
         $Self->True(
             $Selenium->find_element("//a[contains(\@href, \'Action=AdminCloudServiceSupportDataCollector' )]"),
             "'Support data collector' link is found on screen.",
         );
 
-        # click 'Register this system' button
+        # check 'Register this system' button
         $Self->True(
             $Selenium->find_element("//a[contains(\@href, \'Action=AdminRegistration' )]"),
             "'Register this system' button is found on screen.",
         );
 
         # check breadcrumb on screen
-        $Self->True(
-            $Selenium->find_element( '.BreadCrumb', 'css' ),
-            "Breadcrumb is found on Overview screen.",
-        );
+        my $Count = 0;
+        for my $BreadcrumbText ( 'You are here:', 'Cloud Service Management' ) {
+            $Self->Is(
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                $BreadcrumbText,
+                "Breadcrumb text '$BreadcrumbText' is found on screen.",
+            );
+
+            $Count++;
+        }
 
     }
 );
