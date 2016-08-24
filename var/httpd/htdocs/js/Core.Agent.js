@@ -699,10 +699,19 @@ Core.Agent = (function (TargetNS) {
     TargetNS.InitPagination = function () {
         var WidgetContainers = Core.Config.Get('ContainerNames');
 
-        // Initializes show and save preferences for widget containers
+        // Initializes pagination event function on widgets that have pagination
         if (typeof WidgetContainers !== 'undefined') {
             $.each(WidgetContainers, function (Index, Value) {
-                PaginationEvent(Value);
+                if (typeof Core.Config.Get('PaginationDataDashboard' + Value.NameForm) !== 'undefined') {
+                    PaginationEvent(Value);
+
+                    // Subscribe to ContentUpdate event to initiate pagination event on updated widget
+                    Core.App.Subscribe('Event.AJAX.ContentUpdate.Callback', function($WidgetElement) {
+                        if (typeof $WidgetElement !== 'undefined' && $WidgetElement.search(Value.NameForm) !== parseInt('-1', 10)) {
+                            PaginationEvent(Value);
+                        }
+                    });
+                }
             });
         }
     };
@@ -712,30 +721,25 @@ Core.Agent = (function (TargetNS) {
      * @name PaginationEvent
      * @memberof Core.Agent
      * @function
-     * @param {Object} Params - Hash with container name,
+     * @param {Object} Params - Hash with container name
      * @description
-     *      Initializes pagination events
+     *      Initializes widget pagination events
      */
     function PaginationEvent (Params) {
-        var ServerData, Pagination, PaginationData, $Container;
-        if (typeof Core.Config.Get('PaginationDataDashboard' + Params.NameForm) !== 'undefined') {
+        var ServerData = Core.Config.Get('PaginationDataDashboard' + Params.NameForm),
+            Pagination, PaginationData, $Container;
 
-            Core.App.Subscribe('Event.Agent.Pagination.#Dashboard' + Params.Name, function() {
-                ServerData = Core.Config.Get('PaginationDataDashboard' + Params.NameForm);
-                if (typeof ServerData !== 'undefined') {
-                    $('.Pagination' + Params.NameForm).off('click.PaginationAJAX' + Params.NameForm).on('click.PaginationAJAX' + Params.NameForm, function () {
-                        Pagination = Core.Data.Get($(this), 'pagination-pagenumber');
-                        PaginationData = ServerData[Pagination];
-                        $Container = $(this).parents('.WidgetSimple');
-                        $Container.addClass('Loading');
-                        Core.AJAX.ContentUpdate($('#' + PaginationData.AjaxReplace), PaginationData.Baselink, function () {
-                            $Container.removeClass('Loading');
-                        });
-                        return false;
-                    });
-                }
+        if (typeof ServerData !== 'undefined') {
+            $('.Pagination' + Params.NameForm).off('click.PaginationAJAX' + Params.NameForm).on('click.PaginationAJAX' + Params.NameForm, function () {
+                Pagination = Core.Data.Get($(this), 'pagination-pagenumber');
+                PaginationData = ServerData[Pagination];
+                $Container = $(this).parents('.WidgetSimple');
+                $Container.addClass('Loading');
+                Core.AJAX.ContentUpdate($('#' + PaginationData.AjaxReplace), PaginationData.Baselink, function () {
+                    $Container.removeClass('Loading');
+                });
+                return false;
             });
-            Core.App.Publish('Event.Agent.Pagination.#Dashboard' + Params.Name);
         }
     }
 

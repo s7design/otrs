@@ -1004,52 +1004,6 @@ Core.Agent.Dashboard = (function (TargetNS) {
                     }
                 );
             }, Timeout);
-
-    /**
-     * @name InitPagination
-     * @memberof Core.Agent.Dashboard
-     * @function
-     * @description
-     *      This function initialize Pagination
-     */
-    TargetNS.InitPagination = function () {
-        var WidgetContainers = Core.Config.Get('ContainerNames');
-
-        // Initializes show and save preferences for widget containers
-        if (typeof WidgetContainers !== 'undefined') {
-            $.each(WidgetContainers, function (Index, Value) {
-                PaginationEvent(Value);
-            });
-        }
-    };
-
-    /**
-     * @private
-     * @name PaginationEvent
-     * @memberof Core.Agent.Dashboard
-     * @function
-     * @param {Object} Params - Hash with container name,
-     * @description
-     *      Initializes pagination events
-     */
-    function PaginationEvent (Params) {
-        var ServerData, Pagination, PaginationData, $Container;
-        if (typeof Core.Config.Get('PaginationDataDashboard' + Params.NameForm) !== 'undefined') {
-            ServerData = Core.Config.Get('PaginationDataDashboard' + Params.NameForm);
-
-            $('.Pagination' + Params.NameForm).off('click.PaginationAJAX' + Params.NameForm).on('click.PaginationAJAX' + Params.NameForm, function () {
-                Pagination = Core.Data.Get($(this), 'pagination-pagenumber');
-                PaginationData = ServerData[Pagination];
-                $Container = $(this).parents('.WidgetSimple');
-                $Container.addClass('Loading');
-                Core.AJAX.ContentUpdate($('#' + PaginationData.AjaxReplace), PaginationData.Baselink, function () {
-                    $Container.removeClass('Loading');
-                    if (typeof PaginationData.AjaxReplace !== 'undefined') {
-                        TargetNS.InitPagination();
-                    }
-                });
-                return false;
-            });
         }
     }
 
