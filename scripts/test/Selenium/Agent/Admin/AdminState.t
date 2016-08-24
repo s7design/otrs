@@ -64,23 +64,27 @@ $Selenium->RunTest(
 
         # check breadcrumb on Add screen
         my $Count = 0;
-        for my $BreadcrumbText ( 'You are here:', 'Admin State', 'Add New State' ) {
+        my $IsLinkedBreadcrumbText;
+        for my $BreadcrumbText ( 'You are here:', 'State Management', 'Add State' ) {
             $Self->Is(
                 $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
                 $BreadcrumbText,
                 "Breadcrumb text '$BreadcrumbText' is found on screen"
             );
 
-            if ( $BreadcrumbText eq 'Admin State' ) {
+            $IsLinkedBreadcrumbText =
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
+
+            if ( $BreadcrumbText eq 'State Management' ) {
                 $Self->Is(
-                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    $IsLinkedBreadcrumbText,
                     1,
                     "Breadcrumb text '$BreadcrumbText' is linked"
                 );
             }
             else {
                 $Self->Is(
-                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    $IsLinkedBreadcrumbText,
                     0,
                     "Breadcrumb text '$BreadcrumbText' is not linked"
                 );
@@ -149,23 +153,26 @@ $Selenium->RunTest(
 
         # check breadcrumb on Edit screen
         $Count = 0;
-        for my $BreadcrumbText ( 'You are here:', 'Admin State', $RandomID ) {
+        for my $BreadcrumbText ( 'You are here:', 'State Management', 'Edit State: ' . $RandomID ) {
             $Self->Is(
                 $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
                 $BreadcrumbText,
                 "Breadcrumb text '$BreadcrumbText' is found on screen"
             );
 
-            if ( $BreadcrumbText eq 'Admin State' ) {
+            $IsLinkedBreadcrumbText =
+                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
+
+            if ( $BreadcrumbText eq 'State Management' ) {
                 $Self->Is(
-                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    $IsLinkedBreadcrumbText,
                     1,
                     "Breadcrumb text '$BreadcrumbText' is linked"
                 );
             }
             else {
                 $Self->Is(
-                    $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length"),
+                    $IsLinkedBreadcrumbText,
                     0,
                     "Breadcrumb text '$BreadcrumbText' is not linked"
                 );
