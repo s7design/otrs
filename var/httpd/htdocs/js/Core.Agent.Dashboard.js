@@ -398,7 +398,6 @@ Core.Agent.Dashboard = (function (TargetNS) {
 
                 Core.AJAX.ContentUpdate($('#' + ElementID), URL, function () {
                     Core.UI.ToggleTwoContainer($('#' + ElementID + '-setting'), $('#' + ElementID));
-                    TargetNS.InitStatsWidget();
                 });
                 return false;
             });
@@ -742,24 +741,37 @@ Core.Agent.Dashboard = (function (TargetNS) {
             DashboardStats = Core.Config.Get('DashboardStatsIDs');
 
         // initializes dashboards stats widget functionality
-        $.each(DashboardStats, function (Index, Value) {
-            StatsData = Core.Config.Get('StatsData' + Value);
-            if (typeof StatsData !== 'undefined') {
-                StatsWidget(StatsData);
-            }
-        });
+        if (typeof DashboardStats !== 'undefined') {
+            $.each(DashboardStats, function (Index, Value) {
+                StatsWidget(Value);
+
+                // Subscribe to ContentUpdate event to initiate stats widget event on updated widget
+                Core.App.Subscribe('Event.AJAX.ContentUpdate.Callback', function($WidgetElement) {
+                    StatsData = Core.Config.Get('StatsData' + Value);
+                    if (typeof $WidgetElement !== 'undefined' && $WidgetElement.search('GraphWidget' + StatsData.Name) !== parseInt('-1', 10)) {
+                        StatsWidget(Value);
+                    }
+                });
+            });
+        }
     };
 
     /**
      * @private
      * @name StatsWidget
      * @memberof Core.Agent.Dashboard
-     * @param {Object} StatsData - Hash with different config options.
+     * @param {Object} ID - StatID.
      * @function
      * @description
      *      Initializes each available stats dashboard widget functionality.
      */
-    function StatsWidget (StatsData) {
+    function StatsWidget (ID) {
+        var StatsData = Core.Config.Get('StatsData' + ID);
+
+        if (typeof StatsData === 'undefined') {
+            return;
+        }
+
         (function(){
             var Timeout = 500;
             // check if the container is already expanded, otherwise the graph
@@ -784,22 +796,22 @@ Core.Agent.Dashboard = (function (TargetNS) {
 
         }());
 
-        $('#DownloadSVG' + Core.App.EscapeSelector(StatsData.Name)).on('click', function() {
+        $('#DownloadSVG' + Core.App.EscapeSelector(StatsData.Name)).off('click').on('click', function() {
             this.href = Core.UI.AdvancedChart.ConvertSVGtoBase64($('#GraphWidgetContainer' + Core.App.EscapeSelector(StatsData.Name)));
         });
-        $('#DownloadPNG' + Core.App.EscapeSelector(StatsData.Name)).on('click', function() {
+        $('#DownloadPNG' + Core.App.EscapeSelector(StatsData.Name)).off('click').on('click', function() {
             this.href = Core.UI.AdvancedChart.ConvertSVGtoPNG($('#GraphWidgetContainer' + Core.App.EscapeSelector(StatsData.Name)));
         });
 
         $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).prependTo($('#GraphWidget' + Core.App.EscapeSelector(StatsData.Name)).closest('.WidgetSimple').find('.ActionMenu'));
-        $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).find('a.TriggerTooltip').bind('click', function(){
+        $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).find('a.TriggerTooltip').off('click').on('click', function(){
             $(this).next('.WidgetTooltip').toggleClass('Hidden');
             return false;
         });
-        $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).find('.WidgetTooltip').find('a').bind('click', function(){
+        $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).find('.WidgetTooltip').find('a').off('click').on('click', function(){
             $(this).closest('.WidgetTooltip').addClass('Hidden');
         });
-        $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).closest('.Header').bind('mouseleave.WidgetTooltip', function(){
+        $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).closest('.Header').on('mouseleave.WidgetTooltip', function(){
             $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).find('.WidgetTooltip').addClass('Hidden');
         });
 
