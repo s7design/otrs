@@ -12,17 +12,18 @@
 
     [% BreadcrumbPath = [
             {
-                Name => 'Admin Salutation',
+                Name => Translate('Salutation Management'),
                 Link => Env("Action"),
             },
         ]
     %]
 
     [% SWITCH Data.Action %]
-    [%   CASE 'Add' %]
-           [% BreadcrumbPath.push({ Name => Translate("Add New Salutation"),}) %]
-    [%   CASE 'Change' %]
-           [% BreadcrumbPath.push({ Name => Data.Name }) %]
+        [% CASE 'Add' %]
+            [% BreadcrumbPath.push({ Name => Translate("Add Salutation"),}) %]
+        [% CASE 'Change' %]
+            [% USE EditTitle = String(Translate("Edit Salutation")) %]
+            [% BreadcrumbPath.push({ Name => EditTitle.append( ': ', Data.Name ) }) %]
     [% END %]
 
     [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
