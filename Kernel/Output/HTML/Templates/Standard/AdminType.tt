@@ -12,17 +12,18 @@
 
     [% BreadcrumbPath = [
             {
-                Name => 'Admin Type',
+                Name => Translate('Type Management'),
                 Link => Env("Action"),
             },
         ]
     %]
 
     [% SWITCH Data.Action %]
-    [%   CASE 'Add' %]
-           [% BreadcrumbPath.push({ Name => Translate("Add New Type"),}) %]
-    [%   CASE 'Change' %]
-           [% BreadcrumbPath.push({ Name => Data.Name }) %]
+        [% CASE 'Add' %]
+            [% BreadcrumbPath.push({ Name => Translate("Add Type"),}) %]
+        [% CASE 'Change' %]
+            [% USE EditTitle = String(Translate("Edit Type")) %]
+            [% BreadcrumbPath.push({ Name => EditTitle.append( ': ', Data.Name ) }) %]
     [% END %]
 
     [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
