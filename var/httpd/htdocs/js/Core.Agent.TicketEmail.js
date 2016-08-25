@@ -28,40 +28,12 @@ Core.Agent.TicketEmail = (function (TargetNS) {
      *      This function initializes the module functionality.
      */
     TargetNS.Init = function () {
-
-        var SignatureURL,
-            CustomerKey,
-            $Form,
-            FieldID,
-            DynamicFieldNames = Core.Config.Get('DynamicFieldNames').concat(['SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID']),
+        var CustomerKey, $Form, FieldID,
+            DynamicFieldNames = Core.Config.Get('DynamicFieldNames'),
             DataEmail = Core.Config.Get('DataEmail'),
             DataCustomer = Core.Config.Get('DataCustomer'),
             Fields = ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID'],
             ModifiedFields;
-
-        /**
-         * @private
-         * @name FieldUpdate
-         * @memberof Core.Agent.TicketEmail.Init
-         * @function
-         * @param {String} Value - FieldID
-         * @param {Array} ModifiedFields - Fields
-         * @description
-         *      Create on change event handler
-         */
-        function FieldUpdate (Value, ModifiedFields) {
-            $('#' + Value).on('change', function () {
-                Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', Value, ModifiedFields);
-
-                if (Value === 'Dest') {
-                    SignatureURL = Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Signature;Dest=' + $(this).val();
-                    if (!Core.Config.Get('SessionIDCookie')) {
-                        SignatureURL += ';' + Core.Config.Get('SessionName') + '=' + Core.Config.Get('SessionID');
-                    }
-                    $('#Signature').attr('src', SignatureURL);
-                }
-            });
-        }
 
         // Bind events to specific fields
         $.each(Fields, function(Index, Value) {
@@ -137,6 +109,31 @@ Core.Agent.TicketEmail = (function (TargetNS) {
         Core.Agent.TicketAction.Init();
 
     };
+
+    /**
+     * @private
+     * @name FieldUpdate
+     * @memberof Core.Agent.TicketEmail
+     * @function
+     * @param {String} Value - FieldID
+     * @param {Array} ModifiedFields - Fields
+     * @description
+     *      Create on change event handler
+     */
+    function FieldUpdate (Value, ModifiedFields) {
+        var SignatureURL;
+        $('#' + Value).on('change', function () {
+            Core.AJAX.FormUpdate($('#NewEmailTicket'), 'AJAXUpdate', Value, ModifiedFields);
+
+            if (Value === 'Dest') {
+                SignatureURL = Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Signature;Dest=' + $(this).val();
+                if (!Core.Config.Get('SessionIDCookie')) {
+                    SignatureURL += ';' + Core.Config.Get('SessionName') + '=' + Core.Config.Get('SessionID');
+                }
+                $('#Signature').attr('src', SignatureURL);
+            }
+        });
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 

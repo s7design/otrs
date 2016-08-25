@@ -35,22 +35,6 @@ Core.Customer.TicketMessage = (function (TargetNS) {
             Fields = ['TypeID', 'Dest', 'PriorityID', 'ServiceID', 'SLAID'],
             ModifiedFields;
 
-        /**
-         * @private
-         * @name FieldUpdate
-         * @memberof Core.Customer.TicketMessage.Init
-         * @function
-         * @param {String} Value - FieldID
-         * @param {Array} ModifiedFields - Fields
-         * @description
-         *      Create on change event handler
-         */
-        function FieldUpdate (Value, ModifiedFields) {
-            $('#' + Value).on('change', function () {
-                Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', Value, ModifiedFields);
-            });
-        }
-
         // Bind events to specific fields
         $.each(Fields, function(Index, Value) {
             ModifiedFields = Core.Data.CopyObject(Fields).concat(DynamicFieldNames);
@@ -74,8 +58,23 @@ Core.Customer.TicketMessage = (function (TargetNS) {
             Core.Form.Validate.DisableValidation($Form);
             $Form.trigger('submit');
         });
-
     };
+
+   /**
+     * @private
+     * @name FieldUpdate
+     * @memberof Core.Customer.TicketMessage.Init
+     * @function
+     * @param {String} Value - FieldID
+     * @param {Array} ModifiedFields - Fields
+     * @description
+     *      Create on change event handler
+     */
+    function FieldUpdate (Value, ModifiedFields) {
+        $('#' + Value).on('change', function () {
+            Core.AJAX.FormUpdate($('#NewCustomerTicket'), 'AJAXUpdate', Value, ModifiedFields);
+        });
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 

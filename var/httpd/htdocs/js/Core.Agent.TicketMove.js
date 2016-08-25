@@ -44,22 +44,6 @@ Core.Agent.TicketMove = (function (TargetNS) {
             return false;
         });
 
-        /**
-         * @private
-         * @name FieldUpdate
-         * @memberof Core.Agent.TicketMove.Init
-         * @function
-         * @param {String} Value - FieldID
-         * @param {Array} ModifiedFields - Fields
-         * @description
-         *      Create on change event handler
-         */
-        function FieldUpdate (Value, ModifiedFields) {
-            $('#' + Value).on('change', function () {
-                Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', Value, ModifiedFields);
-            });
-        }
-
         // Bind events to specific fields
         $.each(Fields, function(Index, Value) {
             ModifiedFields = Core.Data.CopyObject(Fields).concat(DynamicFieldNames);
@@ -99,6 +83,22 @@ Core.Agent.TicketMove = (function (TargetNS) {
         // Initialize the ticket action popup.
         Core.Agent.TicketAction.Init();
     };
+
+    /**
+     * @private
+     * @name FieldUpdate
+     * @memberof Core.Agent.TicketMove
+     * @function
+     * @param {String} Value - FieldID
+     * @param {Array} ModifiedFields - Fields
+     * @description
+     *      Create on change event handler
+     */
+    function FieldUpdate (Value, ModifiedFields) {
+        $('#' + Value).on('change', function () {
+            Core.AJAX.FormUpdate($('#MoveTicketToQueue'), 'AJAXUpdate', Value, ModifiedFields);
+        });
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 

@@ -31,14 +31,14 @@ Core.Agent.TicketPhone = (function (TargetNS) {
 
         var $Form,
             FieldID,
-            DynamicFieldNames = Core.Config.Get('DynamicFieldNames').concat(['SignKeyID', 'CryptKeyID', 'StandardTemplateID']),
+            DynamicFieldNames = Core.Config.Get('DynamicFieldNames'),
             FromExternalCustomerName = Core.Config.Get('FromExternalCustomerName'),
             FromExternalCustomerEmail = Core.Config.Get('FromExternalCustomerEmail'),
             Fields = ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID'],
             ModifiedFields;
 
         // Bind event to customer radio button.
-        $('.CustomerTicketRadio').bind('change', function () {
+        $('.CustomerTicketRadio').on('change', function () {
             var CustomerKey;
             if ($(this).prop('checked')){
 
@@ -50,7 +50,7 @@ Core.Agent.TicketPhone = (function (TargetNS) {
         });
 
         // Bind event to customer remove button.
-        $('.CustomerTicketRemove').bind('click', function () {
+        $('.CustomerTicketRemove').on('click', function () {
             Core.Agent.CustomerSearch.RemoveCustomerTicket($(this));
             return false;
         });
@@ -59,22 +59,6 @@ Core.Agent.TicketPhone = (function (TargetNS) {
         if (typeof FromExternalCustomerEmail !== 'undefined' &&
             typeof FromExternalCustomerName !== 'undefined') {
                 Core.Agent.CustomerSearch.AddTicketCustomer('FromCustomer', FromExternalCustomerEmail, FromExternalCustomerName, true);
-        }
-
-        /**
-         * @private
-         * @name FieldUpdate
-         * @memberof Core.Agent.TicketPhone.Init
-         * @function
-         * @param {String} Value - FieldID
-         * @param {Array} ModifiedFields - Fields
-         * @description
-         *      Create on change event handler
-         */
-        function FieldUpdate (Value, ModifiedFields) {
-            $('#' + Value).on('change', function () {
-                Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', Value, ModifiedFields);
-            });
         }
 
         // Bind events to specific fields
@@ -86,7 +70,7 @@ Core.Agent.TicketPhone = (function (TargetNS) {
         });
 
         // Bind event to OwnerSelection get all button.
-        $('#OwnerSelectionGetAll').bind('click', function () {
+        $('#OwnerSelectionGetAll').on('click', function () {
             $('#OwnerAll').val('1');
             Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'OwnerAll', ['NewUserID'], function() {
                 $('#NewUserID').focus();
@@ -95,7 +79,7 @@ Core.Agent.TicketPhone = (function (TargetNS) {
         });
 
         // Bind event to ResponsibleSelection get all button.
-        $('#ResponsibleSelectionGetAll').bind('click', function () {
+        $('#ResponsibleSelectionGetAll').on('click', function () {
             $('#ResponsibleAll').val('1');
             Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'ResponsibleAll', ['NewResponsibleID'], function() {
                 $('#NewResponsibleID').focus();
@@ -104,7 +88,7 @@ Core.Agent.TicketPhone = (function (TargetNS) {
         });
 
         // Bind event to StandardTemplate field.
-        $('#StandardTemplateID').bind('change', function () {
+        $('#StandardTemplateID').on('change', function () {
             Core.Agent.TicketAction.ConfirmTemplateOverwrite('RichText', $(this), function () {
                 Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
             });
@@ -130,6 +114,22 @@ Core.Agent.TicketPhone = (function (TargetNS) {
         // Initialize the ticket action popup.
         Core.Agent.TicketAction.Init();
     };
+
+    /**
+     * @private
+     * @name FieldUpdate
+     * @memberof Core.Agent.TicketPhone.Init
+     * @function
+     * @param {String} Value - FieldID
+     * @param {Array} ModifiedFields - Fields
+     * @description
+     *      Create on change event handler
+     */
+    function FieldUpdate (Value, ModifiedFields) {
+        $('#' + Value).on('change', function () {
+            Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', Value, ModifiedFields);
+        });
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 

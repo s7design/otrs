@@ -35,22 +35,6 @@ Core.Agent.TicketActionCommon = (function (TargetNS) {
             Fields = ['TypeID', 'ServiceID', 'SLAID', 'NewOwnerID', 'NewResponsibleID', 'NewStateID', 'NewPriorityID'],
             ModifiedFields;
 
-        /**
-         * @private
-         * @name FieldUpdate
-         * @memberof Core.Agent.TicketActionCommon.Init
-         * @function
-         * @param {String} Value - FieldID
-         * @param {Array} ModifiedFields - Fields
-         * @description
-         *      Create on change event handler
-         */
-        function FieldUpdate (Value, ModifiedFields) {
-            $('#' + Value).on('change', function () {
-                Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', Value, ModifiedFields);
-            });
-        }
-
         // Bind events to specific fields
         $.each(Fields, function(Index, Value) {
             ModifiedFields = Core.Data.CopyObject(Fields).concat(DynamicFieldNames);
@@ -65,7 +49,7 @@ Core.Agent.TicketActionCommon = (function (TargetNS) {
         });
 
         // Bind event to StandardTemplate field.
-        $('#StandardTemplateID').bind('change', function () {
+        $('#StandardTemplateID').on('change', function () {
             Core.Agent.TicketAction.ConfirmTemplateOverwrite('RichText', $(this), function () {
                 Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', 'StandardTemplateID', ['RichTextField']);
             });
@@ -91,6 +75,22 @@ Core.Agent.TicketActionCommon = (function (TargetNS) {
         // Initialize the ticket action popup.
         Core.Agent.TicketAction.Init();
     };
+
+    /**
+     * @private
+     * @name FieldUpdate
+     * @memberof Core.Agent.TicketActionCommon
+     * @function
+     * @param {String} Value - FieldID
+     * @param {Array} ModifiedFields - Fields
+     * @description
+     *      Create on change event handler
+     */
+    function FieldUpdate (Value, ModifiedFields) {
+        $('#' + Value).on('change', function () {
+            Core.AJAX.FormUpdate($('#Compose'), 'AJAXUpdate', Value, ModifiedFields);
+        });
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
