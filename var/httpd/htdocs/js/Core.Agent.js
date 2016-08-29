@@ -702,7 +702,7 @@ Core.Agent = (function (TargetNS) {
         // Initializes pagination event function on widgets that have pagination
         if (typeof WidgetContainers !== 'undefined') {
             $.each(WidgetContainers, function (Index, Value) {
-                if (typeof Core.Config.Get('PaginationDataDashboard' + Value.NameForm) !== 'undefined') {
+                if (typeof Core.Config.Get('PaginationData' + Value.NameForm) !== 'undefined') {
                     PaginationEvent(Value);
 
                     // Subscribe to ContentUpdate event to initiate pagination event on updated widget
@@ -726,7 +726,7 @@ Core.Agent = (function (TargetNS) {
      *      Initializes widget pagination events
      */
     function PaginationEvent (Params) {
-        var ServerData = Core.Config.Get('PaginationDataDashboard' + Params.NameForm),
+        var ServerData = Core.Config.Get('PaginationData' + Params.NameForm),
             Pagination, PaginationData, $Container;
 
         if (typeof ServerData !== 'undefined') {

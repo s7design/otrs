@@ -2622,7 +2622,7 @@ sub PageNavBar {
     my $WidgetName;
     my $ClassWidgetName;
 
-    if ($Param{AJAXReplace}) {
+    if ( $Param{AJAXReplace} ) {
         $WidgetName = $Param{AJAXReplace};
         $WidgetName =~ s{-}{}xmsg;
 
@@ -2648,9 +2648,9 @@ sub PageNavBar {
             if ( $Param{AJAXReplace} ) {
 
                 $PaginationData{$PageNumber} = {
-                    Baselink     => $BaselinkAll,
-                    AjaxReplace  => $Param{AJAXReplace},
-                    WidgetName   => $ClassWidgetName
+                    Baselink    => $BaselinkAll,
+                    AjaxReplace => $Param{AJAXReplace},
+                    WidgetName  => $ClassWidgetName
                 };
 
                 $Self->Block(
@@ -2680,8 +2680,8 @@ sub PageNavBar {
 
         # over window ">>" and ">|"
         elsif ( $i > ( $WindowStart + $WindowSize ) ) {
-            my $StartWindow     = $WindowStart + $WindowSize + 1;
-            my $LastStartWindow = int( $Pages / $WindowSize );
+            my $StartWindow        = $WindowStart + $WindowSize + 1;
+            my $LastStartWindow    = int( $Pages / $WindowSize );
             my $BaselinkOneForward = $Baselink . "StartHit=" . ( ( $i - 1 ) * $Param{PageShown} + 1 );
             my $BaselinkAllForward = $Baselink . "StartHit=" . ( ( $Param{PageShown} * ( $Pages - 1 ) ) + 1 );
 
@@ -2702,9 +2702,9 @@ sub PageNavBar {
                     Data => {
                         BaselinkOneForward => $BaselinkOneForward,
                         BaselinkAllForward => $BaselinkAllForward,
-                        AjaxReplace     => $Param{AJAXReplace},
-                        IDPrefix        => $IDPrefix,
-                        WidgetName      => $ClassWidgetName
+                        AjaxReplace        => $Param{AJAXReplace},
+                        IDPrefix           => $IDPrefix,
+                        WidgetName         => $ClassWidgetName
                     },
                 );
             }
@@ -2768,9 +2768,9 @@ sub PageNavBar {
     }
 
     # send data to JS
-    if ($Param{AJAXReplace}) {
+    if ( $Param{AJAXReplace} ) {
         $Self->AddJSData(
-            Key   => 'PaginationData' . $WidgetName,
+            Key   => 'PaginationData' . $ClassWidgetName,
             Value => \%PaginationData
         );
     }
