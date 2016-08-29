@@ -162,8 +162,6 @@ sub Run {
 
             if ($Update) {
 
-                my $Output;
-
                 # set dynamic field values
                 my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
 
@@ -173,23 +171,12 @@ sub Run {
 
                     my $DynamicFieldConfig = $Self->{DynamicFieldLookup}->{ $Entry->[2] };
 
-                    if ( !IsHashRefWithData($DynamicFieldConfig) ) {
-                        $Output .= $LayoutObject->Notify( Info => "DynamicField $Entry->[2] not found!" );
-                        next ENTRY;
-                    }
-
                     my $ValueSet = $DynamicFieldBackendObject->ValueSet(
                         DynamicFieldConfig => $DynamicFieldConfig,
                         ObjectName         => $GetParam{CustomerID},
                         Value              => $GetParam{ $Entry->[0] },
                         UserID             => $Self->{UserID},
                     );
-
-                    if ( !$ValueSet ) {
-                        $Output
-                            .= $LayoutObject->Notify( Info => "Unable to set value for dynamic field $Entry->[2]!" );
-                        next ENTRY;
-                    }
                 }
 
                 # if the user would like to continue editing the customer company, just redirect to the edit screen
