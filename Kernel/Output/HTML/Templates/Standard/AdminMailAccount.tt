@@ -21,8 +21,9 @@
         [% CASE 'AddNew' %]
             [% BreadcrumbPath.push({ Name => Translate('Add Mail Account'),}) %]
         [% CASE 'Update' %]
-            [% USE EditTitle = String(Translate("Edit Mail Account")) %]
-            [% BreadcrumbPath.push({ Name => EditTitle.append( ': ', Data.Host, ' / ', Data.Login ) }) %]
+            [% USE EditTitlePartOne = String(Translate("Edit Mail Account for host")) %]
+            [% USE EditTitlePartTwo = String(Translate("and user account")) %]
+            [% BreadcrumbPath.push({ Name => EditTitlePartOne.append( ' "', Data.Host, '" ', EditTitlePartTwo, ' "', Data.Login, '"' ) }) %]
     [% END %]
 
     [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]

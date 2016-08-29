@@ -117,7 +117,7 @@ $Selenium->RunTest(
         $Count = 0;
         for my $BreadcrumbText (
             'You are here:', 'Mail Account Management',
-            'Edit Mail Account: pop3.example.com / ' . $RandomID
+            'Edit Mail Account for host "pop3.example.com" and user account "' . $RandomID . '"'
             )
         {
             $Self->Is(
