@@ -106,17 +106,6 @@ sub Run {
                     # otherwise return to overview
                     return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
                 }
-
-                $Self->_Overview();
-                my $Output = $LayoutObject->Header();
-                $Output .= $LayoutObject->NavigationBar();
-                $Output .= $LayoutObject->Notify( Info => Translatable('Salutation updated!') );
-                $Output .= $LayoutObject->Output(
-                    TemplateFile => 'AdminSalutation',
-                    Data         => \%Param,
-                );
-                $Output .= $LayoutObject->Footer();
-                return $Output;
             }
         }
 
