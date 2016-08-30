@@ -37,33 +37,33 @@ Core.Form.ErrorTooltips = (function (Namespace) {
              */
             // Test ShowToolTip() function
             Core.Form.ErrorTooltips.ShowTooltip(TestFieldElement, ErrorTooltipMessage);
-            Assert.ok($($(ErrorTooltipID).find('div')[1]).length, 'Found ErrorTooltip on ShowTooltip()');
-            Assert.equal($($(ErrorTooltipID).find('div')[1]).text(), ErrorTooltipMessage, 'ErrorTooltip message is correct');
+            Assert.ok($(ErrorTooltipID).find('div:eq(1)').length, 'Found ErrorTooltip on ShowTooltip()');
+            Assert.equal($(ErrorTooltipID).find('div:eq(1)').text(), ErrorTooltipMessage, 'ErrorTooltip message is correct');
 
             // Test HideTooltip() function
             Core.Form.ErrorTooltips.HideTooltip();
-            Assert.notOk($($(ErrorTooltipID).find('div')[1]).length, 'Not found ErrorTooltip on HideTooltip()');
+            Assert.notOk($(ErrorTooltipID).find('div:eq(1)').length, 'Not found ErrorTooltip on HideTooltip()');
 
             // Test InitTooltip() function
             Core.Form.ErrorTooltips.InitTooltip(TestFieldElement, ErrorTooltipMessage);
-            Assert.notOk($($(ErrorTooltipID).find('div')[1]).length, 'Not found ErrorTooltip on InitTooltip() without focus on the field');
+            Assert.notOk($(ErrorTooltipID).find('div:eq(1)').length, 'Not found ErrorTooltip on InitTooltip() without focus on the field');
 
             // Put focus on test field
             $('#TestField').focus();
-            Assert.ok($($(ErrorTooltipID).find('div')[1]).length, 'Found ErrorTooltip on InitTooltip() with focus on the field');
-            Assert.equal($($(ErrorTooltipID).find('div')[1]).text(), ErrorTooltipMessage, 'ErrorTooltip message is correct');
+            Assert.ok($(ErrorTooltipID).find('div:eq(1)').length, 'Found ErrorTooltip on InitTooltip() with focus on the field');
+            Assert.equal($(ErrorTooltipID).find('div:eq(1)').text(), ErrorTooltipMessage, 'ErrorTooltip message is correct');
 
             // Remove focus from test field
             $('#TestField').blur();
-            Assert.notOk($($(ErrorTooltipID).find('div')[1]).length, 'Not found ErrorTooltip on InitTooltip() when focus is removed again');
+            Assert.notOk($(ErrorTooltipID).find('div:eq(1)').length, 'Not found ErrorTooltip on InitTooltip() when focus is removed again');
 
             // Test RemoveTooltip() function
             Core.Form.ErrorTooltips.RemoveTooltip(TestFieldElement);
-            Assert.notOk($($(ErrorTooltipID).find('div')[1]).length, 'Not found ErrorTooltip on RemoveTooltip() without focus on the field');
+            Assert.notOk($(ErrorTooltipID).find('div:eq(1)').length, 'Not found ErrorTooltip on RemoveTooltip() without focus on the field');
 
             // Put focus on test field
             $('#TestField').focus();
-            Assert.notOk($($(ErrorTooltipID).find('div')[1]).length, 'Not found ErrorTooltip on RemoveTooltip() with focus on the field');
+            Assert.notOk($(ErrorTooltipID).find('div:eq(1)').length, 'Not found ErrorTooltip on RemoveTooltip() with focus on the field');
 
             /*
              * Cleanup div container and contents
