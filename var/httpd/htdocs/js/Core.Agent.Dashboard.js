@@ -1110,7 +1110,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
             });
 
             $('#Dashboard' + Core.App.EscapeSelector(ColumnFilterSort.Name) + '-box').addClass('Loading');
-            Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(ColumnFilterSort.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Element;Name=' + ColumnFilterSort.Name + ';Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=' + ColumnFilterSort.SortBy + ';OrderBy=' + ColumnFilterSort.OrderBy + ';' + LinkPage, function () {
+            Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(ColumnFilterSort.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Element;Name=' + ColumnFilterSort.Name + ';Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=' + ColumnFilterSort.HeaderColumnName + ';OrderBy=' + ColumnFilterSort.OrderBy + ';' + LinkPage, function () {
                 $('#Dashboard' + Core.App.EscapeSelector(ColumnFilterSort.Name) + '-box').removeClass('Loading');
             });
             Event.preventDefault();
