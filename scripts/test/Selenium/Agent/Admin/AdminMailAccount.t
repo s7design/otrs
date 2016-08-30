@@ -295,10 +295,17 @@ $Selenium->RunTest(
 
         # test mail account delete button
         $Selenium->find_element("//a[contains(\@data-query-string, \'Subaction=Delete;ID=$MailAccountID' )]")->click();
-        $Selenium->WaitFor(
-            AlertPresent => 1,
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".Dialog:visible").length === 1;' );
+
+        # verify delete dialog message
+        my $DeleteMessage = 'Are you sure you want to delete this mail account?';
+        $Self->True(
+            index( $Selenium->get_page_source(), $DeleteMessage ) > -1,
+            "Delete message is found",
         );
-        $Selenium->accept_alert();
+
+        # confirm delete action
+        $Selenium->find_element( "#DialogButton1", 'css' )->VerifiedClick();
 
         # check if mail account is deleted
         $Self->True(

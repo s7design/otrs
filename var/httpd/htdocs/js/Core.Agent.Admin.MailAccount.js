@@ -30,28 +30,43 @@ Core.Agent.Admin = Core.Agent.Admin || {};
      */
     TargetNS.MailAccountDelete = function() {
         $('.MailAccountDelete').on('click', function () {
+            var MailAccountDelete = $(this);
 
-            if (window.confirm(Core.Language.Translate("Do you really want to delete this mail account? ALL associated data will be LOST!"))) {
+            Core.UI.Dialog.ShowDialog({
+                Modal: true,
+                Title: Core.Language.Translate("Delete mail account"),
+                HTML: Core.Language.Translate("Are you sure you want to delete this mail account?"),
+                PositionTop: '20%',
+                PositionLeft: 'Center',
+                CloseOnEscape: true,
+                Buttons: [
+                    {
+                        Type: 'Submit',
+                        Label: Core.Language.Translate("Confirm"),
+                        Function: function() {
+                            Core.UI.Dialog.ShowDialog({
+                                Title: Core.Language.Translate("Delete mail account"),
+                                HTML: Core.Language.Translate("Deleting the mail account and its data. This may take a while..."),
+                                Modal: true,
+                                PositionTop: '20%',
+                                PositionLeft: 'Center'
+                            });
 
-                Core.UI.Dialog.ShowDialog({
-                    Title: Core.Language.Translate("Delete mail account"),
-                    HTML: Core.Language.Translate("Deleting the mail account and its data. This may take a while..."),
-                    Modal: true,
-                    CloseOnClickOutside: false,
-                    CloseOnEscape: false,
-                    PositionTop: '20%',
-                    PositionLeft: 'Center'
-                });
-
-                Core.AJAX.FunctionCall(
-                    Core.Config.Get('Baselink'),
-                    $(this).data('query-string'),
-                    function() {
-                        window.location.reload();
+                            Core.AJAX.FunctionCall(
+                                Core.Config.Get('Baselink'),
+                                MailAccountDelete.data('query-string'),
+                                function() {
+                                    window.location.reload();
+                                }
+                            );
+                        }
+                    },
+                    {
+                        Type: 'Close',
+                        Label: Core.Language.Translate("Cancel")
                     }
-                );
-            }
-
+                ]
+            });
             return false;
         });
     };
