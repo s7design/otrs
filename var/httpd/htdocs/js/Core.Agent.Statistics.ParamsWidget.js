@@ -32,63 +32,60 @@ Core.Agent.Statistics.ParamsWidget = (function (TargetNS) {
 TargetNS.Init = function() {
         var StatsParamData = Core.Config.Get('StatsParamData');
 
-        if (typeof Core.Config.Get('StatsParamData') !== 'undefined') {
-            if (StatsParamData.Use === 'UseAsValueSeries') {
-                $('#' + StatsParamData.XAxisTimeScaleElementID).on('change', function() {
-                    var TimeScaleYAxis = StatsParamData.TimeScaleYAxis,
-                    $TimeScaleElement = $('#' + StatsParamData.TimeScaleElementID),
-                    XAxisTimeScaleValue = $(this).val();
+        if (typeof StatsParamData !== 'undefined') {
+            $('#' + StatsParamData.XAxisTimeScaleElementID).on('change', function() {
+                var TimeScaleYAxis = StatsParamData.TimeScaleYAxis,
+                $TimeScaleElement = $('#' + StatsParamData.TimeScaleElementID),
+                XAxisTimeScaleValue = $(this).val();
 
-                    // reset the current time scale dropdown for the y axis
-                    $TimeScaleElement.empty();
+                // reset the current time scale dropdown for the y axis
+                $TimeScaleElement.empty();
 
-                    if (XAxisTimeScaleValue in TimeScaleYAxis) {
-                        $.each(TimeScaleYAxis[XAxisTimeScaleValue], function (Index, Item) {
-                            var TimeScaleOption = new Option(Item.Value, Item.Key);
+                if (XAxisTimeScaleValue in TimeScaleYAxis) {
+                    $.each(TimeScaleYAxis[XAxisTimeScaleValue], function (Index, Item) {
+                        var TimeScaleOption = new Option(Item.Value, Item.Key);
 
-                            // Overwrite option text, because of wrong html quoting of text content.
-                            // (This is needed for IE.)
-                            TimeScaleOption.innerHTML = Item.Value;
-                            $TimeScaleElement.append(TimeScaleOption).val(Item.Key).trigger('redraw.InputField').trigger('change');
+                        // Overwrite option text, because of wrong html quoting of text content.
+                        // (This is needed for IE.)
+                        TimeScaleOption.innerHTML = Item.Value;
+                        $TimeScaleElement.append(TimeScaleOption).val(Item.Key).trigger('redraw.InputField').trigger('change');
 
-                        });
-                    }
-                });
-            }
-
-            if (StatsParamData.Ajax) {
-                Core.UI.InputFields.Activate();
-            }
-
-            $('.DataShowMore').on('click', function() {
-                if ($(this).find('.More').is(':visible')) {
-                    $(this)
-                        .find('.More')
-                        .hide()
-                        .next('.Less')
-                        .show()
-                        .parent()
-                        .prev('.DataFull')
-                        .show()
-                        .prev('.DataTruncated')
-                        .hide()
+                    });
                 }
-                else {
-                    $(this)
-                        .find('.More')
-                        .show()
-                        .next('.Less')
-                        .hide()
-                        .parent()
-                        .prev('.DataFull')
-                        .hide()
-                        .prev('.DataTruncated')
-                        .show()
-                }
-                return false;
             });
         }
 
+        if (typeof Core.Config.Get('StatsWidgetAJAX') !== 'undefined') {
+            Core.UI.InputFields.Activate();
+        }
+
+        $('.DataShowMore').on('click', function() {
+            if ($(this).find('.More').is(':visible')) {
+                $(this)
+                    .find('.More')
+                    .hide()
+                    .next('.Less')
+                    .show()
+                    .parent()
+                    .prev('.DataFull')
+                    .show()
+                    .prev('.DataTruncated')
+                    .hide()
+            }
+            else {
+                $(this)
+                    .find('.More')
+                    .show()
+                    .next('.Less')
+                    .hide()
+                    .parent()
+                    .prev('.DataFull')
+                    .hide()
+                    .prev('.DataTruncated')
+                    .show()
+            }
+            return false;
+        });
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
