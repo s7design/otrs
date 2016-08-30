@@ -38,8 +38,8 @@ Core.UI.Table = (function (Namespace) {
             Core.UI.Table.InitTableFilter($('#QunitFilter'), $('#QunitTable'));
 
             // Verify all table row's are visible without filter
-            Assert.equal($($('tbody tr')[0]).css('display'), 'table-row', 'First Row is shown in table');
-            Assert.equal($($('tbody tr')[1]).css('display'), 'table-row', 'Second Row is shown in table');
+            Assert.equal($('tbody tr:eq(0)').css('display'), 'table-row', 'First Row is shown in table');
+            Assert.equal($('tbody tr:eq(1)').css('display'), 'table-row', 'Second Row is shown in table');
 
             // Input filter value so only first row is visible
             $('#QunitFilter').val($RowOne.name);
@@ -49,8 +49,8 @@ Core.UI.Table = (function (Namespace) {
             setTimeout(function() {
 
                 // Verify only first table row is visible with filter
-                Assert.equal($($('tbody tr')[0]).css('display'), 'table-row', 'First Row is shown in table with "FirstRow" filter string');
-                Assert.equal($($('tbody tr')[1]).css('display'), 'none', 'Second Row is hidden in table with "FirstRow" filter string');
+                Assert.equal($('tbody tr:eq(0)').css('display'), 'table-row', 'First Row is shown in table with "FirstRow" filter string');
+                Assert.equal($('tbody tr:eq(1)').css('display'), 'none', 'Second Row is hidden in table with "FirstRow" filter string');
                 Assert.equal($('.FilterMessage').css('display'), 'none', 'Result FilterMessage is hidden in table with "FirstRow" filter string');
 
                 // Input filter value so only second row is visible
@@ -61,8 +61,8 @@ Core.UI.Table = (function (Namespace) {
                 setTimeout(function() {
 
                     // Verify only second table row is visible with filter
-                    Assert.equal($($('tbody tr')[0]).css('display'), 'none', 'First Row is hidden in table with "invalid" filter string');
-                    Assert.equal($($('tbody tr')[1]).css('display'), 'table-row', 'Second Row is shown in table with "invalid" filter string');
+                    Assert.equal($('tbody tr:eq(0)').css('display'), 'none', 'First Row is hidden in table with "invalid" filter string');
+                    Assert.equal($('tbody tr:eq(1)').css('display'), 'table-row', 'Second Row is shown in table with "invalid" filter string');
                     Assert.equal($('.FilterMessage').css('display'), 'none', 'Result FilterMessage is hidden in table with "invalid" filter string');
 
                     // Input wrong filter value
@@ -73,8 +73,8 @@ Core.UI.Table = (function (Namespace) {
                     setTimeout(function() {
 
                         // Verify no data is visible, FilterMessage is visible
-                        Assert.equal($($('tbody tr')[0]).css('display'), 'none', 'First Row is hidden in table with wrong filter string');
-                        Assert.equal($($('tbody tr')[1]).css('display'), 'none', 'Second Row is hidden in table with wrong filter string');
+                        Assert.equal($('tbody tr:eq(0)').css('display'), 'none', 'First Row is hidden in table with wrong filter string');
+                        Assert.equal($('tbody tr:eq(1)').css('display'), 'none', 'Second Row is hidden in table with wrong filter string');
                         Assert.equal($('.FilterMessage').css('display'), 'table-row', 'Result FilterMessage is shown with wrong filter string');
 
                         // Cleanup div container and contents
