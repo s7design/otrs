@@ -298,7 +298,7 @@ $Selenium->RunTest(
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".Dialog:visible").length === 1;' );
 
         # verify delete dialog message
-        my $DeleteMessage = 'Are you sure you want to delete this mail account?';
+        my $DeleteMessage = 'Do you really want to delete this mail account?';
         $Self->True(
             index( $Selenium->get_page_source(), $DeleteMessage ) > -1,
             "Delete message is found",

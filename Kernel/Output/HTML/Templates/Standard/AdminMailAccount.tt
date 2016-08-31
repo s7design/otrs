@@ -131,6 +131,13 @@
                     </tbody>
                 </table>
             </div>
+            <div class="Hidden" id="DeleteMailAccountDialogContainer">
+                <div id ="DeleteMailAccountDialog" class="InnerContent GenericInterfaceDialog">
+                    <span class="WarningDialog ">&nbsp;</span>
+                    <p class="Center Warning">[% Translate("Do you really want to delete this mail account?") | html %]</p>
+                    <div class="SpacingTop"></div>
+                </div>
+            </div>
 [% RenderBlockEnd("OverviewResult") %]
 
 [% RenderBlockStart("OverviewAdd") %]
