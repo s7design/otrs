@@ -366,8 +366,7 @@ sub _Change {
         Name => 'Overview',
         Data => {
             %Param,
-            OverviewLink       => $Self->{Action} . ';CustomerUserSearch=' . $Param{CustomerUserSearch},
-            OverviewLinkAppend => '1',
+            OverviewLink => $Self->{Action} . ';CustomerUserSearch=' . $Param{CustomerUserSearch},
         },
     );
     $LayoutObject->Block( Name => 'ActionList' );
@@ -520,8 +519,8 @@ sub _Overview {
         Name => 'Overview',
         Data => {
             %Param,
-            OverviewLinkAppend => '0',
-            }
+            OverviewLink => $Self->{Action},
+        },
     );
     $LayoutObject->Block( Name => 'ActionList' );
 

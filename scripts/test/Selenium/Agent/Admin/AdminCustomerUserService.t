@@ -112,7 +112,7 @@ $Selenium->RunTest(
         my $IsLinkedBreadcrumbText;
         for my $BreadcrumbText (
             'You are here:', 'Manage Customer-Services Relations',
-            'Allocate Customers to Service \''
+            'Allocate Services to Customer \''
             . $CustomerUserName . ' '
             . $CustomerUserName . ' ('
             . $CustomerUserName . ')\''

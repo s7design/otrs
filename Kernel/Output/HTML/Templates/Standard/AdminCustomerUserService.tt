@@ -12,23 +12,13 @@
         <h1>[% Translate("Manage Customer-Services Relations") | html %]</h1>
     </div>
 
-    [% IF Data.OverviewLinkAppend && Data.OverviewLinkAppend == '1' %]
-        [% BreadcrumbPath = [
-                {
-                    Name => Translate('Manage Customer-Services Relations'),
-                    Link => Data.OverviewLink,
-                },
-            ]
-        %]
-    [% ELSE %]
-        [% BreadcrumbPath = [
-                {
-                    Name => Translate('Manage Customer-Services Relations'),
-                    Link => Env("Action"),
-                },
-            ]
-        %]
-    [% END %]
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('Manage Customer-Services Relations'),
+                Link => Data.OverviewLink,
+            },
+        ]
+    %]
 
     [% IF Data.Type %]
             [% USE EditTitle = String(Translate(Data.BreadcrumbTitle)) %]
