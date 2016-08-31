@@ -162,6 +162,8 @@ sub Run {
 
             if ($Update) {
 
+                my $SetDFError;
+
                 # set dynamic field values
                 my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
 
@@ -171,12 +173,42 @@ sub Run {
 
                     my $DynamicFieldConfig = $Self->{DynamicFieldLookup}->{ $Entry->[2] };
 
+                    if ( !IsHashRefWithData($DynamicFieldConfig) ) {
+                        $SetDFError .= $LayoutObject->Notify( Info => "DynamicField $Entry->[2] not found!" );
+                        next ENTRY;
+                    }
+
                     my $ValueSet = $DynamicFieldBackendObject->ValueSet(
                         DynamicFieldConfig => $DynamicFieldConfig,
                         ObjectName         => $GetParam{CustomerID},
                         Value              => $GetParam{ $Entry->[0] },
                         UserID             => $Self->{UserID},
                     );
+
+                    if ( !$ValueSet ) {
+                        $SetDFError
+                            .= $LayoutObject->Notify( Info => "Unable to set value for dynamic field $Entry->[2]!" );
+                        next ENTRY;
+                    }
+                }
+
+                # if set DF error exists, create notification
+                if ($SetDFError) {
+                    $Self->_Overview(
+                        Nav    => $Nav,
+                        Search => $Search,
+                    );
+                    my $Output = $LayoutObject->Header();
+                    $Output .= $LayoutObject->NavigationBar(
+                        Type => $NavigationBarType,
+                    );
+                    $Output .= $SetDFError;
+                    $Output .= $LayoutObject->Output(
+                        TemplateFile => 'AdminCustomerCompany',
+                        Data         => \%Param,
+                    );
+                    $Output .= $LayoutObject->Footer();
+                    return $Output;
                 }
 
                 # if the user would like to continue editing the customer company, just redirect to the edit screen
