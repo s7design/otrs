@@ -161,6 +161,18 @@ sub Run {
             StopAfterMatch => $StopAfterMatch,
             Not            => \%Not,
         );
+
+        # if the user would like to continue editing the postmaster filter, just redirect to the update screen
+        if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+            my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
+            return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Subaction=Update;Name=$Name" );
+        }
+        else {
+
+            # otherwise return to overview
+            return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+        }
+
         return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
     }
 
@@ -241,7 +253,13 @@ sub _MaskUpdate {
     my $Output = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
 
-    $LayoutObject->Block( Name => 'Overview' );
+    $LayoutObject->Block(
+        Name => 'Overview',
+        Data => {
+            Action => $Self->{Subaction},
+            Name   => $Param{Name},
+        },
+    );
     $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'ActionOverview' );
 
@@ -310,16 +328,9 @@ sub _MaskUpdate {
         Data => {
             %Param, %Data,
             OldName => $Data{Name},
+            Action  => $Self->{Subaction},
         },
     );
-
-    # shows header
-    if ( $Self->{Subaction} eq 'AddAction' ) {
-        $LayoutObject->Block( Name => 'HeaderAdd' );
-    }
-    else {
-        $LayoutObject->Block( Name => 'HeaderEdit' );
-    }
 
     $Output .= $LayoutObject->Output(
         TemplateFile => 'AdminPostMasterFilter',
