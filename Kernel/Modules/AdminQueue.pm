@@ -107,7 +107,7 @@ sub Run {
     }
 
     # ------------------------------------------------------------ #
-    # update action
+    # change action
     # ------------------------------------------------------------ #
     elsif ( $Self->{Subaction} eq 'ChangeAction' ) {
 
@@ -220,18 +220,34 @@ sub Run {
                     }
                 }
 
-                $Self->_Overview();
+                # if $Note has some notify, create output with $Note
+                # otherwise redirect depending on what button ('Save' or 'Save and Finish') is clicked
+                if ( $Note ne '' ) {
+                    $Self->_Overview();
+                    my $Output = $LayoutObject->Header();
+                    $Output .= $LayoutObject->NavigationBar();
+                    $Output .= $Note;
+                    $Output .= $LayoutObject->Output(
+                        TemplateFile => 'AdminQueue',
+                        Data         => \%Param,
+                    );
+                    $Output .= $LayoutObject->Footer();
 
-                my $Output = $LayoutObject->Header();
-                $Output .= $LayoutObject->NavigationBar();
-                $Output .= $LayoutObject->Notify( Info => Translatable('Queue updated!') );
-                $Output .= $LayoutObject->Output(
-                    TemplateFile => 'AdminQueue',
-                    Data         => \%Param,
-                );
-                $Output .= $LayoutObject->Footer();
+                    return $Output;
+                }
 
-                return $Output;
+                # if the user would like to continue editing the queue, just redirect to the edit screen
+                if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+                    return $LayoutObject->Redirect(
+                        OP => "Action=$Self->{Action};Subaction=Change;QueueID=$QueueID"
+                    );
+                }
+                else {
+
+                    # otherwise return to overview
+                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+                }
+
             }
         }
 
@@ -687,14 +703,6 @@ sub _Edit {
             %{ $Param{Errors} },
         },
     );
-
-    # shows header
-    if ( $Param{Action} eq 'Change' ) {
-        $LayoutObject->Block( Name => 'HeaderEdit' );
-    }
-    else {
-        $LayoutObject->Block( Name => 'HeaderAdd' );
-    }
 
     if ( $Param{DefaultSignKeyOption} ) {
         $LayoutObject->Block(
