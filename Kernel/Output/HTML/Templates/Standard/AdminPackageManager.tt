@@ -12,6 +12,19 @@
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("Package Manager") | html %]</h1>
 
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('Package Manager'),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% USE UninstallBreadcrumb = String(Translate("Uninstall Package")) %]
+    [% BreadcrumbPath.push({ Name => UninstallBreadcrumb.append( ': ', Data.Name ) }) %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
+
     <div class="SidebarColumn">
 
         <div class="WidgetSimple">
@@ -73,6 +86,19 @@
 [% RenderBlockStart("Reinstall") %]
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("Package Manager") | html %]</h1>
+
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('Package Manager'),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% USE ReinstallBreadcrumb = String(Translate("Reinstall package")) %]
+    [% BreadcrumbPath.push({ Name => ReinstallBreadcrumb.append( ': ', Data.Name ) }) %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
 
     <div class="SidebarColumn">
 
@@ -136,6 +162,33 @@
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("Package Manager") | html %]</h1>
 
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('Package Manager'),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% SWITCH Env("Subaction") %]
+        [% CASE 'InstallRemote' %]
+            [% USE InstallRemoteTitle = String(Translate("Install Information")) %]
+            [% BreadcrumbPath.push({ Name => InstallRemoteTitle.append( ': ', Data.Name ) }) %]
+            [% IF Data.Type == 'IntroInstallPost' %]
+                [% USE InstallPost = String(Translate("Installation Information")) %]
+                [% BreadcrumbPath.push({ Name => InstallPost.append( ': ', Data.Name ) }) %]
+            [% END %]
+        [% CASE 'Uninstall' %]
+            [% USE UninstallTitle = String(Translate("Uninstallation Information")) %]
+            [% BreadcrumbPath.push({ Name => UninstallTitle.append( ': ', Data.Name ) }) %]
+            [% IF Data.Type == 'IntroUninstallPost' %]
+                [% USE UninstallPost = String(Translate("Uninstallation Information")) %]
+                [% BreadcrumbPath.push({ Name => UninstallPost.append( ': ', Data.Name ) }) %]
+            [% END %]
+    [% END %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
+
     <div class="SidebarColumn">
         <div class="WidgetSimple">
             <div class="Header">
@@ -190,6 +243,16 @@
 [% RenderBlockStart("Overview") %]
     <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
         <h1>[% Translate("Package Manager") | html %]</h1>
+
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('Package Manager'),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
 
         <div class="SidebarColumn">
             <div class="WidgetSimple">
@@ -418,6 +481,19 @@
     <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
         <h1>[% Translate("Package Manager") | html %]</h1>
 
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('Package Manager'),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% USE PackageBreadcrumb = String(Translate("Package")) %]
+    [% BreadcrumbPath.push({ Name => PackageBreadcrumb.append( ': ', Data.Name ) }) %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
+
         <div class="SidebarColumn">
             <div class="WidgetSimple">
                 <div class="Header">
@@ -622,6 +698,19 @@
 [% RenderBlockStart("FileDiff") %]
     <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
         <h1>[% Translate("Package Manager") | html %]</h1>
+
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('Package Manager'),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% USE FileDiffBreadcrumb = String(Translate("File Differences for File %s", Data.Location)) %]
+    [% BreadcrumbPath.push({ Name => FileDiffBreadcrumb.append( ': ', Data.Name ) }) %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
 
         <div class="SidebarColumn">
 
