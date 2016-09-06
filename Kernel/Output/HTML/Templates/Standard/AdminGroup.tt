@@ -124,12 +124,11 @@
 
 [% RenderBlockStart("OverviewUpdate") %]
             <div class="Header">
-[% RenderBlockStart("HeaderAdd") %]
+            [% IF Data.Action == 'Add' %]
                 <h2>[% Translate("Add Group") | html %]</h2>
-[% RenderBlockEnd("HeaderAdd") %]
-[% RenderBlockStart("HeaderEdit") %]
+            [% ELSE %]
                 <h2>[% Translate("Edit Group") | html %]</h2>
-[% RenderBlockEnd("HeaderEdit") %]
+            [% END %]
             </div>
             <div class="Content">
                 <form id="GroupUpdate" action="[% Env("CGIHandle") %]" method="post" name="GroupUpdate" class="Validate PreventMultipleSubmits">
