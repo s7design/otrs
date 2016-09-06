@@ -223,17 +223,17 @@ sub Run {
         }
 
         if ($Ok) {
-            $Self->_Overview();
-            my $Output = $LayoutObject->Header();
-            $Output .= $LayoutObject->NavigationBar();
-            $Output .= $LayoutObject->Notify( Info => Translatable('Notification updated!') );
-            $Output .= $LayoutObject->Output(
-                TemplateFile => 'AdminNotificationEvent',
-                Data         => \%Param,
-            );
-            $Output .= $LayoutObject->Footer();
 
-            return $Output;
+            # if the user would like to continue editing the notification event, just redirect to the edit screen
+            if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+                my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
+                return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Subaction=Change;ID=$ID" );
+            }
+            else {
+
+                # otherwise return to overview
+                return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+            }
         }
         else {
             for my $Needed (qw(Name Events Transports)) {
@@ -893,14 +893,6 @@ sub _Edit {
         Name => 'OverviewUpdate',
         Data => \%Param,
     );
-
-    # shows header
-    if ( $Param{Action} eq 'Change' ) {
-        $LayoutObject->Block( Name => 'HeaderEdit' );
-    }
-    else {
-        $LayoutObject->Block( Name => 'HeaderAdd' );
-    }
 
     # build type string
     if ( $ConfigObject->Get('Ticket::Type') ) {
