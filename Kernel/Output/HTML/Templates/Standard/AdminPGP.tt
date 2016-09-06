@@ -9,6 +9,22 @@
 [% RenderBlockStart("Overview") %]
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("PGP Management") | html %]</h1>
+
+    [% BreadcrumbPath = [
+            {
+                Name => Translate("PGP Management"),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% IF Data.Subaction == 'Add' %]
+        [% BreadcrumbPath.push({ Name => Translate('Add PGP Key'), }) %]
+    [% END %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
+
+    <div class="Clear"></div>
     <div class="SidebarColumn">
 [% RenderBlockStart("Notice") %]
         <div class="WidgetSimple">
