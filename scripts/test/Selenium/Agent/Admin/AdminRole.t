@@ -36,11 +36,22 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
+        # get language object
+        my $LanguageObject = Kernel::Language->new(
+            UserLanguage => $Language,
+        );
+
         # get script alias
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
         # navigate to AdminRole screen
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminRole");
+
+        # check breadcrumb on Overview screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Overview screen.",
+        );
 
         # check roles overview screen,
         # if there are roles, check is there table on screen
@@ -52,10 +63,6 @@ $Selenium->RunTest(
             $Selenium->find_element( "table tbody tr td", 'css' );
         }
         else {
-            my $LanguageObject = Kernel::Language->new(
-                UserLanguage => $Language,
-            );
-
             $Self->True(
                 index(
                     $Selenium->get_page_source(),
@@ -76,6 +83,46 @@ $Selenium->RunTest(
         $Element->is_enabled();
         $Selenium->find_element( "#Comment", 'css' );
         $Selenium->find_element( "#ValidID", 'css' );
+
+        # define translated strings
+        my $YouAreHere     = $LanguageObject->Translate('You are here') . ':';
+        my $RoleManagement = $LanguageObject->Translate('Role Management');
+
+        # check breadcrumb on Add screen
+        my $Count = 0;
+        my $IsLinkedBreadcrumbText;
+        for my $BreadcrumbText (
+            $YouAreHere,
+            $RoleManagement,
+            $LanguageObject->Translate('Add Role')
+            )
+        {
+            $Self->Is(
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').text().trim()"),
+                $BreadcrumbText,
+                "Breadcrumb text '$BreadcrumbText' is found on screen"
+            );
+
+            $IsLinkedBreadcrumbText =
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').children('a').length");
+
+            if ( $BreadcrumbText eq $RoleManagement ) {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    1,
+                    "Breadcrumb text '$BreadcrumbText' is linked"
+                );
+            }
+            else {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    0,
+                    "Breadcrumb text '$BreadcrumbText' is not linked"
+                );
+            }
+
+            $Count++;
+        }
 
         # check client side validation
         $Selenium->find_element( "#Name", 'css' )->clear();
@@ -122,6 +169,41 @@ $Selenium->RunTest(
             'Selenium test role',
             "#Comment stored value",
         );
+
+        # check breadcrumb on Edit screen
+        $Count = 0;
+        for my $BreadcrumbText (
+            $YouAreHere,
+            $RoleManagement,
+            $LanguageObject->Translate('Edit Role') . ': ' . $RandomID
+            )
+        {
+            $Self->Is(
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').text().trim()"),
+                $BreadcrumbText,
+                "Breadcrumb text '$BreadcrumbText' is found on screen"
+            );
+
+            $IsLinkedBreadcrumbText =
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').children('a').length");
+
+            if ( $BreadcrumbText eq $RoleManagement ) {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    1,
+                    "Breadcrumb text '$BreadcrumbText' is linked"
+                );
+            }
+            else {
+                $Self->Is(
+                    $IsLinkedBreadcrumbText,
+                    0,
+                    "Breadcrumb text '$BreadcrumbText' is not linked"
+                );
+            }
+
+            $Count++;
+        }
 
         # set test role to invalid
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
