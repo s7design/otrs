@@ -1722,7 +1722,7 @@ sub Ascii2Html {
     else {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
-            Message  => 'Invalid ref "' . ref $Param{Text} . '" of Text param!',
+            Message  => 'Invalid ref "' . ref( $Param{Text} ) . '" of Text param!',
         );
         return '';
     }
@@ -5565,7 +5565,7 @@ sub SetRichTextParameters {
     if ( ref $Param{Data} ne 'HASH' ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
-            Message  => "Need HashRef in Param Data! Got: '" . ref $Param{Data} . "'!",
+            Message  => "Need HashRef in Param Data! Got: '" . ref( $Param{Data} ) . "'!",
         );
         $Self->FatalError();
     }
@@ -5711,7 +5711,7 @@ sub CustomerSetRichTextParameters {
     if ( ref $Param{Data} ne 'HASH' ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
-            Message  => "Need HashRef in Param Data! Got: '" . ref $Param{Data} . "'!",
+            Message  => "Need HashRef in Param Data! Got: '" . ref( $Param{Data} ) . "'!",
         );
         $Self->FatalError();
     }

@@ -97,6 +97,9 @@ sub Run {
                 if ( $Key =~ /Password|Pw/ ) {
                     $Data{$Key} = 'xxxxxxxx';
                 }
+                elsif ( $Key eq 'Config' || $Key eq 'CompanyConfig' ) {
+                    $Data{$Key} = 'HASH of data';
+                }
                 else {
                     $Data{$Key} = $LayoutObject->Ascii2Html( Text => $Data{$Key} );
                 }
@@ -111,9 +114,6 @@ sub Run {
                         SystemTime => $Data{UserSessionStart},
                     );
                     $Data{$Key} = "$TimeStamp / $Age h ";
-                }
-                if ( $Key eq 'Config' || $Key eq 'CompanyConfig' ) {
-                    $Data{$Key} = 'HASH of data';
                 }
                 if ( $Data{$Key} eq ';' ) {
                     $Data{$Key} = '';
