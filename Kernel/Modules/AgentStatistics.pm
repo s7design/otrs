@@ -52,6 +52,17 @@ sub Run {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
+    # set breadcrumbpath for overview screen and it will be used as base for other screens
+    @{ $Self->{BreadcrumbPath} } = (
+        {
+            Name =>
+                $LayoutObject->{LanguageObject}->Translate('Statistics') .
+                ' -- ' .
+                $LayoutObject->{LanguageObject}->Translate('Overview'),
+            Link => 'AgentStatistics;Subaction=Overview',
+        }
+    );
+
     my $Subaction = $Self->{Subaction};
 
     my %RoSubactions = (
@@ -197,7 +208,8 @@ sub OverviewScreen {
         Data => {
             %Pagination,
             %Param,
-            AccessRw => $Self->{AccessRw},
+            AccessRw       => $Self->{AccessRw},
+            BreadcrumbPath => $Self->{BreadcrumbPath},
         },
         TemplateFile => 'AgentStatisticsOverview',
     );
@@ -218,6 +230,7 @@ sub ImportScreen {
         TemplateFile => 'AgentStatisticsImport',
         Data         => {
             %Errors,
+            BreadcrumbPath => $Self->{BreadcrumbPath},
         },
     );
     $Output .= $LayoutObject->Footer();
@@ -370,6 +383,7 @@ sub EditScreen {
         Data         => {
             %Frontend,
             %{$Stat},
+            BreadcrumbPath => $Self->{BreadcrumbPath},
         },
     );
     $Output .= $LayoutObject->Footer();
@@ -685,10 +699,7 @@ sub EditAction {
         return $LayoutObject->Redirect( OP => $Self->{LastStatsOverview} );
     }
 
-    return $Self->EditScreen(
-        Errors   => \%Errors,
-        GetParam => \%Data,
-    );
+    return $LayoutObject->Redirect( OP => "Action=AgentStatistics;Subaction=Edit;StatID=$Stat->{StatID}" );
 }
 
 sub ViewScreen {
@@ -752,6 +763,7 @@ sub ViewScreen {
             Errors   => \@Errors,
             %Frontend,
             %{$Stat},
+            BreadcrumbPath => $Self->{BreadcrumbPath},
         },
     );
     $Output .= $LayoutObject->Footer();
@@ -816,6 +828,7 @@ sub AddScreen {
         Data         => {
             %Frontend,
             %Errors,
+            BreadcrumbPath => $Self->{BreadcrumbPath},
         },
     );
     $Output .= $LayoutObject->Footer();

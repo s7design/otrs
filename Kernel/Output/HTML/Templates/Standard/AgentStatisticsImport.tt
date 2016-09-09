@@ -10,6 +10,10 @@
 <div class="MainBox AriaRoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("Statistics » Import") | html %]</h1>
 
+    [% Data.BreadcrumbPath.push({ Name => Translate("Import Statistic Configuration") }) %]
+    [% INCLUDE "Breadcrumb.tt" Path = Data.BreadcrumbPath %]
+
+    <div class="Clear"></div>
     <div class="SidebarColumn">
         <div class="WidgetSimple">
             <div class="Header">

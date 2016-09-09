@@ -11,6 +11,12 @@
 <div class="MainBox AriaRoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("Statistics » View %s%s — %s", Config('Stats::StatsHook'), Data.StatNumber, Data.Title) | html %]</h1>
 
+    [% USE EditTitle = String(Translate("View")) %]
+    [% Data.BreadcrumbPath.push({ Name => (EditTitle.append( ' ', Config('Stats::StatsHook'), Data.StatNumber, ' - ', Data.Title )) }) %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = Data.BreadcrumbPath %]
+
+    <div class="Clear"></div>
     <div class="SidebarColumn">
         <div class="WidgetSimple">
             <div class="Header">
