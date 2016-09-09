@@ -9,6 +9,23 @@
 [% RenderBlockStart("Overview") %]
 <div class="MainBox ARIARoleMain LayoutFixedSidebar SidebarFirst">
     <h1>[% Translate("S/MIME Management") | html %]: [% Translate(Data.Subtitle) | html %]</h1>
+
+    [% BreadcrumbPath = [
+            {
+                Name => Translate('S/MIME Management'),
+                Link => Env("Action"),
+            },
+        ]
+    %]
+
+    [% IF Data.Action == "ShowAddCertificate" %]
+        [% BreadcrumbPath.push({ Name => Translate("Add Certificate"),}) %]
+    [% ELSIF Data.Action == "ShowAddPrivate" %]
+        [% BreadcrumbPath.push({ Name => Translate("Add Private Key"),}) %]
+    [% END %]
+
+    [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
+
     <div class="SidebarColumn">
 [% RenderBlockStart("Notice") %]
         <div class="WidgetSimple">
