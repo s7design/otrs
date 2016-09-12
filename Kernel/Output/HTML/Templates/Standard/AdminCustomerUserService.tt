@@ -22,7 +22,11 @@
 
     [% IF Data.Type %]
             [% USE EditTitle = String(Translate(Data.BreadcrumbTitle)) %]
-            [% BreadcrumbPath.push({ Name => EditTitle.append( " '", Data.Name, "'" ) }) %]
+            [% IF Data.Name %]
+                [% BreadcrumbPath.push({ Name => EditTitle.append(" '", Data.Name , "'") }) %]
+            [% ELSE %]
+                [% BreadcrumbPath.push({ Name => EditTitle.append("") }) %]
+            [% END %]
     [% END %]
 
     [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
