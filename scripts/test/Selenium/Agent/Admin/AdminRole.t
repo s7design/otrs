@@ -150,6 +150,16 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
+        #check is there notification 'Role added!' after role is added
+        $Self->True(
+            $Selenium->execute_script(
+                      return "\$('.MessageBox.Notice p:contains(\'"
+                    . $LanguageObject->Translate('Role added!')
+                    . "\'').lenght)"
+            ),
+            "'Role added!' notification is found."
+        );
+
         # go to new role again
         $Selenium->find_element( $RandomID, 'link_text' )->VerifiedClick();
 
@@ -214,6 +224,16 @@ $Selenium->RunTest(
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID ) > -1,
             "$RandomID found on page",
+        );
+
+        #check is there notification 'Role updated!' after role is updated
+        $Self->True(
+            $Selenium->execute_script(
+                      return "\$('.MessageBox.Notice p:contains(\'"
+                    . $LanguageObject->Translate('Role updated!')
+                    . "\'').lenght)"
+            ),
+            "'Role updated!' notification is found."
         );
 
         # chack class of invalid Role in the overview table

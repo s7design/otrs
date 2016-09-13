@@ -40,11 +40,14 @@ sub Run {
         my $ID = $ParamObject->GetParam( Param => 'ID' )
             || $ParamObject->GetParam( Param => 'RoleID' )
             || '';
+        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
         my %Data = $GroupObject->RoleGet(
             ID => $ID,
         );
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('Role updated!') )
+            if ( $Notification && $Notification eq 'Update' );
         $Self->_Edit(
             Action => 'Change',
             %Data,
@@ -91,11 +94,11 @@ sub Run {
                 # otherwise return to overview
                 if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
                     return $LayoutObject->Redirect(
-                        OP => "Action=$Self->{Action};Subaction=Change;ID=$GetParam{ID}"
+                        OP => "Action=$Self->{Action};Subaction=Change;ID=$GetParam{ID};Notification=Update"
                     );
                 }
                 else {
-                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Notification=Update" );
                 }
             }
             else {
@@ -211,6 +214,7 @@ sub Run {
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminRole',
             Data         => \%Param,
+            Notification => 'Add',
         );
         $Output .= $LayoutObject->Footer();
         return $Output;
@@ -221,8 +225,17 @@ sub Run {
     # ------------------------------------------------------------
     else {
         $Self->_Overview();
+        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+
+        if ( $Notification && $Notification eq 'Add' ) {
+            $Output .= $LayoutObject->Notify( Info => Translatable('Role added!') );
+        }
+        elsif ( $Notification && $Notification eq 'Update' ) {
+            $Output .= $LayoutObject->Notify( Info => Translatable('Role updated!') );
+        }
+
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminRole',
             Data         => \%Param,
