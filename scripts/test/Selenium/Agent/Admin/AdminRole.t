@@ -151,13 +151,10 @@ $Selenium->RunTest(
         $Selenium->find_element( "table tbody tr td", 'css' );
 
         #check is there notification 'Role added!' after role is added
+        my $Notification = $LanguageObject->Translate('Role added!');
         $Self->True(
-            $Selenium->execute_script(
-                      return "\$('.MessageBox.Notice p:contains(\'"
-                    . $LanguageObject->Translate('Role added!')
-                    . "\'').lenght)"
-            ),
-            "'Role added!' notification is found."
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
         );
 
         # go to new role again
@@ -227,13 +224,10 @@ $Selenium->RunTest(
         );
 
         #check is there notification 'Role updated!' after role is updated
+        $Notification = $LanguageObject->Translate('Role updated!');
         $Self->True(
-            $Selenium->execute_script(
-                      return "\$('.MessageBox.Notice p:contains(\'"
-                    . $LanguageObject->Translate('Role updated!')
-                    . "\'').lenght)"
-            ),
-            "'Role updated!' notification is found."
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
         );
 
         # chack class of invalid Role in the overview table
