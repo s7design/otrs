@@ -176,6 +176,13 @@ $Selenium->RunTest(
             "$RandomID found on page",
         );
 
+        #check is there notification after customer user is added
+        my $Notification = "Customer $RandomID added ( New phone ticket - New email ticket )!";
+        $Self->True(
+            $Selenium->execute_script( "return \$('.MessageBox.Notice p:contains(" . $Notification . ")').length" ),
+            "$Notification - notification is found."
+        );
+
         # create another test customer user for filter search test
         $Selenium->find_element( "button.CallForAction", 'css' )->VerifiedClick();
 
@@ -276,6 +283,13 @@ $Selenium->RunTest(
         # set test customer user to invalid
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#UserFirstname", 'css' )->VerifiedSubmit();
+
+        #check is there notification after customer user is updated
+        $Notification = "Customer user updated!";
+        $Self->True(
+            $Selenium->execute_script( "return \$('.MessageBox.Notice p:contains(" . $Notification . ")').length" ),
+            "$Notification - notification is found."
+        );
 
         # test search filter
         $Selenium->find_element( "#Search", 'css' )->clear();
