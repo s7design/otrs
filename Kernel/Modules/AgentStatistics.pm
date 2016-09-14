@@ -56,9 +56,7 @@ sub Run {
     @{ $Self->{BreadcrumbPath} } = (
         {
             Name =>
-                $LayoutObject->{LanguageObject}->Translate('Statistics') .
-                ' -- ' .
-                $LayoutObject->{LanguageObject}->Translate('Overview'),
+                $LayoutObject->{LanguageObject}->Translate('Statistics Overview'),
             Link => 'AgentStatistics;Subaction=Overview',
         }
     );

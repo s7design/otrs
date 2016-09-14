@@ -9,11 +9,9 @@
 ## nofilter(TidyAll::Plugin::OTRS::TT::Format)
 
 <div class="MainBox AriaRoleMain LayoutFixedSidebar SidebarFirst">
-    <h1>[% Translate("Statistics » View %s%s — %s", Config('Stats::StatsHook'), Data.StatNumber, Data.Title) | html %]</h1>
+    <h1>[% Translate("Statistics Overview") | html %]</h1>
 
-    [% USE EditTitle = String(Translate("View")) %]
-    [% Data.BreadcrumbPath.push({ Name => (EditTitle.append( ' ', Config('Stats::StatsHook'), Data.StatNumber, ' - ', Data.Title )) }) %]
-
+    [% Data.BreadcrumbPath.push({ Name => Translate("View %s%s - %s", Config('Stats::StatsHook'), Data.StatNumber, Data.Title) }) %]
     [% INCLUDE "Breadcrumb.tt" Path = Data.BreadcrumbPath %]
 
     <div class="Clear"></div>
@@ -38,7 +36,7 @@
 
         <div class="WidgetSimple">
             <div class="Header">
-                <h2>[% Translate("Statistic Information") | html %]</h2>
+                <h2>[% Translate("Statistics Information") | html %]</h2>
             </div>
             <div class="Content">
                 <fieldset class="TableLike FixedLabelSmall">

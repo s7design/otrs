@@ -7,9 +7,9 @@
 # --
 
 <div class="MainBox AriaRoleMain LayoutFixedSidebar SidebarFirst">
-    <h1>[% Translate("Statistics » Add") | html %]</h1>
+    <h1>[% Translate("Statistics Overview") | html %]</h1>
 
-    [% Data.BreadcrumbPath.push({ Name => Translate("Add New Statistic") }) %]
+    [% Data.BreadcrumbPath.push({ Name => Translate("Add Statistics") }) %]
     [% INCLUDE "Breadcrumb.tt" Path = Data.BreadcrumbPath %]
 
     <div class="Clear"></div>
@@ -35,7 +35,7 @@
 
             <div class="WidgetSimple">
                 <div class="Header">
-                    <h2>[% Translate("Add New Statistic") | html %]</h2>
+                    <h2>[% Translate("Add Statistics") | html %]</h2>
                 </div>
                 <div class="Content BigButtonsContainer">
                     <div class="BigButtons">

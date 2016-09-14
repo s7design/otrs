@@ -8,11 +8,9 @@
 
 
 <div class="MainBox AriaRoleMain LayoutFixedSidebar SidebarFirst">
-    <h1>[% Translate("Statistics » Edit %s%s — %s", Config('Stats::StatsHook'), Data.StatNumber, Data.Title) | html %]</h1>
+    <h1>[% Translate("Statistics Overview") | html %]</h1>
 
-    [% USE EditTitle = String(Translate("Edit")) %]
-    [% Data.BreadcrumbPath.push({ Name => EditTitle.append( ' ', Config('Stats::StatsHook'), Data.StatNumber, ' - ', Data.Title ) }) %]
-
+    [% Data.BreadcrumbPath.push({ Name => Translate("Edit %s%s - %s", Config('Stats::StatsHook'), Data.StatNumber, Data.Title) }) %]
     [% INCLUDE "Breadcrumb.tt" Path = Data.BreadcrumbPath %]
 
     <div class="Clear"></div>
