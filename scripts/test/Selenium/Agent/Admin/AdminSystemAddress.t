@@ -15,6 +15,42 @@ use vars (qw($Self));
 # get selenium object
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
+my $CheckBredcrumb = sub {
+
+    my %Param = @_;
+
+    my $BreadcrumbText = $Param{BreadcrumbText} || '';
+    my $Count = 0;
+
+    for my $BreadcrumbText ( 'You are here:', 'System Email Addresses Management', $BreadcrumbText ) {
+        $Self->Is(
+            $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').text().trim()"),
+            $BreadcrumbText,
+            "Breadcrumb text '$BreadcrumbText' is found on screen"
+        );
+
+        my $IsLinkedBreadcrumbText =
+            $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').children('a').length");
+
+        if ( $BreadcrumbText eq 'System Email Addresses Management' ) {
+            $Self->Is(
+                $IsLinkedBreadcrumbText,
+                1,
+                "Breadcrumb text '$BreadcrumbText' is linked"
+            );
+        }
+        else {
+            $Self->Is(
+                $IsLinkedBreadcrumbText,
+                0,
+                "Breadcrumb text '$BreadcrumbText' is not linked"
+            );
+        }
+
+        $Count++;
+    }
+};
+
 $Selenium->RunTest(
     sub {
 
@@ -72,6 +108,12 @@ $Selenium->RunTest(
         $Selenium->find_element( "table thead tr th", 'css' );
         $Selenium->find_element( "table tbody tr td", 'css' );
 
+        # check breadcrumb on Overview screen
+        $Self->True(
+            $Selenium->find_element( '.BreadCrumb', 'css' ),
+            "Breadcrumb is found on Overview screen.",
+        );
+
         # click 'Add system address'
         $Selenium->find_element("//a[contains(\@href, \'Action=AdminSystemAddress;Subaction=Add')]")->VerifiedClick();
 
@@ -84,6 +126,9 @@ $Selenium->RunTest(
             $Element->is_enabled();
             $Element->is_displayed();
         }
+
+        # check breadcrumb on Add screen
+        $CheckBredcrumb->( BreadcrumbText => 'Add System Email Address' );
 
         # check client side validation
         $Selenium->find_element( "#Name", 'css' )->clear();
@@ -110,6 +155,13 @@ $Selenium->RunTest(
         $Self->True(
             index( $Selenium->get_page_source(), $SysAddRandom ) > -1,
             "$SysAddRandom found on page",
+        );
+
+        # check if notification for adding exists
+        my $Notification = "System e-mail address added!";
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
         );
 
         # go to the new test SystemAddress and check values
@@ -140,6 +192,9 @@ $Selenium->RunTest(
             "#Comment stored value",
         );
 
+        # check breadcrumb on Edit screen
+        $CheckBredcrumb->( BreadcrumbText => 'Edit System Email Address: ' . $SysAddRandom );
+
         # edit test SystemAddress and set it to invalid
         $Selenium->find_element( "#Realname", 'css' )->send_keys(" Edited");
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
@@ -152,6 +207,13 @@ $Selenium->RunTest(
                 "return \$('tr.Invalid td a:contains($SysAddRandom)').length"
             ),
             "There is a class 'Invalid' for test SystemAddress",
+        );
+
+        # check if notification for updating exists
+        $Notification = "System e-mail address updated!";
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
         );
 
         # check edited test SystemAddress values

@@ -39,12 +39,15 @@ sub Run {
     # change
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'Change' ) {
-        my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
-        my %Data = $SystemAddressObject->SystemAddressGet(
+        my $ID           = $ParamObject->GetParam( Param => 'ID' )           || '';
+        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
+        my %Data         = $SystemAddressObject->SystemAddressGet(
             ID => $ID,
         );
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('System e-mail address updated!') )
+            if ( $Notification && $Notification eq 'Update' );
         $Self->_Edit(
             Action => 'Change',
             %Data,
@@ -99,19 +102,16 @@ sub Run {
                 )
                 )
             {
-                $Self->_Overview();
-                my $Output = $LayoutObject->Header();
-                $Output .= $LayoutObject->NavigationBar();
-                $Output
-                    .= $LayoutObject->Notify(
-                    Info => Translatable('System e-mail address updated!'),
+                # if the user would like to continue editing system e-mail address, just redirect to the edit screen
+                # otherwise return to overview
+                if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+                    return $LayoutObject->Redirect(
+                        OP => "Action=$Self->{Action};Subaction=Change;ID=$GetParam{ID};Notification=Update"
                     );
-                $Output .= $LayoutObject->Output(
-                    TemplateFile => 'AdminSystemAddress',
-                    Data         => \%Param,
-                );
-                $Output .= $LayoutObject->Footer();
-                return $Output;
+                }
+                else {
+                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Notification=Update" );
+                }
             }
         }
 
@@ -220,6 +220,7 @@ sub Run {
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminSystemAddress',
             Data         => \%Param,
+            Notification => 'Add',
         );
         $Output .= $LayoutObject->Footer();
         return $Output;
@@ -230,8 +231,17 @@ sub Run {
     # ------------------------------------------------------------
     else {
         $Self->_Overview();
+        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+
+        if ( $Notification && $Notification eq 'Add' ) {
+            $Output .= $LayoutObject->Notify( Info => Translatable('System e-mail address added!') );
+        }
+        elsif ( $Notification && $Notification eq 'Update' ) {
+            $Output .= $LayoutObject->Notify( Info => Translatable('System e-mail address updated!') );
+        }
+
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminSystemAddress',
             Data         => \%Param,
@@ -280,14 +290,6 @@ sub _Edit {
             %{ $Param{Errors} },
         },
     );
-
-    # shows header
-    if ( $Param{Action} eq 'Change' ) {
-        $LayoutObject->Block( Name => 'HeaderEdit' );
-    }
-    else {
-        $LayoutObject->Block( Name => 'HeaderAdd' );
-    }
 
     # add the correct server error msg for the system email address
     if ( $Param{Name} && $Param{Errors}->{ErrorType} ) {
