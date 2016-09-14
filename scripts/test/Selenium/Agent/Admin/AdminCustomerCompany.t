@@ -69,13 +69,13 @@ $Selenium->RunTest(
         my $IsLinkedBreadcrumbText;
         for my $BreadcrumbText ( 'You are here:', 'Customer Management', 'Add Customer' ) {
             $Self->Is(
-                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').text().trim()"),
                 $BreadcrumbText,
                 "Breadcrumb text '$BreadcrumbText' is found on screen"
             );
 
             $IsLinkedBreadcrumbText =
-                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').children('a').length");
 
             if ( $BreadcrumbText eq 'Customer Management' ) {
                 $Self->Is(
@@ -119,6 +119,13 @@ $Selenium->RunTest(
         $Self->True(
             index( $Selenium->get_page_source(), $RandomID ) > -1,
             "$RandomID found on page",
+        );
+
+        #check is there notification 'Customer company added!' after customer is added
+        my $Notification = 'Customer company added!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
         );
 
         # create another test customer company for filter search test
@@ -189,13 +196,13 @@ $Selenium->RunTest(
         $Count = 0;
         for my $BreadcrumbText ( 'You are here:', 'Customer Management', 'Edit Customer: ' . $RandomID ) {
             $Self->Is(
-                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).text().trim()"),
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').text().trim()"),
                 $BreadcrumbText,
                 "Breadcrumb text '$BreadcrumbText' is found on screen"
             );
 
             $IsLinkedBreadcrumbText =
-                $Selenium->execute_script("return \$(\$('.BreadCrumb li')[$Count]).children('a').length");
+                $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').children('a').length");
 
             if ( $BreadcrumbText eq 'Customer Management' ) {
                 $Self->Is(
@@ -219,6 +226,13 @@ $Selenium->RunTest(
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#CustomerCompanyComment", 'css' )->clear();
         $Selenium->find_element( "#CustomerID",             'css' )->VerifiedSubmit();
+
+        #check is there notification 'Customer company updated!' after customer is updated
+        $Notification = 'Customer company updated!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
 
         # test search filter
         $Selenium->find_element( "#Search", 'css' )->clear();
