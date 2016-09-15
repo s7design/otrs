@@ -40,10 +40,10 @@ Core.Agent.Admin = Core.Agent.Admin || {};
                 true,
                 [
                     {
-                        Class: 'Primary',
+                        Class: 'CallToAction',
                         Label: Core.Language.Translate("Confirm"),
                         Function: function() {
-                            $('.Dialog .InnerContent .Center.Warning').text(Core.Language.Translate("Deleting the mail account and its data. This may take a while..."));
+                            $('.Dialog .InnerContent .Center').text(Core.Language.Translate("Deleting the mail account and its data. This may take a while..."));
                             $('.Dialog .Content .ContentFooter').remove();
 
                             Core.AJAX.FunctionCall(
@@ -56,7 +56,6 @@ Core.Agent.Admin = Core.Agent.Admin || {};
                         }
                     },
                     {
-                        Class: 'Primary',
                         Label: Core.Language.Translate("Cancel"),
                         Function: function () {
                             Core.UI.Dialog.CloseDialog($('#DeleteMailAccountDialog'));
