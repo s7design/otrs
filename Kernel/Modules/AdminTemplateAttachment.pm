@@ -32,6 +32,7 @@ sub Run {
     my $LayoutObject           = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
     my $StdAttachmentObject    = $Kernel::OM->Get('Kernel::System::StdAttachment');
+    my $Notification           = $ParamObject->GetParam( Param => 'Notification' ) || '';
 
     # ------------------------------------------------------------ #
     # template <-> attachment 1:n
@@ -53,6 +54,9 @@ sub Run {
 
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('Template-Attachment relations updated!') )
+            if ( $Notification && $Notification eq 'Update' );
+
         $Output .= $Self->_Change(
             Selected => \%Member,
             Data     => \%StdAttachmentData,
@@ -96,6 +100,9 @@ sub Run {
 
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('Template-Attachment relations updated!') )
+            if ( $Notification && $Notification eq 'Update' );
+
         $Output .= $Self->_Change(
             Selected => \%Member,
             Data     => \%StandardTemplateData,
@@ -137,7 +144,16 @@ sub Run {
             );
         }
 
-        return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+        # if the user would like to continue editing the template-attachment relation just redirect to the edit screen
+        # otherwise return to relations overview
+        if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+            return $LayoutObject->Redirect(
+                OP => "Action=$Self->{Action};Subaction=Attachment;ID=$AttachmentID;Notification=Update"
+            );
+        }
+        else {
+            return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Notification=Update" );
+        }
     }
 
     # ------------------------------------------------------------ #
@@ -170,7 +186,16 @@ sub Run {
             );
         }
 
-        return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+        # if the user would like to continue editing the template-attachment relation just redirect to the edit screen
+        # otherwise return to relations overview
+        if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
+            return $LayoutObject->Redirect(
+                OP => "Action=$Self->{Action};Subaction=Template;ID=$TemplateID;Notification=Update"
+            );
+        }
+        else {
+            return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Notification=Update" );
+        }
     }
 
     # ------------------------------------------------------------ #
@@ -178,6 +203,9 @@ sub Run {
     # ------------------------------------------------------------ #
     my $Output = $LayoutObject->Header();
     $Output .= $LayoutObject->NavigationBar();
+    $Output .= $LayoutObject->Notify( Info => Translatable('Template-Attachment relations updated!') )
+        if ( $Notification && $Notification eq 'Update' );
+
     $Output .= $Self->_Overview();
     $Output .= $LayoutObject->Footer();
     return $Output;
@@ -196,7 +224,20 @@ sub _Change {
     );
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    $LayoutObject->Block( Name => 'Overview' );
+
+    my $BreadcrumbTitle = $LayoutObject->{LanguageObject}->Translate('Change Attachment Relations for Template');
+
+    if ( $VisibleType{$Type} eq 'Attachment' ) {
+        $BreadcrumbTitle = $LayoutObject->{LanguageObject}->Translate('Change Template Relations for Attachment');
+    }
+
+    $LayoutObject->Block(
+        Name => 'Overview',
+        Data => {
+            Name            => $Param{Name},
+            BreadcrumbTitle => $BreadcrumbTitle,
+        },
+    );
     $LayoutObject->Block( Name => 'ActionList' );
     $LayoutObject->Block( Name => 'ActionOverview' );
     $LayoutObject->Block( Name => 'Filter' );
@@ -205,14 +246,13 @@ sub _Change {
         Name => 'Change',
         Data => {
             %Param,
-            ActionHome    => 'Admin' . $Type,
-            NeType        => $NeType,
-            VisibleType   => $VisibleType{$Type},
-            VisibleNeType => $VisibleType{$NeType},
+            ActionHome      => 'Admin' . $Type,
+            NeType          => $NeType,
+            VisibleType     => $VisibleType{$Type},
+            VisibleNeType   => $VisibleType{$NeType},
+            BreadcrumbTitle => $BreadcrumbTitle,
         },
     );
-
-    $LayoutObject->Block( Name => "ChangeHeader$VisibleType{$NeType}" );
 
     # check if there are attachments/templates
     if ( !%Data ) {
