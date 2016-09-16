@@ -259,6 +259,13 @@ $Selenium->RunTest(
             );
             $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
 
+            # check if notification exists after adding
+            my $Notification = 'Statistics added sucessfully!';
+            $Self->True(
+                $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+                "$Notification - notification is found."
+            );
+
             # check X-axis configuration dialog
             $Selenium->find_element( ".EditXAxis", 'css' )->VerifiedClick();
             if ( $StatsData->{Object} ne 'Kernel::System::Stats::Dynamic::TicketList' ) {
@@ -332,6 +339,13 @@ $Selenium->RunTest(
             # save and finish test statistics
             $Selenium->find_element("//button[\@name='SaveAndFinish'][\@type='submit']")->VerifiedClick();
 
+            # check if notification exists after updating
+            $Notification = 'Statistics updated sucessfully!';
+            $Self->True(
+                $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+                "$Notification - notification is found."
+            );
+
             my $CheckConfirmJS = <<"JAVASCRIPT";
 (function () {
     window.confirm = function (message) {
@@ -374,6 +388,13 @@ JAVASCRIPT
                 index( $Selenium->get_page_source(), "Action=AgentStatistics;Subaction=Edit;StatID=$StatsIDLast" )
                     == -1,
                 "StatsData statistic is deleted - $StatsData->{Title} "
+            );
+
+            # check if notification exists after deletting
+            $Notification = 'Statistics deleted sucessfully!';
+            $Self->True(
+                $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+                "$Notification - notification is found."
             );
 
         }

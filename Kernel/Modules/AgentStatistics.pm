@@ -191,13 +191,13 @@ sub OverviewScreen {
     $Output .= $LayoutObject->NavigationBar();
 
     if ( $Notification && $Notification eq 'Add' ) {
-        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics is added sucessfully!') );
+        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics added sucessfully!') );
     }
     elsif ( $Notification && $Notification eq 'Update' ) {
-        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics is updated sucessfully!') );
+        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics updated sucessfully!') );
     }
     elsif ( $Notification && $Notification eq 'Delete' ) {
-        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics is deleted sucessfully!') );
+        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics deleted sucessfully!') );
     }
 
     $Output .= $LayoutObject->Output(
@@ -378,13 +378,13 @@ sub EditScreen {
     $Output .= $LayoutObject->NavigationBar();
 
     if ( $Notification && $Notification eq 'Add' ) {
-        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics is added sucessfully!') );
+        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics added sucessfully!') );
     }
     elsif ( $Notification && $Notification eq 'Update' ) {
-        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics is updated sucessfully!') );
+        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics updated sucessfully!') );
     }
     elsif ( $Notification && $Notification eq 'Import' ) {
-        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics is imported sucessfully!') );
+        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics imported sucessfully!') );
     }
 
     $Output .= $LayoutObject->Output(
@@ -771,7 +771,7 @@ sub ViewScreen {
     $Output .= $LayoutObject->NavigationBar();
 
     if ( $Notification && $Notification eq 'Add' ) {
-        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics is added sucessfully!') );
+        $Output .= $LayoutObject->Notify( Info => Translatable('Statistics added sucessfully!') );
     }
 
     $Output .= $LayoutObject->Output(

@@ -125,7 +125,7 @@ $Selenium->RunTest(
         # check breadcrumb on Import screen
         my $Count = 0;
         my $IsLinkedBreadcrumbText;
-        for my $BreadcrumbText ( 'You are here:', 'Statistics Overview', 'Import Statistic Configuration' )
+        for my $BreadcrumbText ( 'You are here:', 'Statistics Overview', 'Import Statistics Configuration' )
         {
             $Self->Is(
                 $Selenium->execute_script("return \$('.BreadCrumb li:eq($Count)').text().trim()"),
@@ -160,6 +160,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#File", 'css' )->send_keys($Location);
 
         $Selenium->find_element("//button[\@value='Import'][\@type='submit']")->VerifiedClick();
+
+        # check if notification exists after importing
+        my $Notification = 'Statistics imported sucessfully!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
 
         # create params for import test stats
         my %StatsValues = (
