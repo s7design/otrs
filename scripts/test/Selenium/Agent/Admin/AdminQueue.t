@@ -225,6 +225,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Comment", 'css' )->clear();
         $Selenium->find_element( "#Comment", 'css' )->VerifiedSubmit();
 
+        #check is there notification after queue is updated
+        my $Notification = 'Queue updated!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
+
         # navigate to AdminQueue screen again
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminQueue");
 
