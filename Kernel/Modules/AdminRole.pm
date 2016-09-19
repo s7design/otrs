@@ -32,6 +32,7 @@ sub Run {
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
     my $GroupObject  = $Kernel::OM->Get('Kernel::System::Group');
+    my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
 
     # ------------------------------------------------------------ #
     # change
@@ -40,7 +41,6 @@ sub Run {
         my $ID = $ParamObject->GetParam( Param => 'ID' )
             || $ParamObject->GetParam( Param => 'RoleID' )
             || '';
-        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
         my %Data = $GroupObject->RoleGet(
             ID => $ID,
         );
@@ -214,7 +214,6 @@ sub Run {
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminRole',
             Data         => \%Param,
-            Notification => 'Add',
         );
         $Output .= $LayoutObject->Footer();
         return $Output;
@@ -225,16 +224,11 @@ sub Run {
     # ------------------------------------------------------------
     else {
         $Self->_Overview();
-        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
+
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
-
-        if ( $Notification && $Notification eq 'Add' ) {
-            $Output .= $LayoutObject->Notify( Info => Translatable('Role added!') );
-        }
-        elsif ( $Notification && $Notification eq 'Update' ) {
-            $Output .= $LayoutObject->Notify( Info => Translatable('Role updated!') );
-        }
+        $Output .= $LayoutObject->Notify( Info => Translatable('Role updated!') )
+            if ( $Notification && $Notification eq 'Update' );
 
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminRole',
