@@ -125,6 +125,13 @@ $Selenium->RunTest(
             "$SignatureRandomID Signature found on page",
         );
 
+        #check is there notification after service is added
+        my $Notification = 'Signature added!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
+
         # check test Signature values
         $Selenium->find_element( $SignatureRandomID, 'link_text' )->VerifiedClick();
 
@@ -188,6 +195,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Comment",  'css' )->clear();
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#Name", 'css' )->VerifiedSubmit();
+
+        #check is there notification after service is updated
+        $Notification = 'Signature updated!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
 
         # check class of invalid Signature in the overview table
         $Self->True(
