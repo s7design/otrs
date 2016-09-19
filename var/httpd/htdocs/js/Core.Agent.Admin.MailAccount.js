@@ -40,7 +40,7 @@ Core.Agent.Admin = Core.Agent.Admin || {};
                 true,
                 [
                     {
-                        Class: 'CallToAction',
+                        Class: 'CallForAction Primary',
                         Label: Core.Language.Translate("Confirm"),
                         Function: function() {
                             $('.Dialog .InnerContent .Center').text(Core.Language.Translate("Deleting the mail account and its data. This may take a while..."));
@@ -50,12 +50,15 @@ Core.Agent.Admin = Core.Agent.Admin || {};
                                 Core.Config.Get('Baselink'),
                                 MailAccountDelete.data('query-string'),
                                 function() {
-                                    window.location.reload();
+                                   Core.App.InternalRedirect({
+                                       Action: 'AdminMailAccount'
+                                   });
                                 }
                             );
                         }
                     },
                     {
+                        Class: 'CallForAction',
                         Label: Core.Language.Translate("Cancel"),
                         Function: function () {
                             Core.UI.Dialog.CloseDialog($('#DeleteMailAccountDialog'));
