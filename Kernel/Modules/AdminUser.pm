@@ -37,7 +37,8 @@ sub Run {
     my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
     my $CheckItemObject = $Kernel::OM->Get('Kernel::System::CheckItem');
 
-    my $Search = $ParamObject->GetParam( Param => 'Search' ) || '';
+    my $Search       = $ParamObject->GetParam( Param => 'Search' )       || '';
+    my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
 
     # ------------------------------------------------------------ #
     #  switch to user
@@ -140,6 +141,9 @@ sub Run {
         );
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('Agent updated!') )
+            if ( $Notification && $Notification eq 'Update' );
+
         $Self->_Edit(
             Action => 'Change',
             Search => $Search,
@@ -264,11 +268,11 @@ sub Run {
                     if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
                         my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
                         return $LayoutObject->Redirect(
-                            OP => "Action=$Self->{Action};Subaction=Change;UserID=$GetParam{UserID}"
+                            OP => "Action=$Self->{Action};Subaction=Change;UserID=$GetParam{UserID};Notification=Update"
                         );
                     }
                     else {
-                        return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+                        return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Notification=Update" );
                     }
                 }
             }
@@ -480,6 +484,9 @@ sub Run {
         $Self->_Overview( Search => $Search );
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('Agent updated!') )
+            if ( $Notification && $Notification eq 'Update' );
+
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminUser',
             Data         => \%Param,

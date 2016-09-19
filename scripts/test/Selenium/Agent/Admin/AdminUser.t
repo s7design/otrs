@@ -183,6 +183,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#UserLastname",  'css' )->send_keys($EditRandomID);
         $Selenium->find_element( "#UserFirstname", 'css' )->VerifiedSubmit();
 
+        #check is there notification after agent is updated
+        my $Notification = 'Agent updated!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
+
         # test search filter by agent $EditRandomID
         $Selenium->find_element( "#Search", 'css' )->clear();
         $Selenium->find_element( "#Search", 'css' )->send_keys($EditRandomID);
