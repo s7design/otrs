@@ -235,6 +235,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Comment",   'css' )->clear();
         $Selenium->find_element( "#GroupName", 'css' )->VerifiedSubmit();
 
+        #check is there notification after group is updated
+        my $Notification = 'Group updated!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
+
         # chack class of invalid Group in the overview table
         $Self->True(
             $Selenium->execute_script(
