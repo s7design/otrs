@@ -131,6 +131,13 @@ $Selenium->RunTest(
             "$NotifEventRandomID NotificaionEvent found on page",
         );
 
+        # check is there notification 'Notification added!' after notification is added
+        my $Notification = 'Notification added!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
+
         # check test NotificationEvent values
         $Selenium->find_element( $NotifEventRandomID, 'link_text' )->VerifiedClick();
 
@@ -214,6 +221,13 @@ $Selenium->RunTest(
         $Selenium->find_element( "#ArticleBodyMatch",    'css' )->send_keys($EditNotifEventText);
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#Name", 'css' )->VerifiedSubmit();
+
+        # check is there notification 'Notification updated!' after notification is added
+        $Notification = 'Notification updated!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
 
         # check edited NotifcationEvent values
         $Selenium->find_element( $NotifEventRandomID, 'link_text' )->VerifiedClick();
