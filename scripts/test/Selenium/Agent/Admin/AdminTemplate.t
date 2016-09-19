@@ -186,6 +186,13 @@ $Selenium->RunTest(
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#Name", 'css' )->VerifiedSubmit();
 
+        #check is there notification after template is updated
+        my $Notification = 'Template updated!';
+        $Self->True(
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
+        );
+
         # test search filter
         $Selenium->find_element( "#Filter", 'css' )->clear();
         $Selenium->find_element( "#Filter", 'css' )->send_keys($TemplateRandomID);

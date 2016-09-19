@@ -33,6 +33,8 @@ sub Run {
     my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
     my $StdAttachmentObject    = $Kernel::OM->Get('Kernel::System::StdAttachment');
 
+    my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
+
     # ------------------------------------------------------------ #
     # change
     # ------------------------------------------------------------ #
@@ -52,6 +54,9 @@ sub Run {
 
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('Template updated!') )
+            if ( $Notification && $Notification eq 'Update' );
+
         $Self->_Edit(
             Action => 'Change',
             %Data,
@@ -140,12 +145,13 @@ sub Run {
                 # if the user would like to continue editing the template, just redirect to the edit screen
                 if ( $ParamObject->GetParam( Param => 'ContinueAfterSave' ) eq '1' ) {
                     my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
-                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Subaction=Change;ID=$ID" );
+                    return $LayoutObject->Redirect(
+                        OP => "Action=$Self->{Action};Subaction=Change;ID=$ID;Notification=Update" );
                 }
                 else {
 
                     # otherwise return to overview
-                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action}" );
+                    return $LayoutObject->Redirect( OP => "Action=$Self->{Action};Notification=Update" );
                 }
             }
         }
@@ -316,6 +322,9 @@ sub Run {
         $Self->_Overview();
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
+        $Output .= $LayoutObject->Notify( Info => Translatable('Template updated!') )
+            if ( $Notification && $Notification eq 'Update' );
+
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminTemplate',
             Data         => \%Param,
