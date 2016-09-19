@@ -35,13 +35,14 @@ sub Run {
     #create local object
     my $CheckItemObject = Kernel::System::CheckItem->new( %{$Self} );
 
+    my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
+
     # ------------------------------------------------------------ #
     # change
     # ------------------------------------------------------------ #
     if ( $Self->{Subaction} eq 'Change' ) {
-        my $ID           = $ParamObject->GetParam( Param => 'ID' )           || '';
-        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
-        my %Data         = $SystemAddressObject->SystemAddressGet(
+        my $ID = $ParamObject->GetParam( Param => 'ID' ) || '';
+        my %Data = $SystemAddressObject->SystemAddressGet(
             ID => $ID,
         );
         my $Output = $LayoutObject->Header();
@@ -220,7 +221,6 @@ sub Run {
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminSystemAddress',
             Data         => \%Param,
-            Notification => 'Add',
         );
         $Output .= $LayoutObject->Footer();
         return $Output;
@@ -231,16 +231,12 @@ sub Run {
     # ------------------------------------------------------------
     else {
         $Self->_Overview();
-        my $Notification = $ParamObject->GetParam( Param => 'Notification' ) || '';
+
         my $Output = $LayoutObject->Header();
         $Output .= $LayoutObject->NavigationBar();
 
-        if ( $Notification && $Notification eq 'Add' ) {
-            $Output .= $LayoutObject->Notify( Info => Translatable('System e-mail address added!') );
-        }
-        elsif ( $Notification && $Notification eq 'Update' ) {
-            $Output .= $LayoutObject->Notify( Info => Translatable('System e-mail address updated!') );
-        }
+        $Output .= $LayoutObject->Notify( Info => Translatable('System e-mail address updated!') )
+            if ( $Notification && $Notification eq 'Update' );
 
         $Output .= $LayoutObject->Output(
             TemplateFile => 'AdminSystemAddress',
