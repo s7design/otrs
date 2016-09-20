@@ -36,13 +36,25 @@ Core.Agent.Admin.GenericAgent = (function (TargetNS) {
         // Loop over all select fields available on the page
         $SelectFields.each(function () {
             var Size = parseInt($(this).attr('size'), 10),
+                ModernizeField = $(this).hasClass('Modernize'),
+                ModernizeActive = parseInt(Core.Config.Get('InputFieldsActivated'), 10),
                 $SelectField = $(this),
                 SelectID = this.id,
                 ButtonHTML = '<a href="#" title="' + Core.Language.Translate('Remove selection') + '" class="GenericAgentClearSelect" data-select="' + SelectID + '"><span>' + Core.Language.Translate('Remove selection') + '</span><i class="fa fa-undo"></i></a>';
 
-            // Only handle select fields with a size > 1, leave all single-dropdown fields untouched
-            if (isNaN(Size) || Size <= 1) {
-                return;
+            if (SelectID.indexOf('DynamicField') !== -1) {
+
+                // Only handle dynamic fields that are not modernized
+                if (ModernizeActive && ModernizeField) {
+                    return;
+                }
+            }
+            else {
+
+                // Only handle select fields with a size > 1, leave all single-dropdown fields untouched
+                if ((ModernizeActive && ModernizeField) || isNaN(Size) || Size <= 1) {
+                    return;
+                }
             }
 
             // If select field has a tree selection icon already,
@@ -100,10 +112,8 @@ Core.Agent.Admin.GenericAgent = (function (TargetNS) {
 
         Core.UI.Table.InitTableFilter($("#FilterGenericAgentJobs"), $("#GenericAgentJobs"));
 
-        // Add select clear button if ModernizeFormFields is disabled
-        if (parseInt(Core.Config.Get('InputFieldsActivated'), 10) === 0) {
-            AddSelectClearButton();
-        }
+        // Add select clear button
+        AddSelectClearButton();
     };
 
     /**
