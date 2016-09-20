@@ -295,6 +295,12 @@ $Selenium->RunTest(
             "$QueueRandomID not found on screen with QueuesWithoutAutoResponses filter on"
         );
 
+        $Self->Is(
+            $Selenium->execute_script("return \$('.BreadCrumb li:eq(2)').text().trim()"),
+            'Queues without Auto Responses',
+            "Breadcrumb text 'Queues without Auto Responses' is found on screen"
+        );
+
         # get DB object
         my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 

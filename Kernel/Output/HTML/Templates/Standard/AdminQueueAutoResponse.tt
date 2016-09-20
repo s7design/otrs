@@ -21,6 +21,8 @@
     [% IF Data.Subaction == 'Change' %]
             [% USE EditTitle = String(Translate("Change Auto Response Relations for Queue")) %]
             [% BreadcrumbPath.push({ Name => EditTitle.append( ' ', Data.QueueName ) }) %]
+    [% ELSIF Data.Filter == 'QueuesWithoutAutoResponses' %]
+            [% BreadcrumbPath.push({ Name => 'Queues without Auto Responses' }) %]
     [% END %]
 
     [% INCLUDE "Breadcrumb.tt" Path = BreadcrumbPath %]
