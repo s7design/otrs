@@ -260,18 +260,31 @@ sub GetUserData {
     # out of office check
     if ( !$Param{NoOutOfOffice} ) {
         if ( $Preferences{OutOfOffice} ) {
-            my $Time = $TimeObject->SystemTime();
-            my $Start
-                = "$Preferences{OutOfOfficeStartYear}-$Preferences{OutOfOfficeStartMonth}-$Preferences{OutOfOfficeStartDay} 00:00:00";
-            my $TimeStart = $TimeObject->TimeStamp2SystemTime(
-                String => $Start,
+
+            my $Time      = $Kernel::OM->Create('Kernel::System::DateTime');
+            my $TimeStart = $Kernel::OM->Create(
+                'Kernel::System::DateTime',
+                ObjectParams => {
+                    Year  => $Preferences{OutOfOfficeStartYear},
+                    Month => $Preferences{OutOfOfficeStartMonth},
+                    Day   => $Preferences{OutOfOfficeStartDay},
+                    }
             );
-            my $End
-                = "$Preferences{OutOfOfficeEndYear}-$Preferences{OutOfOfficeEndMonth}-$Preferences{OutOfOfficeEndDay} 23:59:59";
-            my $TimeEnd = $TimeObject->TimeStamp2SystemTime(
-                String => $End,
+            my $TimeEnd = $Kernel::OM->Create(
+                'Kernel::System::DateTime',
+                ObjectParams => {
+                    Year   => $Preferences{OutOfOfficeEndYear},
+                    Month  => $Preferences{OutOfOfficeEndMonth},
+                    Day    => $Preferences{OutOfOfficeEndDay},
+                    Hour   => 23,
+                    Minute => 59,
+                    Second => 59,
+                    }
             );
-            if ( $TimeStart < $Time && $TimeEnd > $Time ) {
+
+            if (   $TimeStart->Compare( DateTimeObject => $Time ) == -1
+                && $TimeEnd->Compare( DateTimeObject => $Time ) == 1 )
+            {
                 my $OutOfOfficeMessageTemplate =
                     $ConfigObject->Get('OutOfOfficeMessageTemplate') || '*** out of office until %s (%s d left) ***';
                 my $TillDate = sprintf(
@@ -280,7 +293,13 @@ sub GetUserData {
                     $Preferences{OutOfOfficeEndMonth},
                     $Preferences{OutOfOfficeEndDay}
                 );
-                my $Till = int( ( $TimeEnd - $Time ) / 60 / 60 / 24 );
+                my $Till = int(
+                    (
+                        $Time->Delta(
+                            DateTimeObject => $TimeEnd,
+                        )->{AbsoluteSeconds}
+                    ) / 60 / 60 / 24
+                );
                 $Preferences{OutOfOfficeMessage} = sprintf( $OutOfOfficeMessageTemplate, $TillDate, $Till );
                 $Data{UserLastname} .= ' ' . $Preferences{OutOfOfficeMessage};
             }
