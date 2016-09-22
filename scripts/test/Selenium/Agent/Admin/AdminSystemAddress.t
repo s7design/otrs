@@ -204,12 +204,12 @@ $Selenium->RunTest(
         # try to set system address ID to invalid
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change')");
         $Selenium->find_element( "button[value='Save'][type='submit']", 'css' )->VerifiedClick();
+
+        #check is there notification
+        my $Notification = "System e-mail address is a parameter in some queue(s) and it should not be changed!";
         $Self->True(
-            index(
-                $Selenium->get_page_source(),
-                'System e-mail address is a parameter in some queue(s) and it should not be changed!'
-                ) > -1,
-            "'$SysAddRandom' can't be set to invalid because it is parameter in some queue(s)",
+            $Selenium->execute_script("return \$('.MessageBox.Notice p:contains($Notification)').length"),
+            "$Notification - notification is found."
         );
 
         # update queue back to the system address ID = 1
