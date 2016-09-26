@@ -282,8 +282,7 @@ sub GetUserData {
                     }
             );
 
-            if (   $TimeStart->Compare( DateTimeObject => $Time ) == -1
-                && $TimeEnd->Compare( DateTimeObject => $Time ) == 1 )
+            if ( $TimeStart < $Time && $TimeEnd > $Time )
             {
                 my $OutOfOfficeMessageTemplate =
                     $ConfigObject->Get('OutOfOfficeMessageTemplate') || '*** out of office until %s (%s d left) ***';
@@ -297,7 +296,7 @@ sub GetUserData {
                     (
                         $Time->Delta(
                             DateTimeObject => $TimeEnd,
-                        )->{AbsoluteSeconds}
+                            )->{AbsoluteSeconds}
                     ) / 60 / 60 / 24
                 );
                 $Preferences{OutOfOfficeMessage} = sprintf( $OutOfOfficeMessageTemplate, $TillDate, $Till );

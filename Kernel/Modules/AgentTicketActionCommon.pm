@@ -1709,8 +1709,7 @@ sub _Mask {
                             }
                     );
 
-                    if (   $TimeStart->Compare( DateTimeObject => $Time ) == -1
-                        && $TimeEnd->Compare( DateTimeObject => $Time ) == 1 )
+                    if ( $TimeStart < $Time && $TimeEnd > $Time )
                     {
                         my $OutOfOfficeMessageTemplate =
                             $ConfigObject->Get('OutOfOfficeMessageTemplate')
@@ -1725,7 +1724,7 @@ sub _Mask {
                             (
                                 $Time->Delta(
                                     DateTimeObject => $TimeEnd,
-                                )->{AbsoluteSeconds}
+                                    )->{AbsoluteSeconds}
                             ) / 60 / 60 / 24
                         );
                         $OutOfOfficeMessage = sprintf( $OutOfOfficeMessageTemplate, $TillDate, $Till );

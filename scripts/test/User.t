@@ -14,7 +14,6 @@ use vars (qw($Self));
 
 # get needed objects
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
 my $UserObject   = $Kernel::OM->Get('Kernel::System::User');
 
 # get helper object
@@ -462,18 +461,15 @@ $Self->False(
     'GetUserData() - OutOfOfficeMessage',
 );
 
-my ( $Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay ) = $TimeObject->SystemTime2Date(
-    SystemTime => $TimeObject->SystemTime(),
-);
-
-my %Values = (
+my $DateTimeSettings = $Kernel::OM->Create('Kernel::System::DateTime')->Get();
+my %Values           = (
     'OutOfOffice'           => 'on',
-    'OutOfOfficeStartYear'  => $Year,
-    'OutOfOfficeStartMonth' => $Month,
-    'OutOfOfficeStartDay'   => $Day,
-    'OutOfOfficeEndYear'    => $Year,
-    'OutOfOfficeEndMonth'   => $Month,
-    'OutOfOfficeEndDay'     => $Day,
+    'OutOfOfficeStartYear'  => $DateTimeSettings->{Year},
+    'OutOfOfficeStartMonth' => $DateTimeSettings->{Month},
+    'OutOfOfficeStartDay'   => $DateTimeSettings->{Day},
+    'OutOfOfficeEndYear'    => $DateTimeSettings->{Year},
+    'OutOfOfficeEndMonth'   => $DateTimeSettings->{Month},
+    'OutOfOfficeEndDay'     => $DateTimeSettings->{Day},
 );
 
 for my $Key ( sort keys %Values ) {
