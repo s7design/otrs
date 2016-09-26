@@ -31,20 +31,21 @@ Core.Agent.Admin.GenericAgent = (function (TargetNS) {
      *      Only select fields with size > 1 are selected (no dropdowns).
      */
     function AddSelectClearButton() {
-        var $SelectFields = $('select');
+        var $SelectFields = $('select'),
+            ModernizeActive = parseInt(Core.Config.Get('InputFieldsActivated'), 10);
 
         // Loop over all select fields available on the page
         $SelectFields.each(function () {
             var Size = parseInt($(this).attr('size'), 10),
                 ModernizeField = $(this).hasClass('Modernize'),
-                ModernizeActive = parseInt(Core.Config.Get('InputFieldsActivated'), 10),
+                DynamicFieldMultiSelectClass = $(this).hasClass('DynamicFieldMultiSelect'),
                 $SelectField = $(this),
                 SelectID = this.id,
                 ButtonHTML = '<a href="#" title="' + Core.Language.Translate('Remove selection') + '" class="GenericAgentClearSelect" data-select="' + SelectID + '"><span>' + Core.Language.Translate('Remove selection') + '</span><i class="fa fa-undo"></i></a>';
 
-            if (SelectID.indexOf('DynamicField') !== -1) {
+            if (DynamicFieldMultiSelectClass) {
 
-                // Only handle dynamic fields that are not modernized
+                // Only handle dynamic fields with class DynamicFieldMultiSelectClass that are not modernized
                 if (ModernizeActive && ModernizeField) {
                     return;
                 }
