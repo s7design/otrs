@@ -210,7 +210,15 @@ $Selenium->RunTest(
         $Selenium->execute_script("\$('.InputField_ListContainer').css('display', 'none');");
 
         # apply filter
-        $Selenium->find_element("//button[\@id='DialogButton1']")->VerifiedClick();
+        $Selenium->find_element("//button[\@id='DialogButton1']")->click();
+
+        # wait for dialog to disappear
+        $Selenium->WaitFor(
+            JavaScript => 'return typeof($) === "function" && $(".Dialog:visible").length === 0;'
+        );
+
+        # refresh screen
+        $Selenium->VerifiedRefresh();
 
         # verify we now only have first and fourth article on screen and there numeration is intact
         my @ArticlesFilterOn = ( 'Article #1 – First Test Article', 'Article #4 – Fourth Test Article' );
