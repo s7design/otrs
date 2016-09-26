@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -206,6 +206,9 @@ $Selenium->RunTest(
             "\$('#ArticleSenderTypeFilter').val('$CustomerSenderTypeID').trigger('redraw.InputField').trigger('change');"
         );
 
+        # close dropdown menu
+        $Selenium->execute_script("\$('.InputField_ListContainer').css('display', 'none');");
+
         # apply filter
         $Selenium->find_element("//button[\@id='DialogButton1']")->VerifiedClick();
 
@@ -219,14 +222,20 @@ $Selenium->RunTest(
         }
 
         # set ZoomExpandSort to normal
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Frontend::ZoomExpandSort',
             Value => 'normal',
         );
 
+        # refresh screen
+        $Selenium->VerifiedRefresh();
+
         # reset filter
-        $Selenium->find_element( "#ResetArticleFilter", 'css' )->VerifiedClick();
+        $Selenium->find_element( "#ResetArticleFilter", 'css' )->click();
+
+        # wait until reset filter button has gone
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && !$("#ResetArticleFilter").length' );
 
         # click on first page
         $Selenium->find_element("//a[contains(\@href, \'TicketID=$TicketID;ArticlePage=1')]")->VerifiedClick();
