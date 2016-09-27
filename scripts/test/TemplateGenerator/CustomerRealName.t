@@ -99,7 +99,7 @@ $Self->True(
 );
 
 # add customer user
-my $CustomerUser   = 'Customer' . $RandomID;
+my $CustomerUser   = $RandomID;
 my $CustomerUserID = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
     Source         => 'CustomerUser',
     UserFirstname  => $CustomerUser,
@@ -267,7 +267,7 @@ for my $Test (@Tests) {
         }
         else {
             $Self->True(
-                $ArticleNotification{$NotificationKey} =~ /$Test->{ResultNotification}->{$NotificationKey}/,
+                index( $ArticleNotification{$NotificationKey}, $Test->{ResultNotification}->{$NotificationKey} ) > -1,
                 "Notification: $Test->{Name}, $Test->{ResultNotification}->{$NotificationKey}, tag $NotificationKey"
             );
         }
