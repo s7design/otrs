@@ -242,7 +242,7 @@ for my $Test (@Tests) {
     );
 
     # check auto response article values
-    for my $AutoResponseKey ( sort keys $Test->{ResultAutoResponse} ) {
+    for my $AutoResponseKey ( sort keys %{ $Test->{ResultAutoResponse} } ) {
 
         $Self->Is(
             $ArticleAutoResponse{$AutoResponseKey},
@@ -257,7 +257,7 @@ for my $Test (@Tests) {
         UserID    => 1,
     );
 
-    for my $NotificationKey ( sort keys $Test->{ResultNotification} ) {
+    for my $NotificationKey ( sort keys %{ $Test->{ResultNotification} } ) {
         if ( $NotificationKey eq 'To' ) {
             $Self->Is(
                 $ArticleNotification{$NotificationKey},
