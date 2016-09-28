@@ -1642,7 +1642,7 @@ sub _Replace {
     return $Param{Text};
 }
 
-=item _RemoveUnSupportedTag()
+=head2 _RemoveUnSupportedTag()
 
 cleanup all not supported tags
 
