@@ -185,9 +185,6 @@ $Selenium->RunTest(
             );
         }
 
-        # click on article filter, open popup dialog
-        $Selenium->find_element( "#SetArticleFilter", 'css' )->click();
-
         # get phone ArticleTypeID
         my $PhoneArticleTypeID = $TicketObject->ArticleTypeLookup(
             ArticleType => 'phone',
@@ -197,6 +194,12 @@ $Selenium->RunTest(
         my $CustomerSenderTypeID = $TicketObject->ArticleSenderTypeLookup(
             SenderType => 'customer',
         );
+
+        # click on article filter, open popup dialog
+        $Selenium->find_element( "#SetArticleFilter", 'css' )->click();
+
+        # wait for dialog to load if necessary
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#ArticleTypeFilter").length' );
 
         # select phone as article type and customer as article sender type for article filter
         $Selenium->execute_script(
@@ -210,15 +213,12 @@ $Selenium->RunTest(
         $Selenium->execute_script("\$('.InputField_ListContainer').css('display', 'none');");
 
         # apply filter
-        $Selenium->find_element("//button[\@id='DialogButton1']")->click();
+        $Selenium->find_element("//button[\@id='DialogButton1']")->VerifiedClick();
 
         # wait for dialog to disappear
         $Selenium->WaitFor(
             JavaScript => 'return typeof($) === "function" && $(".Dialog:visible").length === 0;'
         );
-
-        # refresh screen
-        $Selenium->VerifiedRefresh();
 
         # verify we now only have first and fourth article on screen and there numeration is intact
         my @ArticlesFilterOn = ( 'Article #1 – First Test Article', 'Article #4 – Fourth Test Article' );
