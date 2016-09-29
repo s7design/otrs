@@ -1259,8 +1259,8 @@ sub Run {
             StateID      => $NextStateID,
             PriorityID   => $GetParam{PriorityID},
             OwnerID      => 1,
-            CustomerID   => $CustomerID,
-            CustomerUser => $SelectedCustomerUser,
+            CustomerID   => $CustomerID || $GetParam{To},
+            CustomerUser => $SelectedCustomerUser || $GetParam{To},
             UserID       => $Self->{UserID},
         );
 
