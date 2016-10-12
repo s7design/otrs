@@ -43,23 +43,18 @@ Core.Agent.Admin.GenericAgent = (function (TargetNS) {
                 SelectID = this.id,
                 ButtonHTML = '<a href="#" title="' + Core.Language.Translate('Remove selection') + '" class="GenericAgentClearSelect" data-select="' + SelectID + '"><span>' + Core.Language.Translate('Remove selection') + '</span><i class="fa fa-undo"></i></a>';
 
-            if (DynamicFieldMultiSelectClass) {
-
-                // Only handle dynamic fields with class DynamicFieldMultiSelectClass that are not modernized
-                if (ModernizeActive && ModernizeField) {
-                    return;
-                }
+            // Only handle fields without class Modernize when modernized is disabled
+            if (ModernizeActive && ModernizeField) {
+                return;
             }
-            else {
 
-                // Only handle select fields with a size > 1, leave all single-dropdown fields untouched
-                if ((ModernizeActive && ModernizeField) || isNaN(Size) || Size <= 1) {
-                    return;
-                }
+            // Only handle select fields with a size > 1 and without class DynamicFieldMultiSelect
+            if (!DynamicFieldMultiSelectClass && isNaN(Size) || Size <= 1) {
+                return;
             }
 
             // If select field has a tree selection icon already,
-            // // we want to insert the new code after that element
+            // we want to insert the new code after that element
             if ($SelectField.next('a.ShowTreeSelection').length) {
                 $SelectField = $SelectField.next('a.ShowTreeSelection');
             }
