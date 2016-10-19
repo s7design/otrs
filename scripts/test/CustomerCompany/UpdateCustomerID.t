@@ -30,15 +30,9 @@ $Kernel::OM->Get('Kernel::Config')->Set(
 );
 
 my @CustomerIDs;
-for my $Key ( 1 .. 1, 'ä', 'カス', '*' ) {
+for my $Key ( 1 .. 1, 'ä', 'カス' ) {
 
-    my $CompanyRand;
-    if ( $Key eq '*' ) {
-        $CompanyRand = $Key;
-    }
-    else {
-        $CompanyRand = 'CustomerCompany' . $Key . $Helper->GetRandomID();
-    }
+    my $CompanyRand = 'CustomerCompany' . $Key . $Helper->GetRandomID();
 
     push @CustomerIDs, $CompanyRand;
 
@@ -124,8 +118,7 @@ for my $Key ( 1 .. 1, 'ä', 'カス', '*' ) {
     );
 
     my %OldIDList = $CustomerUserObject->CustomerSearch(
-        CustomerID       => $CompanyData{CustomerID},
-        AsteriskAsString => 1,
+        CustomerID => $CompanyData{CustomerID},
     );
 
     my %NewIDList = $CustomerUserObject->CustomerSearch(

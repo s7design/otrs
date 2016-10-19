@@ -120,6 +120,15 @@ sub CustomerCompanyAdd {
         }
     }
 
+    # check if special characters '*' or '%' are used alone in CustomerID param
+    if ( $Param{CustomerID} =~ /^[%*]+$/ ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Invalid CustomerID $Param{CustomerID} !",
+        );
+        return;
+    }
+
     my $Result = $Self->{ $Param{Source} }->CustomerCompanyAdd(%Param);
     return if !$Result;
 
@@ -229,6 +238,15 @@ sub CustomerCompanyUpdate {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
             Message  => "Need CustomerCompanyID or CustomerID!"
+        );
+        return;
+    }
+
+    # check if special characters '*' or '%' are used alone in CustomerID param
+    if ( $Param{CustomerID} =~ /^[%*]+$/ ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Invalid CustomerID $Param{CustomerID} !",
         );
         return;
     }

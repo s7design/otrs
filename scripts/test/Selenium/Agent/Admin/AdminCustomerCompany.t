@@ -69,10 +69,28 @@ $Selenium->RunTest(
             'Client side validation correctly detected missing input value',
         );
 
-        # create a real test customer company
+        # verify special character '*' and '%' are not allowed as CustomerID on creation
+        # without other characters in string
         my $RandomID = 'TestCustomerCompany' . $Helper->GetRandomID();
-        $Selenium->find_element( "#CustomerID",          'css' )->send_keys($RandomID);
         $Selenium->find_element( "#CustomerCompanyName", 'css' )->send_keys($RandomID);
+
+        for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*' ) {
+            $Selenium->find_element( "#CustomerID", 'css' )->send_keys($SpecialCharacters);
+            $Selenium->find_element( "#CustomerID", 'css' )->VerifiedSubmit();
+
+            # verify notification message for invalid character
+            my $NotificationMessage = "Invalid CustomerID $SpecialCharacters !";
+            $Self->True(
+                index( $Selenium->get_page_source(), $NotificationMessage ) > -1,
+                "Notification message '$NotificationMessage' found on page",
+            );
+
+            # clear field
+            $Selenium->find_element( "#CustomerID", 'css' )->clear();
+        }
+
+        # create a real test customer company
+        $Selenium->find_element( "#CustomerID", 'css' )->send_keys($RandomID);
         $Selenium->execute_script("\$('#ValidID').val('1').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#CustomerCompanyComment", 'css' )->send_keys('Selenium test customer company');
         $Selenium->find_element( "#CustomerCompanyZIP",     'css' )->send_keys('0');
@@ -148,7 +166,26 @@ $Selenium->RunTest(
             "#CustomerCompanyComment updated value",
         );
 
+        # verify special character '*' and '%' are not allowed as CustomerID on edit
+        # without other characters in string
+        $Selenium->find_element( "#CustomerID", 'css' )->clear();
+        for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*' ) {
+            $Selenium->find_element( "#CustomerID", 'css' )->send_keys($SpecialCharacters);
+            $Selenium->find_element( "#CustomerID", 'css' )->VerifiedSubmit();
+
+            # verify notification message for invalid character
+            my $NotificationMessage = "Invalid CustomerID $SpecialCharacters !";
+            $Self->True(
+                index( $Selenium->get_page_source(), $NotificationMessage ) > -1,
+                "Notification message '$NotificationMessage' found on page",
+            );
+
+            # clear field
+            $Selenium->find_element( "#CustomerID", 'css' )->clear();
+        }
+
         # set test customer company to invalid and clear comment
+        $Selenium->find_element( "#CustomerID", 'css' )->send_keys($RandomID);
         $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#CustomerCompanyComment", 'css' )->clear();
         $Selenium->find_element( "#CustomerID",             'css' )->VerifiedSubmit();

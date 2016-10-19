@@ -85,7 +85,7 @@ $ConfigObject->Set(
 
 my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 
-for my $Key ( 1 .. 3, 'ä', 'カス' ) {
+for my $Key ( 1 .. 3, 'ä', 'カス', '*', '%' ) {
 
     my $CompanyRand = 'Example-Customer-Company' . $Key . $Helper->GetRandomID();
 
@@ -282,7 +282,7 @@ $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::CustomerCompany'] );
 
 $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 
-for my $Key ( 1 .. 3, 'ä', 'カス' ) {
+for my $Key ( 1 .. 3, 'ä', 'カス', '*', '%' ) {
 
     my $CompanyRand = 'Example-Customer-Company' . $Key . $Helper->GetRandomID();
 
@@ -440,6 +440,69 @@ $Self->False(
     scalar keys %CustomerCompanyList,
     "CustomerCompanyList() with Search",
 );
+
+# test CustomerCompany creation and update with invalid special character '*' and '%'
+# without other characters in string
+my $CustomerCompanyRand = 'CustomerCompany' . $Helper->GetRandomID();
+my $CustomerIDUpdate    = $CustomerCompanyObject->CustomerCompanyAdd(
+    CustomerID             => $CustomerCompanyRand,
+    CustomerCompanyName    => $CustomerCompanyRand . ' Inc',
+    CustomerCompanyStreet  => 'Some Street',
+    CustomerCompanyZIP     => '12345',
+    CustomerCompanyCity    => 'Some city',
+    CustomerCompanyCountry => 'USA',
+    CustomerCompanyURL     => 'http://example.com',
+    CustomerCompanyComment => 'some comment',
+    ValidID                => 1,
+    UserID                 => 1,
+);
+
+$Self->True(
+    $CustomerIDUpdate,
+    "CustomerCompanyAdd() - CustomerID $CustomerCompanyRand"
+);
+
+for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*' ) {
+
+    # create CustomerCompany with special characters as CustomerID
+    my $CustomerID = $CustomerCompanyObject->CustomerCompanyAdd(
+        CustomerID             => $SpecialCharacters,
+        CustomerCompanyName    => $SpecialCharacters . ' Inc',
+        CustomerCompanyStreet  => 'Some Street',
+        CustomerCompanyZIP     => '12345',
+        CustomerCompanyCity    => 'Some city',
+        CustomerCompanyCountry => 'USA',
+        CustomerCompanyURL     => 'http://example.com',
+        CustomerCompanyComment => 'some comment',
+        ValidID                => 1,
+        UserID                 => 1,
+    );
+
+    $Self->False(
+        $CustomerID,
+        "Not possible CustomerCompanyAdd() - CustomerID '$SpecialCharacters'"
+    );
+
+    # update CustomerCompany with special characters as CustomerID
+    my $Update = $CustomerCompanyObject->CustomerCompanyUpdate(
+        CustomerCompanyID      => $CustomerIDUpdate,
+        CustomerID             => $SpecialCharacters,
+        CustomerCompanyName    => $SpecialCharacters . '- updated Inc',
+        CustomerCompanyStreet  => 'Some Street',
+        CustomerCompanyZIP     => '12345',
+        CustomerCompanyCity    => 'Some city',
+        CustomerCompanyCountry => 'USA',
+        CustomerCompanyURL     => 'http://updated.example.com',
+        CustomerCompanyComment => 'some comment updated',
+        ValidID                => 1,
+        UserID                 => 1,
+    );
+
+    $Self->False(
+        $Update,
+        "Not possible CustomerCompanyUpdate() - CustomerID '$SpecialCharacters'",
+    );
+}
 
 # cleanup is done by RestoreDatabase
 

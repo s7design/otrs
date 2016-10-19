@@ -297,7 +297,7 @@ sub CustomerSearch {
     elsif ( $Param{CustomerID} ) {
 
         my $CustomerID = $Self->{DBObject}->Quote( $Param{CustomerID}, 'Like' );
-        $CustomerID =~ s/\*/%/g if !$Param{AsteriskAsString};
+        $CustomerID =~ s/\*/%/g;
         push @Bind, \$CustomerID;
 
         if ( $Self->{CaseSensitive} ) {
