@@ -85,7 +85,7 @@ $ConfigObject->Set(
 
 my $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 
-for my $Key ( 1 .. 3, 'ä', 'カス', '*', '%' ) {
+for my $Key ( 1 .. 3, 'ä', 'カス' ) {
 
     my $CompanyRand = 'Example-Customer-Company' . $Key . $Helper->GetRandomID();
 
@@ -282,7 +282,7 @@ $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::CustomerCompany'] );
 
 $CustomerCompanyObject = $Kernel::OM->Get('Kernel::System::CustomerCompany');
 
-for my $Key ( 1 .. 3, 'ä', 'カス', '*', '%' ) {
+for my $Key ( 1 .. 3, 'ä', 'カス' ) {
 
     my $CompanyRand = 'Example-Customer-Company' . $Key . $Helper->GetRandomID();
 
@@ -462,12 +462,12 @@ $Self->True(
     "CustomerCompanyAdd() - CustomerID $CustomerCompanyRand"
 );
 
-for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*' ) {
+for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*', 'a*', 'a*a', '*a', 'a%', 'a%a', '%a' ) {
 
     # create CustomerCompany with special characters as CustomerID
     my $CustomerID = $CustomerCompanyObject->CustomerCompanyAdd(
         CustomerID             => $SpecialCharacters,
-        CustomerCompanyName    => $SpecialCharacters . ' Inc',
+        CustomerCompanyName    => $CustomerCompanyRand . $SpecialCharacters . ' Inc',
         CustomerCompanyStreet  => 'Some Street',
         CustomerCompanyZIP     => '12345',
         CustomerCompanyCity    => 'Some city',
@@ -487,7 +487,7 @@ for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*' ) {
     my $Update = $CustomerCompanyObject->CustomerCompanyUpdate(
         CustomerCompanyID      => $CustomerIDUpdate,
         CustomerID             => $SpecialCharacters,
-        CustomerCompanyName    => $SpecialCharacters . '- updated Inc',
+        CustomerCompanyName    => $CustomerCompanyRand . $SpecialCharacters . '- updated Inc',
         CustomerCompanyStreet  => 'Some Street',
         CustomerCompanyZIP     => '12345',
         CustomerCompanyCity    => 'Some city',

@@ -70,16 +70,15 @@ $Selenium->RunTest(
         );
 
         # verify special character '*' and '%' are not allowed as CustomerID on creation
-        # without other characters in string
         my $RandomID = 'TestCustomerCompany' . $Helper->GetRandomID();
         $Selenium->find_element( "#CustomerCompanyName", 'css' )->send_keys($RandomID);
 
-        for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*' ) {
+        for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*', 'a*', 'a*a', '*a', 'a%', 'a%a', '%a' ) {
             $Selenium->find_element( "#CustomerID", 'css' )->send_keys($SpecialCharacters);
             $Selenium->find_element( "#CustomerID", 'css' )->VerifiedSubmit();
 
             # verify notification message for invalid character
-            my $NotificationMessage = "Invalid CustomerID $SpecialCharacters !";
+            my $NotificationMessage = "Invalid CustomerID, please do not use '*' or '%' characters!";
             $Self->True(
                 index( $Selenium->get_page_source(), $NotificationMessage ) > -1,
                 "Notification message '$NotificationMessage' found on page",
@@ -167,14 +166,13 @@ $Selenium->RunTest(
         );
 
         # verify special character '*' and '%' are not allowed as CustomerID on edit
-        # without other characters in string
         $Selenium->find_element( "#CustomerID", 'css' )->clear();
-        for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*' ) {
+        for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*', 'a*', 'a*a', '*a', 'a%', 'a%a', '%a' ) {
             $Selenium->find_element( "#CustomerID", 'css' )->send_keys($SpecialCharacters);
             $Selenium->find_element( "#CustomerID", 'css' )->VerifiedSubmit();
 
             # verify notification message for invalid character
-            my $NotificationMessage = "Invalid CustomerID $SpecialCharacters !";
+            my $NotificationMessage = "Invalid CustomerID, please do not use '*' or '%' characters!";
             $Self->True(
                 index( $Selenium->get_page_source(), $NotificationMessage ) > -1,
                 "Notification message '$NotificationMessage' found on page",
