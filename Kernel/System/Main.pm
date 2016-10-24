@@ -19,6 +19,8 @@ use Unicode::Normalize;
 use List::Util qw();
 use Storable;
 use Fcntl qw(:flock);
+use utf8;
+use Encode;
 
 our @ObjectDependencies = (
     'Kernel::System::Encode',
@@ -227,6 +229,11 @@ sub FilenameCleanUp {
         return;
     }
 
+    # escape if cleanup is not needed
+    if ( $Param{NoFilenameClean} ) {
+        return $Param{Filename};
+    }
+
     my $Type = lc( $Param{Type} || 'local' );
 
     if ( $Type eq 'md5' ) {
@@ -263,6 +270,48 @@ sub FilenameCleanUp {
 
         # replace invalid token like [ ] * : ? " < > ; | \ /
         $Param{Filename} =~ s/[<>\?":\\\*\|\/;\[\]]/_/g;
+
+        # separate filename and extension
+        my $FileName;
+        my $Ext;
+        if ( $Param{Filename} =~ /(.*)\.+(.*)$/ ) {
+            $FileName = $1;
+            $Ext      = '.' . $2;
+        }
+
+        # check if filename is UTF-8 encoded
+        if ( utf8::is_utf8( $Param{Filename} ) ) {
+
+            # get first character from filename and check it's size in bytes
+            $Param{Filename} =~ /^(\p{L})/;
+            my $CharacterByte = encode( 'UTF-8', $1 );
+            my $CharacterByteSize = length $CharacterByte;
+
+            # get filename size in bytes without extension
+            my $FileNameByte      = encode( 'UTF-8', $FileName );
+            my $FileNameByteSize  = length $FileNameByte;
+            my $MaximumByteExcess = $FileNameByteSize - 222;
+
+            # depending on character byte size substr filename so it can be saved in system.
+            # most system are limited to 255 byte size in filenames, used 222 byte as limit
+            # without extension in order to save some space for additional extensions added by OTRS
+            # when creating attachment in ArticleStorageFS
+            if ( $CharacterByteSize == '2' && $FileNameByteSize > 222 ) {
+                $Param{Filename} = substr( $FileName, 0, -$MaximumByteExcess / 2 ) . $Ext;
+            }
+            elsif ( $CharacterByteSize == '3' && $FileNameByteSize > 222 ) {
+                $Param{Filename} = substr( $FileName, 0, -$MaximumByteExcess / 3 ) . $Ext;
+            }
+        }
+        else {
+
+            # for filename consisting of latin characters, substr by character excess
+            my $FileNameLength = length $FileName;
+            if ( $FileNameLength && $FileNameLength > 222 ) {
+                my $MaximumCharacterExcess = $FileNameLength - 222;
+                $Param{Filename} = substr( $FileName, 0, -$MaximumCharacterExcess ) . $Ext;
+            }
+        }
     }
 
     return $Param{Filename};
@@ -425,8 +474,9 @@ sub FileWrite {
 
         # filename clean up
         $Param{Filename} = $Self->FilenameCleanUp(
-            Filename => $Param{Filename},
-            Type     => $Param{Type} || 'Local',    # Local|Attachment|MD5
+            Filename        => $Param{Filename},
+            Type            => $Param{Type} || 'Local',    # Local|Attachment|MD5
+            NoFilenameClean => $Param{NoFilenameClean},
         );
         $Param{Location} = "$Param{Directory}/$Param{Filename}";
     }
