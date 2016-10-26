@@ -45,7 +45,29 @@ my $QueueID   = $QueueObject->QueueAdd(
 
 $Self->True(
     $QueueID,
-    'QueueAdd()',
+    "QueueAdd() - $QueueID",
+);
+
+my $QueueIDWrong   = $QueueObject->QueueAdd(
+    Name                => $QueueRand,
+    ValidID             => 1,
+    GroupID             => 1,
+    FirstResponseTime   => 30,
+    FirstResponseNotify => 70,
+    UpdateTime          => 240,
+    UpdateNotify        => 80,
+    SolutionTime        => 2440,
+    SolutionNotify      => 90,
+    SystemAddressID     => 1,
+    SalutationID        => 1,
+    SignatureID         => 1,
+    UserID              => 1,
+    Comment             => 'Some Comment',
+);
+
+$Self->False(
+    $QueueIDWrong,
+    'QueueAdd() - try to add new queue with existing queue name',
 );
 
 my %QueueGet = $QueueObject->QueueGet( ID => $QueueID );
@@ -107,7 +129,7 @@ $Self->True(
     'QueueLookup() by Name',
 );
 
-# a real szenario from AdminQueue.pm
+# a real scenario from AdminQueue.pm
 # for more information see 3139
 my $QueueUpdate2 = $QueueObject->QueueUpdate(
     QueueID             => $QueueID,
@@ -135,7 +157,7 @@ my $QueueUpdate2 = $QueueObject->QueueUpdate(
 
 $Self->True(
     $QueueUpdate2,
-    'QueueUpdate() - a real szenario from AdminQueue.pm',
+    'QueueUpdate() - a real scenario from AdminQueue.pm',
 );
 
 my $QueueUpdate1 = $QueueObject->QueueUpdate(
@@ -162,6 +184,44 @@ $Self->True(
     $QueueUpdate1,
     'QueueUpdate()',
 );
+
+#add another queue for testing update queue with existing name
+my $Queue2Rand = 'Some::Queue2' . int( rand(1000000) );
+my $QueueID2   = $QueueObject->QueueAdd(
+    Name                => $Queue2Rand,
+    ValidID             => 1,
+    GroupID             => 1,
+    SystemAddressID     => 1,
+    SalutationID        => 1,
+    SignatureID         => 1,
+    UserID              => 1,
+    Comment             => 'Some Comment',
+);
+
+
+$Self->True(
+    $QueueID2,
+    "QueueAdd() - $QueueID2",
+ );
+
+#try to update queue with existing name
+my $QueueUpdateExist   = $QueueObject->QueueUpdate(
+    Name                => $QueueRand . '1',
+    QueueID             => $QueueID2,
+    ValidID             => 1,
+    GroupID             => 1,
+    SystemAddressID     => 1,
+    SalutationID        => 1,
+    SignatureID         => 1,
+    FollowUpID          => 1,
+    UserID              => 1,
+    Comment             => 'Some Comment1',
+);
+
+$Self->False(
+    $QueueUpdateExist,
+    "QueueUpdate() - update queue with existing name",
+    );
 
 # lookup the queue name for $QueueID
 my $LookupQueueName = $QueueObject->QueueLookup( QueueID => $QueueID );
