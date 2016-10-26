@@ -433,4 +433,67 @@ $Self->False(
     "CustomerCompanyList() with Search",
 );
 
+# test CustomerCompany creation and update with invalid special character '*' and '%'
+# without other characters in string
+my $CustomerCompanyRand = 'CustomerCompany' . int( rand(1000000) );
+my $CustomerIDUpdate    = $CustomerCompanyObject->CustomerCompanyAdd(
+    CustomerID             => $CustomerCompanyRand,
+    CustomerCompanyName    => $CustomerCompanyRand . ' Inc',
+    CustomerCompanyStreet  => 'Some Street',
+    CustomerCompanyZIP     => '12345',
+    CustomerCompanyCity    => 'Some city',
+    CustomerCompanyCountry => 'USA',
+    CustomerCompanyURL     => 'http://example.com',
+    CustomerCompanyComment => 'some comment',
+    ValidID                => 1,
+    UserID                 => 1,
+);
+
+$Self->True(
+    $CustomerIDUpdate,
+    "CustomerCompanyAdd() - CustomerID $CustomerCompanyRand"
+);
+
+for my $SpecialCharacters ( '*', '**', '%', '%%', '*%*', 'a*', 'a*a', '*a', 'a%', 'a%a', '%a' ) {
+
+    # create CustomerCompany with special characters as CustomerID
+    my $CustomerID = $CustomerCompanyObject->CustomerCompanyAdd(
+        CustomerID             => $SpecialCharacters,
+        CustomerCompanyName    => $CustomerCompanyRand . $SpecialCharacters . ' Inc',
+        CustomerCompanyStreet  => 'Some Street',
+        CustomerCompanyZIP     => '12345',
+        CustomerCompanyCity    => 'Some city',
+        CustomerCompanyCountry => 'USA',
+        CustomerCompanyURL     => 'http://example.com',
+        CustomerCompanyComment => 'some comment',
+        ValidID                => 1,
+        UserID                 => 1,
+    );
+
+    $Self->False(
+        $CustomerID,
+        "Not possible CustomerCompanyAdd() - CustomerID '$SpecialCharacters'"
+    );
+
+    # update CustomerCompany with special characters as CustomerID
+    my $Update = $CustomerCompanyObject->CustomerCompanyUpdate(
+        CustomerCompanyID      => $CustomerIDUpdate,
+        CustomerID             => $SpecialCharacters,
+        CustomerCompanyName    => $CustomerCompanyRand . $SpecialCharacters . '- updated Inc',
+        CustomerCompanyStreet  => 'Some Street',
+        CustomerCompanyZIP     => '12345',
+        CustomerCompanyCity    => 'Some city',
+        CustomerCompanyCountry => 'USA',
+        CustomerCompanyURL     => 'http://updated.example.com',
+        CustomerCompanyComment => 'some comment updated',
+        ValidID                => 1,
+        UserID                 => 1,
+    );
+
+    $Self->False(
+        $Update,
+        "Not possible CustomerCompanyUpdate() - CustomerID '$SpecialCharacters'",
+    );
+}
+
 1;
