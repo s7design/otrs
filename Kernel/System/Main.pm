@@ -19,12 +19,12 @@ use Unicode::Normalize;
 use List::Util qw();
 use Storable;
 use Fcntl qw(:flock);
-use utf8;
 use Encode;
 
 our @ObjectDependencies = (
     'Kernel::System::Encode',
     'Kernel::System::Log',
+    'Kernel::Config',
 );
 
 =head1 NAME
@@ -268,49 +268,38 @@ sub FilenameCleanUp {
     }
     else {
 
-        # replace invalid token like [ ] * : ? " < > ; | \ /
-        $Param{Filename} =~ s/[<>\?":\\\*\|\/;\[\]]/_/g;
+        # replace invalid token like [ ] * : ? " < > ; | \ / for ArticleStorageFS storage module
+        if (
+            $Kernel::OM->Get('Kernel::Config')->Get('Ticket::StorageModule') eq
+            'Kernel::System::Ticket::ArticleStorageFS'
+            )
+        {
+            $Param{Filename} =~ s/[<>\?":\\\*\|\/;\[\]]/_/g;
+        }
 
         # separate filename and extension
         my $FileName;
-        my $Ext;
+        my $FileExt;
         if ( $Param{Filename} =~ /(.*)\.+(.*)$/ ) {
             $FileName = $1;
-            $Ext      = '.' . $2;
+            $FileExt  = '.' . $2;
         }
 
-        # check if filename is UTF-8 encoded
-        if ( utf8::is_utf8( $Param{Filename} ) ) {
+        if ( length $FileName ) {
+            my $ModifiedName;
 
-            # get first character from filename and check it's size in bytes
-            $Param{Filename} =~ /^(\p{L})/;
-            my $CharacterByte = encode( 'UTF-8', $1 );
-            my $CharacterByteSize = length $CharacterByte;
+            # remove character by character starting from the end of the filename string
+            # untill we get acceptable 220 byte long filename size including extension
+            CHOPSTRING:
+            while (1) {
 
-            # get filename size in bytes without extension
-            my $FileNameByte      = encode( 'UTF-8', $FileName );
-            my $FileNameByteSize  = length $FileNameByte;
-            my $MaximumByteExcess = $FileNameByteSize - 222;
+                $ModifiedName = $FileName . $FileExt;
 
-            # depending on character byte size substr filename so it can be saved in system.
-            # most system are limited to 255 byte size in filenames, used 222 byte as limit
-            # without extension in order to save some space for additional extensions added by OTRS
-            # when creating attachment in ArticleStorageFS
-            if ( $CharacterByteSize == '2' && $FileNameByteSize > 222 ) {
-                $Param{Filename} = substr( $FileName, 0, -$MaximumByteExcess / 2 ) . $Ext;
+                last CHOPSTRING if ( length encode( 'UTF-8', $ModifiedName ) < 220 );
+                chop $FileName;
+
             }
-            elsif ( $CharacterByteSize == '3' && $FileNameByteSize > 222 ) {
-                $Param{Filename} = substr( $FileName, 0, -$MaximumByteExcess / 3 ) . $Ext;
-            }
-        }
-        else {
-
-            # for filename consisting of latin characters, substr by character excess
-            my $FileNameLength = length $FileName;
-            if ( $FileNameLength && $FileNameLength > 222 ) {
-                my $MaximumCharacterExcess = $FileNameLength - 222;
-                $Param{Filename} = substr( $FileName, 0, -$MaximumCharacterExcess ) . $Ext;
-            }
+            $Param{Filename} = $ModifiedName;
         }
     }
 

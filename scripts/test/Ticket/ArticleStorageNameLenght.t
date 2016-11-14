@@ -8,25 +8,21 @@
 
 use strict;
 use warnings;
-use utf8;
 
 use vars (qw($Self));
 
-use Unicode::Normalize;
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
+my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-# get needed objects
 my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
 my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
-# get helper object
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreDatabase => 1,
-        }
-);
-my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
+# Create test ticket and add an article to it.
 my $TicketID = $TicketObject->TicketCreate(
     Title        => 'Some Ticket_Title',
     Queue        => 'Raw',
@@ -34,13 +30,13 @@ my $TicketID = $TicketObject->TicketCreate(
     Priority     => '3 normal',
     State        => 'closed successful',
     CustomerNo   => '123465',
-    CustomerUser => 'customer@example.com',
+    CustomerUser => 'unittest@otrs.com',
     OwnerID      => 1,
     UserID       => 1,
 );
 $Self->True(
     $TicketID,
-    'TicketCreate()',
+    "TicketCreate - TicketID $TicketID",
 );
 
 my $ArticleID = $TicketObject->ArticleCreate(
@@ -57,98 +53,158 @@ my $ArticleID = $TicketObject->ArticleCreate(
     UserID         => 1,
     NoAgentNotify  => 1,
 );
-
 $Self->True(
     $ArticleID,
-    'ArticleCreate()',
+    "ArticleCreate - ArticleID $ArticleID",
+);
+
+# Define 1, 2 and 3 byte per character codes.
+#   To check byte count, run: perl -CS -e 'print "\x{CODE}"' | wc -c
+my %Characters = (
+    Latin    => "\x{0061}",
+    Cyrillic => "\x{0448}",
+    Japanese => "\x{306C}",
 );
 
 my @Tests = (
 
-    # Latin characters, 1 byte per character when encoding
-    # attachment with 20 character long Latin name,
+    # Latin characters, 1 byte per character when encoding.
+    #   Attachment with 20 character long Latin name.
     {
         Description => 'Latin 20 characters',
-        FileName    => 'a' x 20,
+        FileName    => $Characters{Latin} x 20,
     },
 
-    # attachment with 75 character long Latin FileName
+    # Attachment with 75 character long Latin name.
     {
         Description => 'Latin 75 characters',
-        FileName    => 'a' x 75,
+        FileName    => $Characters{Latin} x 75,
     },
 
-    # attachment with 120 character long Latin FileName
+    # Attachment with 120 character long Latin name.
     {
         Description => 'Latin 120 characters',
-        FileName    => 'a' x 120,
+        FileName    => $Characters{Latin} x 120,
     },
 
-    # attachment with 140 character long Latin FileName
+    # Attachment with 140 character long Latin name.
     {
         Description => 'Latin 140 characters',
-        FileName    => 'a' x 140,
+        FileName    => $Characters{Latin} x 140,
     },
 
-    # attachment with 245 character long Latin FileName
+    # Attachment with 245 character long Latin name.
     {
         Description => 'Latin 245 characters',
-        FileName    => 'a' x 245,
+        FileName    => $Characters{Latin} x 245,
     },
 
-    # Cyrillic character, 2 byte per character when encoding
-    # attachment with 20 character long Cyrillic name,
+    # Attachment with 300 character long Latin name.
+    {
+        Description => 'Latin 300 characters',
+        FileName    => $Characters{Latin} x 300,
+    },
+
+    # Cyrillic characters, 2 byte per character when encoding.
+    #   Attachment with 20 character long Cyrillic name.
     {
         Description => 'Cyrillic 20 characters',
-        FileName    => 'ш' x 20,
+        FileName    => $Characters{Cyrillic} x 20,
     },
 
-    # attachment with 75 character long Cyrillic FileName
+    # Attachment with 75 character long Cyrillic name.
     {
         Description => 'Cyrillic 75 characters',
-        FileName    => 'ш' x 75,
+        FileName    => $Characters{Cyrillic} x 75,
     },
 
-# attachment with 120 character long Cyrillic FileName, approximately limit for Linux file name reaching 255 bytes after encoding Cyrillic letters
+    # Attachment with 120 character long Cyrillic name, approximately limit for
+    #   Linux file name reaching 255 bytes after encoding Cyrillic letters.
     {
         Description => 'Cyrillic 120 characters',
-        FileName    => 'ш' x 120,
+        FileName    => $Characters{Cyrillic} x 120,
     },
 
-    # attachment with 140 character long Cyrillic FileName, have to cut name to create attachment file in FS backend
+    # Attachment with 140 character long Cyrillic name.
+    #   Will have to be cut in order to create attachment file in FS backend.
     {
         Description => 'Cyrillic 140 characters',
-        FileName    => 'ш' x 140,
+        FileName    => $Characters{Cyrillic} x 140,
     },
 
-    # Japanese character, 3 byte per character when encoding
-    # attachment with 20 character long Japanese FileName,
+    # Japanese characters, 3 byte per character when encoding.
+    #   Some systems do not support 3 byte characters in their filesystem, test will be skipped on
+    #   them. Please see check below.
     {
         Description => 'Japanese 20 characters',
-        FileName    => '人' x 20,
+        FileName    => $Characters{Japanese} x 20,
+        OSCheck     => 1,
     },
 
-    # attachment with 70 character long Japanese FileName
+    # Attachment with 75 character long Japanese name, approximately limit for
+    #   Linux file name reaching 255 bytes after encoding Japanese letters.
     {
-        Description => 'Japanese 70 characters',
-        FileName    => '人' x 70,
+        Description => 'Japanese 75 characters',
+        FileName    => $Characters{Japanese} x 75,
+        OSCheck     => 1,
     },
 
-    # attachment with 140 character long Japanese FileName
+    # Attachment with 120 character long Japanese name.
+    #   Will have to be cut in order to create attachment file in FS backend.
+    {
+        Description => 'Japanese 120 characters',
+        FileName    => $Characters{Japanese} x 120,
+        OSCheck     => 1,
+    },
+
+    # Attachment with 140 character long Japanese name.
+    #   Will have to be cut in order to create attachment file in FS backend.
     {
         Description => 'Japanese 140 characters',
-        FileName    => '人' x 140,
+        FileName    => $Characters{Japanese} x 140,
+        OSCheck     => 1,
     },
+);
 
+# Check if environment supports 3-byte encoded characters in filenames.
+my $MultiByteSupport = 0;
+my $TempDirectory    = $ConfigObject->Get('Home') . '/var/tmp/';
+my $TempFilename     = ( $Characters{Japanese} x 5 ) . '.txt';
+my $FSTempFilename   = $MainObject->FileWrite(
+    Directory => $TempDirectory,
+    Filename  => $TempFilename,
+    Content   => \'',
+);
+
+# Check if filenames are identical.
+if ( $FSTempFilename eq $TempFilename ) {
+    $MultiByteSupport = 1;
+}
+
+# Delete the test file.
+$MainObject->FileDelete(
+    Directory       => $TempDirectory,
+    Filename        => $FSTempFilename,
+    Type            => 'Local',
+    DisableWarnings => 1,
 );
 
 TEST:
 for my $Test (@Tests) {
 
-    # article attachment checks
+    # Check both storage backends.
     for my $Backend (qw(DB FS)) {
 
-        # make sure that the TicketObject gets recreated for each loop.
+        # Skip tests cases for 3 byte characters, if system does not support them.
+        if ( $Backend eq 'FS' && !$MultiByteSupport && $Test->{OSCheck} ) {
+            $Self->True(
+                1,
+                "Skipping test - $Test->{Description} - system does not support 3-byte characters in FS",
+            );
+            next TEST;
+        }
+
+        # Make sure that the TicketObject gets recreated for each loop.
         $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Ticket'] );
 
         $ConfigObject->Set(
@@ -160,7 +216,7 @@ for my $Test (@Tests) {
 
         $Self->True(
             $TicketObject->isa( 'Kernel::System::Ticket::ArticleStorage' . $Backend ),
-            "TicketObject loaded the correct backend",
+            'TicketObject loaded the correct backend',
         );
 
         my $Ext                    = '.txt';
@@ -184,22 +240,11 @@ for my $Test (@Tests) {
             UserID    => 1,
         );
 
-        # get target file name
-        my $TargetFileName;
-        if ( $Backend eq 'DB' ) {
-            $TargetFileName = $FileName,
-        }
-        else {
-            $TargetFileName = $MainObject->FilenameCleanUp(
-                Filename => $FileName,
-                Type     => 'Local',
-            );
-        }
-
-        # Mac OS (HFS+) will store all filenames as NFD internally.
-        if ( $^O eq 'darwin' && $Backend eq 'FS' ) {
-            $TargetFileName = Unicode::Normalize::NFD($TargetFileName);
-        }
+        # Get attachment file name.
+        my $TargetFileName = $MainObject->FilenameCleanUp(
+            Filename => $FileName,
+            Type     => 'Local',
+        );
 
         $Self->Is(
             $AttachmentIndex{1}->{Filename},
@@ -256,6 +301,17 @@ for my $Test (@Tests) {
     }
 }
 
-# cleanup is done by RestoreDatabase.
+# Cleanup is done by RestoreDatabase, but we need to delete the tickets to cleanup the filesystem too.
+my @DeleteTicketList = $TicketObject->TicketSearch(
+    Result            => 'ARRAY',
+    CustomerUserLogin => 'unittest@otrs.com',
+    UserID            => 1,
+);
+for my $TicketID (@DeleteTicketList) {
+    $TicketObject->TicketDelete(
+        TicketID => $TicketID,
+        UserID   => 1,
+    );
+}
 
 1;
