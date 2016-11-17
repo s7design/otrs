@@ -268,12 +268,8 @@ sub FilenameCleanUp {
     }
     else {
 
-        # replace invalid token like [ ] * : ? " < > ; | \ / for ArticleStorageFS storage module
-        if (
-            $Kernel::OM->Get('Kernel::Config')->Get('Ticket::StorageModule') eq
-            'Kernel::System::Ticket::ArticleStorageFS'
-            )
-        {
+        # replace invalid token like [ ] * : ? " < > ; | \ /
+        if ( !$Param{NoReplace} ) {
             $Param{Filename} =~ s/[<>\?":\\\*\|\/;\[\]]/_/g;
         }
 
