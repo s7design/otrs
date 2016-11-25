@@ -354,12 +354,6 @@ sub ArticleWriteAttachment {
     # define path
     $Param{Path} = $Self->{ArticleDataDir} . '/' . $ContentPath . '/' . $Param{ArticleID};
 
-    # strip spaces from filenames
-    $Param{Filename} =~ s/ /_/g;
-
-    # strip dots from filenames
-    $Param{Filename} =~ s/^\.//g;
-
     # get main object
     my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 

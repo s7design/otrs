@@ -244,8 +244,14 @@ sub FilenameCleanUp {
     # replace invalid token for attachment file names
     elsif ( $Type eq 'attachment' ) {
 
-        # replace invalid token like < > ? " : ; | \ / or *
-        $Param{Filename} =~ s/[ <>\?":\\\*\|\/;\[\]]/_/g;
+        # trim whitespace
+        $Param{Filename} =~ s/^\s+|\n|\s+$//g;
+
+        # strip leading dots
+        $Param{Filename} =~ s/^\.+//;
+
+        # only whitelisted characters allowed in filename for security
+        $Param{Filename} =~ s/[^\w\-+.#_]/_/g;
 
         # replace utf8 and iso
         $Param{Filename} =~ s/(\x{00C3}\x{00A4}|\x{00A4})/ae/g;
@@ -257,20 +263,42 @@ sub FilenameCleanUp {
         $Param{Filename} =~ s/(\x{00C3}\x{009F}|\x{00DF})/ss/g;
         $Param{Filename} =~ s/-+/-/g;
 
-        # cut the string if too long
-        if ( length( $Param{Filename} ) > 100 ) {
-            my $Ext = '';
-            if ( $Param{Filename} =~ /^.*(\.(...|....))$/ ) {
-                $Ext = $1;
+        # separate filename and extension
+        my $FileName;
+        my $FileExt;
+        if ( $Param{Filename} =~ /(.*)\.+(.*)$/ ) {
+            $FileName = $1;
+            $FileExt  = '.' . $2;
+        }
+
+        if ( length $FileName ) {
+            my $ModifiedName;
+
+            # remove character by character starting from the end of the filename string
+            # untill we get acceptable 220 byte long filename size including extension
+            CHOPSTRING:
+            while (1) {
+
+                $ModifiedName = $FileName . $FileExt;
+
+                last CHOPSTRING if ( length encode( 'UTF-8', $ModifiedName ) < 220 );
+                chop $FileName;
+
             }
-            $Param{Filename} = substr( $Param{Filename}, 0, 95 ) . $Ext;
+            $Param{Filename} = $ModifiedName;
         }
     }
     else {
 
-        # replace invalid token like [ ] * : ? " < > ; | \ /
+        # trim whitespace
+        $Param{Filename} =~ s/^\s+|\n|\s+$//g;
+
+        # strip leading dots
+        $Param{Filename} =~ s/^\.+//;
+
+        # only whitelisted characters allowed in filename for security
         if ( !$Param{NoReplace} ) {
-            $Param{Filename} =~ s/[<>\?":\\\*\|\/;\[\]]/_/g;
+            $Param{Filename} =~ s/[^\w\-+.#_]/_/g;
         }
 
         # separate filename and extension
