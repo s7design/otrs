@@ -184,7 +184,7 @@ sub Run {
         }
 
         # take CustomerID from customer backend lookup or from from field
-        if ( $CustomerData{UserLogin} && !$GetParam{'X-OTRS-CustomerUser'} ) {
+        if ( $CustomerData{UserLogin} ) {
             $GetParam{'X-OTRS-CustomerUser'} = $CustomerData{UserLogin};
 
             # notice that UserLogin is from customer source backend
@@ -204,16 +204,6 @@ sub Run {
                     . " from customer source backend based on ($GetParam{'EmailFrom'}).",
             );
         }
-    }
-
-    # if there is no customer id found!
-    if ( !$GetParam{'X-OTRS-CustomerNo'} ) {
-        $GetParam{'X-OTRS-CustomerNo'} = $GetParam{SenderEmailAddress};
-    }
-
-    # if there is no customer user found!
-    if ( !$GetParam{'X-OTRS-CustomerUser'} ) {
-        $GetParam{'X-OTRS-CustomerUser'} = $GetParam{SenderEmailAddress};
     }
 
     # get ticket owner
