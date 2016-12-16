@@ -32,6 +32,7 @@ sub Run {
     my $ParamObject  = $Kernel::OM->Get('Kernel::System::Web::Request');
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     if ( $Self->{Subaction} eq 'CancelAndUnlockTickets' ) {
 
@@ -88,8 +89,49 @@ sub Run {
 
     }
 
-    # get config object
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    elsif ( $Self->{Subaction} eq 'AJAXUpdate' ) {
+        my $QueueID        = $ParamObject->GetParam( Param => 'QueueID' )        || '';
+        my $ElementChanged = $ParamObject->GetParam( Param => 'ElementChanged' ) || '';
+
+        # Get all users.
+        my %AllGroupsMembers = $Kernel::OM->Get('Kernel::System::User')->UserList(
+            Type  => 'Long',
+            Valid => 1
+        );
+
+        # Put only possible rw agents to owner list.
+        if ( !$ConfigObject->Get('Ticket::ChangeOwnerToEveryone') && $QueueID ) {
+            my %AllGroupsMembersNew;
+            my $GroupID = $Kernel::OM->Get('Kernel::System::Queue')->GetQueueGroupID( QueueID => $QueueID );
+            my %GroupMember = $Kernel::OM->Get('Kernel::System::Group')->PermissionGroupGet(
+                GroupID => $GroupID,
+                Type    => 'move_into',
+            );
+            USER_ID:
+            for my $UserID ( sort keys %GroupMember ) {
+                next USER_ID if !$AllGroupsMembers{$UserID};
+                $AllGroupsMembersNew{$UserID} = $AllGroupsMembers{$UserID};
+            }
+            %AllGroupsMembers = %AllGroupsMembersNew;
+        }
+
+        my $JSON = $LayoutObject->BuildSelectionJSON(
+            [
+                {
+                    Name         => 'OwnerID',
+                    Data         => \%AllGroupsMembers,
+                    PossibleNone => 1,
+                },
+            ],
+        );
+
+        return $LayoutObject->Attachment(
+            ContentType => 'application/json; charset=' . $LayoutObject->{Charset},
+            Content     => $JSON,
+            Type        => 'inline',
+            NoCache     => 1,
+        );
+    }
 
     # check if bulk feature is enabled
     if ( !$ConfigObject->Get('Ticket::Frontend::BulkFeature') ) {
