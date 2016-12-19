@@ -395,7 +395,7 @@ Core.Form.Validate = (function (TargetNS) {
     }, "");
 
     $.validator.addMethod("Validate_DateInFuture", function (Value, Element) {
-        var $DateSelection = $(Element).parent().find('input[type=checkbox].DateSelection, input[type=radio][value=1]');
+        var $DateSelection = $(Element).parent().find('input[type=checkbox].DateSelection, input[type=radio].DateSelection');
 
         // do not do this check for unchecked date/datetime fields
         // check first if the field exists to regard the check for the pending reminder field
@@ -406,7 +406,7 @@ Core.Form.Validate = (function (TargetNS) {
     }, "");
 
     $.validator.addMethod("Validate_DateNotInFuture", function (Value, Element) {
-        var $DateSelection = $(Element).parent().find('input[type=checkbox].DateSelection, input[type=radio][value=1]');
+        var $DateSelection = $(Element).parent().find('input[type=checkbox].DateSelection, input[type=radio].DateSelection');
 
         // do not do this check for unchecked date/datetime fields
         // check first if the field exists to regard the check for the pending reminder field
