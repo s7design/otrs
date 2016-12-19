@@ -274,7 +274,7 @@ Core.Agent.TicketAction = (function (TargetNS) {
 
         // Add owner field update on queue change
         $('#QueueID').on('change', function () {
-            Core.AJAX.FormUpdate($('.Validate'), 'AJAXUpdate', 'QueueID', ['OwnerID']);
+            Core.AJAX.FormUpdate($('.Validate'), 'AJAXUpdate', 'QueueID', ['OwnerID', 'ResponsibleID']);
         });
 
     };

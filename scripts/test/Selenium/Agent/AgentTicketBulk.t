@@ -29,6 +29,7 @@ $Selenium->RunTest(
         my $GroupObject     = $Kernel::OM->Get('Kernel::System::Group');
         my $UserObject      = $Kernel::OM->Get('Kernel::System::User');
         my $QueueObject     = $Kernel::OM->Get('Kernel::System::Queue');
+        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 
         # enable bulk feature
         $SysConfigObject->ConfigItemUpdate(
@@ -42,6 +43,24 @@ $Selenium->RunTest(
             Valid => 1,
             Key   => 'Ticket::Frontend::AgentTicketBulk###RequiredLock',
             Value => 1,
+        );
+
+        # Enable ticket responsible feature.
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Ticket::Responsible',
+            Value => 1,
+        );
+
+        my $Config = $ConfigObject->Get('Ticket::Frontend::AgentTicketResponsible');
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Ticket::Frontend::AgentTicketResponsible',
+            Value => {
+                %{$Config},
+                Note          => 1,
+                NoteMandatory => 1,
+            },
         );
 
         # Get needed variables.
@@ -242,7 +261,7 @@ $Selenium->RunTest(
         );
 
         # get script alias
-        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         # navigate to AgentTicketStatusView
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketStatusView");
@@ -428,7 +447,13 @@ $Selenium->RunTest(
                     $Self->Is(
                         $Selenium->execute_script("return \$('#OwnerID option[value=$Key]').length;"),
                         $Exist,
-                        "Test user $IsFound",
+                        "OwnerID - Test user $IsFound",
+                    );
+
+                    $Self->Is(
+                        $Selenium->execute_script("return \$('#ResponsibleID option[value=$Key]').length;"),
+                        $Exist,
+                        "ResponsibleID - Test user $IsFound",
                     );
                 }
             }

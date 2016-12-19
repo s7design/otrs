@@ -90,8 +90,7 @@ sub Run {
     }
 
     elsif ( $Self->{Subaction} eq 'AJAXUpdate' ) {
-        my $QueueID        = $ParamObject->GetParam( Param => 'QueueID' )        || '';
-        my $ElementChanged = $ParamObject->GetParam( Param => 'ElementChanged' ) || '';
+        my $QueueID = $ParamObject->GetParam( Param => 'QueueID' ) || '';
 
         # Get all users.
         my %AllGroupsMembers = $Kernel::OM->Get('Kernel::System::User')->UserList(
@@ -100,30 +99,65 @@ sub Run {
         );
 
         # Put only possible rw agents to owner list.
-        if ( !$ConfigObject->Get('Ticket::ChangeOwnerToEveryone') && $QueueID ) {
+        if ( !$ConfigObject->Get('Ticket::ChangeOwnerToEveryone') ) {
             my %AllGroupsMembersNew;
-            my $GroupID = $Kernel::OM->Get('Kernel::System::Queue')->GetQueueGroupID( QueueID => $QueueID );
-            my %GroupMember = $Kernel::OM->Get('Kernel::System::Group')->PermissionGroupGet(
-                GroupID => $GroupID,
-                Type    => 'move_into',
-            );
-            USER_ID:
-            for my $UserID ( sort keys %GroupMember ) {
-                next USER_ID if !$AllGroupsMembers{$UserID};
-                $AllGroupsMembersNew{$UserID} = $AllGroupsMembers{$UserID};
+            my @QueueIDs;
+
+            if ($QueueID) {
+                @QueueIDs = ($QueueID);
             }
-            %AllGroupsMembers = %AllGroupsMembersNew;
+            else {
+                my @TicketIDs = grep {$_} $ParamObject->GetArray( Param => 'TicketID' );
+                for my $TicketID (@TicketIDs) {
+                    my %Ticket = $TicketObject->TicketGet(
+                        TicketID      => $TicketID,
+                        DynamicFields => 0,
+                    );
+                    push @QueueIDs, $Ticket{QueueID};
+                }
+            }
+
+            my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
+            my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+
+            for my $QueueID (@QueueIDs) {
+                my $GroupID = $QueueObject->GetQueueGroupID( QueueID => $QueueID );
+                my %GroupMember = $GroupObject->PermissionGroupGet(
+                    GroupID => $GroupID,
+                    Type    => 'rw',
+                );
+                USER_ID:
+                for my $UserID ( sort keys %GroupMember ) {
+                    next USER_ID if !$AllGroupsMembers{$UserID};
+                    $AllGroupsMembersNew{$UserID} = $AllGroupsMembers{$UserID};
+                }
+                %AllGroupsMembers = %AllGroupsMembersNew;
+            }
         }
 
-        my $JSON = $LayoutObject->BuildSelectionJSON(
-            [
-                {
-                    Name         => 'OwnerID',
-                    Data         => \%AllGroupsMembers,
-                    PossibleNone => 1,
-                },
-            ],
+        my @JSONData = (
+            {
+                Name         => 'OwnerID',
+                Data         => \%AllGroupsMembers,
+                PossibleNone => 1,
+            }
         );
+
+        if (
+            $ConfigObject->Get('Ticket::Responsible')
+            &&
+            $ConfigObject->Get("Ticket::Frontend::$Self->{Action}")->{Responsible}
+            )
+        {
+            push @JSONData,
+                {
+                Name         => 'ResponsibleID',
+                Data         => \%AllGroupsMembers,
+                PossibleNone => 1,
+                };
+        }
+
+        my $JSON = $LayoutObject->BuildSelectionJSON( [@JSONData] );
 
         return $LayoutObject->Attachment(
             ContentType => 'application/json; charset=' . $LayoutObject->{Charset},
