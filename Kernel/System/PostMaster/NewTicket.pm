@@ -206,6 +206,11 @@ sub Run {
         }
     }
 
+    # if there is no customer user found!
+    if ( !$GetParam{'X-OTRS-CustomerUser'} ) {
+        $GetParam{'X-OTRS-CustomerUser'} = $GetParam{SenderEmailAddress};
+    }
+
     # get ticket owner
     my $OwnerID = $GetParam{'X-OTRS-OwnerID'} || $Param{InmailUserID};
     if ( $GetParam{'X-OTRS-Owner'} ) {
