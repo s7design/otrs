@@ -1301,6 +1301,7 @@ sub _Mask {
                 Label => $Label,
                 Value => $ValueStrg->{Value},
                 Title => $ValueStrg->{Title},
+                Link  => $DynamicFieldConfig->{Config}->{Link},
             },
         );
 
