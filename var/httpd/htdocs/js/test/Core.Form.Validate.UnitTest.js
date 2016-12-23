@@ -281,7 +281,7 @@ Core.Form.Validate = (function (Namespace) {
 
             // Test: Validate_DateInFuture - with radio button
             $TestForm.append('<input type="radio" name="Radio" value="0" id="Radio0" />');
-            $TestForm.append('<input type="radio" name="Radio" value="1" id="Radio1" />');
+            $TestForm.append('<input type="radio" class="DateSelection" name="Radio" value="1" id="Radio1" />');
 
             NewDate = new Date();
             NewDate.setDate(NewDate.getDate() - 2);
@@ -390,7 +390,7 @@ Core.Form.Validate = (function (Namespace) {
 
             // Test: Validate_DateNotInFuture - with radio button
             $TestForm.append('<input type="radio" name="Radio" value="0" id="Radio0" />');
-            $TestForm.append('<input type="radio" name="Radio" value="1" id="Radio1" />');
+            $TestForm.append('<input type="radio" class="DateSelection" name="Radio" value="1" id="Radio1" />');
 
             NewDate = new Date();
             NewDate.setDate(NewDate.getDate() + 2);
