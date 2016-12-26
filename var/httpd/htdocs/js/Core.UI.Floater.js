@@ -184,7 +184,13 @@ Core.UI.Floater = (function (TargetNS) {
                 $('[data-trigger="floater"]').removeClass('FloaterOpen');
                 $TriggerObj.addClass('FloaterOpen');
 
-                $FloaterObj = $('#AppWrapper > .MetaFloater.Hidden').clone();
+                // Separate creating of $FloaterObj for agent and customer interface.
+                if (Core.Config.Get('CGIHandle').search(/customer.pl/) > 0) {
+                    $FloaterObj = $('body > .MetaFloater.Hidden').clone();
+                }
+                else {
+                    $FloaterObj = $('#AppWrapper > .MetaFloater.Hidden').clone();
+                }
 
                 // only one floater at the same time, so close other ones
                 $('body > div.MetaFloater:visible').remove();
@@ -196,7 +202,7 @@ Core.UI.Floater = (function (TargetNS) {
                 FloaterWidth = parseInt($FloaterObj.outerWidth(), 10);
 
                 // set left position
-                if (TriggerOffset.left < FloaterWidth / 2) {
+                if (TriggerOffset.left - 50 < FloaterWidth / 2) {
 
                     // case 1: trigger element on far left side without enough space to show the floater
                     $FloaterObj.addClass('Left').css({
@@ -204,7 +210,7 @@ Core.UI.Floater = (function (TargetNS) {
                         left: TriggerOffset.left
                     });
                 }
-                else if (ViewportWidth - TriggerOffset.left + ($TriggerObj.outerWidth() / 2) < FloaterWidth / 2) {
+                else if (ViewportWidth - TriggerOffset.left + ($TriggerObj.outerWidth() / 2) - 50 < FloaterWidth / 2) {
 
                     // case 2: trigger element on far right side
                     $FloaterObj.addClass('Right').css({

@@ -57,7 +57,8 @@ $Selenium->RunTest(
             FieldType  => 'Text',
             ObjectType => 'Ticket',
             Config     => {
-                Link => $DynamicFieldLink,
+                Link        => $DynamicFieldLink,
+                LinkPreview => 'https://www.otrs.com',
             },
             ValidID => 1,
             UserID  => 1,
@@ -129,6 +130,23 @@ $Selenium->RunTest(
             ),
             $DynamicFieldLink,
             "Dynamic field link '$DynamicFieldLink' is correct",
+        );
+
+        # Hover dynamic field link.
+        $Selenium->execute_script(
+            "\$('#ZoomSidebar li span.Key:contains($DynamicFieldName)').siblings('span').find('a.DynamicFieldLink').mouseenter();"
+        );
+
+        # Wait for the floater to be fully visible.
+        $Selenium->WaitFor(
+            JavaScript => "return parseInt(\$('div.MetaFloater:visible').css('opacity'), 10) === 1;"
+        );
+
+        # Check if a floater is visible now.
+        $Self->Is(
+            $Selenium->execute_script("return \$('div.MetaFloater:visible').length"),
+            1,
+            'Floater is visible',
         );
 
         # Delete test created ticket.
