@@ -216,16 +216,22 @@ $Selenium->RunTest(
             "Ticket with priority '1 very low' is not found on screen with filter active",
         );
 
-        # click on priority column to order by 'Up'
+        # verify priority order by is not changed
+        $Self->True(
+            $Selenium->find_element("//a[contains(\@title, \'Priority, sorted descending' )]"),
+            "Priority column order by is not changed",
+        );
+
+        # click on priority column - order by is 'Up'
         $Selenium->find_element( "#PriorityOverviewControl0120-TicketNew", 'css' )->click();
 
         # wait for AJAX to load
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && !$(".Loading").length' );
 
-        # verify priority order by is changed
+        # verify priority order by is changed to 'Up'
         $Self->True(
             $Selenium->find_element("//a[contains(\@title, \'Priority, sorted ascending' )]"),
-            "Priority column order by changed",
+            "Priority column order by is changed",
         );
 
         # verify ticket with priority '1 very low' is now on screen

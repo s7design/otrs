@@ -43,6 +43,9 @@ sub new {
     # get add filters param
     $Self->{AddFilters} = $ParamObject->GetParam( Param => 'AddFilters' ) || $Param{AddFilters} || 0;
 
+    # Get previous sorting column.
+    $Self->{SortingColumn} = $ParamObject->GetParam( Param => 'SortingColumn' ) || $Param{SortingColumn};
+
     # set filter settings
     for my $Item (qw(ColumnFilter GetColumnFilter GetColumnFilterSelect)) {
         $Self->{$Item} = $Param{$Item};
@@ -547,7 +550,7 @@ sub Run {
     # Set OrderBy parameter to the search.
     my $IsCacheForUse = 0;
     if ( $Self->{OrderBy} ) {
-        if ( $Self->{AddFilters} ) {
+        if ( $Self->{AddFilters} || ( $Self->{SortingColumn} && $Self->{SortingColumn} ne $Self->{SortBy} ) ) {
             $TicketSearch{OrderBy} = $Self->{OrderBy};
             $IsCacheForUse = 1;
         }
@@ -555,6 +558,9 @@ sub Run {
             $TicketSearch{OrderBy} = $Self->{OrderBy} eq 'Up' ? 'Down' : 'Up';
         }
     }
+
+    # Set previous sorting column parameter for all columns.
+    $Param{SortingColumn} = $Self->{SortBy};
 
     $CacheKey .= '-' . $TicketSearch{OrderBy} if defined $TicketSearch{OrderBy};
 

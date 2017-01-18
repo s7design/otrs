@@ -115,7 +115,7 @@
         });
 
         $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').addClass('Loading');
-        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + ''), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';' + LinkPage + ';CustomerID=' + CustomerID + ';SortBy=TicketNumber;OrderBy=[% Data.OrderBy | html %]', function () {
+        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + ''), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';' + LinkPage + ';CustomerID=' + CustomerID + ';SortBy=TicketNumber;OrderBy=[% Data.OrderBy | html %];SortingColumn=[% Data.SortingColumn | html %]', function () {
             $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').removeClass('Loading');
         });
         Event.preventDefault();
@@ -198,7 +198,7 @@ Core.Agent.Dashboard.InitUserAutocomplete( $(".UserAutoComplete") );
         });
 
         $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').addClass('Loading');
-        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=[% Data.SortBy | html %];OrderBy=[% Data.OrderBy | html %];AddFilters=1;' + LinkPage, function () {
+        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=[% Data.SortBy | html %];OrderBy=[% Data.OrderBy | html %];AddFilters=1;SortingColumn=[% Data.SortingColumn | html %];' + LinkPage, function () {
             $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').removeClass('Loading');
         });
         return false;
@@ -236,7 +236,7 @@ Core.Agent.Dashboard.InitUserAutocomplete( $(".UserAutoComplete") );
         });
 
         $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').addClass('Loading');
-        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=[% Data.HeaderColumnName | html %];OrderBy=[% Data.OrderBy | html %];' + LinkPage, function () {
+        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=[% Data.HeaderColumnName | html %];OrderBy=[% Data.OrderBy | html %];SortingColumn=[% Data.SortingColumn | html %];' + LinkPage, function () {
             $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').removeClass('Loading');
         });
         Event.preventDefault();
@@ -282,7 +282,7 @@ Core.Agent.Dashboard.InitUserAutocomplete( $(".UserAutoComplete") );
         });
 
         $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').addClass('Loading');
-        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID +';SortBy=[% Data.HeaderColumnName | html %];OrderBy=[% Data.OrderBy | html %];' + LinkPage, function () {
+        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID +';SortBy=[% Data.HeaderColumnName | html %];OrderBy=[% Data.OrderBy | html %];SortingColumn=[% Data.SortingColumn | html %];' + LinkPage, function () {
             $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').removeClass('Loading');
         });
         Event.preventDefault();
@@ -349,7 +349,7 @@ Core.Agent.Dashboard.InitCustomerUserAutocomplete( $(".CustomerUserAutoComplete"
         });
 
         $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').addClass('Loading');
-        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=[% Data.SortBy | html %];OrderBy=[% Data.OrderBy | html %];AddFilters=1;' + LinkPage, function () {
+        Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]')), '[% Env("Baselink") %]Action=[% Env("Action") %];Subaction=Element;Name=[% Data.Name | html %];Filter=' + Filter + ';CustomerID=' + CustomerID + ';SortBy=[% Data.SortBy | html %];OrderBy=[% Data.OrderBy | html %];AddFilters=1;SortingColumn=[% Data.SortingColumn | html %];' + LinkPage, function () {
             $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').removeClass('Loading');
         });
         return false;

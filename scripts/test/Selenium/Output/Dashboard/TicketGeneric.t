@@ -107,7 +107,7 @@ $Selenium->RunTest(
         my %Configs = (
             '0100-TicketPendingReminder' => {
                 'Attributes' =>
-                    'TicketPendingTimeOlderMinutes=1;StateType=pending reminder;SortBy=PendingTime;OrderBy=Down;',
+                    'TicketPendingTimeOlderMinutes=1;StateType=pending reminder;SortBy=PendingTime;OrderBy=Up;',
                 'Block'          => 'ContentLarge',
                 'CacheTTLLocal'  => '0.5',
                 'Default'        => '1',
@@ -146,7 +146,7 @@ $Selenium->RunTest(
                 'Title'       => 'Reminder Tickets'
             },
             '0110-TicketEscalation' => {
-                'Attributes'     => 'TicketEscalationTimeOlderMinutes=1;SortBy=EscalationTime;OrderBy=Down;',
+                'Attributes'     => 'TicketEscalationTimeOlderMinutes=1;SortBy=EscalationTime;OrderBy=Up;',
                 'Block'          => 'ContentLarge',
                 'CacheTTLLocal'  => '0.5',
                 'Default'        => '1',
