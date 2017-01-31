@@ -177,6 +177,12 @@ Core.UI.ActionRow = (function (TargetNS) {
             TicketView = 'Small';
         }
 
+        // Hide 'Select all' checkbox and stylize 'Bulk' in Large and Medium view when table is empty.
+        if ((TicketView === 'Medium' || TicketView === 'Large') && $('#EmptyMessage' + TicketView).length === 1) {
+            $('#SelectAllTickets').parent().parent().hide();
+            $('#BulkAction').css('margin-left', '5px');
+        }
+
         $('#SelectAllTickets').bind('click', function () {
             var Status = $(this).prop('checked');
             $(TicketElementSelectors[TicketView]).prop('checked', Status).triggerHandler('click');
