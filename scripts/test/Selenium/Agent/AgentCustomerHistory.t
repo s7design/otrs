@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -67,8 +67,9 @@ $Selenium->RunTest(
         );
 
         # Create test tickets.
+        my $NumberOfTickets = 3;
         my @Tickets;
-        for my $Count ( 1 .. 3 ) {
+        for my $Count ( 1 .. $NumberOfTickets ) {
             my $TicketID = $TicketObject->TicketCreate(
                 Title        => $Count . '-SeleniumTicket-' . $RandomNumber,
                 Queue        => 'Raw',
@@ -152,7 +153,10 @@ $Selenium->RunTest(
                 JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length'
             );
             $Selenium->find_element("//li[contains(text(), '$TestUser')]")->VerifiedClick();
-            $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $(".OverviewBox").length' );
+            $Selenium->WaitFor(
+                JavaScript =>
+                    'return typeof($) === "function" && $("a[href*=\'View=Preview;Subaction=CustomerTickets;\']").length'
+            );
 
             # Go to 'Large' view because all of events could be checked there.
             $Selenium->find_element("//a[contains(\@href, \'View=Preview;Subaction=CustomerTickets;')]")->click();
@@ -161,8 +165,18 @@ $Selenium->RunTest(
             # Check sorting by title, ascending.
             $Selenium->execute_script("\$('#SortBy').val('Title|Up').trigger('redraw.InputField').trigger('change');");
 
-            # Wait for sorting to be finished.
-            sleep 1;
+            # Get first and last ticket ID.
+            my $FirstTicketID = $Tickets[0]->{TicketID};
+            my $LastIndex     = $NumberOfTickets - 1;
+            my $LastTicketID  = $Tickets[$LastIndex]->{TicketID};
+
+            # Wait until sorting is finished.
+            $Selenium->WaitFor(
+                JavaScript =>
+                    "return typeof(\$) === 'function' &&
+                     \$('#TicketOverviewLarge > li:eq(0)').attr('id') === 'TicketID_$FirstTicketID' &&
+                      \$('#TicketOverviewLarge > li:eq($LastIndex)').attr('id') === 'TicketID_$LastTicketID'"
+            );
 
             my $Count = 0;
             for my $Ticket (@Tickets) {
@@ -170,7 +184,7 @@ $Selenium->RunTest(
                 $Self->Is(
                     $Selenium->execute_script("return \$('#TicketOverviewLarge > li:eq($Count)').attr('id');"),
                     "TicketID_$TicketID",
-                    "TicketID $TicketID is found in expected row",
+                    "$Test->{Screen} - Up - TicketID $TicketID is found in expected row",
                 );
                 $Count++;
             }
@@ -180,8 +194,13 @@ $Selenium->RunTest(
                 "\$('#SortBy').val('Title|Down').trigger('redraw.InputField').trigger('change');"
             );
 
-            # Wait for sorting to be finished.
-            sleep 1;
+            # Wait until sorting is finished.
+            $Selenium->WaitFor(
+                JavaScript =>
+                    "return typeof(\$) === 'function' &&
+                     \$('#TicketOverviewLarge > li:eq(0)').attr('id') === 'TicketID_$LastTicketID' &&
+                      \$('#TicketOverviewLarge > li:eq($LastIndex)').attr('id') === 'TicketID_$FirstTicketID'"
+            );
 
             $Count = $TicketsLastIndex;
             for my $Ticket (@Tickets) {
@@ -191,7 +210,7 @@ $Selenium->RunTest(
                 $Self->Is(
                     $Selenium->execute_script("return \$('#TicketOverviewLarge > li:eq($Count)').attr('id');"),
                     "TicketID_$TicketID",
-                    "TicketID $TicketID is found in expected row",
+                    "$Test->{Screen} - Down - TicketID $TicketID is found in expected row",
                 );
                 $Count--;
 
@@ -207,7 +226,7 @@ $Selenium->RunTest(
 
                 $Self->True(
                     $Selenium->execute_script("return \$('h1:contains(\"$Ticket->{Title}\")').length;"),
-                    "Ticket title is correct",
+                    "$Test->{Screen} - Ticket title is correct",
                 );
 
                 # Close popup.
@@ -222,7 +241,7 @@ $Selenium->RunTest(
             $Self->True(
                 index( $Selenium->get_current_url(), 'Action=AgentTicketZoom;TicketID=' . $Tickets[0]->{TicketID} )
                     > -1,
-                "Link redirected to the correct page",
+                "$Test->{Screen} - Link redirected to the correct page",
             );
         }
 
