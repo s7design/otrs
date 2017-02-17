@@ -18,8 +18,20 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get helper object
-        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        # get needed objects
+        my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+        # check if cloud services are disabled
+        my $CloudServicesDisabled = $ConfigObject->Get('CloudServices::Disabled');
+
+        if ($CloudServicesDisabled) {
+            $Self->True(
+                1,
+                "Cloud services are disabled - test is finished",
+            );
+            return 1;
+        }
 
         # get dashboard ProductNotify plugin default sysconfig
         my %ProductNotifyConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
@@ -41,7 +53,7 @@ $Selenium->RunTest(
         my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
         # get content of RELEASE
-        my $Home = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+        my $Home = $ConfigObject->Get('Home');
         my $Content = $MainObject->FileRead( Location => "$Home/RELEASE" );
 
         my $OriginalContent = ${$Content};
