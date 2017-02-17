@@ -18,11 +18,23 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get helper object
-        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        # get needed objects
+        my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+        # check if cloud services are disabled
+        my $CloudServicesDisabled = $ConfigObject->Get('CloudServices::Disabled');
+
+        if ($CloudServicesDisabled) {
+            $Self->True(
+                1,
+                "Cloud services are disabled - there are no news and test is finished",
+            );
+            return 1;
+        }
 
         # disable all dashboard plugins
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get('DashboardBackend');
+        my $Config = $ConfigObject->Get('DashboardBackend');
         $Helper->ConfigSettingChange(
             Valid => 0,
             Key   => 'DashboardBackend',
@@ -57,18 +69,27 @@ $Selenium->RunTest(
         );
 
         # get script alias
-        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+        my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         # navigate dashboard screen and wait until page has loaded
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentDashboard");
 
-        # test if News plugin shows correct link
-        my $NewsLink = "https://www.otrs.com/";
-        $Self->True(
+        # check if News plugin has correct title
+        $Self->Is(
             $Selenium->execute_script(
-                "return \$('#Dashboard0405-News').find(\"a.AsBlock[href*='$NewsLink']\").length;"
-                ) > 0,
-            "News dashboard plugin link ($NewsLink) - found",
+                "return \$('#Dashboard0405-News-box .Header h2:contains(\"OTRS News\")').length;"
+            ),
+            1,
+            "News dashboard plugin title 'OTRS News' is found",
+        );
+
+        # check if News plugin has correct table
+        $Self->Is(
+            $Selenium->execute_script(
+                "return \$('#Dashboard0405-News table.DataTable').length;"
+            ),
+            1,
+            "News dashboard plugin table is found",
         );
     }
 );
