@@ -575,15 +575,17 @@ if (Core.Config.Get('RefreshSeconds_[% Data.NameHTML | html %]')) {
 
         // get active filter
         var Filter      = $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').find('.Tab.Actions li.Selected a').attr('data-filter'),
-            $OrderByObj = $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').find('th.SortDescendingLarge, th.SortAscendingLarge'),
+
+            // last() is added for the case when ordered column is Priority because there are two columns - one with flags and one normal
+            $OrderByObj = $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').find('th.SortDescendingLarge, th.SortAscendingLarge').last(),
             SortBy      = $OrderByObj.attr('data-column') || '',
             OrderBy     = '';
 
         if ($OrderByObj && $OrderByObj.hasClass('SortDescendingLarge')) {
-            OrderBy = 'Up';
+            OrderBy = 'Down';
         }
         else if ($OrderByObj && $OrderByObj.hasClass('SortAscendingLarge')) {
-            OrderBy = 'Down';
+            OrderBy = 'Up';
         }
 
         $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').addClass('Loading');
