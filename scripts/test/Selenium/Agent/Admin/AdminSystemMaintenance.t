@@ -223,9 +223,13 @@ $Selenium->RunTest(
         $Selenium->WaitFor( AlertPresent => 1 );
 
         # accept delete confirmation dialog
+        $Selenium->accept_alert();
+
+        # refresh screen.
+        $Selenium->VerifiedRefresh();
         $Self->True(
-            $Selenium->accept_alert(),
-            "Deleted - $SysMainComment",
+            index( $Selenium->get_page_source(), $SysMainComment ) == -1,
+            "Deleted - $SysMainComment"
         );
 
         # define test SystemMaintenance scenarios
