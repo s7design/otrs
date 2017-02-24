@@ -569,23 +569,21 @@ $('.AutoColspan').each(function() {
 [% RenderBlockStart("ContentLargeTicketGenericRefresh") %]
 [% WRAPPER JSOnDocumentComplete %]
 <script type="text/javascript">//<![CDATA[
-Core.Config.Set('RefreshSeconds_[% Data.NameHTML | html %]', parseInt(5, 10) || 0);
+Core.Config.Set('RefreshSeconds_[% Data.NameHTML | html %]', parseInt("[% Data.RefreshTime | html %]", 10) || 0);
 if (Core.Config.Get('RefreshSeconds_[% Data.NameHTML | html %]')) {
     Core.Config.Set('Timer_[% Data.NameHTML | html %]', window.setTimeout(function() {
 
         // get active filter
-        var Filter = $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').find('.Tab.Actions li.Selected a').attr('data-filter'),
-
-            // last() is added for the case when sorted by Priority because there are two columns - first default column with flags and second normal
+        var Filter      = $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').find('.Tab.Actions li.Selected a').attr('data-filter'),
             $OrderByObj = $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').find('th.SortDescendingLarge, th.SortAscendingLarge').last(),
             SortBy      = $OrderByObj.attr('data-column') || '',
             OrderBy     = '';
 
         if ($OrderByObj && $OrderByObj.hasClass('SortDescendingLarge')) {
-            OrderBy = 'Up';
+            OrderBy = 'Down';
         }
         else if ($OrderByObj && $OrderByObj.hasClass('SortAscendingLarge')) {
-            OrderBy = 'Down';
+            OrderBy = 'Up';
         }
 
         $('#Dashboard' + Core.App.EscapeSelector('[% Data.Name | html %]') + '-box').addClass('Loading');
