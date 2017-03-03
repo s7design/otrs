@@ -14,6 +14,7 @@ use warnings;
 use List::Util qw(first);
 
 use Kernel::System::VariableCheck qw(:all);
+use Email::Valid;
 
 our @ObjectDependencies = (
     'Kernel::Config',
@@ -769,8 +770,15 @@ sub _RecipientsGet {
 
                     );
 
-                    # join Recipient data with CustomerUser data
-                    %Recipient = ( %Recipient, %CustomerUser );
+                    # check if customer user is email address, in case it is not stored in system
+                    if ( !IsHashRefWithData( \%CustomerUser ) && Email::Valid->address( $Article{CustomerUserID} ) ) {
+                        $Recipient{UserEmail} = $Article{CustomerUserID};
+                    }
+                    else {
+
+                        # join Recipient data with CustomerUser data
+                        %Recipient = ( %Recipient, %CustomerUser );
+                    }
 
                     # get user language
                     if ( $CustomerUser{UserLanguage} ) {
