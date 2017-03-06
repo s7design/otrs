@@ -154,6 +154,16 @@ my %DynamicFieldConfigs = (
     },
 );
 
+# Set expected results depends on DB case sensitive property (bug#12657).
+my $TableAlias = 'dfv';
+my $SearchTerm = 'Foo';
+my $ValueText  = 'value_text';
+
+if ( $DBObject->{Backend}->{'DB::CaseSensitive'} == 1 ) {
+    $ValueText  = "LOWER($TableAlias.$ValueText)";
+    $SearchTerm = "LOWER('$SearchTerm')";
+}
+
 # define tests
 my @Tests = (
     {
@@ -218,14 +228,14 @@ my @Tests = (
             },
         },
         ExpectedResult => {
-            Equals            => " dfv.value_text = 'Foo' ",
-            GreaterThan       => " dfv.value_text > 'Foo' ",
-            GreaterThanEquals => " dfv.value_text >= 'Foo' ",
+            Equals            => " $ValueText = $SearchTerm ",
+            GreaterThan       => " $ValueText > $SearchTerm ",
+            GreaterThanEquals => " $ValueText >= $SearchTerm ",
             Like              => {
                 ColumnKey => 'dfv.value_text',
             },
-            SmallerThan       => " dfv.value_text < 'Foo' ",
-            SmallerThanEquals => " dfv.value_text <= 'Foo' ",
+            SmallerThan       => " $ValueText < $SearchTerm ",
+            SmallerThanEquals => " $ValueText <= $SearchTerm ",
         },
     },
     {
@@ -243,14 +253,14 @@ my @Tests = (
             },
         },
         ExpectedResult => {
-            Equals            => " dfv.value_text = 'Foo' ",
-            GreaterThan       => " dfv.value_text > 'Foo' ",
-            GreaterThanEquals => " dfv.value_text >= 'Foo' ",
+            Equals            => " $ValueText = $SearchTerm ",
+            GreaterThan       => " $ValueText > $SearchTerm ",
+            GreaterThanEquals => " $ValueText >= $SearchTerm ",
             Like              => {
                 ColumnKey => 'dfv.value_text',
             },
-            SmallerThan       => " dfv.value_text < 'Foo' ",
-            SmallerThanEquals => " dfv.value_text <= 'Foo' ",
+            SmallerThan       => " $ValueText < $SearchTerm ",
+            SmallerThanEquals => " $ValueText <= $SearchTerm ",
         },
     },
     {

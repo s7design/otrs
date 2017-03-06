@@ -122,8 +122,17 @@ sub SearchSQLGet {
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
     if ( $Operators{ $Param{Operator} } ) {
-        my $SQL = " $Param{TableAlias}.value_text $Operators{$Param{Operator}} '";
-        $SQL .= $DBObject->Quote( $Param{SearchTerm} ) . "' ";
+
+        my $SQL;
+        if ( !$DBObject->GetDatabaseFunction('CaseSensitive') ) {
+            $SQL = " $Param{TableAlias}.value_text $Operators{$Param{Operator}} '";
+            $SQL .= $DBObject->Quote( $Param{SearchTerm} ) . "' ";
+        }
+        else {
+            $SQL = " LOWER($Param{TableAlias}.value_text) $Operators{$Param{Operator}} ";
+            $SQL .= "LOWER('" . $DBObject->Quote( $Param{SearchTerm} ) . "') ";
+        }
+
         return $SQL;
     }
 
