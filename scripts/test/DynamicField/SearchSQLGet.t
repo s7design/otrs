@@ -157,6 +157,19 @@ my %DynamicFieldConfigs = (
     },
 );
 
+# Set expected results depends on SearchCaseSensitive and DB case sensitive properties (bug#12657).
+my $SearchTerm = "\'Foo\'";
+my $ValueText  = 'dfv.value_text';
+
+if (
+    !$DBObject->GetDatabaseFunction('CaseSensitive') ||
+    !$Kernel::OM->Get('Kernel::Config')->{CustomerUser}->{Params}->{SearchCaseSensitive}
+    )
+{
+    $ValueText  = "LOWER($ValueText)";
+    $SearchTerm = "LOWER($SearchTerm)";
+}
+
 # define tests
 my @Tests = (
     {
@@ -223,14 +236,14 @@ my @Tests = (
         },
         ExpectedResult => {
             Empty             => " dfv.value_text IS NULL ",
-            Equals            => " dfv.value_text = 'Foo' ",
-            GreaterThan       => " dfv.value_text > 'Foo' ",
-            GreaterThanEquals => " dfv.value_text >= 'Foo' ",
+            Equals            => " $ValueText = $SearchTerm ",
+            GreaterThan       => " $ValueText > $SearchTerm ",
+            GreaterThanEquals => " $ValueText >= $SearchTerm ",
             Like              => {
                 ColumnKey => 'dfv.value_text',
             },
-            SmallerThan       => " dfv.value_text < 'Foo' ",
-            SmallerThanEquals => " dfv.value_text <= 'Foo' ",
+            SmallerThan       => " $ValueText < $SearchTerm ",
+            SmallerThanEquals => " $ValueText <= $SearchTerm ",
         },
     },
     {
@@ -250,14 +263,14 @@ my @Tests = (
         },
         ExpectedResult => {
             Empty             => " dfv.value_text IS NULL ",
-            Equals            => " dfv.value_text = 'Foo' ",
-            GreaterThan       => " dfv.value_text > 'Foo' ",
-            GreaterThanEquals => " dfv.value_text >= 'Foo' ",
+            Equals            => " $ValueText = $SearchTerm ",
+            GreaterThan       => " $ValueText > $SearchTerm ",
+            GreaterThanEquals => " $ValueText >= $SearchTerm ",
             Like              => {
                 ColumnKey => 'dfv.value_text',
             },
-            SmallerThan       => " dfv.value_text < 'Foo' ",
-            SmallerThanEquals => " dfv.value_text <= 'Foo' ",
+            SmallerThan       => " $ValueText < $SearchTerm ",
+            SmallerThanEquals => " $ValueText <= $SearchTerm ",
         },
     },
     {

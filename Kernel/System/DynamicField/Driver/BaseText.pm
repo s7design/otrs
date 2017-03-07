@@ -20,6 +20,7 @@ our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::DynamicFieldValue',
     'Kernel::System::Log',
+    'Kernel::Config',
 );
 
 =head1 NAME
@@ -147,8 +148,21 @@ sub SearchSQLGet {
         return;
     }
 
-    my $SQL = " $Param{TableAlias}.value_text $Operators{ $Param{Operator} } '";
-    $SQL .= $Kernel::OM->Get('Kernel::System::DB')->Quote( $Param{SearchTerm} ) . "' ";
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+    my $SQL;
+    if (
+        $Kernel::OM->Get('Kernel::Config')->{CustomerUser}->{Params}->{SearchCaseSensitive} &&
+        $DBObject->GetDatabaseFunction('CaseSensitive')
+        )
+    {
+        $SQL = " $Param{TableAlias}.value_text $Operators{$Param{Operator}} '";
+        $SQL .= $DBObject->Quote( $Param{SearchTerm} ) . "' ";
+    }
+    else {
+        $SQL = " LOWER($Param{TableAlias}.value_text) $Operators{$Param{Operator}} ";
+        $SQL .= "LOWER('" . $DBObject->Quote( $Param{SearchTerm} ) . "') ";
+    }
+
     return $SQL;
 }
 
