@@ -157,17 +157,13 @@ my %DynamicFieldConfigs = (
     },
 );
 
-# Set expected results depends on SearchCaseSensitive and DB case sensitive properties (bug#12657).
-my $SearchTerm = "\'Foo\'";
-my $ValueText  = 'dfv.value_text';
+# Set expected results depends on database case sensitivity (bug#12657).
+my $SearchTerm = "(\'Foo\')";
+my $ValueText  = '(dfv.value_text)';
 
-if (
-    !$DBObject->GetDatabaseFunction('CaseSensitive') ||
-    !$Kernel::OM->Get('Kernel::Config')->{CustomerUser}->{Params}->{SearchCaseSensitive}
-    )
-{
-    $ValueText  = "LOWER($ValueText)";
-    $SearchTerm = "LOWER($SearchTerm)";
+if ( !$DBObject->GetDatabaseFunction('CaseSensitive') ) {
+    $ValueText  = 'LOWER' . $ValueText;
+    $SearchTerm = 'LOWER' . $SearchTerm;
 }
 
 # define tests

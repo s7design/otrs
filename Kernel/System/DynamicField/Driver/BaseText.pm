@@ -149,19 +149,13 @@ sub SearchSQLGet {
     }
 
     my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
-    my $SQL;
-    if (
-        $Kernel::OM->Get('Kernel::Config')->{CustomerUser}->{Params}->{SearchCaseSensitive} &&
-        $DBObject->GetDatabaseFunction('CaseSensitive')
-        )
-    {
-        $SQL = " $Param{TableAlias}.value_text $Operators{$Param{Operator}} '";
-        $SQL .= $DBObject->Quote( $Param{SearchTerm} ) . "' ";
+    my $Lower    = '';
+    if ( !$DBObject->GetDatabaseFunction('CaseSensitive') ) {
+        $Lower = 'LOWER';
     }
-    else {
-        $SQL = " LOWER($Param{TableAlias}.value_text) $Operators{$Param{Operator}} ";
-        $SQL .= "LOWER('" . $DBObject->Quote( $Param{SearchTerm} ) . "') ";
-    }
+
+    my $SQL = " $Lower($Param{TableAlias}.value_text) $Operators{$Param{Operator}} ";
+    $SQL .= "$Lower('" . $DBObject->Quote( $Param{SearchTerm} ) . "') ";
 
     return $SQL;
 }
