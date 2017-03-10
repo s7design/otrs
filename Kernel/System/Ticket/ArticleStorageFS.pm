@@ -79,29 +79,11 @@ sub ArticleDelete {
         }
     }
 
-    my $DynamicFieldListArticle = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
-        ObjectType => 'Article',
-        Valid      => 0,
+    # Delete dynamicfield values for this Article.
+    $Kernel::OM->Get('Kernel::System::DynamicFieldValue')->ObjectValuesDelete(
+        ObjectID => $Param{ArticleID},
+        UserID   => $Param{UserID},
     );
-
-    # get dynamic field backend object
-    my $DynamicFieldBackendObject = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-
-    # delete dynamicfield values for this article
-    DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{$DynamicFieldListArticle} ) {
-
-        next DYNAMICFIELD if !$DynamicFieldConfig;
-        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-        next DYNAMICFIELD if !$DynamicFieldConfig->{Name};
-        next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldConfig->{Config} );
-
-        $DynamicFieldBackendObject->ValueDelete(
-            DynamicFieldConfig => $DynamicFieldConfig,
-            ObjectID           => $Param{ArticleID},
-            UserID             => $Param{UserID},
-        );
-    }
 
     # delete index
     $Self->ArticleIndexDelete(

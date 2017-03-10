@@ -370,6 +370,49 @@ sub AllValuesDelete {
     return 1;
 }
 
+=head2 ObjectValuesDelete()
+
+Delete all entries of a dynamic field values for object ID.
+
+    my $Success = $DynamicFieldValueObject->ObjectValuesDelete(
+        ObjectID  => $ObjectID,         # ID of the current object that the field
+                                        #   is linked to, e. g. TicketID
+        UserID  => 123,
+    );
+
+    Returns 1.
+
+=cut
+
+sub ObjectValuesDelete {
+    my ( $Self, %Param ) = @_;
+
+    # Check needed stuff.
+    for my $Needed (qw(ObjectID UserID)) {
+        if ( !$Param{$Needed} ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need $Needed!"
+            );
+            return;
+        }
+    }
+
+    # Delete dynamic field value.
+    return if !$Kernel::OM->Get('Kernel::System::DB')->Do(
+        SQL  => 'DELETE FROM dynamic_field_value WHERE object_id = ?',
+        Bind => [ \$Param{ObjectID} ],
+    );
+
+    # Clear ValueGet cache.
+    $Kernel::OM->Get('Kernel::System::Cache')->Delete(
+        Type => 'DynamicFieldValue',
+        Key  => 'ValueGet::ObjectID::' . $Param{ObjectID},
+    );
+
+    return 1;
+}
+
 =head2 ValueValidate()
 
 checks if the given value is valid for the value type.
