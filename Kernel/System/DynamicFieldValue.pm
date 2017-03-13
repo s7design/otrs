@@ -19,6 +19,7 @@ our @ObjectDependencies = (
     'Kernel::System::DB',
     'Kernel::System::Log',
     'Kernel::System::Time',
+    'Kernel::System::DynamicField',
 );
 
 =head1 NAME
@@ -375,9 +376,10 @@ sub AllValuesDelete {
 Delete all entries of a dynamic field values for object ID.
 
     my $Success = $DynamicFieldValueObject->ObjectValuesDelete(
-        ObjectID  => $ObjectID,         # ID of the current object that the field
-                                        #   is linked to, e. g. TicketID
-        UserID  => 123,
+        ObjectID   => $ObjectID,   # ID of the current object that the field
+                                   #   is linked to, e. g. TicketID
+        ObjectType => 'Ticket',    # Dynamic Field object type ( e. g. Ticket, Article, FAQ)
+        UserID     => 123,
     );
 
     Returns 1.
@@ -388,7 +390,7 @@ sub ObjectValuesDelete {
     my ( $Self, %Param ) = @_;
 
     # Check needed stuff.
-    for my $Needed (qw(ObjectID UserID)) {
+    for my $Needed (qw(ObjectID ObjectType UserID)) {
         if ( !$Param{$Needed} ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
@@ -398,9 +400,17 @@ sub ObjectValuesDelete {
         }
     }
 
+    # Get all dynamic fields for the specified object type.
+    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+        ObjectType => $Param{ObjectType},
+        Valid      => 0,
+    );
+    my @DynamicFieldIDs = map { $_->{ID} } @{$DynamicFieldList};
+
     # Delete dynamic field value.
     return if !$Kernel::OM->Get('Kernel::System::DB')->Do(
-        SQL  => 'DELETE FROM dynamic_field_value WHERE object_id = ?',
+        SQL =>
+            "DELETE FROM dynamic_field_value WHERE object_id = ? AND field_id IN ( ${\(join ', ', @DynamicFieldIDs ) } )",
         Bind => [ \$Param{ObjectID} ],
     );
 

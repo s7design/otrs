@@ -726,8 +726,9 @@ sub TicketDelete {
 
     # delete dynamicfield values for this ticket
     $Kernel::OM->Get('Kernel::System::DynamicFieldValue')->ObjectValuesDelete(
-        ObjectID => $Param{TicketID},
-        UserID   => $Param{UserID},
+        ObjectID   => $Param{TicketID},
+        ObjectType => 'Ticket',
+        UserID     => $Param{UserID},
     );
 
     # clear ticket cache

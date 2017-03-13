@@ -767,8 +767,9 @@ $Self->True(
 
 # Delete the dynamic field values for object ID.
 my $ObjectValueDelete = $DynamicFieldValueObject->ObjectValuesDelete(
-    ObjectID => $TicketID2,
-    UserID   => 1,
+    ObjectID   => $TicketID2,
+    ObjectType => 'Ticket',
+    UserID     => 1,
 );
 
 # Sanity check.
