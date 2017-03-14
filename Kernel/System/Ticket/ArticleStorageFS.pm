@@ -81,9 +81,8 @@ sub ArticleDelete {
 
     # Delete dynamicfield values for this Article.
     $Kernel::OM->Get('Kernel::System::DynamicFieldValue')->ObjectValuesDelete(
-        ObjectID   => $Param{ArticleID},
-        ObjectType => 'Article',
-        UserID     => $Param{UserID},
+        ObjectID => $Param{ArticleID},
+        UserID   => $Param{UserID},
     );
 
     # delete index
