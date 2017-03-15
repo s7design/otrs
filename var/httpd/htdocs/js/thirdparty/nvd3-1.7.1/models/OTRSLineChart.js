@@ -45,7 +45,7 @@ nv.models.OTRSlineChart = function() {
 // OTRS
 // ---
 //       , noData = 'No Data Available.'
-        , noData = Core.Language.Translate('No Data Available.')
+        , noData = Core.Config.Get('NoDataAvailable')
 // ---
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
         , duration = 250
