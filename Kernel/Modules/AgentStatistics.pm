@@ -342,21 +342,6 @@ sub EditScreen {
         );
 
     if ( $Stat->{StatType} eq 'dynamic' ) {
-        $LayoutObject->AddJSData(
-            Key   => 'ControlLabelsText',
-            Value => {
-                Stacked  => $LayoutObject->{LanguageObject}->Translate('Stacked'),
-                Grouped  => $LayoutObject->{LanguageObject}->Translate('Grouped'),
-                Stream   => $LayoutObject->{LanguageObject}->Translate('Stream'),
-                Expanded => $LayoutObject->{LanguageObject}->Translate('Expanded'),
-            },
-        );
-
-        $LayoutObject->AddJSData(
-            Key   => 'NoDataAvailable',
-            Value => $LayoutObject->{LanguageObject}->Translate('No Data Available.'),
-        );
-
         $Frontend{XAxisWidget} = $Kernel::OM->Get('Kernel::Output::HTML::Statistics::View')->XAxisWidget(
             Stat   => $Stat,
             UserID => $Self->{UserID},

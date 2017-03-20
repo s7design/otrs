@@ -248,21 +248,6 @@ sub Run {
         },
     );
 
-    $LayoutObject->AddJSData(
-        Key   => 'ControlLabelsText',
-        Value => {
-            Stacked  => $LayoutObject->{LanguageObject}->Translate('Stacked'),
-            Grouped  => $LayoutObject->{LanguageObject}->Translate('Grouped'),
-            Stream   => $LayoutObject->{LanguageObject}->Translate('Stream'),
-            Expanded => $LayoutObject->{LanguageObject}->Translate('Expanded'),
-        },
-    );
-
-    $LayoutObject->AddJSData(
-        Key   => 'NoDataAvailable',
-        Value => $LayoutObject->{LanguageObject}->Translate('No Data Available.'),
-    );
-
     my $Content = $LayoutObject->Output(
         TemplateFile => 'AgentDashboardStats',
         Data         => {

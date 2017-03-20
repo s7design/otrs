@@ -12,12 +12,6 @@ nv.models.OTRSmultiBarChart = function() {
         , controls = nv.models.legend()
         ;
 
-// ---
-// OTRS
-// ---
-    var ControlLabelsText = Core.Config.Get('ControlLabelsText');
-// ---    
-
     var margin = {top: 30, right: 20, bottom: 50, left: 60}
         , width = null
         , height = null
@@ -49,7 +43,7 @@ nv.models.OTRSmultiBarChart = function() {
 // OTRS
 // ---
 //       , noData = 'No Data Available.'
-        , noData = Core.Config.Get('NoDataAvailable')
+        , noData = Core.Language.Translate('No Data Available.')
 // ---
         , dispatch = d3.dispatch('tooltipShow', 'tooltipHide', 'stateChange', 'changeState', 'renderEnd')
         , controlWidth = function() { return showControls ? 180 : 0 }
@@ -232,19 +226,12 @@ nv.models.OTRSmultiBarChart = function() {
 // ---
 //                    { key: controlLabels.grouped || 'Grouped', disabled: multibar.stacked() },
 //                    { key: controlLabels.stacked || 'Stacked', disabled: !multibar.stacked() }
-
-                    { key: controlLabels.grouped || ControlLabelsText.Grouped, disabled: multibar.stacked() },
-                    { key: controlLabels.stacked || ControlLabelsText.Stacked, disabled: !multibar.stacked() }
+                    { key: controlLabels.grouped || Core.Language.Translate('Grouped'), disabled: multibar.stacked() },
+                    { key: controlLabels.stacked || Core.Language.Translate('Stacked'), disabled: !multibar.stacked() }
 // ---
                 ];
 
-// ---
-// OTRS
-// ---
-//                controls.width(controlWidth()).color(['#444', '#444', '#444']);
-                var controlsDataWidth = (controlsData.length/2) * 220;
-                controls.width(controlsDataWidth).color(['#444', '#444', '#444']);
-// ---                
+                controls.width(controlWidth()).color(['#444', '#444', '#444']);
                 g.select('.nv-controlsWrap')
                     .datum(controlsData)
                     .attr('transform', 'translate(0,' + (-margin.top) +')')
@@ -362,7 +349,7 @@ nv.models.OTRSmultiBarChart = function() {
 // OTRS
 // ---
 //                    case 'Grouped':
-                    case ControlLabelsText.Grouped:
+                    case Core.Language.Translate('Grouped'):
 // ---
                         multibar.stacked(false);
                         break;
@@ -370,7 +357,7 @@ nv.models.OTRSmultiBarChart = function() {
 // OTRS
 // ---
 //                    case 'Stacked':
-                    case ControlLabelsText.Stacked:
+                    case Core.Language.Translate('Stacked'):
 // ---
                         multibar.stacked(true);
                         break;
