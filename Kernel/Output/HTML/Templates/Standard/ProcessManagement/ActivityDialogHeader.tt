@@ -31,7 +31,7 @@
                     <div class="Clear"></div>
 [% RenderBlockStart("ProcessInfoSidebarActivityDialogDesc") %]
                     <label>[% Translate("Description") | html %]:</label>
-                    <p class="Value FixedValueSmall" title="[% Data.ActivityDialogDescription | html %]">[% Data.ActivityDialogDescription | html %]</p>
+                    <p class="Value FixedValueSmall" title="[% Data.ActivityDialogLongDescription | html %]">[% Data.ActivityDialogShortDescription | html %]</p>
                     <div class="Clear"></div>
 [% RenderBlockEnd("ProcessInfoSidebarActivityDialogDesc") %]
                 </fieldset>

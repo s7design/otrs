@@ -1491,7 +1491,8 @@ sub _OutputActivityDialog {
             $LayoutObject->Block(
                 Name => 'ProcessInfoSidebarActivityDialogDesc',
                 Data => {
-                    ActivityDialogDescription => $ActivityDialog->{DescriptionShort} || '',
+                    ActivityDialogShortDescription => $ActivityDialog->{DescriptionShort} || '',
+                    ActivityDialogLongDescription  => $ActivityDialog->{DescriptionLong}  || '',
                 },
             );
         }
