@@ -35,6 +35,10 @@
     display: none;
 }
 
+.WidgetSimple.Setting.IsLockedByMe .Content .PreferencesUpdateBox.SettingUpdateBox {
+    display: block !important;
+}
+
 fieldset.TableLike > .Field.NoMargin {
     margin-left: 0px;
 }

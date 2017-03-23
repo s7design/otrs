@@ -162,7 +162,7 @@
     [% RenderBlockEnd("RawHTML") %]
     [% RenderBlockEnd("Block") %]
 
-                                    <div class="SettingUpdateBox">
+                                    <div class="PreferencesUpdateBox SettingUpdateBox">
                                         <button class="CallForAction Update" type="button" value="[% Translate("Save this setting") | html %]" title="[% Translate("Save this setting") | html %]">
                                             <span><i class="fa fa-check"></i></span>
                                         </button>
