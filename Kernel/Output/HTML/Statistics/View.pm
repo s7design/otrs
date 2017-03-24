@@ -1176,18 +1176,6 @@ sub PreviewWidget {
         );
     }
 
-    # Change ticket param 'Age', if selected, to human readable format see bug#12704.
-    my $Age = $LayoutObject->{LanguageObject}->Translate('Age');
-    my $AgeIndex = first { $Frontend{PreviewResult}[1]->[$_] eq $Age } 0 .. $#{ $Frontend{PreviewResult}[1] };
-    if ( defined $AgeIndex ) {
-        for my $TicketIndex ( 2 .. $#{ $Frontend{PreviewResult} } ) {
-            $Frontend{PreviewResult}[$TicketIndex]->[$AgeIndex] = $LayoutObject->CustomerAge(
-                Age   => $Frontend{PreviewResult}[$TicketIndex]->[$AgeIndex],
-                Space => ' '
-            );
-        }
-    }
-
     # send data to JS
     $LayoutObject->AddJSData(
         Key   => 'PreviewResult',

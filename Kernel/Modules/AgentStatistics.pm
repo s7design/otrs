@@ -1008,18 +1008,6 @@ sub RunAction {
         };
     }
 
-    # Change ticket param 'Age', if selected, to human readable format see bug#12704.
-    my $Age = $LayoutObject->{LanguageObject}->Translate('Age');
-    my $AgeIndex = first { $StatArray[1]->[$_] eq $Age } 0 .. $#{ $StatArray[1] };
-    if ( defined $AgeIndex ) {
-        for my $TicketIndex ( 2 .. $#StatArray ) {
-            $StatArray[$TicketIndex]->[$AgeIndex] = $LayoutObject->CustomerAge(
-                Age   => $StatArray[$TicketIndex]->[$AgeIndex],
-                Space => ' '
-            );
-        }
-    }
-
     return $Kernel::OM->Get('Kernel::Output::HTML::Statistics::View')->StatsResultRender(
         StatArray => \@StatArray,
         Stat      => $Stat,
