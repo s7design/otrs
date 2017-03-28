@@ -21,11 +21,15 @@ $Selenium->RunTest(
         my $TicketObject  = $Kernel::OM->Get('Kernel::System::Ticket');
         my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
 
-        # set download type to inline
-        $Helper->ConfigSettingChange(
-            Valid => 1,
-            Key   => 'AttachmentDownloadType',
-            Value => 'inline'
+        # disable rich text editor
+        my $Success = $ConfigObject->Set(
+            Key   => 'Frontend::RichText',
+            Value => 0,
+        );
+
+        $Self->True(
+            $Success,
+            "Disable RichText with true",
         );
 
         # create test user and login
@@ -81,12 +85,13 @@ $Selenium->RunTest(
             );
             my $Content = ${$ContentRef};
 
+            my $CVENumber = 'CVE-2016-8655';
             my $ArticleID = $ArticleObject->ArticleCreate(
                 TicketID       => $TicketID,
                 ArticleType    => 'note-internal',
                 SenderType     => 'agent',
                 Subject        => 'Selenium subject test',
-                Body           => 'Selenium body test',
+                Body           => "Selenium body test $CVENumber  ",
                 ContentType    => 'text/plain; charset=ISO-8859-15',
                 HistoryType    => 'OwnerUpdate',
                 HistoryComment => 'Some free text!',
@@ -114,6 +119,30 @@ $Selenium->RunTest(
                     "return \$('.ArticleMailHeader a[href*=\"Action=AgentTicketAttachment;ArticleID=$ArticleID\"]:contains($TestAttachment->{Name})').length;"
                 ),
                 "'$TestAttachment->{Name}' is found on page",
+            );
+
+            # check if there is replaced links for CVE number
+            my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+            my $CVE          = $ConfigObject->Get('Frontend::Output::OutputFilterTextAutoLink')->{CVE};
+            for my $Item ( 1 .. 3 ) {
+                my $CVEConfig = $CVE->{"URL$Item"};
+                my $CVEURL = substr( $CVEConfig->{URL}, 0, index( $CVEConfig->{URL}, '=' ) );
+                $Self->True(
+                    $Selenium->find_element("//a[contains(\@href, \'$CVEURL=$CVENumber' )]"),
+                    "$CVEConfig->{Description} link is found - $CVEURL",
+                );
+
+                $Self->True(
+                    $Selenium->find_element("//img[contains(\@src, \'$CVEConfig->{Image}' )]"),
+                    "Image for $CVEConfig->{Description} link is found - $CVEConfig->{Image}",
+                );
+            }
+
+            # set download type to inline
+            $Helper->ConfigSettingChange(
+                Valid => 1,
+                Key   => 'AttachmentDownloadType',
+                Value => 'inline'
             );
 
             # check ticket attachment
