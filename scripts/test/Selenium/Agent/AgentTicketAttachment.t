@@ -32,6 +32,28 @@ $Selenium->RunTest(
             "Disable RichText with true",
         );
 
+        my %OutputFilterTextAutoLink = $Kernel::OM->Get('Kernel::System::SysConfig')->SettingGet(
+            Name    => 'Frontend::Output::FilterText###OutputFilterTextAutoLink',
+            Default => 1,
+        );
+
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Frontend::Output::FilterText###OutputFilterTextAutoLink',
+            Value => $OutputFilterTextAutoLink{EffectiveValue},
+        );
+
+        my %OutputFilterTextAutoLinkCVE = $Kernel::OM->Get('Kernel::System::SysConfig')->SettingGet(
+            Name    => 'Frontend::Output::OutputFilterTextAutoLink###CVE',
+            Default => 1,
+        );
+
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Frontend::Output::OutputFilterTextAutoLink###CVE',
+            Value => $OutputFilterTextAutoLinkCVE{EffectiveValue},
+        );
+
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => [ 'admin', 'users' ],
