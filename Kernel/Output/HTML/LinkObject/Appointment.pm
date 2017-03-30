@@ -273,8 +273,14 @@ sub TableCreateComplex {
     # Define Headline columns
 
     # Sort
+    my @AllColumns;
     COLUMN:
     for my $Column ( sort { $SortOrder{$a} <=> $SortOrder{$b} } keys %UserColumns ) {
+
+        push @AllColumns, {
+            ColumnName      => $Column,
+            ColumnTranslate => $Column,
+        };
 
         next COLUMN if $Column eq 'Title';    # Always present, already added.
 
@@ -369,6 +375,7 @@ sub TableCreateComplex {
         ObjectID   => $Param{ObjectID},
         Headline   => \@Headline,
         ItemList   => \@ItemList,
+        AllColumns => \@AllColumns,
     );
 
     return ( \%Block );
