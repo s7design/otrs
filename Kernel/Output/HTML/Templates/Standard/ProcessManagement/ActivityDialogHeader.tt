@@ -31,13 +31,25 @@
                     <div class="Clear"></div>
 [% RenderBlockStart("ProcessInfoSidebarActivityDialogDesc") %]
                     <label>[% Translate("Description") | html %]:</label>
-                    <p class="Value FixedValueSmall" title="[% Data.ActivityDialogLongDescription | html %]">[% Data.ActivityDialogShortDescription | html %]</p>
+                    <p class="Value FixedValueSmall" title="[% Data.ActivityDialogDescription | html %]">[% Data.ActivityDialogDescription  | html %]</p>
                     <div class="Clear"></div>
 [% RenderBlockEnd("ProcessInfoSidebarActivityDialogDesc") %]
                 </fieldset>
             </div>
         </div>
 [% RenderBlockEnd("ProcessInfoSidebar") %]
+
+[% RenderBlockStart("LongDescriptionSidebar") %]
+        <div class="WidgetSimple">
+            <div class="Header">
+                <h2>[% Translate("Description") | html %]</h2>
+            </div>
+            <div class="Content">
+                <p class="Value FixedValueSmall">[% Data.Description | html %]</p>
+                <div class="Clear"></div>
+            </div>
+        </div>
+[% RenderBlockEnd("LongDescriptionSidebar") %]
     </div>
 
     <div class="ContentColumn">

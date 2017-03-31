@@ -1482,7 +1482,7 @@ sub _OutputActivityDialog {
             },
         );
 
-        # output activity dilalog short description (if any)
+        # output activity dialog short description (if any)
         if (
             defined $ActivityDialog->{DescriptionShort}
             && $ActivityDialog->{DescriptionShort} ne ''
@@ -1491,8 +1491,21 @@ sub _OutputActivityDialog {
             $LayoutObject->Block(
                 Name => 'ProcessInfoSidebarActivityDialogDesc',
                 Data => {
-                    ActivityDialogShortDescription => $ActivityDialog->{DescriptionShort} || '',
-                    ActivityDialogLongDescription  => $ActivityDialog->{DescriptionLong}  || '',
+                    ActivityDialogDescription => $ActivityDialog->{DescriptionShort} || '',
+                },
+            );
+        }
+
+        # output long description information if exists
+        if (
+            defined $ActivityDialog->{DescriptionLong}
+            && $ActivityDialog->{DescriptionLong} ne ''
+            )
+        {
+            $LayoutObject->Block(
+                Name => 'LongDescriptionSidebar',
+                Data => {
+                    Description => $ActivityDialog->{DescriptionLong},
                 },
             );
         }
