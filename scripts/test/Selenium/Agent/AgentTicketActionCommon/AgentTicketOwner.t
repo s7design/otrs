@@ -157,7 +157,7 @@ $Selenium->RunTest(
         # check out of office user message without filter
         $Self->Is(
             $Selenium->execute_script("return \$('#NewOwnerID option[value=$UserID[1]]').text();"),
-            "$UserData{UserFirstname} $UserData{UserLastname}",
+            "$UserData{UserFullname}",
             "Out of office message is found for the user - $TestUser[1]"
         );
 
@@ -173,7 +173,7 @@ $Selenium->RunTest(
         # check out of office user message with filter
         $Self->Is(
             $Selenium->execute_script("return \$('#NewOwnerID option[value=$UserID[1]]').text();"),
-            "1: $UserData{UserFirstname} $UserData{UserLastname}",
+            "1: $UserData{UserFullname}",
             "Out of office message is found for the user - $TestUser[1]"
         );
 
