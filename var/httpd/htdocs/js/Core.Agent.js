@@ -577,7 +577,8 @@ Core.Agent = (function (TargetNS) {
                 + parseInt($(this).css('margin-left'), 10)
                 + parseInt($(this).css('margin-right'), 10)
                 + parseInt($(this).css('border-left-width'), 10)
-                + parseInt($(this).css('border-right-width'), 10);
+                + parseInt($(this).css('border-right-width'), 10)
+                + 1;
         });
         $('#Navigation').css('width', NavigationBarWidth);
 
