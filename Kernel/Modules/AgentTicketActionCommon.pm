@@ -223,7 +223,7 @@ sub Run {
         qw(
         NewStateID NewPriorityID TimeUnits ArticleTypeID Title Body Subject NewQueueID
         Year Month Day Hour Minute NewOwnerID NewResponsibleID TypeID ServiceID SLAID
-        Expand ReplyToArticle StandardTemplateID CreateArticle
+        Expand ReplyToArticle StandardTemplateID CreateArticle WidgetArticleStatus
         )
         )
     {
@@ -579,8 +579,14 @@ sub Run {
                     );
                 }
 
-                # propagate validation error to the Error variable to be detected by the frontend
-                if ( $ValidationResult->{ServerError} ) {
+                # Propagate validation error to the Error variable to be detected by the frontend.
+                # Do not propagate if dynamic field type is 'Article' and article widget is collapsed.
+                if (
+                    $ValidationResult->{ServerError} &&
+                    $DynamicFieldConfig->{ObjectType} ne 'Article' &&
+                    $GetParam{WidgetArticleStatus} ne 'Collapsed'
+                    )
+                {
                     $Error{ $DynamicFieldConfig->{Name} } = ' ServerError';
                 }
             }
@@ -1473,17 +1479,66 @@ sub _Mask {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
+    # Define the dynamic fields to show based on the object type.
+    my $ObjectType = ['Ticket'];
+
+    # Only screens that add notes can modify Article dynamic fields.
+    if ( $Config->{Note} ) {
+        $ObjectType = [ 'Ticket', 'Article' ];
+    }
+
+    # Get dynamic fields for this screen.
+    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+        Valid       => 1,
+        ObjectType  => $ObjectType,
+        FieldFilter => $Config->{DynamicField} || {},
+    );
+
+    my @TicketTypeDynamicFields;
+    my @ArticleTypeDynamicFields;
+
+    # Cycle through the activated Dynamic Fields for this screen.
+    DYNAMICFIELD:
+    for my $DynamicFieldConfig ( @{$DynamicField} ) {
+
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
+
+        # Skip fields that HTML could not be retrieved.
+        next DYNAMICFIELD if !IsHashRefWithData(
+            $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} }
+        );
+
+        # Get the html strings form $Param.
+        my $DynamicFieldHTML = $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} };
+
+        if ( $DynamicFieldConfig->{ObjectType} eq 'Ticket' ) {
+            push @TicketTypeDynamicFields, {
+                Name  => $DynamicFieldConfig->{Name},
+                Label => $DynamicFieldHTML->{Label},
+                Field => $DynamicFieldHTML->{Field},
+            };
+        }
+        elsif ( $DynamicFieldConfig->{ObjectType} eq 'Article' ) {
+            push @ArticleTypeDynamicFields, {
+                Name  => $DynamicFieldConfig->{Name},
+                Label => $DynamicFieldHTML->{Label},
+                Field => $DynamicFieldHTML->{Field},
+            };
+        }
+    }
+
     # Widget Ticket Actions
     if (
         ( $ConfigObject->Get('Ticket::Type') && $Config->{TicketType} )
         ||
         ( $ConfigObject->Get('Ticket::Service')     && $Config->{Service} )     ||
         ( $ConfigObject->Get('Ticket::Responsible') && $Config->{Responsible} ) ||
-        $Config->{Title} ||
-        $Config->{Queue} ||
-        $Config->{Owner} ||
-        $Config->{State} ||
-        $Config->{Priority}
+        $Config->{Title}    ||
+        $Config->{Queue}    ||
+        $Config->{Owner}    ||
+        $Config->{State}    ||
+        $Config->{Priority} ||
+        scalar @TicketTypeDynamicFields > 0
         )
     {
         $LayoutObject->Block(
@@ -1899,66 +1954,15 @@ sub _Mask {
         );
     }
 
+    # Get Ticket type dynamic fields.
+    for my $TicketTypeDynamicField (@TicketTypeDynamicFields) {
+        $LayoutObject->Block(
+            Name => 'TicketTypeDynamicField',
+            Data => $TicketTypeDynamicField,
+        );
+    }
+
     # End Widget Ticket Actions
-
-    # define the dynamic fields to show based on the object type
-    my $ObjectType = ['Ticket'];
-
-    # only screens that add notes can modify Article dynamic fields
-    if ( $Config->{Note} ) {
-        $ObjectType = [ 'Ticket', 'Article' ];
-    }
-
-    # get the dynamic fields for this screen
-    my $DynamicField = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
-        Valid       => 1,
-        ObjectType  => $ObjectType,
-        FieldFilter => $Config->{DynamicField} || {},
-    );
-
-    # Widget Dynamic Fields
-    if ( IsArrayRefWithData($DynamicField) ) {
-        $LayoutObject->Block(
-            Name => 'WidgetDynamicFields',
-        );
-    }
-
-    # Dynamic fields
-    # cycle trough the activated Dynamic Fields for this screen
-    DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{$DynamicField} ) {
-
-        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-
-        # skip fields that HTML could not be retrieved
-        next DYNAMICFIELD if !IsHashRefWithData(
-            $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} }
-        );
-
-        # get the html strings form $Param
-        my $DynamicFieldHTML = $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} };
-
-        $LayoutObject->Block(
-            Name => 'DynamicField',
-            Data => {
-                Name  => $DynamicFieldConfig->{Name},
-                Label => $DynamicFieldHTML->{Label},
-                Field => $DynamicFieldHTML->{Field},
-            },
-        );
-
-        # example of dynamic fields order customization
-        $LayoutObject->Block(
-            Name => 'DynamicField_' . $DynamicFieldConfig->{Name},
-            Data => {
-                Name  => $DynamicFieldConfig->{Name},
-                Label => $DynamicFieldHTML->{Label},
-                Field => $DynamicFieldHTML->{Field},
-            },
-        );
-    }
-
-    # End Widget Dynamic Fields
 
     # Widget Article
     if ( $Config->{Note} ) {
@@ -2347,6 +2351,14 @@ sub _Mask {
             $LayoutObject->Block(
                 Name => 'TimeUnits',
                 Data => \%Param,
+            );
+        }
+
+        # Get Article type dynamic fields.
+        for my $ArticleTypeDynamicField (@ArticleTypeDynamicFields) {
+            $LayoutObject->Block(
+                Name => 'ArticleTypeDynamicField',
+                Data => $ArticleTypeDynamicField,
             );
         }
     }
