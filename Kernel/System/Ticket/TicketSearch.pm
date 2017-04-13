@@ -1446,9 +1446,12 @@ sub TicketSearch {
                 if ( $Operator ne 'Empty' ) {
 
                     # validate data type
+                    my $CheckRegex = $DynamicField->{FieldType} =~ /Text|Textarea/ ? 0 : 1;
+
                     my $ValidateSuccess = $DynamicFieldBackendObject->ValueValidate(
                         DynamicFieldConfig => $DynamicField,
                         Value              => $Text,
+                        CheckRegex         => $CheckRegex,
                         UserID             => $Param{UserID} || 1,
                     );
                     if ( !$ValidateSuccess ) {
