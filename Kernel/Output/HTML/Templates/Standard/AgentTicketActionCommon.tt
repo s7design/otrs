@@ -441,6 +441,11 @@
                             [% Data.Label %]
                                 <div class="Field">
                                 [% Data.Field %]
+[% RenderBlockStart("ArticleTypeDynamicFieldError") %]
+                                    <div id="DynamicField_[% Data.Name %]Error" class="TooltipErrorMessage">
+                                        <p>[% Translate("This field is required.") | html %]</p>
+                                    </div>
+[% RenderBlockEnd("ArticleTypeDynamicFieldError") %]
                                 </div>
                                 <div class="Clear"></div>
                             </div>

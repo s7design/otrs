@@ -509,7 +509,8 @@ sub Run {
         }
 
         # create html strings for all dynamic fields
-        my %DynamicFieldHTML;
+        my @TicketTypeDynamicFields;
+        my @ArticleTypeDynamicFields;
 
         # cycle trough the activated Dynamic Fields for this screen
         DYNAMICFIELD:
@@ -562,48 +563,95 @@ sub Run {
             # do not validate on attachment upload
             if ( !$IsUpload ) {
 
-                $ValidationResult = $DynamicFieldBackendObject->EditFieldValueValidate(
-                    DynamicFieldConfig   => $DynamicFieldConfig,
-                    PossibleValuesFilter => $PossibleValuesFilter,
-                    ParamObject          => $ParamObject,
-                    Mandatory =>
-                        $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2,
-                );
+                # Do not validate only if object type is Article and CreateArticle value is not defined.
+                if ( !( $DynamicFieldConfig->{ObjectType} eq 'Article' && !$GetParam{CreateArticle} ) ) {
 
-                if ( !IsHashRefWithData($ValidationResult) ) {
-                    return $LayoutObject->ErrorScreen(
-                        Message =>
-                            $LayoutObject->{LanguageObject}
-                            ->Translate( 'Could not perform validation on field %s!', $DynamicFieldConfig->{Label} ),
-                        Comment => Translatable('Please contact the administrator.'),
+                    $ValidationResult = $DynamicFieldBackendObject->EditFieldValueValidate(
+                        DynamicFieldConfig   => $DynamicFieldConfig,
+                        PossibleValuesFilter => $PossibleValuesFilter,
+                        ParamObject          => $ParamObject,
+                        Mandatory =>
+                            $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2,
                     );
-                }
 
-                # Propagate validation error to the Error variable to be detected by the frontend.
-                # If CreateArticle is defined, propagate anyhow, if not, propagate just when type is not 'Article'.
-                if (
-                    $ValidationResult->{ServerError} &&
-                    ( $DynamicFieldConfig->{ObjectType} ne 'Article' || $GetParam{CreateArticle} )
-                    )
-                {
-                    $Error{ $DynamicFieldConfig->{Name} } = ' ServerError';
+                    if ( !IsHashRefWithData($ValidationResult) ) {
+                        return $LayoutObject->ErrorScreen(
+                            Message =>
+                                $LayoutObject->{LanguageObject}->Translate(
+                                'Could not perform validation on field %s!', $DynamicFieldConfig->{Label}
+                                ),
+                            Comment => Translatable('Please contact the administrator.'),
+                        );
+                    }
+
+                    # Propagate validation error to the Error variable to be detected by the frontend.
+                    if ( $ValidationResult->{ServerError} )
+                    {
+                        $Error{ $DynamicFieldConfig->{Name} } = ' ServerError';
+                    }
                 }
             }
 
-            # get field html
-            $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } =
-                $DynamicFieldBackendObject->EditFieldRender(
-                DynamicFieldConfig   => $DynamicFieldConfig,
-                PossibleValuesFilter => $PossibleValuesFilter,
-                Mandatory =>
-                    $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2,
-                ServerError  => $ValidationResult->{ServerError}  || '',
-                ErrorMessage => $ValidationResult->{ErrorMessage} || '',
-                LayoutObject => $LayoutObject,
-                ParamObject  => $ParamObject,
-                AJAXUpdate   => 1,
-                UpdatableFields => $Self->_GetFieldsToUpdate(),
+            if ( $DynamicFieldConfig->{ObjectType} eq 'Ticket' ) {
+
+                # Get field html.
+                my $DynamicFieldHTML = $DynamicFieldBackendObject->EditFieldRender(
+                    DynamicFieldConfig   => $DynamicFieldConfig,
+                    PossibleValuesFilter => $PossibleValuesFilter,
+                    ServerError          => $ValidationResult->{ServerError} || '',
+                    ErrorMessage         => $ValidationResult->{ErrorMessage} || '',
+                    Mandatory            => $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2,
+                    LayoutObject         => $LayoutObject,
+                    ParamObject          => $ParamObject,
+                    AJAXUpdate           => 1,
+                    UpdatableFields      => $Self->_GetFieldsToUpdate(),
                 );
+
+                push @TicketTypeDynamicFields, {
+                    Name  => $DynamicFieldConfig->{Name},
+                    Label => $DynamicFieldHTML->{Label},
+                    Field => $DynamicFieldHTML->{Field},
+                };
+            }
+            elsif ( $DynamicFieldConfig->{ObjectType} eq 'Article' ) {
+                my $Class            = '';
+                my $MandatoryTooltip = 0;
+
+                if ( $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2 ) {
+                    if (
+                        $Config->{NoteMandatory} ||
+                        $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
+                        )
+                    {
+                        $Class = 'Validate_Required';
+                    }
+                    else {
+                        $Class            = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
+                        $MandatoryTooltip = 1;
+                    }
+                }
+
+                # Get field html.
+                my $DynamicFieldHTML = $DynamicFieldBackendObject->EditFieldRender(
+                    DynamicFieldConfig   => $DynamicFieldConfig,
+                    PossibleValuesFilter => $PossibleValuesFilter,
+                    ServerError          => $ValidationResult->{ServerError} || '',
+                    ErrorMessage         => $ValidationResult->{ErrorMessage} || '',
+                    Mandatory            => ( $Class eq 'Validate_Required' ) ? 1 : 0,
+                    Class                => $Class,
+                    LayoutObject         => $LayoutObject,
+                    ParamObject          => $ParamObject,
+                    AJAXUpdate           => 1,
+                    UpdatableFields      => $Self->_GetFieldsToUpdate(),
+                );
+
+                push @ArticleTypeDynamicFields, {
+                    Name             => $DynamicFieldConfig->{Name},
+                    Label            => $DynamicFieldHTML->{Label},
+                    Field            => $DynamicFieldHTML->{Field},
+                    MandatoryTooltip => $MandatoryTooltip,
+                };
+            }
         }
 
         # check errors
@@ -622,8 +670,9 @@ sub Run {
                     : ''
                 ),
                 %Ticket,
-                DynamicFieldHTML => \%DynamicFieldHTML,
-                IsUpload         => $IsUpload,
+                TicketTypeDynamicFields  => \@TicketTypeDynamicFields,
+                ArticleTypeDynamicFields => \@ArticleTypeDynamicFields,
+                IsUpload                 => $IsUpload,
                 %GetParam,
                 %Error,
             );
@@ -1414,7 +1463,7 @@ sub Run {
                 # Value is stored in the database from Ticket.
                 $Value = $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} };
 
-                # get field html
+                # Get field html.
                 my $DynamicFieldHTML = $DynamicFieldBackendObject->EditFieldRender(
                     DynamicFieldConfig   => $DynamicFieldConfig,
                     PossibleValuesFilter => $PossibleValuesFilter,
@@ -1433,7 +1482,8 @@ sub Run {
                 };
             }
             elsif ( $DynamicFieldConfig->{ObjectType} eq 'Article' ) {
-                my $Class = '';
+                my $Class            = '';
+                my $MandatoryTooltip = 0;
 
                 if ( $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2 ) {
                     if (
@@ -1444,11 +1494,12 @@ sub Run {
                         $Class = 'Validate_Required';
                     }
                     else {
-                        $Class = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
+                        $Class            = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
+                        $MandatoryTooltip = 1;
                     }
                 }
 
-                # get field html
+                # Get field html.
                 my $DynamicFieldHTML = $DynamicFieldBackendObject->EditFieldRender(
                     DynamicFieldConfig   => $DynamicFieldConfig,
                     PossibleValuesFilter => $PossibleValuesFilter,
@@ -1462,9 +1513,10 @@ sub Run {
                 );
 
                 push @ArticleTypeDynamicFields, {
-                    Name  => $DynamicFieldConfig->{Name},
-                    Label => $DynamicFieldHTML->{Label},
-                    Field => $DynamicFieldHTML->{Field},
+                    Name             => $DynamicFieldConfig->{Name},
+                    Label            => $DynamicFieldHTML->{Label},
+                    Field            => $DynamicFieldHTML->{Field},
+                    MandatoryTooltip => $MandatoryTooltip,
                 };
             }
         }
@@ -2366,6 +2418,13 @@ sub _Mask {
                 Name => 'ArticleTypeDynamicField',
                 Data => $ArticleTypeDynamicField,
             );
+
+            if ( $ArticleTypeDynamicField->{MandatoryTooltip} ) {
+                $LayoutObject->Block(
+                    Name => 'ArticleTypeDynamicFieldError',
+                    Data => $ArticleTypeDynamicField,
+                );
+            }
         }
     }
 
