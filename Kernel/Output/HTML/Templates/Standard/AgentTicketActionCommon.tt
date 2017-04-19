@@ -279,14 +279,13 @@
 #                           <div class="Clear"></div>
 #                       </div>
 #[% RenderBlockEnd("DynamicField_Field2") %]
-                    </fieldset>>
+                    </fieldset>
                 </div>
             </div>
 [% RenderBlockEnd("WidgetTicketActions") %]
 
 [% RenderBlockStart("WidgetArticle") %]
                 <div class="WidgetSimple [% Data.WidgetStatus | html %]" id="WidgetArticle">
-                    <input type="hidden" id="WidgetArticleStatus" name="WidgetArticleStatus" value="[% Data.WidgetStatus | html %]" />
                     <div class="Header">
                         <div class="WidgetAction Toggle">
                             <a href="#" title="[% Translate("Toggle this widget") | html %]"><i class="fa fa-caret-right"></i><i class="fa fa-caret-down"></i></a>
@@ -301,7 +300,7 @@
 [% ELSE %]
                             <label for="CreateArticle">[% Translate("Create an Article") | html %]:</label>
                             <div class="Field">
-                                <input type="checkbox" id="CreateArticle" name="CreateArticle" value="1" />
+                                <input type="checkbox" id="CreateArticle" name="CreateArticle" value="1" [% IF Data.CreateArticle %] checked="checked"[% END %] />
                             </div>
                             <div class="Clear"></div>
 [% END %]

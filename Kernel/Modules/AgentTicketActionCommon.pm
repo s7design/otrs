@@ -223,7 +223,7 @@ sub Run {
         qw(
         NewStateID NewPriorityID TimeUnits ArticleTypeID Title Body Subject NewQueueID
         Year Month Day Hour Minute NewOwnerID NewResponsibleID TypeID ServiceID SLAID
-        Expand ReplyToArticle StandardTemplateID CreateArticle WidgetArticleStatus
+        Expand ReplyToArticle StandardTemplateID CreateArticle
         )
         )
     {
@@ -580,11 +580,10 @@ sub Run {
                 }
 
                 # Propagate validation error to the Error variable to be detected by the frontend.
-                # Do not propagate if dynamic field type is 'Article' and article widget is collapsed.
+                # If CreateArticle is defined, propagate anyhow, if not, propagate just when type is not 'Article'.
                 if (
                     $ValidationResult->{ServerError} &&
-                    $DynamicFieldConfig->{ObjectType} ne 'Article' &&
-                    $GetParam{WidgetArticleStatus} ne 'Collapsed'
+                    ( $DynamicFieldConfig->{ObjectType} ne 'Article' || $GetParam{CreateArticle} )
                     )
                 {
                     $Error{ $DynamicFieldConfig->{Name} } = ' ServerError';
@@ -1356,8 +1355,8 @@ sub Run {
             );
         }
 
-        # create html strings for all dynamic fields
-        my %DynamicFieldHTML;
+        my @TicketTypeDynamicFields;
+        my @ArticleTypeDynamicFields;
 
         # cycle trough the activated Dynamic Fields for this screen
         DYNAMICFIELD:
@@ -1408,27 +1407,66 @@ sub Run {
             # to store dynamic field value from database (or undefined)
             my $Value;
 
-            # only get values for Ticket fields (all screens based on AgentTickeActionCommon
-            # generates a new article, then article fields will be always empty at the beginning)
             if ( $DynamicFieldConfig->{ObjectType} eq 'Ticket' ) {
 
-                # get value stored on the database from Ticket
+                # Only get values for Ticket fields (all screens based on AgentTickeActionCommon
+                # generates a new article, then article fields will be always empty at the beginning).
+                # Value is stored in the database from Ticket.
                 $Value = $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} };
-            }
 
-            # get field html
-            $DynamicFieldHTML{ $DynamicFieldConfig->{Name} } =
-                $DynamicFieldBackendObject->EditFieldRender(
-                DynamicFieldConfig   => $DynamicFieldConfig,
-                PossibleValuesFilter => $PossibleValuesFilter,
-                Value                => $Value,
-                Mandatory =>
-                    $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2,
-                LayoutObject    => $LayoutObject,
-                ParamObject     => $ParamObject,
-                AJAXUpdate      => 1,
-                UpdatableFields => $Self->_GetFieldsToUpdate(),
+                # get field html
+                my $DynamicFieldHTML = $DynamicFieldBackendObject->EditFieldRender(
+                    DynamicFieldConfig   => $DynamicFieldConfig,
+                    PossibleValuesFilter => $PossibleValuesFilter,
+                    Value                => $Value,
+                    Mandatory            => $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2,
+                    LayoutObject         => $LayoutObject,
+                    ParamObject          => $ParamObject,
+                    AJAXUpdate           => 1,
+                    UpdatableFields      => $Self->_GetFieldsToUpdate(),
                 );
+
+                push @TicketTypeDynamicFields, {
+                    Name  => $DynamicFieldConfig->{Name},
+                    Label => $DynamicFieldHTML->{Label},
+                    Field => $DynamicFieldHTML->{Field},
+                };
+            }
+            elsif ( $DynamicFieldConfig->{ObjectType} eq 'Article' ) {
+                my $Class = '';
+
+                if ( $Config->{DynamicField}->{ $DynamicFieldConfig->{Name} } == 2 ) {
+                    if (
+                        $Config->{NoteMandatory} ||
+                        $ConfigObject->Get('Ticket::Frontend::NeedAccountedTime')
+                        )
+                    {
+                        $Class = 'Validate_Required';
+                    }
+                    else {
+                        $Class = 'Validate_DependingRequiredAND Validate_Depending_CreateArticle';
+                    }
+                }
+
+                # get field html
+                my $DynamicFieldHTML = $DynamicFieldBackendObject->EditFieldRender(
+                    DynamicFieldConfig   => $DynamicFieldConfig,
+                    PossibleValuesFilter => $PossibleValuesFilter,
+                    Value                => $Value,
+                    Mandatory            => ( $Class eq 'Validate_Required' ) ? 1 : 0,
+                    Class                => $Class,
+                    LayoutObject         => $LayoutObject,
+                    ParamObject          => $ParamObject,
+                    AJAXUpdate           => 1,
+                    UpdatableFields      => $Self->_GetFieldsToUpdate(),
+                );
+
+                push @ArticleTypeDynamicFields, {
+                    Name  => $DynamicFieldConfig->{Name},
+                    Label => $DynamicFieldHTML->{Label},
+                    Field => $DynamicFieldHTML->{Field},
+                };
+            }
         }
 
         # print form ...
@@ -1443,9 +1481,10 @@ sub Run {
                 ? 'Validate_Required'
                 : ''
             ),
+            TicketTypeDynamicFields  => \@TicketTypeDynamicFields,
+            ArticleTypeDynamicFields => \@ArticleTypeDynamicFields,
             %GetParam,
             %Ticket,
-            DynamicFieldHTML => \%DynamicFieldHTML,
         );
         $Output .= $LayoutObject->Footer(
             Type => 'Small',
@@ -1494,39 +1533,6 @@ sub _Mask {
         FieldFilter => $Config->{DynamicField} || {},
     );
 
-    my @TicketTypeDynamicFields;
-    my @ArticleTypeDynamicFields;
-
-    # Cycle through the activated Dynamic Fields for this screen.
-    DYNAMICFIELD:
-    for my $DynamicFieldConfig ( @{$DynamicField} ) {
-
-        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
-
-        # Skip fields that HTML could not be retrieved.
-        next DYNAMICFIELD if !IsHashRefWithData(
-            $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} }
-        );
-
-        # Get the html strings form $Param.
-        my $DynamicFieldHTML = $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} };
-
-        if ( $DynamicFieldConfig->{ObjectType} eq 'Ticket' ) {
-            push @TicketTypeDynamicFields, {
-                Name  => $DynamicFieldConfig->{Name},
-                Label => $DynamicFieldHTML->{Label},
-                Field => $DynamicFieldHTML->{Field},
-            };
-        }
-        elsif ( $DynamicFieldConfig->{ObjectType} eq 'Article' ) {
-            push @ArticleTypeDynamicFields, {
-                Name  => $DynamicFieldConfig->{Name},
-                Label => $DynamicFieldHTML->{Label},
-                Field => $DynamicFieldHTML->{Field},
-            };
-        }
-    }
-
     # Widget Ticket Actions
     if (
         ( $ConfigObject->Get('Ticket::Type') && $Config->{TicketType} )
@@ -1538,7 +1544,7 @@ sub _Mask {
         $Config->{Owner}    ||
         $Config->{State}    ||
         $Config->{Priority} ||
-        scalar @TicketTypeDynamicFields > 0
+        scalar @{ $Param{TicketTypeDynamicFields} } > 0
         )
     {
         $LayoutObject->Block(
@@ -1955,7 +1961,7 @@ sub _Mask {
     }
 
     # Get Ticket type dynamic fields.
-    for my $TicketTypeDynamicField (@TicketTypeDynamicFields) {
+    for my $TicketTypeDynamicField ( @{ $Param{TicketTypeDynamicFields} } ) {
         $LayoutObject->Block(
             Name => 'TicketTypeDynamicField',
             Data => $TicketTypeDynamicField,
@@ -2355,7 +2361,7 @@ sub _Mask {
         }
 
         # Get Article type dynamic fields.
-        for my $ArticleTypeDynamicField (@ArticleTypeDynamicFields) {
+        for my $ArticleTypeDynamicField ( @{ $Param{ArticleTypeDynamicFields} } ) {
             $LayoutObject->Block(
                 Name => 'ArticleTypeDynamicField',
                 Data => $ArticleTypeDynamicField,

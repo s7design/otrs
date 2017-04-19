@@ -142,26 +142,6 @@ Core.Agent.TicketAction = (function (TargetNS) {
             return false;
         });
 
-        // Set initial values to see whether validation is needed or not.
-        if ($('#WidgetArticle').hasClass('Expanded')) {
-            Core.Form.Validate.EnableValidation($('#WidgetArticle'));
-        }
-        else {
-            Core.Form.Validate.DisableValidation($('#WidgetArticle'));
-        }
-
-        // Click event to set validation of article widget.
-        $('#WidgetArticle .Toggle > a').on('click', function () {
-            if ($('#WidgetArticle').hasClass('Expanded')) {
-                Core.Form.Validate.EnableValidation($('#WidgetArticle'));
-                $('#WidgetArticleStatus').val('Expanded');
-            }
-            else {
-                Core.Form.Validate.DisableValidation($('#WidgetArticle'));
-                $('#WidgetArticleStatus').val('Collapsed');
-            }
-        });
-
         // check if spell check is being used
         if (parseInt(Core.Config.Get('SpellChecker'), 10) === 1 && parseInt(Core.Config.Get('NeedSpellCheck'), 10) === 1) {
 
@@ -231,7 +211,7 @@ Core.Agent.TicketAction = (function (TargetNS) {
             }
 
             if ($WidgetElement.hasClass('Expanded')) {
-                // if widget is being opened, add checbkox to create article
+                // if widget is being opened, add checkbox to create article
                 $('#CreateArticle').prop('checked', true);
             }
         });
