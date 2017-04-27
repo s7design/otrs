@@ -1241,6 +1241,12 @@ Core.Agent.Admin.ProcessManagement = (function (TargetNS) {
                 $('#Display').find('option[value=0]').remove();
             }
 
+            // Check if field is DynamicField 'TextArea' type. Change default value input field to text area field.
+            // See bug#12499 ( https://bugs.otrs.org/show_bug.cgi?id=12499 ).
+            if (parseInt(Core.Config.Get(Fieldname + '_TextArea'), 10) === 1) {
+                $("#DefaultValue").replaceWith($('<textarea type="text" name="DefaultValue" id="DefaultValue" value="" class="W50pc" ></textarea>'));
+            }
+
             // if there is a field config already the default settings from above are now overwritten
             if (typeof FieldConfig !== 'undefined') {
                 $('#DescShort').val(FieldConfig.DescriptionShort);

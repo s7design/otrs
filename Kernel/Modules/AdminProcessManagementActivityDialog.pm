@@ -676,21 +676,28 @@ sub _ShowEdit {
         $AvailableFieldsList->{Responsible} = 'ResponsibleID';
     }
 
-    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldList(
+    my $DynamicFieldListGet = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
         ObjectType => ['Ticket'],
-        ResultType => 'HASH',
     );
 
     DYNAMICFIELD:
-    for my $DynamicFieldName ( values %{$DynamicFieldList} ) {
+    for my $DynamicField ( @{$DynamicFieldListGet} ) {
 
-        next DYNAMICFIELD if !$DynamicFieldName;
+        next DYNAMICFIELD if !$DynamicField->{Name};
 
         # do not show internal fields for process management
-        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementProcessID';
-        next DYNAMICFIELD if $DynamicFieldName eq 'ProcessManagementActivityID';
+        next DYNAMICFIELD if $DynamicField->{Name} eq 'ProcessManagementProcessID';
+        next DYNAMICFIELD if $DynamicField->{Name} eq 'ProcessManagementActivityID';
 
-        $AvailableFieldsList->{"DynamicField_$DynamicFieldName"} = $DynamicFieldName;
+        $AvailableFieldsList->{"DynamicField_$DynamicField->{Name}"} = $DynamicField->{Name};
+
+        # If field is TextArea type, send data to JS.
+        if ( $DynamicField->{FieldType} eq 'TextArea' ) {
+            $LayoutObject->AddJSData(
+                Key   => 'DynamicField_' . $DynamicField->{Name} . '_TextArea',
+                Value => 1
+            );
+        }
     }
 
     # localize available fields
