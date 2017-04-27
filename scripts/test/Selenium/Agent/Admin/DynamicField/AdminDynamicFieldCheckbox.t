@@ -12,20 +12,20 @@ use utf8;
 
 use vars (qw($Self));
 
-# get selenium object
+# Get selenium object.
 my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 $Selenium->RunTest(
     sub {
 
-        # get helper object
+        # Get helper object.
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         my %DynamicFieldsOverviewPageShownSysConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->SettingGet(
             Name => 'PreferencesGroups###DynamicFieldsOverviewPageShown',
         );
 
-        # show more dynamic fields per page as the default value
+        # Show more dynamic fields per page as the default value.
         $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'PreferencesGroups###DynamicFieldsOverviewPageShown',
@@ -35,7 +35,7 @@ $Selenium->RunTest(
             },
         );
 
-        # create test user and login
+        # Create test user and login.
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
         ) || die "Did not get test user";
@@ -46,13 +46,13 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # get script alias
+        # Get script alias.
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
-        # navigate to AdminDynamicField screen
+        # Navigate to AdminDynamicField screen.
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminDynamicField");
 
-        # create and edit Ticket and Article DynamicFieldCheckbox
+        # Create and edit Ticket and Article DynamicFieldCheckbox.
         for my $Type (qw(Ticket Article)) {
 
             my $ObjectType = $Type . "DynamicField";
@@ -60,7 +60,7 @@ $Selenium->RunTest(
                 "\$('#$ObjectType').val('Checkbox').trigger('redraw.InputField').trigger('change');"
             );
 
-            # wait until page has finished loading
+            # Wait until page has finished loading.
             $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("#Name").length' );
 
             for my $ID (
@@ -72,7 +72,7 @@ $Selenium->RunTest(
                 $Element->is_displayed();
             }
 
-            # check client side validation
+            # Check client side validation.
             my $Element2 = $Selenium->find_element( "#Name", 'css' );
             $Element2->send_keys("");
             $Element2->VerifiedSubmit();
@@ -85,26 +85,26 @@ $Selenium->RunTest(
                 'Client side validation correctly detected missing input value',
             );
 
-            # create real text DynamicFieldCheckbox
+            # Create real text DynamicFieldCheckbox.
             my $RandomID = $Helper->GetRandomID();
 
             $Selenium->find_element( "#Name",  'css' )->send_keys($RandomID);
             $Selenium->find_element( "#Label", 'css' )->send_keys($RandomID);
             $Selenium->find_element( "#Name",  'css' )->VerifiedSubmit();
 
-            # check for test DynamicFieldCheckbox on AdminDynamicField screen
+            # Check for test DynamicFieldCheckbox on AdminDynamicField screen.
             $Self->True(
                 index( $Selenium->get_page_source(), $RandomID ) > -1,
                 "DynamicFieldCheckbox $RandomID found on table"
             ) || die;
 
-            # edit test DynamicFieldCheckbox default value and set it to invalid
+            # Edit test DynamicFieldCheckbox default value and set it to invalid.
             $Selenium->find_element( $RandomID, 'link_text' )->VerifiedClick();
 
             $Selenium->execute_script("\$('#DefaultValue').val('1').trigger('redraw.InputField').trigger('change');");
             $Selenium->execute_script("\$('#ValidID').val('2').trigger('redraw.InputField').trigger('change');");
 
-            # edit name to trigger JS and verify warning is visible
+            # Edit name to trigger JS and verify warning is visible.
             my $EditName = $RandomID . 'edit';
             $Selenium->find_element( "#Name", 'css' )->clear();
             $Selenium->find_element( "#Name", 'css' )->send_keys($EditName);
@@ -115,10 +115,10 @@ $Selenium->RunTest(
                 "Warning text is shown - JS is successful",
             );
 
-            # submit form
+            # Submit form.
             $Selenium->find_element( "#Name", 'css' )->VerifiedSubmit();
 
-            # check new and edited DynamicFieldCheckbox values
+            # Check new and edited DynamicFieldCheckbox values.
             $Selenium->find_element( $EditName, 'link_text' )->VerifiedClick();
 
             $Self->Is(
@@ -147,10 +147,7 @@ $Selenium->RunTest(
                 "#DefaultValue updated value",
             );
 
-            # go back to AdminDynamicField screen
-            $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminDynamicField");
-
-            # delete DynamicFields
+            # Delete DynamicField.
             my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
             my $DynamicField       = $DynamicFieldObject->DynamicFieldGet(
                 Name => $EditName,
@@ -160,15 +157,18 @@ $Selenium->RunTest(
                 UserID => 1,
             );
 
-            # sanity check
+            # Sanity check.
             $Self->True(
                 $Success,
                 "DynamicFieldDelete() - $RandomID"
             );
 
+            # Go back to AdminDynamicField screen.
+            $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminDynamicField");
+
         }
 
-        # delete cache
+        # Make sure cache is correct.
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp( Type => "DynamicField" );
 
     }
