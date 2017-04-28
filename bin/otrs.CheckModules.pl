@@ -362,6 +362,26 @@ my @NeededModules = (
                     zypper => 'perl-IO-Socket-SSL',
                 },
             },
+            {
+                Module    => 'Authen::SASL',
+                Required  => 0,
+                Comment   => 'Required for IMAP TLS connections.',
+                InstTypes => {
+                    aptget => 'libauthen-sasl-perl',
+                    emerge => 'dev-perl/Authen-SASL',
+                    zypper => 'perl-Authen-SASL',
+                },
+            },
+            {
+                Module    => 'Digest::MD5',
+                Required  => 0,
+                Comment   => 'Required for IMAP TLS connections.',
+                InstTypes => {
+                    aptget => 'libdigest-md5-perl',
+                    emerge => 'dev-perl/Digest-Perl-MD5',
+                    zypper => 'perl-Digest-MD5',
+                },
+            },
         ],
     },
     {
