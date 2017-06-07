@@ -123,6 +123,18 @@ $Selenium->RunTest(
         # navigate to AgentTicketQueue screen
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketQueue");
 
+        # find Oldest class
+        $Self->True(
+            $Selenium->find_element( '.Oldest', 'css' ),
+            "No tickets found with Oldest class",
+        );
+
+        # find OlderLevel2 class
+        $Self->True(
+            $Selenium->find_element( '.OlderLevel2', 'css' ),
+            "No tickets found with OlderLevel2 class",
+        );
+
         # verify that there is no tickets with My Queue filter
         $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketQueue;QueueID=0;\' )]")->VerifiedClick();
 

@@ -1,4 +1,5 @@
 #6.0.0.beta1 2017-??-??
+ - 2017-06-07 Fixed bug#[12869](http://bugs.otrs.org/show_bug.cgi?id=12869) - Queue highlighting seems buggy.
  - 2017-06-01 Improved otrs.CheckModules.pl for FreeBSD, thanks to Felix J. Ogris.
  - 2017-05-30 Fixed bug#[12837](https://bugs.otrs.org/show_bug.cgi?id=12837) - Existing Dynamic Field's RegEx config cannot be removed.
  - 2017-05-29 Added a high-contrast skin for visually impaired users to ease usability.
